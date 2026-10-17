@@ -35,6 +35,8 @@
     .action[data-state=success]{background:#3e2933;border-color:#ff8393}
     .action svg{width:17px;height:18px;flex:none;fill:#e63d4d;direction:ltr}
     .action span{overflow:hidden;text-overflow:ellipsis}
+    :host([data-compact=true]) .action{width:36px;min-width:36px;justify-content:center;gap:0;padding:6px 8px}
+    :host([data-compact=true]) .action span{display:none}
     .status{display:none;position:absolute;right:0;bottom:calc(100% + 6px);width:min(250px,calc(100vw - 16px));padding:8px 10px;border:1px solid #94828d;border-radius:8px;
       background:#282b32;color:#f6f2f4;font:400 12px/18px system-ui,sans-serif;overflow-wrap:anywhere}
     .status:not(:empty){display:block}
@@ -47,6 +49,7 @@
   button.type = "button";
   button.className = "action";
   button.dir = arabic ? "rtl" : "ltr";
+  button.setAttribute("aria-label", text.open);
   button.setAttribute("aria-description", text.action);
   button.title = text.action;
   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -126,24 +129,51 @@
     if (!video || !rect || !video.isConnected || fullscreen?.tagName === "VIDEO" || fullscreen && !fullscreen.contains(video)) {
       host.style.setProperty("display", "none", "important"); return;
     }
-    const dialog = Array.from(document.querySelectorAll('dialog[open],[role="dialog"]')).find(d => {
-      const r = d.getBoundingClientRect(); return r.width > 0 && r.height > 0;
+    const dialog = Array.from(document.querySelectorAll('dialog:modal,[role="dialog"][aria-modal="true"]')).find(d => {
+      const r = d.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && !d.closest('[inert],[aria-hidden="true"]') &&
+        d.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true });
     });
     if (dialog && !dialog.contains(video)) { host.style.setProperty("display", "none", "important"); return; }
-    if (currentVideo !== video && !busy) { label.textContent = text.open; status.textContent = ""; delete button.dataset.state; }
+    if (currentVideo !== video && !busy) { label.textContent = text.open; status.textContent = ""; button.title = text.action; delete button.dataset.state; }
     currentVideo = video;
     const parent = fullscreen || document.documentElement;
     if (host.parentElement !== parent) parent.append(host);
     const width = Math.min(190, innerWidth - 16);
     const locations = [{ placement: "above", left: Math.max(8, Math.min(rect.right, innerWidth - 8) - width), top: rect.top - 40, width }];
+    for (const offset of [width / 2, width * 3 / 4]) {
+      const left = locations[0].left - offset;
+      if (left >= Math.max(8, rect.left)) locations.push({ placement: "above", left, top: rect.top - 40, width });
+    }
+    // A wide search box can occupy the first position even though there is clear
+    // header space just beyond the player's right edge. Keep these fallbacks
+    // above the picture, without moving the website or covering its controls.
+    for (const left of [rect.right + 8, rect.right + width / 2 + 8])
+      if (left + width <= innerWidth - 8) locations.push({ placement: "above", left, top: rect.top - 40, width });
     const sideWidth = Math.min(190, innerWidth - rect.right - 16);
     if (sideWidth >= 160) locations.push({ placement: "side", left: rect.right + 8, top: Math.max(8, rect.top), width: sideWidth });
+    // Logged-in headers can leave only a small gap between search and account
+    // controls. Try the same outside area with the brand icon before hiding it.
+    const compactWidth = 36, compactLeft = Math.min(rect.right, innerWidth - 8) - compactWidth;
+    for (const offset of [0, 44, 88, 132, -44, -88, -132]) {
+      const left = compactLeft + offset;
+      if (left >= Math.max(8, rect.left) && left + compactWidth <= innerWidth - 8)
+        locations.push({ placement: "above", compact: true, left, top: rect.top - 40, width: compactWidth });
+    }
+    if (sideWidth >= compactWidth) locations.push({ placement: "side", compact: true, left: rect.right + 8, top: Math.max(8, rect.top), width: compactWidth });
+    // Collapsed captions and sidebar headings can fill the first row. Keep the
+    // existing corner choices first, then search nearby space outside the frame.
+    for (const offset of [40, 80, 120]) {
+      if (sideWidth >= 160) locations.push({ placement: "side", left: rect.right + 8, top: Math.max(8, rect.top) + offset, width: sideWidth });
+      if (sideWidth >= compactWidth) locations.push({ placement: "side", compact: true, left: rect.right + 8, top: Math.max(8, rect.top) + offset, width: compactWidth });
+    }
     let placed = false;
     // Prefer above the top-right corner, then the clear space immediately to its
     // right. Both positions keep the whole tab outside the picture.
     for (const location of locations) {
       if (location.top < 8 || location.top + 34 > innerHeight - 4) continue;
       host.dataset.placement = location.placement;
+      host.dataset.compact = location.compact ? "true" : "false";
       host.style.setProperty("left", location.left + "px", "important");
       host.style.setProperty("top", location.top + "px", "important");
       host.style.setProperty("max-width", location.width + "px", "important");
@@ -151,9 +181,9 @@
       host.style.setProperty("visibility", "hidden", "important");
       host.style.setProperty("display", "block", "important");
       const buttonRect = button.getBoundingClientRect();
-      const cover = document.elementFromPoint((buttonRect.left + buttonRect.right) / 2, buttonRect.top + 17);
-      const chrome = cover?.closest?.('header,nav,[role="banner"],[role="navigation"]');
-      if (chrome && !chrome.contains(video) || occupied(buttonRect)) continue;
+      // Empty header background is usable; actual text and interactive controls
+      // still win the collision check, regardless of their container's role.
+      if (occupied(buttonRect)) continue;
       placed = true; break;
     }
     if (!placed) { host.style.setProperty("display", "none", "important"); return; }
@@ -178,6 +208,7 @@
     busy = true; pendingVideo = currentVideo;
     button.disabled = true; button.setAttribute("aria-busy", "true");
     clearTimeout(feedbackTimer); status.textContent = ""; label.textContent = text.finding;
+    delete button.dataset.state; button.title = text.action;
     try {
       const source = pendingVideo.currentSrc || pendingVideo.src;
       const found = await globalThis.ViFreeVideoDetection.inspectVideoPage(source, true, pendingVideo);
@@ -185,17 +216,22 @@
       let copied = false;
       try { await navigator.clipboard.writeText(found.url); copied = true; } catch { /* Opening the app remains useful when clipboard access is unavailable. */ }
       label.textContent = text.opening;
-      const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url });
+      const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage });
       if (!response?.ok) throw new Error(response?.code === "busy" ? text.busy : text.failed);
+      if (response.url && response.url !== found.url) {
+        try { await navigator.clipboard.writeText(response.url); copied = true; } catch { copied = false; }
+      }
       label.textContent = text.opened; button.dataset.state = "success";
       status.textContent = copied ? text.copied : text.clipboard;
     } catch (error) {
       label.textContent = text.retry;
+      button.dataset.state = "error";
       status.textContent = error.message === text.missing ? text.missing : error.message === text.busy ? text.busy : text.failed;
       button.title = status.textContent;
     } finally {
       busy = false; pendingVideo = null; button.disabled = false; button.removeAttribute("aria-busy");
-      feedbackTimer = setTimeout(() => { status.textContent = ""; label.textContent = text.open; button.title = text.action; delete button.dataset.state; schedule(); }, 4500);
+      if (button.dataset.state === "success")
+        feedbackTimer = setTimeout(() => { status.textContent = ""; label.textContent = text.open; button.title = text.action; delete button.dataset.state; schedule(); }, 4500);
       schedule();
     }
   });
@@ -203,7 +239,7 @@
     if (records.some(record => record.target !== host && !host.contains(record.target))) schedule();
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
-  for (const event of ["play", "pause", "ended", "loadedmetadata", "emptied", "fullscreenchange", "visibilitychange"])
+  for (const event of ["play", "playing", "loadeddata", "canplay", "pause", "ended", "loadedmetadata", "emptied", "fullscreenchange", "visibilitychange"])
     document.addEventListener(event, schedule, true);
   addEventListener("scroll", schedule, { passive: true, capture: true });
   addEventListener("resize", schedule, { passive: true });

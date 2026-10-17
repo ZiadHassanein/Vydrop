@@ -14,16 +14,32 @@ const payload = Buffer.from(JSON.stringify({ version: 1, type: 'open-link', url:
 const size = Buffer.alloc(4); size.writeUInt32LE(payload.length);
 const child = spawn(exe, [`chrome-extension://${id}/`], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
 let output = Buffer.alloc(0);
-const timeout = setTimeout(() => { child.kill(); console.error('Native-host smoke test timed out.'); process.exitCode = 1; }, 17000);
-child.on('error', error => { clearTimeout(timeout); console.error(error.message); process.exitCode = 1; });
-child.stdout.on('data', chunk => { output = Buffer.concat([output, chunk]); if (output.length > 65536) child.kill(); });
-child.on('close', code => {
+let finished = false;
+const timeout = setTimeout(() => { child.kill(); finish(new Error('Native-host smoke test timed out.')); }, 17000);
+function finish(error) {
+  if (finished) return;
+  finished = true;
   clearTimeout(timeout);
   try {
-    if (code !== 0 || output.length < 4 || output.readUInt32LE(0) !== output.length - 4) throw new Error('Invalid native-host response.');
+    if (error) throw error;
+    if (output.length < 4 || output.readUInt32LE(0) !== output.length - 4) throw new Error('Invalid native-host response.');
     const response = JSON.parse(output.subarray(4).toString('utf8'));
     if (!response.ok) throw new Error(response.message);
     console.log(JSON.stringify({ check: 'native-host CLI smoke; installed extension not exercised', url: url.href, response }));
   } catch (error) { console.error(error.message); process.exitCode = 1; }
+  // A launched desktop app can inherit these handles. The framed response, not
+  // closure of every inherited pipe, is the native-messaging completion signal.
+  child.stdout.destroy(); child.stderr.destroy(); child.unref();
+}
+child.on('error', finish);
+child.stderr.resume();
+child.stdout.on('data', chunk => {
+  output = Buffer.concat([output, chunk]);
+  if (output.length >= 4) {
+    const size = output.readUInt32LE(0);
+    if (!size || size > 65536 || output.length > size + 4) { child.kill(); finish(new Error('Invalid native-host response.')); }
+    else if (output.length === size + 4) finish();
+  }
 });
+child.on('close', code => { if (!finished) finish(new Error(code ? 'Native host exited unsuccessfully.' : 'Incomplete native-host response.')); });
 child.stdin.end(Buffer.concat([size, payload]));

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace YouTubeDownloader;
 public static class Arguments
@@ -87,7 +88,19 @@ public static class Arguments
 
         if (playlist)
             args.AddRange(PlaylistPacing);
-        string filename = "%(title).100B [%(id)s]" + (options.Audio ? " - " + (OutputProfiles.IsLossless(options.AudioEncoding) ? OutputProfiles.AudioExtension(options.AudioEncoding) : options.AudioBitrate == 0 ? "best" : options.AudioBitrate + "kbps") : " - " + (options.Height > 0 ? (playlist ? "max" : "") + options.Height + "p" : "best")) + ".%(ext)s";
+        string sourceId = "%(id)s";
+        var mediaUri = new Uri(url);
+        var asset = Regex.Match(mediaUri.AbsolutePath, @"^/playlist/vid/v2/([A-Za-z0-9_-]+)/mp4-");
+        if (mediaUri.Host.EndsWith(".licdn.com", StringComparison.OrdinalIgnoreCase) && asset.Success)
+            sourceId = asset.Groups[1].Value; // Generic extraction can otherwise put the signed URL query in the filename.
+        string profile = options.Audio
+            ? OutputProfiles.IsLossless(options.AudioEncoding) ? OutputProfiles.AudioExtension(options.AudioEncoding) :
+                (options.AudioBitrate == 0 ? "best" : options.AudioBitrate + "kbps") + "-" + OutputProfiles.AudioExtension(options.AudioEncoding)
+            : (options.Height > 0 ? (playlist ? "max" : "") + options.Height + "p" : "best") +
+                (options.VideoContainer == VideoContainer.Mp4 ? "" : "-" + options.VideoContainer.ToString().ToLowerInvariant());
+        // Postprocessing may delete its input. A distinct target-profile stem
+        // prevents it from reusing a user's already completed MP4 as that input.
+        string filename = "%(title).100B [" + sourceId + "] - " + profile + ".%(ext)s";
         args.AddRange(new[] { "--no-simulate", "--continue", "--part", "--newline", "--progress", "--progress-delta", "0.3", "--windows-filenames", "--no-overwrites", "--trim-filenames", "180", "--paths", folder, "--output", filename, "--progress-template", "download:YTDL_PROGRESS:%(progress)j", "--progress-template", "postprocess:YTDL_POST:%(progress)j", "--print", "before_dl:YTDL_TITLE:%(title)j", "--print", "after_move:YTDL_FILE:%(filepath)j" });
         if (options.Audio)
         {

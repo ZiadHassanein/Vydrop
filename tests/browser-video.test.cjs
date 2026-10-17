@@ -12,6 +12,7 @@ class Element {
     this.tag = tag; this.attrs = attrs; this.id = attrs.id ?? ''; this.children = children;
     this.paused = attrs.paused ?? false; this.ended = false; this.readyState = 4;
     this.src = attrs.src ?? 'blob:synthetic'; this.currentSrc = this.src;
+    this.poster = attrs.poster ?? ''; this.mediaKeys = attrs.mediaKeys ?? null; this.textContent = attrs.textContent ?? '';
     this.style = { display: 'block', visibility: 'visible', opacity: '1', ...attrs.style };
     this.box = { left: 100, top: 100, width: 600, height: 400, ...attrs.box };
     for (const child of children) child.parentElement = this;
@@ -22,7 +23,7 @@ class Element {
   getBoundingClientRect() { return { ...this.box, right: this.box.left + this.box.width, bottom: this.box.top + this.box.height }; }
   contains(node) { return this === node || this.children.some(child => child.contains(node)); }
   matches(selector) {
-    return selector.split(',').some(value => value === this.tag || value === 'a[href]' && this.tag === 'a' && !!this.href ||
+    return selector.split(',').some(value => value === this.tag || value.startsWith('.') && (this.attrs.class ?? '').split(/\s+/u).includes(value.slice(1)) || value === 'a[href]' && this.tag === 'a' && !!this.href ||
       /^\[([^=]+)="([^"]+)"\]$/u.test(value) && this.getAttribute(RegExp.$1) === RegExp.$2 ||
       /^\[([^=]+)\^="([^"]+)"\]$/u.test(value) && this.getAttribute(RegExp.$1)?.startsWith(RegExp.$2));
   }
@@ -111,7 +112,7 @@ for (const url of ['https://www.tiktok.com/@author/video/7000000000000000001', '
   assert.equal(fixture(url).detect().url, url);
 });
 
-test('scripting runs only on explicit Facebook/TikTok requests and returns the main-frame result', async () => {
+test('scripting runs only on explicit social-feed requests and returns the main-frame result', async () => {
   const { context } = fixture('https://www.tiktok.com/en/');
   let count = 0;
   context.ViFreeConnection = { api: { scripting: { executeScript: async request => { count++; assert.equal(request.target.tabId, 42); assert.equal(request.func.name, 'inspectVideoPage'); return [{ frameId: 7, result: { url: 'https://example.com/wrong' } }, { frameId: 0, result: { url: 'https://www.tiktok.com/@author/video/7000000000000000001' } }]; } } } };
@@ -196,4 +197,149 @@ test('multiple blob-backed generic players cannot cause homepage forwarding', ()
 test('non-web pages and credential-bearing sources are never returned', () => {
   assert.equal(fixture('file:///C:/private.html', el('video')).detect().url, '');
   assert.equal(fixture('https://example.com/film', el('video', { src: 'https://user:secret@example.com/private.mp4' })).detect().url, 'https://example.com/film');
+});
+
+const linkedInActivity = 'https://www.linkedin.com/feed/update/urn:li:activity:7517227738701901824/';
+const linkedInGroup = 'https://www.linkedin.com/feed/update/urn:li:groupPost:2066905-7517226468083638272/?highlightedUpdateUrn=urn%3Ali%3Aactivity%3A7517227738701901824&origin=SOCIAL_SHARE';
+const linkedInGroupFeed = 'https://www.linkedin.com/groups/2066905/?q=highlightedFeedForGroups&highlightedUpdateUrn=urn%3Ali%3Aactivity%3A7517227738701901824';
+const linkedInPost = 'https://www.linkedin.com/posts/the-mathworks_2_what-is-mathworks-cloud-center-activity-7151241570371948544-4Gu7';
+test('LinkedIn resolves the selected feed post from its public activity attribute', () => {
+  const first = el('div', { 'data-urn': 'urn:li:activity:7151241570371948544' }, el('video', { paused: true }));
+  const active = el('div', { 'data-urn': 'urn:li:activity:7517227738701901824' }, el('video'));
+  assert.equal(fixture('https://www.linkedin.com/feed/', first, active).detect().url, linkedInActivity);
+});
+for (const url of [linkedInActivity, linkedInGroup, linkedInGroupFeed, linkedInPost]) test(`LinkedIn public permalink is recognized: ${url}`, () => {
+  const expected = url === linkedInGroup || url === linkedInGroupFeed ? linkedInActivity : url;
+  assert.equal(fixture(url).detect().url, expected);
+  assert.equal(fixture('https://www.linkedin.com/feed/', el('article', {}, el('video'), link(url + (url.includes('?') ? '&' : '?') + 'tracking=discard'))).detect().url, expected);
+});
+test('LinkedIn never substitutes a feed, private message or invented group activity for a video', () => {
+  for (const url of ['https://www.linkedin.com/feed/', 'https://www.linkedin.com/messaging/', linkedInGroup.split('?')[0], linkedInGroupFeed.split('?')[0], linkedInGroupFeed + '&highlightedUpdateUrn=urn%3Ali%3Aactivity%3A7151241570371948544', linkedInGroupFeed.replace('urn%3Ali%3Aactivity%3A7517227738701901824', 'urn%3Ali%3AugcPost%3A7517227738701901824'), linkedInGroup.replace('urn%3Ali%3Aactivity%3A7517227738701901824', 'https%3A%2F%2Fevil.example%2Fvideo')])
+    assert.equal(fixture(url, el('video')).detect().url, '');
+});
+test('LinkedIn post boundaries prevent borrowing a neighboring activity link', () => {
+  for (const attrs of [{ 'data-urn': 'urn:li:ugcPost:7517226468083638272' }, { class: 'feed-shared-update-v2' }, { role: 'listitem' }]) {
+    const own = el('div', attrs, el('video'));
+    assert.equal(fixture('https://www.linkedin.com/feed/', el('section', {}, own, link(linkedInActivity))).detect().url, '');
+  }
+});
+test('LinkedIn SDUI group feed uses the highlighted activity from its own card', () => {
+  const own = el('div', { role: 'listitem' }, el('div', {}, nest(el('video'), 4), link(linkedInGroupFeed), link(linkedInGroupFeed)));
+  const next = el('div', { role: 'listitem' }, link(linkedInPost));
+  assert.equal(fixture('https://www.linkedin.com/feed/', el('div', { role: 'list' }, own, next)).detect().url, linkedInActivity);
+});
+test('LinkedIn activity data-id is read even when data-urn describes a different entity', () => {
+  const own = el('div', { 'data-urn': 'urn:li:ugcPost:7517226468083638272', 'data-id': 'urn:li:activity:7517227738701901824' }, el('video'));
+  assert.equal(fixture('https://www.linkedin.com/feed/', own).detect().url, linkedInActivity);
+});
+test('LinkedIn does not use a TikTok author to reinterpret a numeric video ID', () => {
+  assert.equal(fixture('https://www.linkedin.com/feed/', el('article', { 'data-video-id': '7517227738701901824' }, el('video'), link('https://www.tiktok.com/@wrong'))).detect().url, '');
+});
+test('LinkedIn popup inspects the current player rather than forwarding the feed', async () => {
+  const { context } = fixture('https://www.linkedin.com/feed/');
+  let count = 0;
+  context.ViFreeConnection = { api: { scripting: { executeScript: async request => {
+    count++; assert.equal(request.target.tabId, 42);
+    return [{ frameId: 0, result: { url: linkedInActivity, reason: 'player' } }];
+  } } } };
+  assert.equal(await context.ViFreeVideoDetection.resolve({ id: 42, url: 'https://www.linkedin.com/feed/' }), linkedInActivity);
+  assert.equal(count, 1);
+  context.ViFreeConnection.api.scripting.executeScript = async () => [{ frameId: 0, result: { url: '', reason: 'missing-link' } }];
+  await assert.rejects(context.ViFreeVideoDetection.resolve({ id: 42, url: 'https://www.linkedin.com/feed/' }), /Copy link/u);
+});
+
+const linkedInAsset = 'D4D05AQHSyntheticVideo';
+const linkedInMedia = `https://dms.licdn.com/playlist/vid/v2/${linkedInAsset}/mp4-720p/sample/0/video?e=9999999999&v=beta&t=synthetic`;
+const linkedInPoster = `https://media.licdn.com/dms/image/v2/${linkedInAsset}/videocover-high/sample/0/poster`;
+function linkedInMetadata(asset = linkedInAsset, url = linkedInMedia, extra = {}) {
+  return el('code', { textContent: JSON.stringify({ included: [{ $type: 'com.linkedin.videocontent.VideoPlayMetadata', entityUrn: `urn:li:digitalmediaAsset:${asset}`, progressiveStreams: [{ mediaType: 'video/mp4', width: 478, height: 850, bitRate: 716048, streamingLocations: [{ url }] }], ...extra }] }) });
+}
+test('LinkedIn blob player uses only progressive media matched to its exact poster asset', () => {
+  const own = el('div', { role: 'listitem' }, el('video', { poster: linkedInPoster }), link(linkedInGroupFeed));
+  const found = fixture('https://www.linkedin.com/feed/', own, linkedInMetadata()).detect();
+  assert.equal(found.url, linkedInMedia); assert.equal(found.reason, 'source');
+});
+test('LinkedIn chooses the highest reported progressive source without using a path quality label', () => {
+  const low = linkedInMedia.replace('mp4-720p', 'mp4-1080p');
+  const data = JSON.parse(linkedInMetadata().textContent);
+  data.included[0].progressiveStreams.push({ mediaType: 'video/mp4', width: 360, height: 640, bitRate: 300000, streamingLocations: [{ url: low }] });
+  assert.equal(fixture('https://www.linkedin.com/feed/', el('video', { poster: linkedInPoster }), el('code', { textContent: JSON.stringify(data) })).detect().url, linkedInMedia);
+});
+test('LinkedIn direct player sources remain usable without JSON hydration data', () => {
+  assert.equal(fixture('https://www.linkedin.com/feed/', el('video', { src: linkedInMedia })).detect().url, linkedInMedia);
+});
+test('LinkedIn cannot borrow progressive media from another poster or a protected player', () => {
+  for (const attrs of [{ poster: linkedInPoster.replace(linkedInAsset, 'OtherAsset') }, { poster: linkedInPoster, mediaKeys: {} }, {}])
+    assert.equal(fixture('https://www.linkedin.com/feed/', el('article', {}, el('video', attrs), link(linkedInActivity)), linkedInMetadata()).detect().url, linkedInActivity);
+});
+test('LinkedIn media rejects untrusted URLs, adaptive-only and encrypted metadata', () => {
+  for (const url of [linkedInMedia.replace('dms.licdn.com', 'dms.licdn.com.evil.example'), linkedInMedia.replace('https:', 'http:'), linkedInMedia.replace('dms.licdn.com', 'user:secret@dms.licdn.com'), linkedInMedia.replace('dms.licdn.com', 'dms.licdn.com:8443'), linkedInMedia.replace(linkedInAsset, 'WrongAsset'), linkedInMedia.replace('mp4-720p', 'dash')])
+    assert.equal(fixture('https://www.linkedin.com/feed/', el('video', { poster: linkedInPoster }), linkedInMetadata(linkedInAsset, url)).detect().url, '');
+  for (const extra of [{ hasDrm: true }, { isEncrypted: true }, { progressiveStreams: [] }])
+    assert.equal(fixture('https://www.linkedin.com/feed/', el('video', { poster: linkedInPoster }), linkedInMetadata(linkedInAsset, linkedInMedia, extra)).detect().url, '');
+});
+test('LinkedIn malformed or oversized hydration JSON does not break permalink detection', () => {
+  for (const textContent of [`${linkedInAsset} progressiveStreams { invalid`, linkedInAsset + 'progressiveStreams' + ' '.repeat(2 * 1024 * 1024)])
+    assert.equal(fixture('https://www.linkedin.com/feed/', el('article', {}, el('video', { poster: linkedInPoster }), link(linkedInActivity)), el('code', { textContent })).detect().url, linkedInActivity);
+});
+test('LinkedIn popup accepts matched CDN sources and rejects substituted websites', async () => {
+  const { context } = fixture('https://www.linkedin.com/feed/');
+  for (const url of [linkedInMedia, 'https://evil.example/video.mp4']) {
+    context.ViFreeConnection = { api: { scripting: { executeScript: async () => [{ frameId: 0, result: { url, reason: 'source' } }] } } };
+    if (url === linkedInMedia) assert.equal(await context.ViFreeVideoDetection.resolve({ id: 42, url: 'https://www.linkedin.com/feed/' }), linkedInMedia);
+    else await assert.rejects(context.ViFreeVideoDetection.resolve({ id: 42, url: 'https://www.linkedin.com/feed/' }), /Copy link/u);
+  }
+});
+test('LinkedIn SDUI poster images retain the selected asset and its own group page', () => {
+  const player = el('div', {}, el('video'), el('div', { class: 'vjs-poster' }, el('img', { src: linkedInPoster })));
+  const own = el('div', { role: 'listitem' }, player, link('http://['), link(linkedInGroupFeed));
+  const found = fixture('https://www.linkedin.com/feed/', own).detect();
+  assert.equal(found.linkedinAsset, linkedInAsset);
+  assert.equal(found.sourcePage, linkedInGroupFeed);
+  assert.equal(found.url, linkedInActivity);
+});
+test('LinkedIn background lookup reads only the requested asset without requiring playback', () => {
+  const { context } = fixture(linkedInGroupFeed, linkedInMetadata());
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, null, linkedInAsset).url, linkedInMedia);
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, null, 'OtherAsset').url, '');
+});
+test('protected LinkedIn players cannot request a background media lookup', () => {
+  const found = fixture('https://www.linkedin.com/feed/', el('article', {}, el('video', { poster: linkedInPoster, mediaKeys: {} }), link(linkedInGroupFeed))).detect();
+  assert.equal(found.linkedinAsset, undefined);
+});
+test('LinkedIn source lookup opens and closes only its own temporary post tab', async () => {
+  const { context } = fixture('https://www.linkedin.com/feed/');
+  const calls = [];
+  context.ViFreeConnection = { api: { tabs: {
+    create: async options => { calls.push(['create', options.url, options.active]); return { id: 99 }; },
+    sendMessage: async (id, message, target) => { calls.push(['inspect', id, message.asset, target.frameId]); return { url: linkedInMedia, pageUrl: linkedInGroupFeed }; },
+    remove: async id => { calls.push(['close', id]); }
+  } } };
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: linkedInActivity, sourcePage: linkedInGroupFeed, linkedinAsset: linkedInAsset }), linkedInMedia);
+  assert.deepEqual(calls, [['create', linkedInGroupFeed, false], ['inspect', 99, linkedInAsset, 0], ['inspect', 99, linkedInAsset, 0], ['close', 99]]);
+  calls.length = 0;
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: linkedInActivity, sourcePage: 'https://evil.example/', linkedinAsset: linkedInAsset }), linkedInActivity);
+  assert.equal(calls.length, 0);
+});
+test('LinkedIn temporary lookup rejects mismatched media and preserves the public post fallback', async () => {
+  const { context } = fixture('https://www.linkedin.com/feed/');
+  let removed = false, now = 0;
+  context.Date = { now: () => now };
+  context.ViFreeConnection = { api: { tabs: {
+    create: async () => ({ id: 99 }),
+    sendMessage: async () => { now += 20000; return { url: linkedInMedia.replace(linkedInAsset, 'OtherAsset'), pageUrl: linkedInGroupFeed }; },
+    remove: async id => { assert.equal(id, 99); removed = true; }
+  } } };
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: linkedInActivity, sourcePage: linkedInGroupFeed, linkedinAsset: linkedInAsset }), linkedInActivity);
+  assert.equal(removed, true);
+});
+test('LinkedIn cleanup leaves a temporary tab alone if the user navigated it elsewhere', async () => {
+  const { context } = fixture('https://www.linkedin.com/feed/');
+  let removed = false;
+  context.ViFreeConnection = { api: { tabs: {
+    create: async () => ({ id: 99 }), sendMessage: async () => ({ url: linkedInMedia }),
+    get: async () => ({ url: 'https://www.linkedin.com/jobs/' }), remove: async () => { removed = true; }
+  } } };
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: linkedInActivity, sourcePage: linkedInGroupFeed, linkedinAsset: linkedInAsset }), linkedInMedia);
+  assert.equal(removed, false);
 });

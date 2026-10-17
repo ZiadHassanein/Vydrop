@@ -4,9 +4,18 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.2.3] - 2026-10-18
+
 ### Changed
-- Use the owner-approved Vydrop repository and Pages URLs. The canonical app-update endpoint is prepared in source; installed versions through 4.2.1 need manual app updates after the rename.
-- Use a compact download button with the release-download count directly underneath on GitHub and the documentation site.
+- Coordinate the Download button with the app's crimson palette and white lettering in both themes.
+- Play a smooth two-second shine across the logo and Download button on hover or click.
+- Show video/playlist checking inside the Download button with a subtle scanning video icon and an available Cancel action.
+- Animate the completion check only after a successful download; respect reduced motion and hidden views.
+- Keep Video/Audio label color and weight fixed when selected.
+- Include companion 1.3.5 with improved YouTube placement, a compact V for crowded headers, and LinkedIn group/feed video selection and handoff.
+- Probe compatible direct media for measured video and audio details before offering output choices.
+- Use the current Vydrop app-update endpoint. Versions through 4.2.1 need one manual ZIP download after the repository rename.
+- Refresh English/Arabic screenshots, release links and the readable documentation reference.
 
 ## [4.2.1] - 2026-10-17
 
@@ -32,8 +41,9 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 - Builds run the recommended .NET analyzers and code-style rules with warnings treated as errors; sources use file-scoped namespaces and an explicit line-ending policy.
 
 [Unreleased]: https://github.com/ZiadHassanein/Vydrop/tree/main
+[4.2.3]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.3
 [4.2.1]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.1
 
 ## ملخص بالعربية
 
-إصلاحات الإصدار 4.2.1 تقلّل تراكم ملفات التحديث وفحوص الوسائط المكررة، وتحسّن الربط بالمتصفح ورسائل التحديث واختبارات مقياس العرض، وتُترجم رسائل الأخطاء التي كانت تظهر بالإنجليزية في الواجهة العربية. أُضيفت أدلة عربية وإنجليزية ومعلومات منتج موحّدة وموقع منشور عبر GitHub Pages. تتضمن النسخة 4.2.1 هوية Vydrop الحمراء والإضافة 1.3.1، وتستلزم الترقية من ViFree 4.1.0 فك الضغط يدويًا مرة واحدة.
+يحسّن الإصدار **4.2.3** ألوان زر التنزيل وحركات الشعار والزر، ويعرض فحص الفيديو داخله مع زر إلغاء، ويرسم علامة النجاح بعد اكتمال التنزيل فقط. يبقى لون ووزن نص زري الفيديو والصوت ثابتًا عند الاختيار. تتضمن الحزمة إضافة **1.3.5** لتحسين موضع الزر على YouTube واكتشاف فيديو LinkedIn وإرساله، مع تحديث الصور وروابط التنزيل والأدلة. تحتاج النسخ حتى 4.2.1 إلى تنزيل الحزمة الجديدة يدويًا مرة واحدة بعد تغيير اسم المستودع.

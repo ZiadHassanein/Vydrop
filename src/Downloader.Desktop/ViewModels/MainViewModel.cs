@@ -242,7 +242,7 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     public bool CanChooseQuality => IsIdle && (Audio ? Qualities.Count > 1 : playlistInfo != null || videoInfo?.QualitiesFor(SelectedVideoFormat.Container).Count > 0);
-    public bool CanDownload => IsIdle && checkedUrl == Url.Trim() && (WholePlaylist ? playlistInfo != null : videoInfo != null && (Audio ? videoInfo.HasAudio : SelectedQuality?.Key != null));
+    public bool CanDownload => IsIdle && !IsCheckingMedia && checkedUrl == Url.Trim() && (WholePlaylist ? playlistInfo != null : videoInfo != null && (Audio ? videoInfo.HasAudio : SelectedQuality?.Key != null));
     public string LinkLabel => T("Video link");
     public string LinkPlaceholder => T("Videos, Shorts, and playlists");
     public string PasteLabel => T("Paste");

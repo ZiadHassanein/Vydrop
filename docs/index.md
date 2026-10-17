@@ -14,9 +14,9 @@ home: true
 Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp. Free, open source, with English and Arabic interfaces.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.3/Vydrop-v4.2.3-win-x64.zip">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">Download Vydrop</span><span class="download-meta">Windows 10/11 x64 · v4.2.1 · ZIP</span></span>
+    <span class="download-copy"><span class="download-title">Download Vydrop</span><span class="download-meta">Windows 10/11 x64 · v4.2.3 · ZIP</span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads" height="20"></a>
   <details class="download-details"><summary>About this count</summary><p>GitHub's counter includes repeat and automated release downloads, not unique people or installations. Shields.io provides the cached badge; no app telemetry or paid analytics is used.</p></details>
@@ -26,7 +26,7 @@ Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-d
 
 {% include facts.md %}
 
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-download.png"><img src="images/screenshots/vydrop-light-en-download.png" width="724" height="761" alt="Vydrop native Windows interface with video link, format, quality, subtitles and a centered Download action"></picture><figcaption>Native 100% scale client render of the 4.2.0 source interface. No mouse pointer.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-download.png"><img src="images/screenshots/vydrop-light-en-download.png" width="724" height="761" alt="Vydrop native Windows interface with video link, format, quality, subtitles and a centered Download action"></picture><figcaption>Native 100% scale client render of the 4.2.3 interface. No mouse pointer.</figcaption></figure>
 
 ## Start with a public video link
 

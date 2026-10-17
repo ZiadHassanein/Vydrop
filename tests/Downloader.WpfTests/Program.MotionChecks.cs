@@ -2,6 +2,8 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows;
 using System.Windows.Automation;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -9,6 +11,62 @@ using YouTubeDownloader;
 
 internal static partial class Program
 {
+    private static async Task CaptureLogoPreview(MainWindow window, MainViewModel model, string captures, bool downloadButton = false)
+    {
+        var brand = (Button)WpfTree.Find(window, downloadButton ? "DownloadButton" : "BrandButton");
+        var artwork = downloadButton ? brand : (FrameworkElement)WpfTree.Find(window, "BrandArtwork");
+        double width = downloadButton ? 280 : 128, height = downloadButton ? 52 : 38;
+        double renderScale = downloadButton ? 2 : 3;
+        if (downloadButton)
+        {
+            model.Url = "https://youtu.be/jNQXAC9IVRw";
+            for (int wait = 0; wait < 100 && !model.CanDownload; wait++) await Task.Delay(25);
+            Check(model.CanDownload, "The native button preview uses an inspected, enabled action");
+            brand.BringIntoView();
+        }
+        MotionPreferences.SetTestOverride(true);
+        foreach (bool dark in new[] { true, false })
+        {
+            if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+            await Task.Delay(350);
+            string folder = Path.Combine(captures, dark ? "dark" : "light");
+            Directory.CreateDirectory(folder);
+            var samples = new List<double>();
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+            brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
+            for (int frame = 0; frame < 90; frame++)
+            {
+                samples.Add(timer.Elapsed.TotalSeconds);
+                var drawing = new DrawingVisual();
+                using (var canvas = drawing.RenderOpen())
+                {
+                    canvas.DrawRectangle((Brush)Application.Current.Resources["Page"], null, new Rect(0, 0, width + 48, height + 36));
+                    canvas.DrawRectangle(new VisualBrush(artwork), null, new Rect(24, 18, width, height));
+                }
+                var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)((width + 48) * renderScale), (int)((height + 36) * renderScale), 96 * renderScale, 96 * renderScale, PixelFormats.Pbgra32);
+                bitmap.Render(drawing);
+                var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+                using (var output = File.Create(Path.Combine(folder, $"frame{frame:000}.png"))) encoder.Save(output);
+                await Task.Delay(33);
+            }
+            using (var timeline = File.CreateText(Path.Combine(folder, "frames.ffconcat")))
+            {
+                timeline.WriteLine("ffconcat version 1.0");
+                for (int frame = 0; frame < samples.Count; frame++)
+                {
+                    timeline.WriteLine($"file 'frame{frame:000}.png'");
+                    double duration = frame + 1 < samples.Count ? samples[frame + 1] - samples[frame] : 1d / 30;
+                    timeline.WriteLine("duration " + duration.ToString("F6", System.Globalization.CultureInfo.InvariantCulture));
+                }
+                timeline.WriteLine($"file 'frame{samples.Count - 1:000}.png'");
+            }
+            brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
+        }
+        MotionPreferences.SetTestOverride(null);
+        Console.WriteLine("Native logo animation frames: " + captures);
+    }
+
     private static async Task CheckMotion(MainWindow window, MainViewModel model, FakeProvider provider, string captures)
     {
         string oldFolder = model.Folder;
@@ -16,6 +74,7 @@ internal static partial class Program
         var oldEncoding = model.SelectedEncoding;
         var oldQuality = model.SelectedQuality;
         double oldWidth = window.Width, oldHeight = window.Height;
+        bool oldHitTesting = window.IsHitTestVisible;
         string fixtureFolder = System.IO.Path.GetFullPath(System.IO.Path.Combine(captures, "motion-fixtures"));
         System.IO.Directory.CreateDirectory(fixtureFolder);
         string fixtureFile = System.IO.Path.Combine(fixtureFolder, "Local UI fixture.mp4");
@@ -26,6 +85,8 @@ internal static partial class Program
         var check = (System.Windows.Shapes.Path)WpfTree.Find(action, "CompleteCheck");
         var arrowOffset = (TranslateTransform)arrow.RenderTransform;
         var scale = (ScaleTransform)button.Template.FindName("ProgressScale", button);
+        var buttonLight = (FrameworkElement)button.Template.FindName("DownloadShine", button);
+        var buttonSurface = (Border)button.Template.FindName("DownloadShineSurface", button);
         var header = (FrameworkElement)WpfTree.Find(window, "HeaderContent");
         var brand = (Button)WpfTree.Find(header, "BrandButton");
         var light = (System.Windows.Shapes.Path)WpfTree.Find(header, "LogoLight");
@@ -52,7 +113,9 @@ internal static partial class Program
         try
         {
             MotionPreferences.SetTestOverride(true);
-            window.Activate();
+            // Keep unrelated desktop input out of deterministic fixture phases.
+            // The explicit native-pointer phase below restores hit testing/focus.
+            window.IsHitTestVisible = false;
             window.Width = 740;
             window.Height = Math.Min(800, window.CurrentWorkArea().Height - 16);
             model.SettingsVisible = false;
@@ -84,8 +147,10 @@ internal static partial class Program
                         "Clicking the logo animates inside fixed bounds without moving the form in " + variant);
                     Check(Bounds(artwork).Width <= logoBounds.Width + .5,
                         "Logo light pass stays inside its fixed silhouette in " + variant + $" (before={logoBounds}, after={Bounds(artwork)}, opacity={light.Opacity})");
+                    await Until(() => light.Opacity > .9 && light.Fill is LinearGradientBrush { RelativeTransform: TranslateTransform { X: > -.1 and < .1 } },
+                        "The visible shine crosses the center of the full logo in " + variant);
                     Shot("logo-" + variant);
-                    await Task.Delay(580);
+                    await Until(() => light.Opacity == 0, "The finite logo shine ends in " + variant);
                     Check(light.Opacity == 0 && logoScale.ScaleX == 1 && logoScale.ScaleY == 1,
                         "The logo settles without a decorative loop in " + variant);
                     brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
@@ -96,11 +161,21 @@ internal static partial class Program
                         brandFace.Background is SolidColorBrush { Color.A: 0 } && logoScale.ScaleX == 1 && logoScale.ScaleY == 1,
                         "Hover shines through the lettering without a background plate or logo movement in " + variant);
                     brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
+                    await Until(() => light.Opacity == 0, "Pointer exit gently fades the logo shine in " + variant);
                     Check(light.Opacity == 0, "Pointer exit clears the logo shine in " + variant);
                     await Input();
                     action.BringIntoView();
                     await Task.Delay(50);
                     var before = Bounds(button);
+                    int beforeHover = provider.DownloadCalls;
+                    button.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
+                    await Until(() => buttonLight.Opacity > .9 && buttonSurface.OpacityMask is LinearGradientBrush { RelativeTransform: TranslateTransform { X: > -.1 and < .1 } },
+                        "Hover plays the slow button shine in " + variant);
+                    Check(model.DownloadActionState == DownloadActionState.Ready && scale.ScaleX == 0 && provider.DownloadCalls == beforeHover && Bounds(button) == before,
+                        "Button shine never starts a download, imitates progress or changes layout in " + variant + $" (mode={button.ClickMode}, state={model.DownloadActionState}, calls={beforeHover}->{provider.DownloadCalls}, bounds={before}->{Bounds(button)})");
+                    Shot("download-hover-" + variant);
+                    button.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
+                    await Until(() => buttonLight.Opacity == 0, "Pointer exit settles the button shine in " + variant);
                     using var finish = new ManualResetEventSlim();
                     provider.DownloadHandler = (_, token, progress) =>
                     {
@@ -109,8 +184,11 @@ internal static partial class Program
                         return new DownloadResult { FilePath = fixtureFile, Files = new() { fixtureFile }, Completed = 1, Total = 1 };
                     };
                     int calls = provider.DownloadCalls;
-                    var download = model.DownloadCommand.ExecuteAsync(null);
+                    var invoke = (IInvokeProvider)new ButtonAutomationPeer(button).GetPattern(PatternInterface.Invoke);
+                    invoke.Invoke();
                     await Until(() => model.Progress == 20 && model.IsBusy, "Download motion receives actual reported progress in " + variant);
+                    var download = model.DownloadCommand.ExecutionTask;
+                    await Until(() => buttonLight.Opacity > 0, "An accepted click shines even after the busy button is disabled in " + variant);
                     action.BringIntoView();
                     await Task.Delay(70);
                     Check(model.DownloadActionState == DownloadActionState.Downloading && !button.IsEnabled && arrow.Visibility == Visibility.Visible && check.Visibility == Visibility.Hidden,
@@ -138,16 +216,16 @@ internal static partial class Program
                     try
                     {
                         finish.Set();
-                        await download;
+                        if (download != null) await download;
                     }
                     finally { model.PropertyChanged -= observeCompletion; }
                     await Task.Delay(70);
-                    // Observe animation attachment at the transition; runner delays can exceed its 240 ms duration.
+                    // Observe attachment at the transition; runner delays can exceed a short animation's duration.
                     Check(model.DownloadActionState == DownloadActionState.Complete && model.DownloadActionLabel == model.RevealLabel &&
                         check.Visibility == Visibility.Visible && sawCompletionAnimation && button.IsEnabled && model.Progress == 100,
                         "Only full success draws the check and exposes the localized folder action in " + variant);
                     Shot("complete-draw-" + variant);
-                    await Task.Delay(240);
+                    await Until(() => check.StrokeDashOffset == 0 && check.Opacity == 1 && check.RenderTransform is ScaleTransform { ScaleX: 1, ScaleY: 1 }, "The success check settles after its stroke draw in " + variant);
                     Check(check.StrokeDashOffset == 0 && scale.ScaleX == 1 &&
                         AutomationProperties.GetName(button) == model.RevealLabel && button.Command == model.DownloadActionCommand,
                         "Completion settles into a named native folder action in " + variant);
@@ -196,10 +274,12 @@ internal static partial class Program
             window.UpdateLayout();
             var paste = (Button)WpfTree.Find(window, "PasteButton");
             paste.ApplyTemplate();
+            window.IsHitTestVisible = true;
             window.Topmost = true;
             window.Activate();
             await Task.Delay(80);
             window.Topmost = false;
+            window.IsHitTestVisible = oldHitTesting;
             var hover = (Border)paste.Template.FindName("HoverLayer", paste);
             var point = paste.PointToScreen(new Point(paste.ActualWidth / 2, paste.ActualHeight / 2));
             SetMotionCursor((int)window.Left, (int)window.Top);

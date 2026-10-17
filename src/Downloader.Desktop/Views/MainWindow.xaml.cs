@@ -63,10 +63,11 @@ public partial class MainWindow : Window
             }
             if (args.PropertyName == nameof(MainViewModel.HasFile) && model.HasFile && model.ShowInlineActivity)
                 Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => DownloadForm.InlineActivity.BringIntoView());
-            if ((args.PropertyName == nameof(MainViewModel.StatusHeading) && !model.SettingsVisible)
+            if (((args.PropertyName == nameof(MainViewModel.StatusHeading) || args.PropertyName == nameof(MainViewModel.IsCheckingMedia) && model.IsCheckingMedia) && !model.SettingsVisible)
                 || (args.PropertyName == nameof(MainViewModel.NoticeHeading) && !model.OptionsNoticeVisible))
             {
-                var element = args.PropertyName == nameof(MainViewModel.NoticeHeading) ? NoticeHeading :
+                FrameworkElement element = args.PropertyName == nameof(MainViewModel.NoticeHeading) ? NoticeHeading :
+                    model.IsCheckingMedia ? DownloadForm.DownloadAction.DownloadButton :
                     model.HasMediaContext && !model.InlineMediaPreview ? MediaPreview.Activity.StatusHeading : DownloadForm.InlineActivity.StatusHeading;
                 (UIElementAutomationPeer.FromElement(element) ?? UIElementAutomationPeer.CreatePeerForElement(element))?.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
             }

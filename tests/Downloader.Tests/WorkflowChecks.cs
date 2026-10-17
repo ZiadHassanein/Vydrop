@@ -18,6 +18,18 @@ internal static class WorkflowChecks
         const string youtube = "https://www.youtube.com/watch?v=jNQXAC9IVRw", vimeo = "https://vimeo.com/76979871";
         Check(MediaLink.Normalize("https://youtu.be/jNQXAC9IVRw", false) == youtube, "Link routing preserves canonical YouTube media identity");
         Check(MediaLink.Normalize(vimeo, false) == vimeo, "Link routing accepts public non-YouTube media");
+        const string linkedIn = "https://www.linkedin.com/feed/update/urn:li:activity:7517227738701901824/";
+        const string linkedInGroup = "https://www.linkedin.com/feed/update/urn:li:groupPost:2066905-7517226468083638272/?highlightedUpdateUrn=urn%3Ali%3Aactivity%3A7517227738701901824&origin=SOCIAL_SHARE";
+        Check(MediaLink.Normalize(linkedInGroup, false) == linkedIn, "LinkedIn group shares use their explicit highlighted activity instead of the unsupported group address");
+        Check(MediaLink.Normalize(linkedIn + "?highlightedUpdateUrn=urn%3Ali%3Aactivity%3A7151241570371948544", false) == linkedIn, "An existing LinkedIn activity cannot be replaced by another highlighted activity");
+        Check(MediaLink.Normalize(linkedIn.Replace("urn:li:activity:", "urn%3Ali%3Aactivity%3A"), false) == linkedIn, "Encoded LinkedIn activity paths normalize to the supported permalink");
+        foreach (string unchanged in new[] {
+            linkedInGroup.Split('?')[0],
+            linkedInGroup.Replace("urn%3Ali%3Aactivity%3A7517227738701901824", "https%3A%2F%2Fevil.example%2Fvideo"),
+            linkedInGroup.Replace("www.linkedin.com", "www.linkedin.com.evil.example"),
+            linkedInGroup + "&highlightedUpdateUrn=urn%3Ali%3Aactivity%3A7151241570371948544",
+            "https://www.linkedin.com/learning/course/lesson?highlightedUpdateUrn=urn%3Ali%3Aactivity%3A7517227738701901824" })
+            Check(MediaLink.Normalize(unchanged, false) == unchanged, "LinkedIn normalization never guesses missing IDs or rewrites unrelated, ambiguous or external links");
         foreach (string bad in new[] { "file:///C:/private.mp4", "https://u:p@example.com/video", "http://127.0.0.1/video", "http://10.0.0.1/video", "http://[::1]/video", "http://[::ffff:192.168.1.1]/video", "https://example.com:8443/video", "https://example.com/video\n--exec=bad" })
             Check(Reject(() => MediaLink.PublicUrl(bad)), "Public link policy rejects unsafe protocol, address, credentials or control characters");
         var options = new DownloadOptions { Url = youtube, Folder = "C:\\fixture", Audio = true, AudioEncoding = AudioEncoding.Flac, Captions = new("en", false, CaptionFormat.Srt), Playlist = new() { Id = "one", Entries = new() { new() { Id = "first", MediaUrl = youtube } } } };

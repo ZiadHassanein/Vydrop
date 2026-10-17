@@ -135,16 +135,9 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
         if (data.ContainsKey("entries"))
             return new VideoInfo { Title = Value(data, "title"), Collection = PlaylistMetadata.Read(url, data) };
         if (DirectMediaMetadata.NeedsProbe(data, url))
-        {
-            var probe = new StringBuilder();
-            var errors = new StringBuilder();
-            int code = runner.Run(tools.FFprobe, DirectMediaMetadata.ProbeArguments(url), line => probe.AppendLine(line),
-                line => errors.AppendLine(line), token, TimeSpan.FromSeconds(25), 1024 * 1024);
-            token.ThrowIfCancellationRequested();
-            if (cancelled) throw new OperationCanceledException();
-            if (code != 0) throw new MediaToolExecutionException(errors.ToString());
-            DirectMediaMetadata.Apply(data, Json().Deserialize<Dictionary<string, object>>(probe.ToString()));
-        }
+            DirectMediaMetadata.Apply(data, ProbeMedia(url, token));
+        foreach (var format in LinkedInMediaMetadata.ProbeFormats(data, url))
+            DirectMediaMetadata.ApplyFormat(data, format, ProbeMedia(Value(format, "url"), token));
         var info = new VideoInfo
         {
             Title = Value(data, "title"),
@@ -170,6 +163,18 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
         }
 
         return info;
+    }
+
+    private Dictionary<string, object> ProbeMedia(string url, CancellationToken token)
+    {
+        var probe = new StringBuilder();
+        var errors = new StringBuilder();
+        int code = runner.Run(tools.FFprobe, DirectMediaMetadata.ProbeArguments(url), line => probe.AppendLine(line),
+            line => errors.AppendLine(line), token, TimeSpan.FromSeconds(25), 1024 * 1024);
+        token.ThrowIfCancellationRequested();
+        if (cancelled) throw new OperationCanceledException();
+        if (code != 0) throw new MediaToolExecutionException(errors.ToString());
+        return Json().Deserialize<Dictionary<string, object>>(probe.ToString());
     }
 
     public PlaylistInfo InspectPlaylist(string url, CancellationToken token = default(CancellationToken), IProgress<DownloadProgress> progress = null)

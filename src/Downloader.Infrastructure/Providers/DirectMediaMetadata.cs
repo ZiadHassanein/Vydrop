@@ -14,7 +14,9 @@ internal static class DirectMediaMetadata
     {
         if (Text(data, "extractor_key") != "Generic" && Text(data, "extractor") != "generic") return false;
         if (!Uri.TryCreate(requestedUrl, UriKind.Absolute, out var url) || url.Scheme is not ("https" or "http") ||
-            url.UserInfo.Length != 0 || !url.IsDefaultPort || !Extensions.Contains(Path.GetExtension(url.AbsolutePath))) return false;
+            url.UserInfo.Length != 0 || !url.IsDefaultPort) return false;
+        if (!Extensions.Contains(Path.GetExtension(url.AbsolutePath)) &&
+            !(Text(data, "direct") == "True" && Extensions.Contains("." + Text(data, "ext")))) return false;
         var formats = Formats(data);
         if (formats.Length != 1) return false;
         var format = formats[0];
@@ -31,6 +33,9 @@ internal static class DirectMediaMetadata
     };
 
     internal static void Apply(Dictionary<string, object> data, Dictionary<string, object> probe)
+        => ApplyFormat(data, Formats(data).Single(), probe);
+
+    internal static void ApplyFormat(Dictionary<string, object> data, Dictionary<string, object> format, Dictionary<string, object> probe)
     {
         var streams = probe.TryGetValue("streams", out var list) && list is IEnumerable many
             ? many.OfType<Dictionary<string, object>>().Take(64).ToArray() : Array.Empty<Dictionary<string, object>>();
@@ -38,8 +43,8 @@ internal static class DirectMediaMetadata
         var video = streams.FirstOrDefault(s => Text(s, "codec_type") == "video");
         var audio = streams.FirstOrDefault(s => Text(s, "codec_type") == "audio");
         if (video == null && audio == null) throw new InvalidDataException("The site did not return downloadable formats for this video.");
-        var format = Formats(data).Single();
-        foreach (var target in new[] { format, data })
+        bool selected = Formats(data).Length == 1 || Text(data, "format_id").Length > 0 && Text(data, "format_id") == Text(format, "format_id");
+        foreach (var target in selected ? new[] { format, data } : new[] { format })
         {
             target["vcodec"] = video == null ? "none" : Text(video, "codec_name");
             target["acodec"] = audio == null ? "none" : Text(audio, "codec_name");

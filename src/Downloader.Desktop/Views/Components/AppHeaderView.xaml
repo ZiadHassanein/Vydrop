@@ -21,17 +21,19 @@
   <Style x:Key="BrandButtonStyle" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
    <Setter Property="Height" Value="42"/>
    <Setter Property="Padding" Value="4,0"/>
+   <Setter Property="FocusVisualStyle"><Setter.Value><Style TargetType="Control">
+    <Setter Property="Template"><Setter.Value><ControlTemplate>
+     <Border BorderBrush="{DynamicResource Accent}" BorderThickness="0,0,0,2" Margin="4,0" IsHitTestVisible="False"/>
+    </ControlTemplate></Setter.Value></Setter>
+   </Style></Setter.Value></Setter>
    <Setter Property="Template">
     <Setter.Value><ControlTemplate TargetType="Button">
      <Grid>
       <Border x:Name="Face" CornerRadius="8" Background="Transparent">
        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
       </Border>
-      <!-- Focus is paint inside fixed bounds, never extra layout space. -->
-      <Border x:Name="FocusRing" CornerRadius="8" BorderBrush="{DynamicResource Accent}" BorderThickness="2" Opacity="0" IsHitTestVisible="False"/>
      </Grid>
      <ControlTemplate.Triggers>
-      <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="FocusRing" Property="Opacity" Value="1"/></Trigger>
       <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value=".55"/></Trigger>
      </ControlTemplate.Triggers>
     </ControlTemplate></Setter.Value>
@@ -50,15 +52,11 @@
        </Path>
        <Path Data="{StaticResource BrandArrowGeometry}" Fill="White" RenderTransform="{Binding RenderTransform,ElementName=BrandInitial}" IsHitTestVisible="False"/>
        <Path x:Name="BrandLetters" Data="{StaticResource BrandLettersGeometry}" Fill="{DynamicResource Ink}"/>
-       <Path x:Name="LogoLight" IsHitTestVisible="False" Opacity="0">
+       <Path x:Name="LogoLight" IsHitTestVisible="False" Opacity="0" Fill="{StaticResource ShineBrush}">
        <Path.Data><GeometryGroup><GeometryGroup.Children><GeometryCollection>
         <GeometryGroup Transform="{Binding RenderTransform,ElementName=BrandInitial}"><GeometryGroup.Children><GeometryCollection><StaticResource ResourceKey="BrandInitialGeometry"/><StaticResource ResourceKey="BrandArrowGeometry"/></GeometryCollection></GeometryGroup.Children></GeometryGroup>
         <StaticResource ResourceKey="BrandLettersGeometry"/>
        </GeometryCollection></GeometryGroup.Children></GeometryGroup></Path.Data>
-       <Path.Fill><LinearGradientBrush StartPoint="0,0" EndPoint="1,0.4">
-        <LinearGradientBrush.RelativeTransform><TranslateTransform x:Name="LightOffset" X="1.2"/></LinearGradientBrush.RelativeTransform>
-        <GradientStop Color="#00FFFFFF" Offset="0.38"/><GradientStop Color="#99FF8393" Offset="0.44"/><GradientStop Color="#FFFFFFFF" Offset="0.5"/><GradientStop Color="#99FF8393" Offset="0.56"/><GradientStop Color="#00FFFFFF" Offset="0.62"/>
-       </LinearGradientBrush></Path.Fill>
        </Path>
       </Canvas>
      </Viewbox>

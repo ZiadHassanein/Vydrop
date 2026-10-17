@@ -14,9 +14,9 @@ home: true
 نزّل من YouTube وTikTok وFacebook وVimeo وأكثر من ١٠٠٠ موقع عبر yt-dlp، بواجهة عربية وإنجليزية ومصدر مفتوح.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.3/Vydrop-v4.2.3-win-x64.zip">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.2.1 · ZIP</bdi></span></span>
+    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.2.3 · ZIP</bdi></span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="إجمالي تنزيلات إصدارات GitHub" height="20"></a>
   <details class="download-details"><summary>عن هذا العدد</summary><p>يحسب GitHub تنزيلات ملفات الإصدارات، بما فيها التنزيلات المتكررة والآلية؛ وهذا ليس عدد الأشخاص أو مرات التثبيت. توفّر Shields.io الشارة المخزّنة مؤقتًا. لا تُضاف أي أدوات تتبّع داخل التطبيق أو تحليلات مدفوعة.</p></details>
@@ -26,7 +26,7 @@ home: true
 
 {% include facts-ar.md %}
 
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="../images/screenshots/vydrop-dark-ar-download.png"><img src="../images/screenshots/vydrop-light-ar-download.png" width="724" height="761" alt="واجهة Vydrop العربية الأصلية في ويندوز مع رابط الفيديو والصيغة وجودة الصوت والترجمة وزر تنزيل في المنتصف"></picture><figcaption>عرض أصلي لنافذة واجهة مصدر الإصدار 4.2.0 بمقياس ١٠٠٪، دون مؤشر الفأرة.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="../images/screenshots/vydrop-dark-ar-download.png"><img src="../images/screenshots/vydrop-light-ar-download.png" width="724" height="761" alt="واجهة Vydrop العربية الأصلية في ويندوز مع رابط الفيديو والصيغة وجودة الصوت والترجمة وزر تنزيل في المنتصف"></picture><figcaption>عرض أصلي لنافذة واجهة الإصدار 4.2.3 بمقياس ١٠٠٪، دون مؤشر الفأرة.</figcaption></figure>
 
 ## ابدأ برابط فيديو عام
 

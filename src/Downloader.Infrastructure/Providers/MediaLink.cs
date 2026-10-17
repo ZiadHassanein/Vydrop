@@ -26,7 +26,7 @@ public sealed class PublicMediaLinkResolver : IMediaLinkResolver
 
 public static class MediaLink
 {
-    internal static MediaLinkRouter DefaultRouter { get; } = new(new IMediaLinkResolver[] { new YouTubeLinkResolver(), new PublicMediaLinkResolver() });
+    internal static MediaLinkRouter DefaultRouter { get; } = new(new IMediaLinkResolver[] { new YouTubeLinkResolver(), new LinkedInLinkResolver(), new PublicMediaLinkResolver() });
     public static string PublicUrl(string input)
     {
         input = input?.Trim();

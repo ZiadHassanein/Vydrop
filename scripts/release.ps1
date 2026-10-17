@@ -46,7 +46,7 @@ $releaseNotes
 - Public media from YouTube, TikTok, Facebook, Vimeo and other yt-dlp-supported sites, plus compatible direct media links. Private, sign-in-only and DRM content is unsupported.
 - Queue, playlist selection and available SRT/VTT subtitles.
 - English/Arabic and light/dark themes.
-- Browser companion 1.3.1 inside Browser: Download by Vydrop outside the playing video's border, with localized popup and context menus.
+- Browser companion 1.3.5 inside Browser: Download by Vydrop outside the playing video's border, with a compact V for crowded headers, LinkedIn group-feed detection and localized popup and context menus.
 - Automatic daily verified yt-dlp/Deno checks and one compatible update-and-retry.
 - Settings keeps video errors in the download screen; manual app updates use this repository.
 

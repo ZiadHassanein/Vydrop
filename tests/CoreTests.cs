@@ -73,7 +73,7 @@ internal static class CoreTests
             options.Audio = true;
             Check(Arguments.ForDownload(tools, options).Contains("--extract-audio"), "MP3 extraction");
             options.AudioBitrate = 320;
-            Check(Arguments.ForDownload(tools, options).Contains("320K") && Arguments.ForDownload(tools, options).Contains("%(title).100B [%(id)s] - 320kbps.%(ext)s"), "320 kbps MP3 uses the chosen encoding and a distinct filename");
+            Check(Arguments.ForDownload(tools, options).Contains("320K") && Arguments.ForDownload(tools, options).Contains("%(title).100B [%(id)s] - 320kbps-mp3.%(ext)s"), "320 kbps MP3 uses the chosen encoding and a distinct filename");
             options.AudioBitrate = 192;
             Check(Arguments.ForDownload(tools, options).Contains("192K"), "192 kbps MP3 remains available");
             Check(Arguments.Quote("a\"b") == "\"a\\\"b\"", "Windows argument quoting");

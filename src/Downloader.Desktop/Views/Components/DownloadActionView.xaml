@@ -2,14 +2,17 @@
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  xmlns:local="clr-namespace:YouTubeDownloader" Width="280">
  <StackPanel>
- <Button x:Name="DownloadButton" Command="{Binding DownloadActionCommand}" Style="{StaticResource PrimaryButton}" Height="52" AutomationProperties.Name="{Binding DownloadActionLabel}">
+ <Button x:Name="DownloadButton" Command="{Binding DownloadActionCommand}" Click="DownloadClicked" MouseEnter="DownloadHovered" MouseLeave="DownloadLeft" Style="{StaticResource PrimaryButton}" Background="{DynamicResource DownloadActionFill}" Foreground="{DynamicResource DownloadActionInk}" BorderBrush="{DynamicResource DownloadActionFill}" Height="52" AutomationProperties.Name="{Binding DownloadActionLabel}" AutomationProperties.HelpText="{Binding StatusDetail}" AutomationProperties.LiveSetting="Polite" ToolTip="{Binding StatusDetail}">
   <Button.Template><ControlTemplate TargetType="Button">
    <Grid>
     <Border x:Name="Face" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8"/>
-    <Border Background="{DynamicResource Ink}" Opacity="0.16" CornerRadius="8" RenderTransformOrigin="0,0" FlowDirection="LeftToRight" IsHitTestVisible="False">
+    <Border Background="{DynamicResource DownloadActionProgress}" Opacity="0.16" CornerRadius="8" RenderTransformOrigin="0,0" FlowDirection="LeftToRight" IsHitTestVisible="False">
      <Border.RenderTransform><ScaleTransform x:Name="ProgressScale" ScaleX="0"/></Border.RenderTransform>
     </Border>
-    <Border Background="{DynamicResource OnAccent}" Opacity="0" CornerRadius="8" IsHitTestVisible="False" local:HoverMotion.Enabled="True" local:HoverMotion.Strength="0.08" Tag="HoverLayer"/>
+    <Grid x:Name="DownloadShine" Opacity="0" IsHitTestVisible="False" FlowDirection="LeftToRight">
+     <Border x:Name="DownloadShineSurface" CornerRadius="8" Background="{DynamicResource OnAccent}" OpacityMask="{StaticResource ShineBrush}" Opacity="0.10"/>
+     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource OnAccent}" OpacityMask="{Binding OpacityMask,ElementName=DownloadShineSurface}" Opacity="0.65"/>
+    </Grid>
     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
    </Grid>
    <ControlTemplate.Triggers>
@@ -17,23 +20,36 @@
     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}"/><Setter TargetName="Face" Property="BorderThickness" Value="2"/></Trigger>
     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
     <DataTrigger Binding="{Binding DownloadActionState}" Value="{x:Static local:DownloadActionState.Downloading}"><Setter Property="Opacity" Value="1"/></DataTrigger>
+    <DataTrigger Binding="{Binding IsCheckingMedia}" Value="True"><Setter Property="Opacity" Value="1"/></DataTrigger>
    </ControlTemplate.Triggers>
   </ControlTemplate></Button.Template>
   <StackPanel Orientation="Horizontal">
    <Grid Width="20" Height="22" Margin="0,0,10,0" FlowDirection="LeftToRight">
-    <Path x:Name="DownloadArrow" Data="{StaticResource DownloadIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource OnAccent}">
+    <Path x:Name="DownloadArrow" Data="{StaticResource DownloadIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource DownloadActionInk}">
      <Path.RenderTransform><TranslateTransform x:Name="ArrowOffset"/></Path.RenderTransform>
     </Path>
-    <Path x:Name="CompleteCheck" Data="M2,10 L8,16 L19,3" Stroke="{DynamicResource OnAccent}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" StrokeDashArray="18 18" Visibility="Hidden"/>
+    <Grid x:Name="CheckingVideo" Visibility="Hidden" IsHitTestVisible="False">
+     <Path Data="M2,5 L18,5 Q19,5 19,6 L19,16 Q19,17 18,17 L2,17 Q1,17 1,16 L1,6 Q1,5 2,5Z" Stroke="{DynamicResource DownloadActionInk}" StrokeThickness="1.4" Opacity=".65"/>
+     <Path Data="M8,8 L13,11 L8,14Z" Fill="{DynamicResource DownloadActionInk}" Opacity=".35"/>
+     <Path Data="M0,7 L0,15" Stroke="{DynamicResource DownloadActionInk}" StrokeThickness="1.7" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+      <Path.RenderTransform><TranslateTransform x:Name="CheckScanOffset" X="3"/></Path.RenderTransform>
+     </Path>
+    </Grid>
+    <Path x:Name="CompleteCheck" Data="M3,11 L8,16 L18,5" Stroke="{DynamicResource DownloadActionInk}" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" StrokeDashArray="18 18" Visibility="Hidden">
+     <Path.RenderTransform><ScaleTransform x:Name="CompletionScale" CenterX="10" CenterY="11"/></Path.RenderTransform>
+    </Path>
    </Grid>
-   <TextBlock Text="{Binding DownloadActionLabel}" Foreground="{DynamicResource OnAccent}" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center"/>
+   <TextBlock Text="{Binding DownloadActionLabel}" Foreground="{DynamicResource DownloadActionInk}" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center"/>
   </StackPanel>
  </Button>
  <Button x:Name="ActionCancel" Content="{Binding CancelLabel}" Command="{Binding CancelCommand}" AutomationProperties.Name="{Binding CancelLabel}"
          HorizontalAlignment="Center" MinHeight="32" Height="32" Padding="14,4" Margin="0,8,0,0" FontSize="13">
   <Button.Style><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
    <Setter Property="Visibility" Value="Collapsed"/>
-   <Style.Triggers><DataTrigger Binding="{Binding DownloadActionState}" Value="{x:Static local:DownloadActionState.Downloading}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+   <Style.Triggers>
+    <DataTrigger Binding="{Binding DownloadActionState}" Value="{x:Static local:DownloadActionState.Downloading}"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+    <DataTrigger Binding="{Binding IsCheckingMedia}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+   </Style.Triggers>
   </Style></Button.Style>
  </Button>
  </StackPanel>

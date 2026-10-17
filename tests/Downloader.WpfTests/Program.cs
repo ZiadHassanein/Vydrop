@@ -46,7 +46,7 @@ internal static partial class Program
         var provider = new FakeProvider();
         var service = new DownloadService(provider, new EmptyStorage());
         var thumbnailLoader = new FixtureThumbnailLoader();
-        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader);
+        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader) { ShowActivated = !args.Contains("--motion") };
         window.ContentRendered += async (_, _) =>
         {
             try
@@ -58,6 +58,9 @@ internal static partial class Program
                 if (args.Contains("--dpi-unaware"))
                     Check(Math.Abs(VisualTreeHelper.GetDpi(window).DpiScaleX - 1) < .01, "Process compatibility tests actually use 100% scale");
                 Check(window.Title == "Vydrop" && model.Url == "" && model.IsDark, "WPF starts with an English title, dark theme and empty URL");
+                Check(MainViewModel.DescribeError(new InvalidOperationException("ERROR: [LinkedIn] 7517135049939525632: Unable to extract video")).Contains("Vydrop button") &&
+                    MainViewModel.DescribeError(new System.Net.Http.HttpRequestException("Connection reset")).Contains("internet connection"),
+                    "LinkedIn extraction failures explain the browser action while network failures retain connection guidance");
                 Check(window.Width == 740 && window.MinWidth == 660, "The compact workspace starts narrower and permits a smaller manual window");
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--", StringComparison.Ordinal)) ?? root;
@@ -87,6 +90,22 @@ internal static partial class Program
                 {
                     await CheckMediaPanel(window, model, provider, captures);
                     Console.WriteLine(count + " WPF media-panel checks passed.");
+                    return;
+                }
+                if (args.Contains("--logo-preview"))
+                {
+                    await CaptureLogoPreview(window, model, captures);
+                    return;
+                }
+                if (args.Contains("--download-shine-preview"))
+                {
+                    await CaptureLogoPreview(window, model, captures, true);
+                    return;
+                }
+                if (args.Contains("--checking-feedback"))
+                {
+                    await CheckCheckingFeedback(window, model, provider, captures);
+                    Console.WriteLine(count + " WPF checking-feedback checks passed.");
                     return;
                 }
                 if (args.Contains("--motion"))

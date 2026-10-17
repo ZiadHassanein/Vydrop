@@ -47,6 +47,27 @@ internal static partial class Program
                 (byte)(action.G * .92 + label.G * .08), (byte)(action.B * .92 + label.B * .08));
             Check(Contrast(label, hoveredAction) >= 4.5,
                 "The primary action label remains readable through its hover wash");
+            var download = (Button)WpfTree.Find(window, "DownloadButton");
+            var shine = (Border)download.Template.FindName("DownloadShineSurface", download);
+            var fill = Role("DownloadActionFill"); var ink = Role("DownloadActionInk");
+            Check(((SolidColorBrush)download.Background).Color == fill && ((SolidColorBrush)download.Foreground).Color == ink &&
+                fill == (Color)ColorConverter.ConvertFromString("#C13046") && ink == Colors.White,
+                "The Download button uses the same deep crimson and white lettering in both themes");
+            Check(Contrast(ink, fill) >= 4.5 && Contrast(fill, Role("Page")) >= 3, "The red action and its label remain readable in both themes");
+            var highlight = ((SolidColorBrush)shine.Background).Color;
+            var progress = Role("DownloadActionProgress");
+            foreach (var stop in ((LinearGradientBrush)shine.OpacityMask).GradientStops)
+            {
+                double strength = shine.Opacity * stop.Color.A / 255d;
+                var lit = Color.FromRgb((byte)(fill.R * (1 - strength) + highlight.R * strength),
+                    (byte)(fill.G * (1 - strength) + highlight.G * strength),
+                    (byte)(fill.B * (1 - strength) + highlight.B * strength));
+                Check(Contrast(ink, lit) >= 4.5, "The download label stays readable throughout the shine");
+                var completed = Color.FromRgb((byte)((fill.R * .84 + progress.R * .16) * (1 - strength) + highlight.R * strength),
+                    (byte)((fill.G * .84 + progress.G * .16) * (1 - strength) + highlight.G * strength),
+                    (byte)((fill.B * .84 + progress.B * .16) * (1 - strength) + highlight.B * strength));
+                Check(Contrast(ink, completed) >= 4.5, "The download label stays readable where progress and shine overlap");
+            }
             foreach (string background in new[] { "Page", "Field", "Surface", "Hover" })
                 Check(Contrast(Role("Border"), Role(background)) >= 3, "Control boundaries remain visible on " + background);
             foreach (bool arabic in new[] { false, true })
@@ -61,10 +82,10 @@ internal static partial class Program
                         window.UpdateLayout();
                         var selected = useAudio ? audio : video;
                         var face = (Border)selected.Template.FindName("Face", selected);
-                        Check(selected.IsChecked == true && selected.FontWeight == FontWeights.SemiBold &&
+                        Check(selected.IsChecked == true && video.FontWeight == FontWeights.Normal && audio.FontWeight == FontWeights.Normal &&
                             Equals(face.Background, Application.Current.Resources["Selected"]) &&
-                            Equals(selected.Foreground, Application.Current.Resources["Accent"]),
-                            "Video and audio share the readable selection treatment without losing checked state");
+                            Equals(video.Foreground, Application.Current.Resources["Ink"]) && Equals(audio.Foreground, Application.Current.Resources["Ink"]),
+                            "Video and audio keep identical text color and weight while the selected face follows checked state");
                         string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") +
                             (useAudio ? "-audio" : "-video") + (width < 1000 ? "-compact" : "-wide");
                         ((ScrollViewer)WpfTree.Find(window, "Viewport")).ScrollToTop();

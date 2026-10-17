@@ -127,6 +127,7 @@ public sealed partial class MainViewModel
         bool playlist = WholePlaylist;
         try
         {
+            checkingMedia = true;
             SetStatus(playlist ? "Checking playlist" : "Checking video", "Preparing your download…", false, true);
             if (playlist)
             {
@@ -189,6 +190,7 @@ public sealed partial class MainViewModel
         }
         finally
         {
+            checkingMedia = false;
             RefreshAvailability();
         }
     }
@@ -384,6 +386,8 @@ public sealed partial class MainViewModel
         if (text.Contains("selected subtitles")) return "The selected subtitles are no longer available. Refresh output options or choose no subtitles.";
         if (text.Contains("429") || text.Contains("too many requests"))
             return "This site is limiting downloads right now. Wait a few minutes, then try again.";
+        if (text.Contains("[linkedin]") && (text.Contains("unable to extract video") || text.Contains("sign in") || text.Contains("login")))
+            return "LinkedIn did not expose a public video at this link. Open the video in your browser and use the Vydrop button.";
         if (text.Contains("no longer available") || text.Contains("requested format"))
             return "That quality is no longer available. Paste the link again to refresh the options.";
         if (text.Contains("unsupported url") || text.Contains("no suitable extractor")) return "This site or link is not supported. Try a public video link.";

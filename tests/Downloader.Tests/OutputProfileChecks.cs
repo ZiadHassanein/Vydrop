@@ -14,6 +14,11 @@ internal static class OutputProfileChecks
         var direct = Direct();
         Check(DirectMediaMetadata.NeedsProbe(direct, directUrl), "Generic direct MP4 metadata is probed instead of rejected or guessed");
         Check(!DirectMediaMetadata.NeedsProbe(direct, "https://example.com/other.mp4") && !DirectMediaMetadata.NeedsProbe(direct, "file:///C:/private.mp4"), "Direct-media probing is restricted to the same HTTP resource");
+        const string extensionless = "https://dms.licdn.com/playlist/vid/v2/SyntheticAsset/mp4-720p/sample/0/video?e=9999999999";
+        var identified = json.Deserialize<Dictionary<string, object>>("{\"extractor_key\":\"Generic\",\"direct\":true,\"ext\":\"mp4\",\"formats\":[{\"format_id\":\"mp4\",\"url\":\"" + extensionless + "\",\"ext\":\"mp4\"}]}");
+        Check(DirectMediaMetadata.NeedsProbe(identified, extensionless), "MIME-identified extensionless video uses measured codecs and quality");
+        identified["direct"] = false;
+        Check(!DirectMediaMetadata.NeedsProbe(identified, extensionless), "An HTML page cannot claim direct-file probing through an output extension alone");
         var measured = json.Deserialize<Dictionary<string, object>>("{\"streams\":[{\"codec_type\":\"video\",\"codec_name\":\"h264\",\"width\":320,\"height\":176},{\"codec_type\":\"audio\",\"codec_name\":\"aac\",\"bit_rate\":\"160545\"}],\"format\":{\"duration\":\"10.026667\",\"size\":\"788493\",\"bit_rate\":\"629116\"}}");
         DirectMediaMetadata.Apply(direct, measured);
         Check(AvailableFormats.Read(direct).Single().Resolution == 176 && AvailableFormats.HasAudio(direct), "Direct file uses measured 176p H264/AAC streams without fictional qualities");
@@ -21,6 +26,20 @@ internal static class OutputProfileChecks
         Check(!DirectMediaMetadata.NeedsProbe(direct, directUrl) && AvailableFormats.Read(direct, VideoContainer.WebM).Count == 0, "Known direct media avoids redundant probing and incompatible WebM output");
         Check(Reject(() => DirectMediaMetadata.Apply(Direct(), json.Deserialize<Dictionary<string, object>>("{\"streams\":[{\"codec_type\":\"video\",\"codec_tag_string\":\"encv\"}]}"))), "Encrypted direct streams are not offered as ordinary video");
         Check(DirectMediaMetadata.ProbeArguments(directUrl).Contains("http,https,tcp,tls") && DirectMediaMetadata.ProbeArguments(directUrl).Contains("-tls_verify"), "Direct-media probing keeps bounded HTTP protocols and peer verification");
+        const string linkedInUrl = "https://www.linkedin.com/feed/update/urn:li:activity:7517227738701901824/";
+        var linkedIn = json.Deserialize<Dictionary<string, object>>("{\"extractor_key\":\"LinkedIn\",\"format_id\":\"high\",\"formats\":[{\"format_id\":\"low\",\"ext\":\"mp4\",\"url\":\"https://dms.licdn.com/playlist/low\",\"tbr\":590},{\"format_id\":\"high\",\"ext\":\"mp4\",\"url\":\"https://dms.licdn.com/playlist/high\",\"tbr\":660}]}");
+        var linkedInFormats = LinkedInMediaMetadata.ProbeFormats(linkedIn, linkedInUrl);
+        Check(linkedInFormats.Length == 2 && !AvailableFormats.HasAudio(linkedIn) && AvailableFormats.Read(linkedIn).Count == 0, "Incomplete LinkedIn formats require measurement before offering video or audio qualities");
+        DirectMediaMetadata.ApplyFormat(linkedIn, linkedInFormats[0], measured);
+        Check(!linkedIn.ContainsKey("acodec") && AudioMetadata.Read(linkedIn).BitrateKbps == 160.545, "Probing a lower LinkedIn variant does not overwrite the selected variant's source facts");
+        DirectMediaMetadata.ApplyFormat(linkedIn, linkedInFormats[1], measured);
+        Check(LinkedInMediaMetadata.ProbeFormats(linkedIn, linkedInUrl).Length == 0 && AvailableFormats.HasAudio(linkedIn) && AvailableFormats.Read(linkedIn).Single().Selector.Contains("high"), "Measured LinkedIn formats retain IDs and can be selected without invented codecs or resolution");
+        Check(LinkedInMediaMetadata.ProbeFormats(linkedIn, "https://evil.example/video").Length == 0, "LinkedIn probing cannot activate on an unrelated website");
+        foreach (string media in new[] { "https://dms.licdn.com.evil.example/video", "http://dms.licdn.com/video", "https://user:secret@dms.licdn.com/video", "https://dms.licdn.com:8443/video", "http://127.0.0.1/video" })
+        {
+            var unsafeLinkedIn = json.Deserialize<Dictionary<string, object>>("{\"extractor\":\"LinkedIn\",\"formats\":[{\"ext\":\"mp4\",\"url\":\"" + media + "\"}]}");
+            Check(LinkedInMediaMetadata.ProbeFormats(unsafeLinkedIn, linkedInUrl).Length == 0, "LinkedIn probing accepts only direct HTTPS resources on its public CDN");
+        }
         var source = AudioMetadata.Read(json.Deserialize<Dictionary<string, object>>("{\"acodec\":\"opus\",\"vcodec\":\"none\",\"abr\":126.2,\"tbr\":140}"));
         Check(source.Codec == "opus" && source.BitrateKbps == 126.2 && !source.Lossless,
             "Audio source estimates use the selected audio stream's reported bitrate");
@@ -57,6 +76,17 @@ internal static class OutputProfileChecks
         foreach (string file in Directory.GetFiles(fixture)) File.Copy(file, Path.Combine(root, Path.GetFileName(file)));
         foreach (string name in new[] { "yt-dlp.exe", "ffmpeg.exe", "ffprobe.exe", "deno.exe" }) File.Copy(Path.Combine(root, "FakeDownloader.exe"), Path.Combine(root, name));
         var tools = ToolSet.Validated(Path.Combine(root, "yt-dlp.exe"), Path.Combine(root, "ffmpeg.exe"), Path.Combine(root, "ffprobe.exe"), Path.Combine(root, "deno.exe"));
+        string Stem(DownloadOptions options)
+        {
+            var arguments = Arguments.ForDownload(tools, options);
+            return arguments[arguments.IndexOf("--output") + 1];
+        }
+        var standard = new DownloadOptions { Url = "https://www.youtube.com/watch?v=jNQXAC9IVRw", Folder = root };
+        var converted = standard.Snapshot(); converted.VideoContainer = VideoContainer.Mkv;
+        var extracted = standard.Snapshot(); extracted.Audio = true; extracted.AudioEncoding = AudioEncoding.M4a;
+        Check(new[] { Stem(standard), Stem(converted), Stem(extracted) }.Distinct().Count() == 3, "Video remux and audio extraction never reuse a completed MP4's filename stem");
+        var cdn = standard.Snapshot(); cdn.Url = extensionless;
+        Check(Stem(cdn).Contains("[SyntheticAsset]") && !Stem(cdn).Contains("%(id)s"), "LinkedIn direct-file names use the public asset identity instead of an expiring access query");
         using var provider = new YtDlpProvider(tools);
         const string url = "https://www.youtube.com/watch?v=jNQXAC9IVRw";
         var video = provider.Inspect(url);

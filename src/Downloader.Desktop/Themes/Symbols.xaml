@@ -22,6 +22,10 @@
   <Geometry x:Key="BrandArrowGeometry">M107,72L107,114 77,114 125.5,168 174,114 144,114 144,72Z</Geometry>
   <Geometry x:Key="BrandIconArrowGeometry">M27.873,18.056L27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056Z</Geometry>
   <SolidColorBrush x:Key="BrandFill" Color="#E63D4D"/>
+  <LinearGradientBrush x:Key="ShineBrush" x:Shared="False" StartPoint="0,0" EndPoint="1,0.65">
+    <LinearGradientBrush.RelativeTransform><TranslateTransform X="1.2"/></LinearGradientBrush.RelativeTransform>
+    <GradientStop Color="#00FF8393" Offset="0.27"/><GradientStop Color="#C4E63D4D" Offset="0.37"/><GradientStop Color="#FFFFB4C0" Offset="0.46"/><GradientStop Color="#FFFFFFFF" Offset="0.5"/><GradientStop Color="#FFFFB4C0" Offset="0.54"/><GradientStop Color="#C4E63D4D" Offset="0.63"/><GradientStop Color="#00FF8393" Offset="0.73"/>
+  </LinearGradientBrush>
   <Style x:Key="LineIcon" TargetType="Path">
     <Setter Property="Width" Value="18"/>
     <Setter Property="Height" Value="18"/>

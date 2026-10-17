@@ -8,7 +8,7 @@ public sealed partial class MainViewModel
 {
     private DownloadActionState downloadActionState;
     public DownloadActionState DownloadActionState => downloadActionState;
-    public string DownloadActionLabel => downloadActionState switch
+    public string DownloadActionLabel => IsCheckingMedia ? T(WholePlaylist ? "Checking playlist" : "Checking video") : downloadActionState switch
     {
         DownloadActionState.Downloading => T("Downloading"),
         DownloadActionState.Complete => RevealLabel,

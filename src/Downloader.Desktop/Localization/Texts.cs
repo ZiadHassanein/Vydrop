@@ -128,6 +128,7 @@ internal static class Texts
         { "Preview build", "نسخة تجريبية" },
         { "This test build stays separate from stable releases. Updates will be enabled after testing.", "هذه النسخة التجريبية منفصلة عن الإصدارات المستقرة. ستُفعّل تحديثات التطبيق بعد الاختبار." },
         { "This site or link is not supported. Try a public video link.", "الموقع أو الرابط غير مدعوم. جرّب رابط فيديو عام." },
+        { "LinkedIn did not expose a public video at this link. Open the video in your browser and use the Vydrop button.", "لم يوفّر LinkedIn فيديو عامًا عبر هذا الرابط. افتح الفيديو في متصفحك واستخدم زر Vydrop." },
         { "The site did not return downloadable formats for this video.", "لم يُرجع الموقع صيغًا قابلة للتنزيل لهذا الفيديو." },
         { "Preparing audio", "جارٍ تجهيز الصوت" },
         { "Requested subtitles were unavailable. The media file was saved.", "الترجمة المطلوبة غير متاحة. تم حفظ ملف الوسائط." },

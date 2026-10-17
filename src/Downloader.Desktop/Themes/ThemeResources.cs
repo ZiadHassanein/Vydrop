@@ -33,6 +33,9 @@ internal static class ThemeResources
         ["Accent"] = ("#A91F33", "#FF8393"),
         ["Action"] = ("#BA263A", "#CB2D42"),
         ["OnAccent"] = ("#FFFFFF", "#FFFFFF"),
+        ["DownloadActionFill"] = ("#C13046", "#C13046"),
+        ["DownloadActionInk"] = ("#FFFFFF", "#FFFFFF"),
+        ["DownloadActionProgress"] = ("#651321", "#651321"),
         ["Border"] = ("#8E7D87", "#94828D"),
         ["Hover"] = ("#F3E9ED", "#353039"),
         ["Selected"] = ("#F8E3E9", "#3E2933"),
@@ -56,8 +59,8 @@ internal static class ThemeResources
                 brush = key switch
                 {
                     "Ink" or "Muted" or "Error" or "Success" => SystemColors.WindowTextBrush,
-                    "Accent" or "Action" or "Border" => SystemColors.HighlightBrush,
-                    "OnAccent" => SystemColors.HighlightTextBrush,
+                    "Accent" or "Action" or "Border" or "DownloadActionFill" => SystemColors.HighlightBrush,
+                    "OnAccent" or "DownloadActionInk" or "DownloadActionProgress" => SystemColors.HighlightTextBrush,
                     _ => SystemColors.WindowBrush
                 };
             if (brush.CanFreeze) brush.Freeze();

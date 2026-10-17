@@ -9,6 +9,8 @@ internal static class Program
             if (args.Length == 2 && args[0] == "--native-host") return await NativeHostChecks.Run(args[1]);
             if (args.Length == 2 && args[0] == "--package") return PackageArtifactChecks.Run(args[1]);
             if (args.Length == 3 && args[0] == "--direct-media-live") return DirectMediaLiveChecks.Run(args[1], args[2]);
+            if (args.Length == 4 && args[0] == "--linkedin-live") return LinkedInLiveChecks.Run(args[1], args[2], args[3]);
+            if (args.Length == 4 && args[0] == "--browser-media-live") return LinkedInLiveChecks.Run(args[1], args[2], args[3], true);
             BrowserLinkTransport.PipeNameOverride = "Vydrop.Tests." + Guid.NewGuid().ToString("N");
             var output = AppContext.BaseDirectory;
             foreach (string file in Directory.GetFiles(args[0]))
