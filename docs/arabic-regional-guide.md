@@ -1,6 +1,6 @@
 ---
 title: "Arabic video-download terms: a guide for 22 countries"
-description: "Understand Arabic video-download wording across 22 countries, map it to Vydrop controls, and choose source-aware video, audio, captions and browser integration."
+description: "Understand video-download terms across 22 Arab countries and use Vydrop to save video, audio and available captions on Windows."
 lang: en
 dir: ltr
 alternate: true
