@@ -25,6 +25,11 @@ function absoluteLink(ref, source) {
 function asText(source) {
   let text = read(source).replace(/^---\n[\s\S]*?\n---\n/u, '');
   text = text.replace(/\{% include (facts(?:-ar)?\.md) %\}/gu, (_, file) => read(`docs/_includes/${file}`).trim());
+  text = text.replace(/\{% include setup-shot\.html id="([^"]+)"(?: lang="([^"]+)")? %\}/gu, (_, id, language) => {
+    const shot=JSON.parse(read('docs/_data/extension_shots.json'))[id];
+    const lang=language || (source.startsWith('docs/ar/') ? 'ar' : 'en');
+    return `![${shot.alt[lang]}](${new URL(shot.path.slice(1),base).href})\n\n${shot.caption[lang]}`;
+  });
   if (/\{%|\{\{/u.test(text)) throw new Error(`${source}: unresolved template in plain-text reference`);
   text = text.replace(/<!--[\s\S]*?-->/gu, '').replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/gu, '');
   text = text.replace(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gu, (_, ref, label) => {

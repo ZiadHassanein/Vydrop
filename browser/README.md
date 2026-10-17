@@ -2,7 +2,7 @@
 
 Optional Chrome/Edge and Firefox companions are included in the app ZIP under `Browser`. Normal app downloads need no extension. Companion 1.3.5 displays a small **Download by Vydrop** tab near the playing video's top-right corner, outside its border, across websites including embedded HTML5 players. Clicking it copies that video's link and opens the app. You review the result, choose quality and click Download in Vydrop.
 
-**New to the extension? Follow the illustrated [Chrome](https://github.com/ZiadHassanein/Vydrop/blob/main/docs/browser-extension-setup.md#chrome), [Edge](https://github.com/ZiadHassanein/Vydrop/blob/main/docs/browser-extension-setup.md#edge) or [Firefox](https://github.com/ZiadHassanein/Vydrop/blob/main/docs/browser-extension-setup.md#firefox) guide**, with English and Arabic instructions. The regular **Vydrop** companion connects to the regular app. A separately built **Vydrop Preview** companion uses the preview channel.
+**New to the extension? Follow the illustrated [Chrome](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome), [Edge](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) or [Firefox](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) guide**, with English and Arabic instructions. The regular **Vydrop** companion connects to the regular app. A separately built **Vydrop Preview** companion uses the preview channel.
 
 1. Extract the app ZIP into a permanent folder and open `Vydrop.exe`.
 2. Choose **Settings → Browser integration → Enable connection** in the app. This registers the connection for your Windows account only.

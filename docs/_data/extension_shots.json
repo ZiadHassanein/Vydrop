@@ -1,0 +1,181 @@
+{
+  "folders": {
+    "zones": [
+      {
+        "style": "left:0.9195%;top:44.2197%;width:12.069%;height:9.8266%"
+      },
+      {
+        "style": "left:0.9195%;top:86.9942%;width:15.7471%;height:10.4046%"
+      }
+    ],
+    "width": 1221,
+    "height": 346,
+    "path": "/images/extension/screenshots/01-extracted-app.png",
+    "style": "aspect-ratio:870/346;--shot-width:140.3448%;--shot-left:0%;--shot-top:0%",
+    "alt": {
+      "en": "Extracted Vydrop folder containing Browser and Vydrop.exe",
+      "ar": "مجلد Vydrop بعد فك الضغط، وفيه Browser وVydrop.exe"
+    },
+    "caption": {
+      "en": "Keep Browser beside Vydrop.exe in the extracted app folder. The drive and folder name shown are examples.",
+      "ar": "احتفظ بمجلد Browser بجوار Vydrop.exe. اسم المجلد وحرف القرص في الصورة مجرد مثال."
+    }
+  },
+  "menu": {
+    "zones": [
+      {
+        "style": "left:0.4573%;top:14.1509%;width:35.061%;height:33.9623%"
+      },
+      {
+        "style": "left:37.5%;top:14.1509%;width:60.8232%;height:33.9623%"
+      }
+    ],
+    "width": 656,
+    "height": 514,
+    "path": "/images/extension/screenshots/02-chrome-extensions-menu.png",
+    "style": "aspect-ratio:656/106;--shot-width:100%;--shot-left:0%;--shot-top:-384.9057%",
+    "alt": {
+      "en": "Chrome Extensions submenu with Manage extensions",
+      "ar": "قائمة Extensions في Chrome وخيار Manage extensions"
+    },
+    "caption": {
+      "en": "Open Chrome’s menu, then Extensions → Manage extensions. You can also enter chrome://extensions directly.",
+      "ar": "من قائمة Chrome اختر Extensions ثم Manage extensions، أو اكتب chrome://extensions مباشرة."
+    }
+  },
+  "unpacked": {
+    "zones": [
+      {
+        "style": "left:2.7435%;top:53.0303%;width:21.9479%;height:38.6364%"
+      }
+    ],
+    "width": 729,
+    "height": 240,
+    "path": "/images/extension/screenshots/03-load-unpacked.png",
+    "style": "aspect-ratio:729/132;--shot-width:100%;--shot-left:0%;--shot-top:0%",
+    "alt": {
+      "en": "Chrome extensions page with Load unpacked available",
+      "ar": "صفحة إضافات Chrome وبها زر Load unpacked"
+    },
+    "caption": {
+      "en": "Turn Developer mode on first, then choose Load unpacked. The Developer mode switch is outside this screenshot.",
+      "ar": "فعّل Developer mode أولًا، ثم اضغط Load unpacked. مفتاح وضع المطوّر خارج حدود هذه اللقطة."
+    }
+  },
+  "path": {
+    "zones": [
+      {
+        "style": "left:6.1372%;top:0.5929%;width:35.1083%;height:8.498%"
+      },
+      {
+        "style": "left:4.7834%;top:58.498%;width:13.0866%;height:7.1146%"
+      }
+    ],
+    "width": 1421,
+    "height": 506,
+    "path": "/images/extension/screenshots/04-chromium-folder-path.png",
+    "style": "aspect-ratio:1108/506;--shot-width:128.2491%;--shot-left:0%;--shot-top:0%",
+    "alt": {
+      "en": "Browser chromium folder path and its manifest.json file",
+      "ar": "المسار الكامل لمجلد Browser chromium وملف manifest.json بداخله"
+    },
+    "caption": {
+      "en": "Copy the full path ending in Browser\\chromium. The folder contains manifest.json; Chrome needs this folder, not the ZIP.",
+      "ar": "انسخ المسار الكامل المنتهي بـ Browser\\chromium. اختر هذا المجلد الذي يحتوي على manifest.json، وليس ملف ZIP."
+    }
+  },
+  "picker": {
+    "zones": [
+      {
+        "style": "left:12.1129%;top:8.0268%;width:63.2485%;height:7.6923%"
+      },
+      {
+        "style": "left:80.7983%;top:89.1304%;width:9.6352%;height:6.5217%"
+      }
+    ],
+    "width": 1453,
+    "height": 598,
+    "path": "/images/extension/screenshots/05-select-extension-folder.png",
+    "style": "aspect-ratio:1453/598;--shot-width:100%;--shot-left:0%;--shot-top:0%",
+    "alt": {
+      "en": "Chrome folder chooser with address bar and Select Folder button",
+      "ar": "نافذة اختيار مجلد الإضافة، مع شريط المسار وزر Select Folder"
+    },
+    "caption": {
+      "en": "In this dialog, replace the outer app-folder path shown with the full Browser\\chromium path, press Enter, then choose Select Folder.",
+      "ar": "في هذه النافذة استبدل مسار الحزمة الظاهر بالمسار الكامل حتى Browser\\chromium، واضغط Enter، ثم Select Folder."
+    }
+  },
+  "enabled": {
+    "zones": [
+      {
+        "style": "left:87.4502%;top:82.5095%;width:8.5657%;height:11.7871%"
+      }
+    ],
+    "width": 1000,
+    "height": 514,
+    "path": "/images/extension/screenshots/06-vydrop-extension-enabled.png",
+    "style": "aspect-ratio:502/263;--shot-width:199.2032%;--shot-left:-97.012%;--shot-top:-92.0152%",
+    "alt": {
+      "en": "Vydrop 1.3.5 extension card with its switch enabled",
+      "ar": "بطاقة إضافة Vydrop 1.3.5 ومفتاح تشغيلها مفعّل"
+    },
+    "caption": {
+      "en": "The Vydrop card confirms installation. Keep the switch on; use Details to allow access to the websites you want.",
+      "ar": "ظهور بطاقة Vydrop يؤكد التثبيت. اترك المفتاح مفعّلًا، واضبط الوصول للمواقع المطلوبة من Details."
+    }
+  },
+  "player": {
+    "zones": [
+      {
+        "style": "left:49.3741%;top:0.1667%;width:28.3727%;height:7.6667%"
+      }
+    ],
+    "width": 1899,
+    "height": 736,
+    "path": "/images/extension/screenshots/07-send-playing-video.png",
+    "style": "aspect-ratio:719/600;--shot-width:264.1168%;--shot-left:-164.1168%;--shot-top:-11.8333%",
+    "alt": {
+      "en": "Download by Vydrop button beside a playing YouTube video",
+      "ar": "زر Download by Vydrop بجوار فيديو يعمل على YouTube"
+    },
+    "caption": {
+      "en": "Refresh the video page, play the video, then click Download by Vydrop. This sends the link to the app for review.",
+      "ar": "حدّث صفحة الفيديو وشغّله، ثم اضغط Download by Vydrop لإرسال الرابط إلى التطبيق ومراجعته."
+    }
+  },
+  "opening": {
+    "zones": [],
+    "width": 1030,
+    "height": 1001,
+    "path": "/images/extension/screenshots/08-app-opening.png",
+    "style": "aspect-ratio:905/995;--shot-width:113.8122%;--shot-left:0%;--shot-top:0%",
+    "alt": {
+      "en": "Vydrop opening before the video link and quality finish loading",
+      "ar": "فتح Vydrop قبل اكتمال وصول الرابط وفحص الجودة"
+    },
+    "caption": {
+      "en": "Vydrop opens first. Wait for the link and media check to finish; the Download button can remain disabled during this step.",
+      "ar": "يفتح Vydrop أولًا. انتظر وصول الرابط وانتهاء فحص الفيديو؛ قد يظل زر التنزيل غير متاح أثناء هذه الخطوة."
+    }
+  },
+  "review": {
+    "zones": [
+      {
+        "style": "left:19.0042%;top:75.3535%;width:24.9649%;height:7.2727%"
+      }
+    ],
+    "width": 1426,
+    "height": 990,
+    "path": "/images/extension/screenshots/09-review-and-download.png",
+    "style": "aspect-ratio:1426/990;--shot-width:100%;--shot-left:0%;--shot-top:0%",
+    "alt": {
+      "en": "Vydrop with the video link, preview, quality and enabled Download button",
+      "ar": "Vydrop بعد وصول الرابط وظهور معاينة الفيديو والجودة وزر التنزيل"
+    },
+    "caption": {
+      "en": "Review the detected video, choose Video or Audio, quality and save folder, then choose Download. The extension does not start saving automatically.",
+      "ar": "راجع الفيديو واختر فيديو أو صوتًا، ثم الجودة ومجلد الحفظ واضغط تنزيل. الإضافة لا تبدأ حفظ الملف تلقائيًا."
+    }
+  }
+}

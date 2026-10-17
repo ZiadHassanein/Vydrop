@@ -13,7 +13,7 @@
   <a href="docs/images/screenshots/vydrop-light-ar-download.png"><img src="docs/images/screenshots/vydrop-light-ar-download.png" width="48%" alt="واجهة Vydrop العربية الفاتحة: الرابط والصيغة والجودة والترجمة والتنزيل"></a>
 </p>
 
-<p align="center"><em>Native 100% scale client renders of the 4.2.3 interface, without a pointer. Browser setup images below are labelled illustrations.</em></p>
+<p align="center"><em>Native 100% scale client renders of the 4.2.3 interface, without a pointer. The Chrome setup guide uses real screenshots; Edge and Firefox diagrams are labelled illustrations.</em></p>
 
 # Vydrop — Free Video & Audio Downloader for Windows
 
@@ -26,7 +26,7 @@ GitHub counts release downloads, including repeats and automated downloads; this
 
 </details>
 
-[Documentation](https://ziadhassanein.github.io/Vydrop/) · [العربية](https://ziadhassanein.github.io/Vydrop/ar/) · [Setup guide](#getting-started) · [Theme previews](#theme-previews) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/Vydrop/issues)
+[Documentation](https://ziadhassanein.github.io/Vydrop/) · [العربية](https://ziadhassanein.github.io/Vydrop/ar/) · [Setup guide](#getting-started) · [Theme previews](#theme-previews) · [Extension setup with pictures](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html) · [Report a download problem](https://github.com/ZiadHassanein/Vydrop/issues)
 
 Website guides: [English (US)](docs/en-us/index.md) · [Français](docs/fr/index.md) · [Deutsch](docs/de/index.md) · [Español](docs/es/index.md) · [Arabic terminology across 22 countries](docs/ar/arabic-regional-guide.md). The desktop interface supports English and Arabic.
 
@@ -72,24 +72,24 @@ The optional **Chrome, Microsoft Edge and Firefox** companion **1.3.5** is in th
 
 Facebook, TikTok and YouTube detection uses the selected player's public permalink. Other HTML5 players may provide a direct media URL or a single-video page link. Available space, custom players and site restrictions can limit detection. Use the toolbar popup when the tab cannot be placed safely.
 
-Follow the **[illustrated extension setup guide](docs/browser-extension-setup.md)** for Chrome, Edge and Firefox, including [Arabic instructions](docs/browser-extension-setup.md#arabic). See [permissions and limitations](browser/README.md) for more detail. The extension does not import accounts or cookies and does not start hidden downloads. Reload an older unpacked companion after updating its folder, or load the new ZIP's `Browser` companion.
+Follow the **[illustrated extension setup guide](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html)** for Chrome, Edge and Firefox, including [Arabic instructions](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html). See [permissions and limitations](browser/README.md) for more detail. The extension does not import accounts or cookies and does not start hidden downloads. Reload an older unpacked companion after updating its folder, or load the new ZIP's `Browser` companion.
 
 
 Start in the app with **Settings → Browser integration → Enable connection**, then choose your browser:
 
 | Browser | Open this address | Install from the extracted folder |
 | --- | --- | --- |
-| [Chrome guide](docs/browser-extension-setup.md#chrome) | `chrome://extensions` | Developer mode → Load unpacked → `Browser/chromium` |
-| [Edge guide](docs/browser-extension-setup.md#edge) | `edge://extensions` | Developer mode → Load unpacked → `Browser/chromium` |
-| [Firefox guide](docs/browser-extension-setup.md#firefox) | `about:debugging#/runtime/this-firefox` | Load Temporary Add-on → `Browser/firefox/manifest.json` |
+| [Chrome guide](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome) | `chrome://extensions` | Developer mode → Load unpacked → `Browser/chromium` |
+| [Edge guide](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) | `edge://extensions` | Developer mode → Load unpacked → `Browser/chromium` |
+| [Firefox guide](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) | `about:debugging#/runtime/this-firefox` | Load Temporary Add-on → `Browser/firefox/manifest.json` |
 
 <p align="center">
-  <a href="docs/browser-extension-setup.md#chrome"><img src="docs/images/extension/03-chromium-setup.svg" width="32%" alt="Chrome setup illustration: Developer mode, Load unpacked and Browser/chromium"></a>
-  <a href="docs/browser-extension-setup.md#edge"><img src="docs/images/extension/04-edge-setup.svg" width="32%" alt="Edge setup illustration with its Developer mode control and Browser/chromium folder"></a>
-  <a href="docs/browser-extension-setup.md#firefox"><img src="docs/images/extension/05-firefox-setup.svg" width="32%" alt="Firefox temporary add-on illustration showing the manifest.json file to select"></a>
+  <a href="https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome"><img src="docs/images/extension/screenshots/03-load-unpacked.png" width="32%" alt="Real Chrome screenshot: choose Load unpacked after enabling Developer mode"></a>
+  <a href="https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge"><img src="docs/images/extension/04-edge-setup.svg" width="32%" alt="Edge setup illustration with its Developer mode control and Browser/chromium folder"></a>
+  <a href="https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox"><img src="docs/images/extension/05-firefox-setup.svg" width="32%" alt="Firefox temporary add-on illustration showing the manifest.json file to select"></a>
 </p>
 
-Keep the extracted folder, allow access to the desired websites and refresh open video pages. **Firefox's local add-on must be loaded again after a browser restart.** These packages are not browser-store listings. The [full illustrated guide](docs/browser-extension-setup.md) covers every step, updates and troubleshooting.
+Keep the extracted folder, allow access to the desired websites and refresh open video pages. **Firefox's local add-on must be loaded again after a browser restart.** These packages are not browser-store listings. The [full illustrated guide](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html) covers every step, updates and troubleshooting.
 
 ## Getting started
 
@@ -165,7 +165,7 @@ The solution contains `Downloader.Core`, `Downloader.Infrastructure` and the WPF
 
 **Vydrop** برنامج مجاني ومفتوح المصدر من تطوير **زياد حسنين**، لتنزيل الفيديو والصوت من الصفحات العامة في يوتيوب وتيك توك وفيسبوك وVimeo وأكثر من ١٠٠٠ موقع مدعوم عبر yt-dlp، إضافة إلى روابط الوسائط المباشرة. يدعم العربية والإنجليزية والمظهرين الفاتح والداكن، مع قائمة تنزيلات واختيار فيديوهات القائمة وحفظ الترجمة المتاحة.
 
-الإصدار الحالي هو **Vydrop 4.2.3**، ويُحسّن مظهر زر التنزيل وحركاته ويعرض فحص الفيديو داخله، مع ثبات لون ووزن نص زري الفيديو والصوت. تتضمن الحزمة إضافة المتصفح **1.3.5** لتحسين موضع الزر على YouTube والتعرّف على فيديو LinkedIn وإرساله للتطبيق. [نزّل ملف Windows ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.3/Vydrop-v4.2.3-win-x64.zip)، ثم فكّ الضغط وافتح **Vydrop.exe**. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. فعّل الربط بالمتصفح من Vydrop وأعد تحميل الإضافة من مجلد Browser الجديد. راجع [دليل تفعيل Chrome وEdge وFirefox بالصور](docs/browser-extension-setup.md#arabic). تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو وجودة المصدر.
+الإصدار الحالي هو **Vydrop 4.2.3**، ويُحسّن مظهر زر التنزيل وحركاته ويعرض فحص الفيديو داخله، مع ثبات لون ووزن نص زري الفيديو والصوت. تتضمن الحزمة إضافة المتصفح **1.3.5** لتحسين موضع الزر على YouTube والتعرّف على فيديو LinkedIn وإرساله للتطبيق. [نزّل ملف Windows ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.3/Vydrop-v4.2.3-win-x64.zip)، ثم فكّ الضغط وافتح **Vydrop.exe**. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. فعّل الربط بالمتصفح من Vydrop وأعد تحميل الإضافة من مجلد Browser الجديد. راجع [دليل تفعيل Chrome وEdge وFirefox بالصور](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html). تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو وجودة المصدر.
 
 ### أسئلة شائعة
 

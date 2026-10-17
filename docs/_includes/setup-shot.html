@@ -1,0 +1,11 @@
+{% assign shot = site.data.extension_shots[include.id] %}
+{% assign shot_lang = include.lang | default: page.lang | default: 'en' %}
+<figure class="setup-shot">
+  <a href="{{ shot.path | relative_url }}" aria-label="{% if shot_lang == 'ar' %}افتح الصورة بالحجم الكامل: {% else %}Open full-size screenshot: {% endif %}{{ shot.alt[shot_lang] | escape }}">
+    <span class="setup-crop" style="{{ shot.style }}">
+      <img src="{{ shot.path | relative_url }}" width="{{ shot.width }}" height="{{ shot.height }}" loading="lazy" decoding="async" alt="{{ shot.alt[shot_lang] | escape }}">
+      {% for zone in shot.zones %}<span class="setup-target" style="{{ zone.style }}" aria-hidden="true"></span>{% endfor %}
+    </span>
+  </a>
+  <figcaption>{{ shot.caption[shot_lang] }}</figcaption>
+</figure>
