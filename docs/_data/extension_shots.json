@@ -68,7 +68,7 @@
         "style": "left:6.1372%;top:0.5929%;width:35.1083%;height:8.498%"
       },
       {
-        "style": "left:4.7834%;top:58.498%;width:13.0866%;height:7.1146%"
+        "style": "left:4.7834%;top:52.1739%;width:13.0866%;height:6.7194%"
       }
     ],
     "width": 1421,
@@ -128,13 +128,13 @@
   "player": {
     "zones": [
       {
-        "style": "left:49.3741%;top:0.1667%;width:28.3727%;height:7.6667%"
+        "style": "left:49.3741%;top:0.3846%;width:28.3727%;height:17.6923%"
       }
     ],
     "width": 1899,
     "height": 736,
     "path": "/images/extension/screenshots/07-send-playing-video.png",
-    "style": "aspect-ratio:719/600;--shot-width:264.1168%;--shot-left:-164.1168%;--shot-top:-11.8333%",
+    "style": "aspect-ratio:719/260;--shot-width:264.1168%;--shot-left:-164.1168%;--shot-top:-27.3077%",
     "alt": {
       "en": "Download by Vydrop button beside a playing YouTube video",
       "ar": "زر Download by Vydrop بجوار فيديو يعمل على YouTube"
