@@ -28,6 +28,12 @@ home: true
 
 <figure><picture><source media="(prefers-color-scheme: dark)" srcset="../images/screenshots/vydrop-dark-ar-download.png"><img src="../images/screenshots/vydrop-light-ar-download.png" width="724" height="761" alt="واجهة Vydrop العربية الأصلية في ويندوز مع رابط الفيديو والصيغة وجودة الصوت والترجمة وزر تنزيل في المنتصف"></picture><figcaption>عرض أصلي لنافذة واجهة الإصدار 4.2.3 بمقياس ١٠٠٪، دون مؤشر الفأرة.</figcaption></figure>
 
+## إرشادات بلغتك
+
+تتوفر إرشادات [بالعربية](index.md)، و[الإنجليزية الأمريكية](../en-us/index.md)، و[الفرنسية](../fr/index.md)، و[الألمانية](../de/index.md)، و[الإسبانية](../es/index.md). واجهة التطبيق نفسها بالعربية والإنجليزية.
+
+لو بتبحث بإزاي أو كيف أو شلون أو كيفاش، راجع [دليل مصطلحات تنزيل الفيديو في ٢٢ دولة عربية](arabic-regional-guide.md) لمعرفة الاختيار المقابل داخل البرنامج.
+
 ## ابدأ برابط فيديو عام
 
 1. نزّل ملف Windows ZIP وفكّ ضغطه في مجلد قابل للكتابة، ثم افتح **Vydrop.exe**. بيئة .NET مضمّنة.

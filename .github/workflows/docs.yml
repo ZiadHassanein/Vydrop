@@ -30,7 +30,7 @@ jobs:
           node scripts/build-ai-reference.cjs --check
           bundle install --gemfile docs/Gemfile
           bundle exec --gemfile docs/Gemfile jekyll build --source docs --destination build/site
-          node --test tests/docs.test.cjs tests/search-discovery.test.cjs
+          node --test tests/docs.test.cjs tests/search-discovery.test.cjs tests/international.test.cjs
           node scripts/check-site.cjs build/site
       - name: Upload the checked documentation
         if: github.repository == 'ZiadHassanein/Vydrop' && github.event.repository.private == false && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

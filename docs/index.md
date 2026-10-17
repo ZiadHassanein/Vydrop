@@ -28,6 +28,10 @@ Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-d
 
 <figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-download.png"><img src="images/screenshots/vydrop-light-en-download.png" width="724" height="761" alt="Vydrop native Windows interface with video link, format, quality, subtitles and a centered Download action"></picture><figcaption>Native 100% scale client render of the 4.2.3 interface. No mouse pointer.</figcaption></figure>
 
+## Guides by language and region
+
+Read the [US English](en-us/index.md), [Arabic](ar/index.md), [French](fr/index.md), [German](de/index.md) or [Spanish](es/index.md) guide. The desktop app itself supports English and Arabic. The [Arabic regional terminology guide](arabic-regional-guide.md) maps illustrative wording from 22 countries to the app's video, audio and subtitle controls.
+
 ## Start with a public video link
 
 1. Download the Windows ZIP, extract it to a writable folder, and open **Vydrop.exe**. The .NET runtime is bundled.

@@ -6,6 +6,15 @@ const vm = require('node:vm');
 const crypto = require('node:crypto');
 const root = path.join(__dirname, '..');
 
+test('The video action ignores XML sitemaps, feeds and other non-HTML viewers', () => {
+  const source = fs.readFileSync(path.join(root, 'browser/common/video-overlay.js'), 'utf8');
+  for (const contentType of ['application/xml', 'text/xml', 'application/rss+xml', 'image/svg+xml', 'text/plain']) {
+    const context = vm.createContext({ document: { contentType }, browser: {runtime: {sendMessage: () => { throw new Error('Unexpected native message'); }}} });
+    vm.runInContext(source, context);
+    assert.equal(context.ViFreeOverlayActive, undefined, contentType);
+  }
+});
+
 test('Shared logo SVG paths use browser syntax rather than WPF fill prefixes', () => {
   for (const file of ['assets/brand-logo-light.svg', 'assets/brand-logo-dark.svg', 'browser/common/popup.html']) {
     const markup = fs.readFileSync(path.join(root, file), 'utf8');

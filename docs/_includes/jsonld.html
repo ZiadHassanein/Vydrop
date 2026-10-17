@@ -13,7 +13,7 @@
       "inLanguage": ["en", "ar"],
       "url": {{ '/' | absolute_url | jsonify }},
       "sameAs": {{ site.data.product.repository | jsonify }},
-      "description": {{ site.description | jsonify }},
+      "description": {{ page.description | default: site.description | jsonify }},
       "downloadUrl": {{ site.data.product.download | jsonify }},
       "releaseNotes": "{{ site.data.product.repository }}/releases/tag/v{{ site.data.product.version }}",
       "image": {{ '/assets/social-card.png' | absolute_url | jsonify }},
@@ -33,7 +33,7 @@
       "license": "{{ site.data.product.repository }}/blob/main/LICENSE",
       "targetProduct": {"@id": "{{ '/' | absolute_url }}#application"}
     },
-    {"@type": "FAQPage", "inLanguage": {{ page.lang | jsonify }}, "mainEntity": [
+    {"@type": "FAQPage", "inLanguage": {{ page.language_code | default: page.lang | jsonify }}, "mainEntity": [
       {% for item in site.data.faq[page.lang] %}
       {"@type": "Question", "name": {{ item.question | jsonify }}, "acceptedAnswer": {"@type": "Answer", "text": {{ item.answer | jsonify }}}}{% unless forloop.last %},{% endunless %}
       {% endfor %}

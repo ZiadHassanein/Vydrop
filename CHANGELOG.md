@@ -4,6 +4,13 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+### Added
+- Publish US English, French, German and Spanish website guides, plus an Arabic terminology guide covering 22 countries. The app interface remains English and Arabic.
+- Connect localized pages with reciprocal language links and include them in the sitemap and readable documentation reference.
+
+### Fixed
+- Skip the browser video overlay on XML, feeds and plain-text viewers.
+
 ## [4.2.3] - 2026-10-18
 
 ### Changed

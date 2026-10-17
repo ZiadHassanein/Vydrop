@@ -4,7 +4,7 @@ Vydrop (formerly ViFree and YouTube Downloader) is a free MIT-licensed Windows 1
 
 ## Official references
 - [Documentation home](https://ziadhassanein.github.io/Vydrop/)
-- [Full English and Arabic documentation, README and security as plain text](https://ziadhassanein.github.io/Vydrop/llms-full.txt)
+- [Full multilingual guides, README and security as plain text](https://ziadhassanein.github.io/Vydrop/llms-full.txt)
 - [Raw README](https://raw.githubusercontent.com/ZiadHassanein/Vydrop/main/README.md)
 - [README](https://github.com/ZiadHassanein/Vydrop#readme)
 - [Supported sites](https://ziadhassanein.github.io/Vydrop/supported-sites.html)
@@ -13,5 +13,13 @@ Vydrop (formerly ViFree and YouTube Downloader) is a free MIT-licensed Windows 1
 - [Source code](https://github.com/ZiadHassanein/Vydrop/tree/main/src)
 - [Releases](https://github.com/ZiadHassanein/Vydrop/releases/latest)
 - [Arabic guide](https://ziadhassanein.github.io/Vydrop/ar/)
+
+## Language and region guides
+The app UI is English/Arabic. Website guides additionally cover US English, French, German and Spanish. Arabic regional wording covers 22 countries without changing product capabilities.
+- [US English](https://ziadhassanein.github.io/Vydrop/en-us/)
+- [French](https://ziadhassanein.github.io/Vydrop/fr/)
+- [German](https://ziadhassanein.github.io/Vydrop/de/)
+- [Spanish](https://ziadhassanein.github.io/Vydrop/es/)
+- [Arabic regional terminology](https://ziadhassanein.github.io/Vydrop/ar/arabic-regional-guide.html)
 
 The repository is now Vydrop; installed versions through 4.2.1 require one manual download after the rename; 4.2.3 uses the current update endpoint. A listed site or visible browser tab does not guarantee a downloadable public stream. These facts describe supported scope, not per-site testing or a ranking guarantee.

@@ -7,6 +7,7 @@ const origin = 'https://ziadhassanein.github.io';
 const base = '/Vydrop';
 function walk(folder) { return fs.readdirSync(folder, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(folder, e.name)) : path.join(folder, e.name)); }
 const htmlFiles = walk(site).filter(file => file.endsWith('.html'));
+const locales = JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/_data/locales.json'),'utf8'));
 const entities = text => text.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#39;', "'");
 for (const file of htmlFiles) {
   const text = fs.readFileSync(file, 'utf8');
@@ -18,6 +19,21 @@ for (const file of htmlFiles) {
   assert.ok(desc && entities(desc).length <= 155, `${route}: description`);
   assert.ok(text.includes(`rel="canonical" href="${canonical}"`), `${route}: canonical`);
   assert.ok(text.includes('hreflang="en"') && text.includes('hreflang="ar"'), `${route}: alternates`);
+  const alternates=[...text.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"/gu)];
+  assert.equal(new Set(alternates.map(item=>item[1])).size,alternates.length,`${route}: unique alternate languages`);
+  for(const [,language,href] of alternates) {
+    const alternate=new URL(href);
+    assert.equal(alternate.origin,origin,`${route}: alternate origin`);
+    assert.ok(alternate.pathname.startsWith(base+'/'),`${route}: alternate path`);
+    const targetFile=path.join(site,alternate.pathname.slice(base.length),alternate.pathname.endsWith('/')?'index.html':'');
+    const target=fs.readFileSync(targetFile,'utf8');
+    assert.ok(target.includes(`href="${canonical}"`),`${route}: reciprocal alternate ${language}`);
+  }
+  const localeHome=locales.homes.find(locale=>locale.url===route);
+  if(localeHome) {
+    for(const locale of locales.homes) assert.ok(text.includes(`hreflang="${locale.code}" href="${origin}${base}${locale.url}"`),`${route}: home alternate ${locale.code}`);
+    assert.ok(text.includes(`<html lang="${localeHome.code}"`) || localeHome.code===localeHome.lang && text.includes(`<html lang="${localeHome.lang}"`),`${route}: localized document language`);
+  }
   assert.ok(!text.includes('{{') && !text.includes('{%'), `${route}: unrendered Liquid`);
   assert.equal((text.match(/<h1\b/gu) || []).length, 1, `${route}: one H1`);
   if (route === '/' || route === '/ar/') assert.ok(text.includes('<table>') && text.includes('<thead>'), `${route}: semantic comparison table`);

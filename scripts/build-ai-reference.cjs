@@ -32,17 +32,23 @@ function asText(source) {
     return caption ? `[${decode(caption)}](${absoluteLink(decode(ref), source)})` : '';
   });
   text = text.replace(/<img\b[^>]*alt="([^"]*)"[^>]*>/gu, '$1');
+  text = text.replace(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gu, (_, level, heading) => '\n' + '#'.repeat(Number(level)) + ' ' + heading + '\n');
   text = text.replace(/<\/?(?:p|div|span|figure|figcaption|picture|source|details|summary|em|bdi|a|br)\b[^>]*>/gu, '\n');
   text = text.replace(/(!?\[[^\]\n]*\])\(([^)\s]+)\)/gu, (_, label, ref) => `${label}(${absoluteLink(ref, source)})`);
   return decode(text).replace(/[ \t]+\n/gu, '\n').replace(/\n{3,}/gu, '\n\n').trim();
 }
 
 function buildReference() {
-  const slugs = fs.readdirSync(path.join(root, 'docs')).filter(file => file.endsWith('.md') && /^alternate: true$/mu.test(read(`docs/${file}`))).sort();
-  // A single copy of each public language page plus source/security references.
-  const sources = ['README.md', 'SECURITY.md', ...slugs.map(file => `docs/${file}`), ...slugs.map(file => `docs/ar/${file}`)];
+  function pages(folder) {
+    return fs.readdirSync(path.join(root, folder), {withFileTypes: true}).flatMap(entry => {
+      const file = `${folder}/${entry.name}`;
+      if (entry.isDirectory()) return entry.name.startsWith('_') ? [] : pages(file);
+      return entry.name.endsWith('.md') && /^alternate: true$/mu.test(read(file)) ? [file] : [];
+    });
+  }
+  const sources = ['README.md', 'SECURITY.md', ...pages('docs').sort()];
   return read('docs/llms.txt').trim() + '\n\n---\n\n' +
-    'This reference is generated from the official published guides and repository documents. Each section links to its original. Product limitations and release/source distinctions apply throughout.\n\n' +
+    'This reference is generated from the official published guides and repository documents. Each section links to its original. The desktop interface supports English and Arabic; translated website guides do not add application interface languages. Product limitations and release/source distinctions apply throughout.\n\n' +
     sources.map(source => `Source: ${absoluteLink(path.basename(source), source)}\n\n${asText(source)}`).join('\n\n---\n\n') + '\n';
 }
 

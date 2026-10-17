@@ -28,6 +28,8 @@ GitHub counts release downloads, including repeats and automated downloads; this
 
 [Documentation](https://ziadhassanein.github.io/Vydrop/) · [العربية](https://ziadhassanein.github.io/Vydrop/ar/) · [Setup guide](#getting-started) · [Theme previews](#theme-previews) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/Vydrop/issues)
 
+Website guides: [English (US)](docs/en-us/index.md) · [Français](docs/fr/index.md) · [Deutsch](docs/de/index.md) · [Español](docs/es/index.md) · [Arabic terminology across 22 countries](docs/ar/arabic-regional-guide.md). The desktop interface supports English and Arabic.
+
 ## Latest release: Vydrop 4.2.3
 
 **Vydrop 4.2.3** refines the Download action with a coordinated crimson face, smooth hover/click shine, checking inside the button and an animated success check. Video/Audio labels retain their color and weight when selected. Companion **1.3.5** improves YouTube button placement and LinkedIn video detection and handoff.

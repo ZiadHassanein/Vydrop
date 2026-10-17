@@ -58,5 +58,59 @@
       "question": "ماذا يحدث عندما يغيّر موقع طريقة عمله؟",
       "answer": "يفحص Vydrop تحديثات yt-dlp وDeno المتحقق منها مرة يوميًا عند استخدام رابط، وقد يحدّث الأدوات ويعيد المحاولة مرة واحدة عند خطأ متوافق. قد يظل الحل بحاجة إلى إصلاح من المطوّرين الأصليين. للفحص اليدوي اختر الإعدادات ثم تحديث أداة التنزيل؛ تحديث التطبيق منفصل."
     }
+  ],
+  "fr": [
+    {
+      "question": "Vydrop est-il disponible en français ?",
+      "answer": "Ce guide est en français. L’application propose actuellement une interface en anglais ou en arabe ; ses boutons ne sont pas traduits en français. Elle fonctionne sur Windows 10 et 11 x64."
+    },
+    {
+      "question": "Peut-on télécharger une vidéo depuis n’importe quel site ?",
+      "answer": "Vydrop utilise yt-dlp pour les pages publiques de plus de 1 000 sites pris en charge. La disponibilité du média, le lecteur et les restrictions du site peuvent empêcher un téléchargement. Les contenus privés, nécessitant une connexion ou protégés par DRM ne sont pas pris en charge."
+    },
+    {
+      "question": "Le logiciel et l’extension sont-ils gratuits ?",
+      "answer": "Oui. Vydrop est gratuit et libre sous licence MIT, sans abonnement ni compte Vydrop. L’extension pour Chrome, Edge ou Firefox est facultative. Le logiciel ne collecte pas de télémétrie."
+    },
+    {
+      "question": "Un MP3 à débit élevé améliore-t-il la source ?",
+      "answer": "Non. Un débit de sortie plus élevé ne recrée pas les détails absents du son d’origine. Les choix dépendent des informations mesurées ou fournies par la source. WAV et FLAC ne restaurent pas non plus ces détails."
+    }
+  ],
+  "de": [
+    {
+      "question": "Gibt es Vydrop auf Deutsch?",
+      "answer": "Diese Anleitung ist auf Deutsch. Die Desktop-App bietet derzeit eine englische und eine arabische Oberfläche. Sie läuft auf Windows 10 und 11 x64. Die Namen der englischen Schaltflächen werden hier erklärt."
+    },
+    {
+      "question": "Kann Vydrop Videos von jeder Website herunterladen?",
+      "answer": "Vydrop nutzt yt-dlp für öffentliche Inhalte von mehr als 1.000 unterstützten Websites. Änderungen am Anbieter, der Player und Zugriffsbeschränkungen können einen Download verhindern. Private Inhalte, Anmeldepflicht und DRM werden nicht umgangen."
+    },
+    {
+      "question": "Sind die App und die Erweiterung kostenlos?",
+      "answer": "Ja. Vydrop ist kostenlos und unter der MIT-Lizenz quelloffen. Ein Vydrop-Konto oder Abonnement ist nicht nötig. Die Erweiterung für Chrome, Edge oder Firefox ist optional. Die App enthält keine Telemetrie."
+    },
+    {
+      "question": "Verbessert eine höhere MP3-Bitrate die Tonqualität?",
+      "answer": "Eine höhere Ausgabebitrate stellt verlorene Details der Quelle nicht wieder her. Die angebotenen Werte richten sich nach ermittelten Quelldaten. Auch WAV und FLAC können die ursprüngliche Qualität komprimierter Audiodaten nicht wiederherstellen."
+    }
+  ],
+  "es": [
+    {
+      "question": "¿Vydrop tiene interfaz en español?",
+      "answer": "Esta guía está en español. La aplicación ofrece actualmente interfaz en inglés y árabe y funciona en Windows 10 y 11 x64. Los pasos de esta página indican los nombres de los botones en inglés."
+    },
+    {
+      "question": "¿Puedo descargar vídeos de cualquier web?",
+      "answer": "Vydrop utiliza yt-dlp para páginas públicas de más de 1.000 sitios compatibles. Un cambio del sitio, su reproductor o las restricciones de acceso pueden impedir la descarga. No se admiten vídeos privados, contenido que exija iniciar sesión ni medios protegidos por DRM."
+    },
+    {
+      "question": "¿Son gratuitos el programa y la extensión?",
+      "answer": "Sí. Vydrop es gratuito y de código abierto con licencia MIT. No requiere cuenta de Vydrop ni suscripción y no incluye telemetría. La extensión para Chrome, Edge o Firefox es opcional."
+    },
+    {
+      "question": "¿Un MP3 con más bitrate suena mejor que el original?",
+      "answer": "No recupera detalles que faltan en el audio de origen. Las opciones dependen de los datos de la fuente. Si se desconocen, puede aparecer Automatic. Guardar en WAV o FLAC tampoco restaura la calidad perdida de una fuente comprimida."
+    }
   ]
 }

@@ -1,4 +1,6 @@
 (() => {
+  // Browser XML, feeds and plain-text viewers do not expose HTML style elements.
+  if (document.contentType && document.contentType !== "text/html") return;
   const api = globalThis.browser ?? globalThis.chrome;
   if (!api?.runtime?.sendMessage || globalThis.ViFreeOverlayActive) return;
   globalThis.ViFreeOverlayActive = true;
