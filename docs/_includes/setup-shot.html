@@ -1,11 +1,19 @@
 {% assign shot = site.data.extension_shots[include.id] %}
 {% assign shot_lang = include.lang | default: page.lang | default: 'en' %}
-<figure class="setup-shot">
+{% capture shot_image %}
+  <span class="setup-crop" style="{{ shot.style }}">
+    <img src="{{ shot.path | relative_url }}" width="{{ shot.width }}" height="{{ shot.height }}" loading="lazy" decoding="async" alt="{{ shot.alt[shot_lang] | escape }}">
+    {% for zone in shot.zones %}<span class="setup-target" style="{{ zone.style }}" aria-hidden="true"></span>{% endfor %}
+  </span>
+{% endcapture %}
+<figure class="setup-shot" style="--shot-native-width:{{ shot.native_width }}px">
   <a href="{{ shot.path | relative_url }}" aria-label="{% if shot_lang == 'ar' %}افتح الصورة بالحجم الكامل: {% else %}Open full-size screenshot: {% endif %}{{ shot.alt[shot_lang] | escape }}">
-    <span class="setup-crop" style="{{ shot.style }}">
-      <img src="{{ shot.path | relative_url }}" width="{{ shot.width }}" height="{{ shot.height }}" loading="lazy" decoding="async" alt="{{ shot.alt[shot_lang] | escape }}">
-      {% for zone in shot.zones %}<span class="setup-target" style="{{ zone.style }}" aria-hidden="true"></span>{% endfor %}
-    </span>
+    {{ shot_image }}
   </a>
   <figcaption>{{ shot.caption[shot_lang] }}</figcaption>
+  <details class="setup-zoom">
+    <summary>{% if shot_lang == 'ar' %}كبّر التفاصيل بالحجم الأصلي{% else %}Zoom to original size{% endif %}</summary>
+    <p class="setup-zoom-hint">{% if shot_lang == 'ar' %}مرّر داخل الصورة لرؤية الأزرار والنصوص كاملة، أو <a href="{{ shot.path | relative_url }}">افتح اللقطة الأصلية</a>.{% else %}Scroll inside the image to read controls and text, or <a href="{{ shot.path | relative_url }}">open the original screenshot</a>.{% endif %}</p>
+    <div class="setup-pan" tabindex="0" role="region" aria-label="{% if shot_lang == 'ar' %}تفاصيل الصورة قابلة للتمرير{% else %}Scrollable screenshot details{% endif %}">{{ shot_image }}</div>
+  </details>
 </figure>

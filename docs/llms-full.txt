@@ -409,7 +409,7 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html
 
 الإضافة اختيارية ومجانية؛ تنسخ رابط الفيديو الجاري تشغيله وتفتحه في Vydrop للمراجعة. لا يبدأ التنزيل تلقائيًا ولا تُستورد بيانات الحساب.
 
-شرح Chrome وإرسال الفيديو يستخدم **لقطات حقيقية** بواجهة إنجليزية، مع تحديد الأزرار المطلوبة. اضغط أي لقطة لفتح الأصل بالحجم الكامل. صور تفعيل الاتصال وEdge وFirefox رسومات توضيحية مذكورة بوضوح.
+شرح Chrome وإرسال الفيديو يستخدم **لقطات حقيقية** بواجهة إنجليزية، محفوظة كملفات PNG الأصلية، مع تحديد الأزرار المطلوبة. اختر **كبّر التفاصيل بالحجم الأصلي** أسفل أي صورة لقراءة الأزرار دون تصغيرها، ومرّر داخل العرض المكبّر، أو اضغط الصورة لفتح الأصل. صور تفعيل الاتصال وEdge وFirefox رسومات توضيحية مذكورة بوضوح.
 
 ## جهّز التطبيق
 
@@ -898,7 +898,7 @@ Use the optional companion to send the video you are watching to the desktop app
 
 [Published downloads](https://github.com/ZiadHassanein/Vydrop/releases/latest) · [Chrome](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome) · [Edge](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) · [Firefox](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) · [Troubleshooting](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#troubleshooting) · [العربية](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#arabic)
 
-The Chrome and video-to-app steps below use **real screenshots**. Highlighted frames focus on the controls to use; click a screenshot to open the original at full size. Edge, Firefox and the desktop connection diagram are labelled illustrations. Control positions can vary by browser version.
+The Chrome and video-to-app steps below use **real screenshots**, preserved as original PNG files. Highlighted frames focus on the controls to use. Choose **Zoom to original size** below a screenshot to read its controls without shrinking them; scroll inside the enlarged view, or click the image to open the original. Edge, Firefox and the desktop connection diagram are labelled illustrations. Control positions can vary by browser version.
 
 ## 1. Extract and keep the app folder
 

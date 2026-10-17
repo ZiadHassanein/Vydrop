@@ -16,7 +16,7 @@ Use the optional companion to send the video you are watching to the desktop app
 
 [Published downloads](https://github.com/ZiadHassanein/Vydrop/releases/latest) · [Chrome](#chrome) · [Edge](#edge) · [Firefox](#firefox) · [Troubleshooting](#troubleshooting) · [العربية](#arabic)
 
-The Chrome and video-to-app steps below use **real screenshots**. Highlighted frames focus on the controls to use; click a screenshot to open the original at full size. Edge, Firefox and the desktop connection diagram are labelled illustrations. Control positions can vary by browser version.
+The Chrome and video-to-app steps below use **real screenshots**, preserved as original PNG files. Highlighted frames focus on the controls to use. Choose **Zoom to original size** below a screenshot to read its controls without shrinking them; scroll inside the enlarged view, or click the image to open the original. Edge, Firefox and the desktop connection diagram are labelled illustrations. Control positions can vary by browser version.
 
 ## 1. Extract and keep the app folder
 
