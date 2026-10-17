@@ -1,0 +1,17 @@
+# Vydrop
+
+Vydrop (formerly ViFree and YouTube Downloader) is a free MIT-licensed Windows 10/11 x64 video and audio downloader by Ziad Hassanein. Stable version: 4.2.1. It uses yt-dlp for public media from 1,000+ supported sites, including YouTube, TikTok, Facebook, Vimeo, X/Twitter, Reddit, Dailymotion and Twitch clips, plus direct media links. Outputs include MP4, MKV, WebM, MP3, M4A, Opus, WAV and FLAC. Features include playlists, queue, available SRT/VTT captions, an optional Chrome/Edge/Firefox companion, English and Arabic, and automatic missing-tool preparation. Private, sign-in-only and DRM media are unsupported. Quality depends on the source; site support can change. No account, API key, subscription or telemetry. Local settings/history/tools use the legacy YouTubeDownloader app-data folder.
+
+## Official references
+- [Documentation home](https://ziadhassanein.github.io/Vydrop/)
+- [Full English and Arabic documentation, README and security as plain text](https://ziadhassanein.github.io/Vydrop/llms-full.txt)
+- [Raw README](https://raw.githubusercontent.com/ZiadHassanein/Vydrop/main/README.md)
+- [README](https://github.com/ZiadHassanein/Vydrop#readme)
+- [Supported sites](https://ziadhassanein.github.io/Vydrop/supported-sites.html)
+- [Browser setup](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html)
+- [Security](https://github.com/ZiadHassanein/Vydrop/blob/main/SECURITY.md)
+- [Source code](https://github.com/ZiadHassanein/Vydrop/tree/main/src)
+- [Releases](https://github.com/ZiadHassanein/Vydrop/releases/latest)
+- [Arabic guide](https://ziadhassanein.github.io/Vydrop/ar/)
+
+The repository is now Vydrop; installed versions through 4.2.1 require manual app updates after the rename. A listed site or visible browser tab does not guarantee a downloadable public stream. These facts describe supported scope, not per-site testing or a ranking guarantee.

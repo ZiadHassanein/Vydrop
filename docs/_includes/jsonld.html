@@ -1,0 +1,43 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "{{ '/' | absolute_url }}#application",
+      "name": "Vydrop",
+      "alternateName": ["ViFree", "YouTube Downloader"],
+      "softwareVersion": {{ site.data.product.version | jsonify }},
+      "operatingSystem": "Windows 10, Windows 11 (x64)",
+      "applicationCategory": "MultimediaApplication",
+      "inLanguage": ["en", "ar"],
+      "url": {{ '/' | absolute_url | jsonify }},
+      "sameAs": {{ site.data.product.repository | jsonify }},
+      "description": {{ site.description | jsonify }},
+      "downloadUrl": {{ site.data.product.download | jsonify }},
+      "releaseNotes": "{{ site.data.product.repository }}/releases/tag/v{{ site.data.product.version }}",
+      "image": {{ '/assets/social-card.png' | absolute_url | jsonify }},
+      "license": "https://opensource.org/license/mit/",
+      "author": {"@type": "Person", "name": "Ziad Hassanein", "url": "https://github.com/ZiadHassanein"},
+      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+      "featureList": ["Public video and audio from 1,000+ sites via yt-dlp", "Playlists and download queue", "Available SRT and VTT subtitles", "Optional Chrome, Edge and Firefox companion", "English and Arabic interfaces", "MP4, MKV, WebM, MP3, M4A, Opus, WAV and FLAC"]
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "{{ site.data.product.repository }}#source",
+      "name": "Vydrop source code",
+      "codeRepository": {{ site.data.product.repository | jsonify }},
+      "url": {{ site.data.product.repository | jsonify }},
+      "programmingLanguage": ["C#", "JavaScript"],
+      "runtimePlatform": ".NET 10 / Windows Presentation Foundation",
+      "license": "{{ site.data.product.repository }}/blob/main/LICENSE",
+      "targetProduct": {"@id": "{{ '/' | absolute_url }}#application"}
+    },
+    {"@type": "FAQPage", "inLanguage": {{ page.lang | jsonify }}, "mainEntity": [
+      {% for item in site.data.faq[page.lang] %}
+      {"@type": "Question", "name": {{ item.question | jsonify }}, "acceptedAnswer": {"@type": "Answer", "text": {{ item.answer | jsonify }}}}{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    ]}
+  ]
+}
+</script>

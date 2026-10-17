@@ -1,0 +1,4 @@
+version: "4.2.1"
+repository: "https://github.com/ZiadHassanein/Vydrop"
+download: "https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip"
+author: "Ziad Hassanein"
