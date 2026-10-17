@@ -3,8 +3,7 @@ description: Free open-source Windows downloader for video and audio from YouTub
 url: https://ziadhassanein.github.io
 baseurl: /Vydrop
 lang: en
-# Paste only the content value of the owner's Search Console HTML tag here.
-# google_site_verification: "the-owner-provided-content-value"
+google_site_verification: "Yk1fw4aP9pRpV1XWgzD5h_jbbWPOVR1rdgVT-X47vts"
 markdown: kramdown
 kramdown:
   input: GFM
