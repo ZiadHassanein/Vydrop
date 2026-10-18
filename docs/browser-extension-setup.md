@@ -12,7 +12,7 @@ arabic: /ar/browser-extension-setup.html
 
 Use the optional companion to send the video you are watching to the desktop app, then review it before downloading. Setup is free. You can also paste a link directly into the app.
 
-**Use the matching package:** [Vydrop 4.2.4 for Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.4/Vydrop-v4.2.4-win-x64.zip) includes companion **Vydrop 1.3.6**. Open **Vydrop.exe** and use its included **Browser** folder. When upgrading from ViFree, enable the connection from Vydrop and reload the companion from the new folder.
+**Use the matching package:** [Vydrop 4.2.5 for Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip) includes companion **Vydrop 1.3.6**. Open **Vydrop.exe** and use its included **Browser** folder. When upgrading from ViFree, enable the connection from Vydrop and reload the companion from the new folder.
 
 [Published downloads](https://github.com/ZiadHassanein/Vydrop/releases/latest) · [Chrome](#chrome) · [Edge](#edge) · [Firefox](#firefox) · [Troubleshooting](#troubleshooting) · [العربية](#arabic)
 
@@ -20,7 +20,7 @@ Use the optional companion to send the video you are watching to the desktop app
 
 1. **Extract the full ZIP** into a permanent folder and open **Vydrop.exe**. Keep **Browser** beside the app.
 2. Open **Settings → Browser integration**. In earlier builds, choose **Enable connection** (or **Reconnect app**). A connected status refers to this desktop app; you still load the extension in your browser.
-3. **Load the extension** using the matching row below. In newer guided builds, choose your browser and **Set up Chrome**, **Set up Edge** or **Set up Firefox**. This connects the app, copies the correct path and opens the browser page. Manual actions remain under **Manual setup and troubleshooting**. Earlier versions use **Enable connection**, then the same addresses and files below; copy the path from File Explorer.
+3. **Load the extension** using the matching row below. In Vydrop 4.2.5 and later, choose your browser and **Set up Chrome**, **Set up Edge** or **Set up Firefox**. This connects the app, copies the correct path and opens the browser page. Manual actions remain under **Manual setup and troubleshooting**. Earlier versions use **Enable connection**, then the same addresses and files below; copy the path from File Explorer.
 4. **Close setup, refresh your video page and play the video.** Click the Vydrop button, review the video in the app, then choose Download.
 
 | Browser | Address to enter in that browser | Loading action | What to select |
@@ -159,7 +159,7 @@ The companion locates visible players and sends a public link after your click. 
 
 <div dir="rtl" lang="ar" markdown="1">
 
-الإضافة اختيارية ومجانية. شرح Chrome وإرسال الفيديو أعلاه يستخدم لقطات حقيقية، بينما صور Edge وFirefox وتفعيل الاتصال رسومات توضيحية. يتضمن إصدار **Vydrop 4.2.4** إضافة **Vydrop 1.3.6**. فكّ ضغط حزمة البرنامج وافتح **Vydrop.exe**. [افتح الشرح العربي الكامل بالصور](ar/browser-extension-setup.md).
+الإضافة اختيارية ومجانية. شرح Chrome وإرسال الفيديو أعلاه يستخدم لقطات حقيقية، بينما صور Edge وFirefox وتفعيل الاتصال رسومات توضيحية. يتضمن إصدار **Vydrop 4.2.5** إضافة **Vydrop 1.3.6**. فكّ ضغط حزمة البرنامج وافتح **Vydrop.exe**. [افتح الشرح العربي الكامل بالصور](ar/browser-extension-setup.md).
 
 1. **فك الضغط:** احتفظ بمجلد البرنامج في مكان دائم، وبمجلد **Browser** بجوار الملف التنفيذي.
 2. **فعّل الاتصال:** اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال** وانتظر رسالة التأكيد.

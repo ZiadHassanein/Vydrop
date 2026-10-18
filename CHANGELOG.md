@@ -4,6 +4,8 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.2.5] - 2026-10-19
+
 ### Changed
 - Color the recent-download, language and theme header icons with the theme-aware app accent.
 - Simplify browser setup to one action that connects the app, copies the correct path and opens the browser page, with manual recovery controls kept available.
@@ -13,6 +15,7 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 - Guide browser setup through app connection, browser-specific loading and a first video, with exact path-copy actions and persistent recovery feedback.
 - Report whether the native connection points to this app, while keeping browser extension installation a separate manual step.
 - Add a compact setup checklist to the English/Arabic illustrated guides, with current paths and troubleshooting for missing files or an unavailable browser.
+- Remove the download-count explanation from the website and repository overview while retaining the release-download badge.
 
 ## [4.2.4] - 2026-10-18
 
@@ -71,10 +74,11 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 - Builds run the recommended .NET analyzers and code-style rules with warnings treated as errors; sources use file-scoped namespaces and an explicit line-ending policy.
 
 [Unreleased]: https://github.com/ZiadHassanein/Vydrop/tree/main
+[4.2.5]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.5
 [4.2.4]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.4
 [4.2.3]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.3
 [4.2.1]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.1
 
 ## ملخص بالعربية
 
-يعالج الإصدار **4.2.4** مشاكل الإغلاق وحالات قائمة التنزيل وتحديث ألوان التباين، ويحسّن أداء اختيار الفيديوهات في القوائم الكبيرة. تتضمن الحزمة إضافة **1.3.6** برسائل استعادة عربية وإنجليزية أوضح. يبقى التصميم الحالي وتوافق الإعدادات والسجل والربط مع الإصدارات القديمة محفوظًا. تحتاج النسخ حتى 4.2.1 إلى تنزيل الحزمة الجديدة يدويًا مرة واحدة بعد تغيير اسم المستودع.
+يسهّل الإصدار **4.2.5** إعداد إضافة المتصفح بخطوات موجهة وفحص للاتصال، ويضيف البحث في لغات الترجمة، ويحسّن عرض التنزيلات الأخيرة بعلامة واضحة للملفات المنقولة أو المحذوفة وأيقونات علوية ملونة. تتضمن الحزمة إضافة **1.3.6** مع الحفاظ على توافق الإعدادات والسجل والربط مع الإصدارات القديمة. تحتاج النسخ حتى 4.2.1 إلى تنزيل الحزمة الجديدة يدويًا مرة واحدة بعد تغيير اسم المستودع.

@@ -15,12 +15,11 @@ last_reviewed: 2026-10-19
 نزّل من YouTube وTikTok وFacebook وVimeo وأكثر من ١٠٠٠ موقع عبر yt-dlp، بواجهة عربية وإنجليزية ومصدر مفتوح.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.4/Vydrop-v4.2.4-win-x64.zip">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.2.4 · ZIP</bdi></span></span>
+    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.2.5 · ZIP</bdi></span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="إجمالي تنزيلات إصدارات GitHub" height="20"></a>
-  <details class="download-details"><summary>عن هذا العدد</summary><p>يحسب GitHub تنزيلات ملفات الإصدارات، بما فيها التنزيلات المتكررة والآلية؛ وهذا ليس عدد الأشخاص أو مرات التثبيت. توفّر Shields.io الشارة المخزّنة مؤقتًا. لا تُضاف أي أدوات تتبّع داخل التطبيق أو تحليلات مدفوعة.</p></details>
 </div>
 
 ## معلومات أساسية

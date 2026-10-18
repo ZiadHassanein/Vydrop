@@ -14,9 +14,9 @@ local_guide: true
 
 # Vydrop: Videos und Audio unter Windows herunterladen
 
-[Vydrop für Windows herunterladen](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.4/Vydrop-v4.2.4-win-x64.zip) · Windows 10/11 x64 · v4.2.4
+[Vydrop für Windows herunterladen](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip) · Windows 10/11 x64 · v4.2.5
 
-Vydrop 4.2.4 von Ziad Hassanein ist ein kostenloser, quelloffener Downloader für öffentliche Videos und Audio. Die Windows-App verwendet yt-dlp und unterstützt unter anderem YouTube, TikTok, Facebook und Vimeo, sofern ein geeigneter öffentlicher Stream verfügbar ist.
+Vydrop 4.2.5 von Ziad Hassanein ist ein kostenloser, quelloffener Downloader für öffentliche Videos und Audio. Die Windows-App verwendet yt-dlp und unterstützt unter anderem YouTube, TikTok, Facebook und Vimeo, sofern ein geeigneter öffentlicher Stream verfügbar ist.
 
 ## Die Windows-App starten
 

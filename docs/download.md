@@ -13,14 +13,14 @@ last_reviewed: 2026-10-19
 
 **Vydrop is a free, open-source video and audio downloader for Windows 10/11 x64.** Download the packaged app from the project's GitHub Releases page. The desktop interface supports English and Arabic.
 
-[Download Vydrop 4.2.4 — Windows x64 ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.4/Vydrop-v4.2.4-win-x64.zip) · [Release notes and assets](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.4)
+[Download Vydrop 4.2.5 — Windows x64 ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip) · [Release notes and assets](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.5)
 
 ## Choose the application package
 
 | Item | What you need |
 | --- | --- |
 | Operating system | Windows 10 or Windows 11, x64 |
-| App file | `Vydrop-v4.2.4-win-x64.zip` from GitHub Releases |
+| App file | `Vydrop-v4.2.5-win-x64.zip` from GitHub Releases |
 | .NET | Included in the package; no separate runtime installation |
 | Media tools | Missing tools are prepared when needed; first use needs an internet connection |
 | Browser companion | Optional Chrome, Edge or Firefox companion, inside the app's **Browser** folder |

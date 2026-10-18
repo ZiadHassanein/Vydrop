@@ -14,9 +14,9 @@ local_guide: true
 
 # Vydrop: a free video downloader for Windows
 
-[Download Vydrop for Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.4/Vydrop-v4.2.4-win-x64.zip) · Windows 10/11 x64 · v4.2.4
+[Download Vydrop for Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip) · Windows 10/11 x64 · v4.2.5
 
-Vydrop 4.2.4 is a free, open-source video and audio downloader by Ziad Hassanein. This guide uses US English. The desktop app runs on Windows 10 or 11, x64, and its interface supports English and Arabic. The same official download is used worldwide.
+Vydrop 4.2.5 is a free, open-source video and audio downloader by Ziad Hassanein. This guide uses US English. The desktop app runs on Windows 10 or 11, x64, and its interface supports English and Arabic. The same official download is used worldwide.
 
 ## Get the portable Windows app
 
