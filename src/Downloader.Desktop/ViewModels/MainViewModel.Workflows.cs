@@ -75,6 +75,9 @@ public sealed partial class MainViewModel
     public string CaptionFormatLabel => T("Subtitle file format");
     public string AudioFormatLabel => T("Audio format");
     public string CaptionsLabel => T("Subtitles");
+    public string CaptionSearchLabel => T("Search language or code");
+    public string CaptionSearchClearLabel => T("Clear search");
+    public string CaptionSearchEmptyLabel => T("No matching languages. Try another name or code.");
     public string CaptionLanguagesLabel => T("Get subtitle languages");
     public string AddQueueLabel => T("Add to queue");
     public string StartQueueLabel => T("Start queue");

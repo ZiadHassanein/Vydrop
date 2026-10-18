@@ -15,6 +15,7 @@ internal static partial class Program
         internal string AppFolder = @"C:\Apps\Vydrop";
         internal string Failure, Copied;
         internal int Calls;
+        internal readonly List<string> Trace = new();
         internal SetupBrowser? Opened, Folder, Guide;
         internal bool ArabicGuide;
         public string ExtensionPath(SetupBrowser browser) => AppFolder + @"\Browser\" + (browser == SetupBrowser.Firefox ? @"firefox\manifest.json" : "chromium");
@@ -22,6 +23,7 @@ internal static partial class Program
         private void Action(string name)
         {
             Calls++;
+            Trace.Add(name);
             if (Failure == name) throw new InvalidOperationException("Fixture-only raw diagnostic");
         }
         public void Enable() { Action("enable"); if (ApplyRegistration) IsConnected = true; }
@@ -60,9 +62,17 @@ internal static partial class Program
                             var footer = (FrameworkElement)WpfTree.Find(dialog, "SetupFooter");
                             Check(fixture.Calls == 0 && !model.IsConnected && dialog.FlowDirection == main.ContentDirection && Equals(dialog.Background, owner.Background), "Opening setup follows language/theme and does not register, launch or copy anything");
                             Check(((ComboBox)WpfTree.Find(dialog, "SetupBrowserPicker")).IsKeyboardFocused, "Setup starts with the browser selector focused for keyboard access");
+                            var manual = (Expander)WpfTree.Find(dialog, "SetupManual");
+                            Check(!manual.IsExpanded && ((Button)WpfTree.Find(dialog, "SetupStart")).IsVisible, "Setup offers one primary action and keeps manual troubleshooting collapsed");
+                            manual.IsExpanded = true;
                             foreach (var browser in Enum.GetValues<SetupBrowser>())
                             {
                                 model.SelectedBrowser = browser;
+                                fixture.Trace.Clear();
+                                model.StartSetupCommand.Execute(null);
+                                Check(fixture.Trace.SequenceEqual(new[] { "enable", "copy", "open" }) && model.IsConnected && !model.HasError &&
+                                    fixture.Copied == fixture.ExtensionPath(browser) && fixture.Opened == browser,
+                                    "One setup action verifies connection, copies the right path and opens the selected browser in order: " + browser);
                                 model.CopyAddressCommand.Execute(null);
                                 Check(fixture.Copied == BrowserSetupActions.BrowserAddress(browser), "Copy browser address uses the selected browser: " + browser);
                                 model.CopyPathCommand.Execute(null);
@@ -76,7 +86,7 @@ internal static partial class Program
                             fixture.FilesPresent = false;
                             model.SelectedBrowser = SetupBrowser.Edge;
                             await Task.Delay(50);
-                            Check(!model.CopyPathCommand.CanExecute(null) && !model.ShowFolderCommand.CanExecute(null), "Missing package files cannot be copied or opened as if installed");
+                            Check(!model.StartSetupCommand.CanExecute(null) && !model.CopyPathCommand.CanExecute(null) && !model.ShowFolderCommand.CanExecute(null), "Missing package files disable automatic setup and manual path actions");
                             Check(!((Button)WpfTree.Find(dialog, "SetupCopyPath")).IsEnabled && Descendants<TextBlock>(dialog).Any(label => label.IsVisible && label.Text == model.MissingFilesHint),
                                 "Missing extension files visibly disable path actions and explain how to recover");
                             if (!compact && !dark) Capture(dialog, System.IO.Path.Combine(captures, "setup-missing-files-" + variant + ".png"));
@@ -85,9 +95,18 @@ internal static partial class Program
                             model.EnableCommand.Execute(null);
                             Check(model.IsConnected && !model.HasError && model.HasMessage, "Enabling updates persistent app-connection status without claiming the extension is installed");
                             fixture.Failure = "copy";
+                            fixture.Trace.Clear();
+                            model.StartSetupCommand.Execute(null);
+                            Check(fixture.Trace.SequenceEqual(new[] { "enable", "copy" }) && model.IsConnected && model.HasError,
+                                "A clipboard failure stops before browser launch and retains the verified connection");
                             model.CopyPathCommand.Execute(null);
                             Check(model.HasError && !model.Message.Contains("Fixture-only", StringComparison.Ordinal) && model.Message == Texts.For(arabic ? "ar" : "en", "Could not copy to the clipboard. Select the address or path and copy it manually."), "Clipboard failures have translated manual-copy recovery");
                             fixture.Failure = "open";
+                            fixture.Trace.Clear();
+                            model.StartSetupCommand.Execute(null);
+                            Check(fixture.Trace.SequenceEqual(new[] { "enable", "copy", "open" }) && model.IsConnected && model.HasError &&
+                                model.Message == Texts.For(arabic ? "ar" : "en", "App connected and extension path copied, but the browser could not open. Copy its address from Manual setup and troubleshooting."),
+                                "Browser failure reports the completed steps and exposes manual recovery without claiming installation");
                             model.OpenPageCommand.Execute(null);
                             Check(model.HasError && model.Message == Texts.For(arabic ? "ar" : "en", "Could not open this browser. Copy its address below and paste it into the browser address bar."), "A missing browser retains a selectable address and translated recovery");
                             fixture.Failure = null;
@@ -97,10 +116,15 @@ internal static partial class Program
                             Check(!model.IsConnected && model.HasError, "A registration that cannot be verified never reports success");
                             fixture.ApplyRegistration = true;
                             fixture.Failure = "enable";
+                            fixture.Trace.Clear();
+                            model.StartSetupCommand.Execute(null);
+                            Check(fixture.Trace.SequenceEqual(new[] { "enable" }) && !model.IsConnected && model.HasError,
+                                "An unverified connection stops automatic setup before clipboard or browser changes");
                             model.EnableCommand.Execute(null);
                             Check(!model.IsConnected && model.HasError, "A failed registration never shows a connected state");
                             fixture.Failure = null;
                             model.EnableCommand.Execute(null);
+                            manual.IsExpanded = false;
                             await Task.Delay(75);
                             dialog.UpdateLayout();
                             double footerTop = footer.TranslatePoint(new Point(), dialog).Y;
@@ -110,6 +134,7 @@ internal static partial class Program
                             Capture(dialog, System.IO.Path.Combine(captures, "setup-" + variant + ".png"));
                             if (compact) fixture.AppFolder = @"C:\Apps\A long permanent application folder with spaces\Vydrop downloaded packages\Current desktop application";
                             model.SelectedBrowser = SetupBrowser.Firefox;
+                            manual.IsExpanded = true;
                             viewport.ScrollToEnd();
                             await Task.Delay(75);
                             dialog.UpdateLayout();

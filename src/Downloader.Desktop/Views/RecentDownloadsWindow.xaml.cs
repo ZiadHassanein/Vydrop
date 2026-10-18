@@ -4,5 +4,9 @@ namespace YouTubeDownloader;
 
 public partial class RecentDownloadsWindow : Window
 {
-    public RecentDownloadsWindow() => InitializeComponent();
+    public RecentDownloadsWindow()
+    {
+        InitializeComponent();
+        Activated += (_, _) => (DataContext as RecentDownloadsViewModel)?.RefreshFiles();
+    }
 }

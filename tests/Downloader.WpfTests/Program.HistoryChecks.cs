@@ -19,7 +19,7 @@ internal static partial class Program
         double originalHeight = owner.Height;
         foreach (bool arabic in new[] { false, true })
             foreach (bool dark in new[] { false, true })
-                foreach (int entries in new[] { 1, 7, 0 })
+                foreach (int entries in new[] { 1, 5, 7, 0 })
                 {
                     model.SelectLanguageCommand.Execute(arabic ? "ar" : "en");
                     if (model.IsDark != dark) model.ThemeCommand.Execute(null);
@@ -58,8 +58,8 @@ internal static partial class Program
                                 var fileView = (RecentDownloadView)list.Items[0];
                                 Check(Equals(list.Foreground, Application.Current.Resources["Ink"]) && Equals(item.Foreground, Application.Current.Resources["Ink"]), "History titles retain readable themed text instead of system ListBox colors");
                                 Check(fileView.FilePath == files[0] && fileView.Title == System.IO.Path.GetFileNameWithoutExtension(files[0]) &&
-                                    Descendants<Grid>(item).Any(grid => Equals(grid.ToolTip, files[0])) && labels.Any(label => label.Text == fileView.Title && label.MaxHeight == 22),
-                                    "History keeps a compact title, distinct file details, full-path tooltip and exact reveal target");
+                                    Descendants<Grid>(item).Any(grid => Equals(grid.ToolTip, files[0])) && labels.Any(label => label.Text == fileView.Title && label.MaxHeight == 40 && label.TextWrapping == TextWrapping.Wrap),
+                                    "History allows at most two title lines, compact details, a full-path tooltip and the exact reveal target");
                                 Check(labels.All(label => label.ActualWidth <= viewport.ViewportWidth + 1),
                                     "Both history labels remain within the list viewport");
                                 if (entries > 1)
@@ -85,6 +85,11 @@ internal static partial class Program
                                         Check(historyModel.HasError && historyModel.Error == Texts.For(arabic ? "ar" : "en", "This file is no longer in its saved location."),
                                             arabic ? "Arabic reveal failures give translated recovery feedback" : "Reveal failures give clear recovery feedback");
                                         Check(!arabic || historyModel.Error != "This file is no longer in its saved location.", "Arabic history recovery does not fall back to English");
+                                        var missingTitle = labels.Single(label => label.Text == fileView.Title);
+                                        var missingBadge = labels.Single(label => label.Text == fileView.MissingLabel);
+                                        Check(!fileView.Available && !reveals[0].IsEnabled && missingTitle.TextDecorations.Contains(TextDecorations.Strikethrough[0]) &&
+                                            missingBadge.IsVisible && Equals(missingBadge.Foreground, Application.Current.Resources["Error"]),
+                                            "A deleted file immediately gains a struck-through title and prominent translated badge, and its reveal button disables");
                                         Capture(dialog, System.IO.Path.Combine(captures, "history-" + variant + "-missing.png"));
                                     }
                                     finally { System.IO.File.WriteAllBytes(files[0], new byte[2048]); }

@@ -47,8 +47,8 @@ public static class ComboBoxSelectionVisibility
             if (!combo.IsDropDownOpen || combo.SelectedItem == null) return;
             panel.UpdateLayout();
             if (combo.ItemContainerGenerator.ContainerFromItem(combo.SelectedItem) is not FrameworkElement row ||
-                FindViewport(panel) is not ScrollViewer viewport ||
-                viewport.Template.FindName("PART_ScrollContentPresenter", viewport) is not FrameworkElement presenter) return;
+                row.Visibility != Visibility.Visible || FindViewport(row) is not ScrollViewer viewport ||
+                viewport.Template.FindName("PART_ScrollContentPresenter", viewport) is not FrameworkElement presenter || !presenter.IsAncestorOf(row)) return;
             var bounds = row.TransformToAncestor(presenter).TransformBounds(new Rect(row.RenderSize));
             if (bounds.Top < 0) viewport.ScrollToVerticalOffset(viewport.VerticalOffset + bounds.Top);
             else if (bounds.Bottom > presenter.ActualHeight)
@@ -57,11 +57,12 @@ public static class ComboBoxSelectionVisibility
         });
     }
 
-    private static ScrollViewer FindViewport(DependencyObject parent)
+    private static ScrollViewer FindViewport(DependencyObject child)
     {
-        if (parent is ScrollViewer viewport) return viewport;
-        for (int index = 0; index < VisualTreeHelper.GetChildrenCount(parent); index++)
-            if (FindViewport(VisualTreeHelper.GetChild(parent, index)) is { } found) return found;
+        // A searchable popup also contains the search TextBox's private ScrollViewer.
+        // Walk from the selected row so only its actual items viewport is considered.
+        for (var parent = VisualTreeHelper.GetParent(child); parent != null; parent = VisualTreeHelper.GetParent(parent))
+            if (parent is ScrollViewer viewport) return viewport;
         return null;
     }
 }

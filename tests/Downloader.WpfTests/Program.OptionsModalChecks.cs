@@ -56,6 +56,7 @@ internal static partial class Program
                     }
                     Check(model.SelectedCaption.Language == "en" && model.VttCaptions,
                         "Modal controls change the actual subtitle language and file format");
+                    await CheckCaptionSearch(dialog, model, captures, (arabic ? "ar" : "en") + (dark ? "-dark" : "-light"));
                     var done = (Button)WpfTree.Find(dialog, "DoneButton");
                     done.Focus();
                     done.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
@@ -172,6 +173,53 @@ internal static partial class Program
         }));
         model.OptionsCommand.Execute(null);
         if (await completion.Task is { } error) throw new InvalidOperationException("Options modal check failed.", error);
+    }
+
+    private static async Task CheckCaptionSearch(OutputOptionsWindow dialog, MainViewModel model, string captures, string variant)
+    {
+        var caption = (ComboBox)WpfTree.Find(dialog, "CaptionInput");
+        var french = new CaptionChoice("fr-CA", "Français (Canada)");
+        model.CaptionChoices.Add(french);
+        var selected = model.SelectedCaption;
+        caption.IsDropDownOpen = true;
+        await Task.Delay(150);
+        var search = (TextBox)caption.Template.FindName("CaptionSearchInput", caption);
+        var empty = (TextBlock)caption.Template.FindName("CaptionSearchEmpty", caption);
+        Check(search.IsKeyboardFocused && search.Text == "", "Opening subtitle choices focuses the search field");
+        bool Visible(string language) => ((ComboBoxItem)caption.ItemContainerGenerator.ContainerFromItem(model.CaptionChoices.First(choice => choice.Language == language))).Visibility == Visibility.Visible;
+        search.Text = "  ENGLISH  ";
+        Check(Visible("en") && !Visible("ar") && !Visible("fr-CA") && ReferenceEquals(model.SelectedCaption, selected),
+            "Subtitle search filters names without case/space sensitivity and preserves the chosen download language");
+        search.Text = "العربية";
+        Check(Visible("ar") && !Visible("en"), "Subtitle search finds Arabic names");
+        search.Text = "francais";
+        Check(Visible("fr-CA") && !Visible("en"), "Subtitle search ignores accents");
+        search.Text = "fr-CA";
+        Check(Visible("fr-CA"), "Subtitle search accepts regional language codes");
+        search.Text = "no-such-language";
+        Check(empty.Visibility == Visibility.Visible && model.CaptionChoices.All(choice =>
+            ((ComboBoxItem)caption.ItemContainerGenerator.ContainerFromItem(choice)).Visibility == Visibility.Collapsed) &&
+            ReferenceEquals(model.SelectedCaption, selected) && model.VttCaptions,
+            "An empty search result explains recovery without clearing subtitle language or format");
+        search.Text = "العربية";
+        await Task.Delay(75);
+        var popup = (System.Windows.Controls.Primitives.Popup)caption.Template.FindName("PART_Popup", caption);
+        CapturePopup((FrameworkElement)dialog.Content, (HwndSource)PresentationSource.FromVisual(popup.Child),
+            System.IO.Path.Combine(captures, "subtitle-search-" + variant + ".png"));
+        search.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(search), Environment.TickCount, Key.Enter)
+            { RoutedEvent = Keyboard.PreviewKeyDownEvent });
+        Check(model.SelectedCaption.Language == "ar" && !caption.IsDropDownOpen && dialog.IsVisible,
+            "Enter chooses the matching subtitle without closing the options dialog");
+        caption.IsDropDownOpen = true;
+        await Task.Delay(100);
+        Check(search.Text == "" && Visible("en") && Visible("ar") && Visible("fr-CA"), "Reopening subtitle choices resets the filter");
+        search.Text = "English";
+        search.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(search), Environment.TickCount, Key.Escape)
+            { RoutedEvent = Keyboard.PreviewKeyDownEvent });
+        Check(!caption.IsDropDownOpen && dialog.IsVisible && model.SelectedCaption.Language == "ar",
+            "Escape closes subtitle search and preserves the last selection");
+        model.SelectedCaption = selected;
+        model.CaptionChoices.Remove(french);
     }
 
     [DllImport("user32.dll")]

@@ -27,25 +27,27 @@
      <TextBlock Text="{Binding BrowserLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/>
      <ComboBox x:Name="SetupBrowserPicker" Grid.Column="1" ItemsSource="{Binding Browsers}" SelectedItem="{Binding SelectedBrowser}" AutomationProperties.Name="{Binding BrowserLabel}"/>
     </Grid>
-    <TextBlock Text="{Binding ConnectHeading}" Style="{StaticResource SetupHeading}"/>
-    <Grid>
-     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+    <TextBlock Text="{Binding StartSetupHint}" Style="{StaticResource SetupHint}" Margin="0,0,0,12"/>
+    <Button x:Name="SetupStart" Content="{Binding StartSetupLabel}" Command="{Binding StartSetupCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" MinWidth="160" Margin="0,0,0,10"/>
      <TextBlock x:Name="SetupConnectionStatus" Text="{Binding ConnectionStatus}" VerticalAlignment="Center" FontWeight="SemiBold" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite">
       <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource Muted}"/><Style.Triggers>
        <DataTrigger Binding="{Binding IsConnected}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Success}"/></DataTrigger>
       </Style.Triggers></Style></TextBlock.Style>
      </TextBlock>
-     <Button x:Name="SetupEnable" Grid.Column="2" Content="{Binding EnableLabel}" Command="{Binding EnableCommand}" MinHeight="36" Padding="12,5">
-      <Button.Style><Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}"><Style.Triggers>
-       <DataTrigger Binding="{Binding IsConnected}" Value="True">
-        <Setter Property="Background" Value="{DynamicResource Field}"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="BorderBrush" Value="{DynamicResource Border}"/>
-       </DataTrigger>
-      </Style.Triggers></Style></Button.Style>
-     </Button>
-    </Grid>
-    <TextBlock x:Name="SetupKeepFolderHint" Text="{Binding KeepFolderHint}" Style="{StaticResource SetupHint}" Margin="0,8,0,16"/>
-    <TextBlock Text="{Binding InstallHeading}" Style="{StaticResource SetupHeading}"/>
-    <TextBlock Text="{Binding LoadHint}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+    <TextBlock Text="{Binding ManualStepsLabel}" Style="{StaticResource SetupHeading}" Margin="0,22,0,8"/>
+    <TextBlock Text="{Binding BrowserSteps}" TextWrapping="Wrap"/>
+    <TextBlock Text="{Binding FirefoxHint}" Style="{StaticResource SetupHint}" Margin="0,8,0,0" Visibility="{Binding IsFirefox,Converter={StaticResource BoolVisibility}}"/>
+    <TextBlock Text="{Binding MissingFilesHint}" Foreground="{DynamicResource Error}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,8,0,0">
+     <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Visible"/><Style.Triggers>
+      <DataTrigger Binding="{Binding HasExtension}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+     </Style.Triggers></Style></TextBlock.Style>
+    </TextBlock>
+    <TextBlock Text="{Binding TestHeading}" Style="{StaticResource SetupHeading}" Margin="0,22,0,8"/>
+    <TextBlock Text="{Binding TestHint}" TextWrapping="Wrap"/>
+    <TextBlock Text="{Binding ClosedAppHint}" Style="{StaticResource SetupHint}" Margin="0,6,0,0"/>
+    <TextBlock Text="{Binding ReviewHint}" Style="{StaticResource SetupHint}" Margin="0,6,0,12"/>
+    <Expander x:Name="SetupManual" Header="{Binding RecoveryLabel}" Foreground="{DynamicResource Ink}" Margin="0,8,0,0">
+     <StackPanel Margin="0,12,0,0">
     <WrapPanel Margin="0,0,0,6">
      <Button x:Name="SetupOpenPage" Content="{Binding OpenPageLabel}" Command="{Binding OpenPageCommand}" Style="{StaticResource SetupButton}" Margin="0,0,10,6"/>
      <Button x:Name="SetupCopyAddress" Content="{Binding CopyAddressLabel}" Command="{Binding CopyAddressCommand}" Style="{StaticResource SetupButton}" Margin="0,0,0,6"/>
@@ -61,17 +63,19 @@
      <Button x:Name="SetupCopyPath" Grid.Column="2" Content="{Binding CopyPathLabel}" Command="{Binding CopyPathCommand}" Style="{StaticResource SetupButton}" VerticalAlignment="Center"/>
     </Grid>
     <Button x:Name="SetupShowFolder" Content="{Binding ShowFolderLabel}" Command="{Binding ShowFolderCommand}" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Margin="0,4,0,0"/>
-    <TextBlock Text="{Binding MissingFilesHint}" Foreground="{DynamicResource Error}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,8,0,0">
-     <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Visible"/><Style.Triggers>
-      <DataTrigger Binding="{Binding HasExtension}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
-     </Style.Triggers></Style></TextBlock.Style>
-    </TextBlock>
-    <TextBlock Text="{Binding FirefoxHint}" Style="{StaticResource SetupHint}" Margin="0,8,0,0" Visibility="{Binding IsFirefox,Converter={StaticResource BoolVisibility}}"/>
-    <TextBlock Text="{Binding TestHeading}" Style="{StaticResource SetupHeading}" Margin="0,22,0,8"/>
-    <TextBlock Text="{Binding TestHint}" TextWrapping="Wrap"/>
-    <TextBlock Text="{Binding ReviewHint}" Style="{StaticResource SetupHint}" Margin="0,6,0,12"/>
-    <Expander Header="{Binding ConnectionOptionsLabel}" Foreground="{DynamicResource Muted}" Margin="0,8,0,0">
-     <Button x:Name="SetupDisable" Content="{Binding DisableLabel}" Command="{Binding DisableCommand}" Style="{StaticResource SetupButton}" HorizontalAlignment="Left" Margin="0,8,0,4"/>
+      <TextBlock x:Name="SetupKeepFolderHint" Text="{Binding KeepFolderHint}" Style="{StaticResource SetupHint}" Margin="0,12,0,8"/>
+      <WrapPanel>
+     <Button x:Name="SetupEnable" Content="{Binding EnableLabel}" Command="{Binding EnableCommand}" MinHeight="36" Padding="12,5">
+      <Button.Style><Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}"><Style.Triggers>
+       <DataTrigger Binding="{Binding IsConnected}" Value="True">
+        <Setter Property="Background" Value="{DynamicResource Field}"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="BorderBrush" Value="{DynamicResource Border}"/>
+       </DataTrigger>
+      </Style.Triggers></Style></Button.Style>
+     </Button>
+
+       <Button x:Name="SetupDisable" Content="{Binding DisableLabel}" Command="{Binding DisableCommand}" Style="{StaticResource SetupButton}" Margin="10,0,0,0"/>
+      </WrapPanel>
+     </StackPanel>
     </Expander>
    </StackPanel>
   </ScrollViewer>

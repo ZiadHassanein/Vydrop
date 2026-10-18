@@ -4,6 +4,47 @@
  WindowStartupLocation="CenterOwner" ShowInTaskbar="False" AutomationProperties.IsDialog="True"
  Background="{DynamicResource Page}" Foreground="{DynamicResource Ink}" FontFamily="{Binding ContentFont}" FontSize="14"
  FlowDirection="{Binding ContentDirection}" UseLayoutRounding="True" SnapsToDevicePixels="True">
+ <Window.Resources>
+  <ControlTemplate x:Key="CaptionSearchTemplate" TargetType="ComboBox">
+   <Grid>
+    <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen,RelativeSource={RelativeSource TemplatedParent},Mode=TwoWay}">
+     <ToggleButton.Template><ControlTemplate TargetType="ToggleButton">
+      <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8">
+       <Path Data="M 0 0 L 5 5 L 10 0" Stroke="{DynamicResource Muted}" StrokeThickness="1.8" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"/>
+      </Border>
+     </ControlTemplate></ToggleButton.Template>
+    </ToggleButton>
+    <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" VerticalAlignment="Center" Margin="14,0,40,0" IsHitTestVisible="False"/>
+    <Border x:Name="FocusBorder" CornerRadius="8" BorderBrush="Transparent" BorderThickness="2" IsHitTestVisible="False"/>
+    <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False">
+     <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="6" Width="{Binding ActualWidth,RelativeSource={RelativeSource TemplatedParent}}">
+      <StackPanel>
+       <Grid Margin="0,0,0,6">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+        <Grid>
+         <TextBox x:Name="CaptionSearchInput" TextChanged="CaptionSearchChanged" PreviewKeyDown="CaptionSearchKeyDown" KeyDown="KeepSearchInput" AutomationProperties.Name="{Binding CaptionSearchLabel}"/>
+         <TextBlock Text="{Binding CaptionSearchLabel}" Foreground="{DynamicResource Muted}" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False">
+          <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers>
+           <DataTrigger Binding="{Binding Text,ElementName=CaptionSearchInput}" Value=""><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+          </Style.Triggers></Style></TextBlock.Style>
+         </TextBlock>
+        </Grid>
+        <Button Grid.Column="1" Content="{Binding CaptionSearchClearLabel}" Click="ClearCaptionSearch" Style="{StaticResource QuietButton}" Padding="10,4"/>
+       </Grid>
+       <TextBlock x:Name="CaptionSearchEmpty" Text="{Binding CaptionSearchEmptyLabel}" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="8,6" Visibility="Collapsed" AutomationProperties.LiveSetting="Polite"/>
+       <ScrollViewer x:Name="CaptionResults" MaxHeight="200" CanContentScroll="False" Style="{DynamicResource DropdownScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
+       </ScrollViewer>
+      </StackPanel>
+     </Border>
+    </Popup>
+   </Grid>
+   <ControlTemplate.Triggers>
+    <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="FocusBorder" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
+    <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/></Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate>
+ </Window.Resources>
  <Grid x:Name="OptionsContent" Margin="28,24" KeyboardNavigation.TabNavigation="Cycle">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <TextBlock Text="{Binding OptionsLabel}" FontSize="23" FontWeight="SemiBold" Margin="0,0,0,24"/>
@@ -11,7 +52,7 @@
    <StackPanel>
     <StackPanel IsEnabled="{Binding IsIdle}">
      <TextBlock Text="{Binding CaptionsLabel}" Style="{StaticResource SectionLabel}"/>
-     <ComboBox x:Name="CaptionInput" ItemsSource="{Binding CaptionChoices}" SelectedItem="{Binding SelectedCaption}" AutomationProperties.Name="{Binding CaptionsLabel}"/>
+     <ComboBox x:Name="CaptionInput" Template="{StaticResource CaptionSearchTemplate}" IsTextSearchEnabled="False" DropDownOpened="CaptionSearchOpened" ItemsSource="{Binding CaptionChoices}" SelectedItem="{Binding SelectedCaption}" AutomationProperties.Name="{Binding CaptionsLabel}"/>
      <Button x:Name="GetLanguages" Content="{Binding CaptionLanguagesLabel}" Command="{Binding CaptionLanguagesCommand}" Style="{StaticResource QuietButton}" Visibility="{Binding HasPlaylist,Converter={StaticResource BoolVisibility}}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
      <TextBlock Text="{Binding CaptionFormatLabel}" Style="{StaticResource SectionLabel}" Margin="0,22,0,9"/>
      <Grid x:Name="CaptionFormatChoices" Margin="2,0">

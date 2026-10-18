@@ -22,6 +22,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
             OnPropertyChanged(string.Empty);
             CopyPathCommand.NotifyCanExecuteChanged();
             ShowFolderCommand.NotifyCanExecuteChanged();
+            StartSetupCommand.NotifyCanExecuteChanged();
         }
     }
     public bool IsConnected
@@ -44,28 +45,31 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public string Heading => t("Browser extension setup");
     public string Intro => t("Send a video to Vydrop, then review it before downloading.");
     public string BrowserLabel => t("Your browser");
-    public string ConnectHeading => t("1. Connect the app");
     public string ConnectionStatus => t(IsConnected ? "Connected to this Vydrop app" : "App connection is not enabled");
     public string KeepFolderHint => t("Keep Vydrop in a permanent folder. Reconnect here if you move it.");
     public string EnableLabel => t(IsConnected ? "Reconnect app" : "Enable connection");
     public string DisableLabel => t("Disable connection");
-    public string ConnectionOptionsLabel => t("Connection options");
-    public string InstallHeading => string.Format(System.Globalization.CultureInfo.CurrentCulture, t("2. Add the extension to {0}"), SelectedBrowser);
     public string OpenPageLabel => t("Open extensions page");
     public string CopyAddressLabel => t("Copy browser address");
-    public string LoadHint => t(IsFirefox
-        ? "Choose This Firefox → Load Temporary Add-on…, then open the manifest.json file shown below."
-        : "Turn on Developer mode, choose Load unpacked, then select the folder shown below.");
     public string PathLabel => t(IsFirefox ? "File to select" : "Folder to select");
     public string CopyPathLabel => t(IsFirefox ? "Copy file path" : "Copy folder path");
     public string ShowFolderLabel => t("Show extension files");
     public string MissingFilesHint => t("Companion files are missing. Extract the complete Vydrop ZIP and reopen the app.");
     public string FirefoxHint => t("Firefox removes this temporary add-on when it restarts. Load it again next session.");
-    public string TestHeading => t("3. Try it on a video");
+    public string TestHeading => t("Try it on a video");
     public string TestHint => t("Close setup, refresh a video page and play the video. Click its Vydrop button or the extension in your browser toolbar.");
     public string ReviewHint => t("Nothing downloads until you choose Download in Vydrop.");
     public string GuideLabel => t("View illustrated guide");
     public string CloseLabel => t("Close");
+    public string StartSetupLabel => string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Set up {0}"), SelectedBrowser);
+    public string StartSetupHint => t("Connects this app, copies the extension path and opens your browser's setup page.");
+    public string ManualStepsLabel => t("Finish in your browser");
+    public string BrowserSteps => t(IsFirefox
+        ? "Choose This Firefox → Load Temporary Add-on…, paste the copied file path and choose Open."
+        : "Turn on Developer mode → Load unpacked. Paste the copied folder path and choose Select Folder.");
+    public string RecoveryLabel => t("Manual setup and troubleshooting");
+    public string ClosedAppHint => t("Once connected, the extension can open Vydrop even when the app is closed.");
+    public IRelayCommand StartSetupCommand { get; }
     public IRelayCommand EnableCommand { get; }
     public IRelayCommand DisableCommand { get; }
     public IRelayCommand OpenPageCommand { get; }
@@ -79,6 +83,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
         t = translate;
         this.actions = actions;
         IsConnected = actions.IsConnected;
+        StartSetupCommand = new RelayCommand(StartSetup, () => HasExtension);
         EnableCommand = new RelayCommand(() => Run(() => SetConnection(true),
             "Browser connection enabled. Load the companion extension to send links.",
             "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again."));
@@ -96,6 +101,16 @@ internal sealed class BrowserSetupViewModel : ObservableObject
             "The illustrated guide opened in your browser.", "Could not open the guide. Visit the Vydrop documentation website."));
     }
 
+    private void StartSetup()
+    {
+        // Stop at the failed step; retain the manual actions for recovery.
+        if (!Run(() => SetConnection(true), "", "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.")) return;
+        if (!Run(() => actions.Copy(ExtensionPath), "", "Could not copy to the clipboard. Select the address or path and copy it manually.")) return;
+        Run(() => actions.OpenExtensions(SelectedBrowser),
+            "App connected and extension path copied. Finish the loading step in your browser, then refresh your video page.",
+            "App connected and extension path copied, but the browser could not open. Copy its address from Manual setup and troubleshooting.");
+    }
+
     private void SetConnection(bool enable)
     {
         try { if (enable) actions.Enable(); else actions.Disable(); }
@@ -103,10 +118,10 @@ internal sealed class BrowserSetupViewModel : ObservableObject
         if (IsConnected != enable) throw new IOException();
     }
 
-    private void Run(Action action, string success, string failure)
+    private bool Run(Action action, string success, string failure)
     {
-        try { action(); HasError = false; Message = t(success); }
+        try { action(); HasError = false; Message = t(success); return true; }
         catch (Exception error) when (error is not OutOfMemoryException)
-        { HasError = true; Message = t(failure); }
+        { HasError = true; Message = t(failure); return false; }
     }
 }

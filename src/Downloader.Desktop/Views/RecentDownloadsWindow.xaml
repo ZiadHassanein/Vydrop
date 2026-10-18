@@ -9,8 +9,8 @@
   </Style>
   <Style TargetType="ListBoxItem">
    <Setter Property="Foreground" Value="{DynamicResource Ink}"/>
-   <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="8,10"/>
-   <Setter Property="Margin" Value="0,0,0,4"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+   <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="8,8"/>
+   <Setter Property="Margin" Value="0,0,0,2"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
    <Setter Property="Template">
     <Setter.Value><ControlTemplate TargetType="ListBoxItem">
      <Border x:Name="Face" Background="Transparent" CornerRadius="8" BorderThickness="1" BorderBrush="Transparent" Padding="{TemplateBinding Padding}">
@@ -31,7 +31,7 @@
    <TextBlock Text="{Binding Heading}" FontSize="21" FontWeight="SemiBold" LineHeight="30"/>
    <TextBlock Text="{Binding Description}" Foreground="{DynamicResource Muted}" Margin="0,4,0,0"/>
   </StackPanel>
-  <ListBox x:Name="HistoryList" Grid.Row="1" ItemsSource="{Binding Files}" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource Ink}" MinHeight="120" MaxHeight="320"
+  <ListBox x:Name="HistoryList" Grid.Row="1" ItemsSource="{Binding Files}" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource Ink}" MaxHeight="440"
            HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="False"
            AutomationProperties.Name="{Binding Heading}">
    <ListBox.Resources><Style TargetType="ScrollViewer" BasedOn="{StaticResource InsetScrollFrame}"/></ListBox.Resources>
@@ -42,9 +42,21 @@
       <Path.Style><Style TargetType="Path"><Setter Property="Data" Value="{DynamicResource VideoIcon}"/><Style.Triggers><DataTrigger Binding="{Binding IsAudio}" Value="True"><Setter Property="Data" Value="{DynamicResource AudioIcon}"/></DataTrigger></Style.Triggers></Style></Path.Style>
      </Path>
      <StackPanel Grid.Column="2">
-      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" LineHeight="22" Height="22" MaxHeight="22"/>
-      <TextBlock Text="{Binding Details}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,5,0,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-      <TextBlock Text="{Binding Folder}" Foreground="{DynamicResource Muted}" FontSize="11" LineHeight="16" Margin="0,3,0,0" FlowDirection="LeftToRight" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" LineHeight="20" MaxHeight="40">
+       <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers>
+        <DataTrigger Binding="{Binding Available}" Value="False"><Setter Property="TextDecorations" Value="Strikethrough"/><Setter Property="Foreground" Value="{DynamicResource Muted}"/></DataTrigger>
+       </Style.Triggers></Style></TextBlock.Style>
+      </TextBlock>
+      <WrapPanel Margin="0,3,0,0">
+       <TextBlock Text="{Binding Details}" Foreground="{DynamicResource Muted}" FontSize="12" LineHeight="18" VerticalAlignment="Center"/>
+       <Border Background="{DynamicResource Selected}" CornerRadius="4" Padding="6,0" Margin="6,0,0,0">
+        <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers>
+         <DataTrigger Binding="{Binding Available}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+        </Style.Triggers></Style></Border.Style>
+        <TextBlock Text="{Binding MissingLabel}" Foreground="{DynamicResource Error}" FontSize="12" FontWeight="SemiBold" LineHeight="18"/>
+       </Border>
+      </WrapPanel>
+      <TextBlock Text="{Binding Folder}" Foreground="{DynamicResource Muted}" FontSize="11" LineHeight="16" FlowDirection="LeftToRight" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
      </StackPanel>
      <Button Grid.Column="4" Style="{StaticResource HistoryButton}" VerticalAlignment="Center"
              Content="{Binding DataContext.RevealLabel,RelativeSource={RelativeSource AncestorType=Window}}"
@@ -58,7 +70,7 @@
    <TextBlock Text="{Binding EmptyHeading}" FontWeight="SemiBold" FontSize="16" TextAlignment="Center"/>
    <TextBlock Text="{Binding EmptyDetail}" Foreground="{DynamicResource Muted}" TextAlignment="Center" Margin="0,6,0,0"/>
   </StackPanel>
-  <TextBlock x:Name="HistoryError" Grid.Row="2" Text="{Binding Error}" Foreground="{DynamicResource Error}" MinHeight="20" Margin="0,8,0,0" AutomationProperties.LiveSetting="Polite"/>
+  <TextBlock x:Name="HistoryError" Grid.Row="2" Text="{Binding Error}" Foreground="{DynamicResource Error}" TextWrapping="Wrap" Margin="0,8,0,0" Visibility="{Binding HasError,Converter={StaticResource BoolVisibility}}" AutomationProperties.LiveSetting="Polite"/>
   <Border Grid.Row="3" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Margin="0,16,0,0" Padding="0,14,0,0">
    <Button x:Name="HistoryClose" Content="{Binding CloseLabel}" Style="{StaticResource HistoryButton}" IsCancel="True" MinWidth="80" HorizontalAlignment="Right"/>
   </Border>
