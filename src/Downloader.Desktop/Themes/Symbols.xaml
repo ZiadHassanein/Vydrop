@@ -14,6 +14,7 @@
   <Geometry x:Key="PlusIcon">M10,2 L10,18 M2,10 L18,10</Geometry>
   <Geometry x:Key="CloseIcon">M4,4 L16,16 M16,4 L4,16</Geometry>
   <Geometry x:Key="CheckIcon">M2,10 L7,15 18,3</Geometry>
+  <Geometry x:Key="WarningIcon">M10,1 L20,19 0,19 Z M10,7 L10,12 M10,15 L10,15.5</Geometry>
   <Geometry x:Key="ChevronIcon">M2,5 L9,12 16,5</Geometry>
   <Geometry x:Key="BrandMarkGeometry">F0M4,8.016L21.625,8.016 27.873,18.056 27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056 42.375,8.016 60,8.016 60,11.586 32,55.984 4,11.586Z</Geometry>
   <Geometry x:Key="BrandArrowGeometry">M107,72L107,114 77,114 125.5,168 174,114 144,114 144,72Z</Geometry>

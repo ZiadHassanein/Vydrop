@@ -46,7 +46,8 @@ internal static partial class Program
         var provider = new FakeProvider();
         var service = new DownloadService(provider, new EmptyStorage());
         var thumbnailLoader = new FixtureThumbnailLoader();
-        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader) { ShowActivated = !args.Contains("--motion") };
+        var titleLookup = new FixtureTitleLookup();
+        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader, titleLookup) { ShowActivated = !args.Contains("--motion") };
         window.ContentRendered += async (_, _) =>
         {
             try
@@ -159,6 +160,12 @@ internal static partial class Program
                 {
                     await CheckQueueWindow(window, model, provider, captures);
                     Console.WriteLine(count + " WPF queue-window checks passed.");
+                    return;
+                }
+                if (args.Contains("--queue-titles"))
+                {
+                    await CheckQueueTitles(window, model, titleLookup, captures);
+                    Console.WriteLine(count + " WPF queue-title checks passed.");
                     return;
                 }
                 if (args.Contains("--history"))

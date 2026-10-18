@@ -73,11 +73,11 @@
     </Border>
     <StackPanel x:Name="QueuedDownloadsSection" Visibility="{Binding HasQueue,Converter={StaticResource BoolVisibility}}">
     <TextBlock Text="{Binding QueueLabel}" FontWeight="SemiBold" Margin="0,0,0,8"/>
-    <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+    <Border Padding="0,8,0,0">
       <ItemsControl x:Name="QueueItemsHost" ItemsSource="{Binding QueueItems}">
        <ItemsControl.ItemTemplate>
         <DataTemplate>
-         <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="0,10">
+         <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,10">
           <Grid>
            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
            <StackPanel>

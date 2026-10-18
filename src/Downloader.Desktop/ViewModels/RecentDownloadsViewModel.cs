@@ -31,33 +31,52 @@ public sealed class RecentDownloadsViewModel : ObservableObject
         {
             Error = "";
             try { reveal(file.FilePath); }
-            catch { Error = translate("This file is no longer in its saved location."); }
+            catch
+            {
+                file.RefreshAvailability();
+                RevealCommand.NotifyCanExecuteChanged();
+                Error = translate("This file is no longer in its saved location.");
+            }
         }, file => file != null && file.Available);
     }
 }
 
-public sealed class RecentDownloadView
+public sealed class RecentDownloadView : ObservableObject
 {
+    private bool available;
+    private string details;
     public string FilePath { get; }
     public string Title { get; }
-    public string Details { get; }
+    public string Details { get => details; private set => SetProperty(ref details, value); }
     public string Folder { get; }
-    public bool Available { get; }
+    public bool Available
+    {
+        get => available;
+        private set { if (SetProperty(ref available, value)) OnPropertyChanged(nameof(IsUnavailable)); }
+    }
+    public bool IsUnavailable => !Available;
+    public string MissingLabel { get; }
     public bool IsAudio { get; }
     public RecentDownloadView(string path, Func<string, string> translate)
     {
         FilePath = path;
         Title = Path.GetFileNameWithoutExtension(path);
         Folder = Path.GetDirectoryName(path);
-        string extension = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
-        IsAudio = !OutputProfiles.IsVideoExtension(extension);
+        MissingLabel = translate("File moved or deleted");
+        IsAudio = !OutputProfiles.IsVideoExtension(Path.GetExtension(path));
+        RefreshAvailability();
+    }
+
+    internal void RefreshAvailability()
+    {
+        string extension = Path.GetExtension(FilePath).TrimStart('.').ToUpperInvariant();
         try
         {
-            var file = new FileInfo(path);
+            var file = new FileInfo(FilePath);
             Available = file.Exists;
-            Details = extension + " · " + (Available ? YtDlpProvider.Size(file.Length) : translate("File moved or deleted"));
+            Details = Available ? extension + " · " + YtDlpProvider.Size(file.Length) : extension;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
-        { Details = extension + " · " + translate("File moved or deleted"); }
+        { Available = false; Details = extension; }
     }
 }

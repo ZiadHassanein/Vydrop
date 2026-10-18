@@ -355,6 +355,7 @@ public sealed partial class MainViewModel
 
     public async Task CloseAsync()
     {
+        StopQueueTitles();
         thumbnailCancellation?.Cancel();
         thumbnailCancellation?.Dispose();
         thumbnailCancellation = null;
@@ -363,6 +364,7 @@ public sealed partial class MainViewModel
         Queue.Stop();
         downloads.Cancel();
         await inspection;
+        await queueTitles;
         await downloads.Operations.WaitForIdleAsync();
         if (DownloadCommand.ExecutionTask != null)
             await DownloadCommand.ExecutionTask;

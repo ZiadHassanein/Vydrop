@@ -87,7 +87,7 @@ public sealed partial class MainViewModel
                 request.Url = targets.VideoUrl ?? targets.PlaylistUrl;
                 request.Selection = null;
                 request.QualityKey = null;
-                Queue.Add(request, new Uri(request.Url).Host);
+                Queue.Add(request);
                 QueueLinkInputs.Remove(field);
                 added++;
             }

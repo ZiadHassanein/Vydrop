@@ -29,8 +29,9 @@ public sealed partial class MainViewModel : ObservableObject
     private double progress;
     private CancellationTokenSource noticeLifetime;
     private string noticeAnchor;
-    public MainViewModel(DownloadService downloads, SettingsRepository settings, DesktopActions actions, IMediaThumbnailLoader thumbnailLoader = null)
+    public MainViewModel(DownloadService downloads, SettingsRepository settings, DesktopActions actions, IMediaThumbnailLoader thumbnailLoader = null, IMediaTitleLookup queueTitleLookup = null)
     {
+        this.queueTitleLookup = queueTitleLookup ?? new MediaTitleLookup();
         this.downloads = downloads;
         this.settings = settings;
         this.actions = actions;

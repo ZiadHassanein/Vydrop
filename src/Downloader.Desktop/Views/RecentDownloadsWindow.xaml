@@ -44,6 +44,14 @@
      <StackPanel Grid.Column="2">
       <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" LineHeight="22" Height="22" MaxHeight="22"/>
       <TextBlock Text="{Binding Details}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,5,0,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+      <Border x:Name="MissingFileNotice" Background="{DynamicResource Selected}" CornerRadius="6" Padding="8,6" Margin="0,6,0,0"
+              Visibility="{Binding IsUnavailable,Converter={StaticResource BoolVisibility}}">
+       <Grid>
+        <Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <Path Data="{StaticResource WarningIcon}" Style="{StaticResource LineIcon}" Width="16" Height="16" Stroke="{DynamicResource Error}" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="2" Text="{Binding MissingLabel}" Foreground="{DynamicResource Error}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/>
+       </Grid>
+      </Border>
       <TextBlock Text="{Binding Folder}" Foreground="{DynamicResource Muted}" FontSize="11" LineHeight="16" Margin="0,3,0,0" FlowDirection="LeftToRight" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
      </StackPanel>
      <Button Grid.Column="4" Style="{StaticResource HistoryButton}" VerticalAlignment="Center"

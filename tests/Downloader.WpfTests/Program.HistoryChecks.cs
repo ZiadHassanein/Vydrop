@@ -72,6 +72,14 @@ internal static partial class Program
                                     var bounds = last.TransformToAncestor(viewport).TransformBounds(new Rect(last.RenderSize));
                                     Check(viewport.ScrollableHeight > 0 && bounds.Bottom <= viewport.ActualHeight + 1,
                                         $"Short history dialogs can scroll vertically to the last file and its action (scroll={viewport.ScrollableHeight}, offset={viewport.VerticalOffset}, viewport={viewport.ActualHeight}, last={bounds})");
+                                    var missing = (RecentDownloadView)list.SelectedItem;
+                                    var notice = Descendants<Border>(last).Single(border => border.Name == "MissingFileNotice");
+                                    var warning = Descendants<TextBlock>(notice).Single();
+                                    Check(missing.IsUnavailable && notice.IsVisible && warning.Text == Texts.For(arabic ? "ar" : "en", "File moved or deleted") &&
+                                        warning.FontSize >= 13 && warning.FontWeight == FontWeights.SemiBold && Equals(warning.Foreground, Application.Current.Resources["Error"]),
+                                        "Missing files retain their history with a prominent translated warning in both themes");
+                                    Check(Descendants<System.Windows.Shapes.Path>(notice).Any(icon => icon.IsVisible) && !historyModel.RevealCommand.CanExecute(missing),
+                                        "The warning includes an icon and unavailable files cannot be revealed");
                                     Capture(dialog, System.IO.Path.Combine(captures, "history-" + variant + "-last.png"));
                                 }
                                 if (entries == 1)
@@ -85,6 +93,9 @@ internal static partial class Program
                                         Check(historyModel.HasError && historyModel.Error == Texts.For(arabic ? "ar" : "en", "This file is no longer in its saved location."),
                                             arabic ? "Arabic reveal failures give translated recovery feedback" : "Reveal failures give clear recovery feedback");
                                         Check(!arabic || historyModel.Error != "This file is no longer in its saved location.", "Arabic history recovery does not fall back to English");
+                                        Check(fileView.IsUnavailable && !reveals[0].IsEnabled &&
+                                            Descendants<Border>(item).Single(border => border.Name == "MissingFileNotice").IsVisible && historyModel.Files.Count == 1,
+                                            "Deleting a file while history is open updates its inline warning and disables reveal without losing the record");
                                         Capture(dialog, System.IO.Path.Combine(captures, "history-" + variant + "-missing.png"));
                                     }
                                     finally { System.IO.File.WriteAllBytes(files[0], new byte[2048]); }

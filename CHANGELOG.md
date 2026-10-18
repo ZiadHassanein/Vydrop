@@ -4,6 +4,12 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+### Changed
+- Label the English contact menu “Contact me” and the queue action “Start download” (بدء التنزيل).
+- Load video titles above queued links without blocking downloads; keep links usable when a title cannot be fetched.
+- Use one separator above the queue footer and keep separators between queued videos.
+- Highlight moved or deleted recent files with a readable warning and disable their folder action, including files removed while the history window is open.
+
 ## [4.2.4] - 2026-10-18
 
 ### Added

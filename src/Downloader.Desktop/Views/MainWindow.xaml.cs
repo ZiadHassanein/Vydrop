@@ -19,14 +19,14 @@ public partial class MainWindow : Window
     {
     }
 
-    internal MainWindow(DownloadService service, SettingsRepository repository, IMediaThumbnailLoader thumbnailLoader = null)
+    internal MainWindow(DownloadService service, SettingsRepository repository, IMediaThumbnailLoader thumbnailLoader = null, IMediaTitleLookup queueTitleLookup = null)
     {
         InitializeComponent();
         mediaFrame = new MediaPaneWindowState(this);
         Root.Children.Remove(Notice);
         DownloadForm.FolderNoticeHost.Children.Add(Notice);
         var actions = new DesktopActions(this);
-        model = new MainViewModel(service ?? new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage()), repository ?? new SettingsRepository(), actions, thumbnailLoader);
+        model = new MainViewModel(service ?? new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage()), repository ?? new SettingsRepository(), actions, thumbnailLoader, queueTitleLookup);
         presentationDirection = model.ContentDirection;
         DataContext = model;
         SystemTheme = new SystemThemeMonitor(this, () => model.IsDark, model.RefreshThemeBindings);

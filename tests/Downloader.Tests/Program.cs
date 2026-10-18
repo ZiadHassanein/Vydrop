@@ -25,6 +25,7 @@ internal static class Program
             OutputProfileChecks.Run(args[0]);
             await AutomaticToolChecks.Run(args[0]);
             await ReviewRegressionChecks.Run(args[0]);
+            await MediaTitleChecks.Run(args[0]);
             return 0;
         }
         catch (Exception ex)

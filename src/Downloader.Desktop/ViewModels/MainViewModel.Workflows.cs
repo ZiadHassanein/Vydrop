@@ -9,9 +9,23 @@ public sealed record EncodingChoice(string Label, AudioEncoding Encoding)
 }
 public sealed class QueueItemView : ObservableObject
 {
+    private Func<string, string> translate = value => value;
+    private string previewTitle;
+    private bool titleAttempted;
     public QueueEntry Entry { get; }
     public Guid Id => Entry.Id;
-    public string Title => Entry.Title;
+    public string Title => HasInspectedTitle ? Entry.Title : previewTitle ?? translate(titleAttempted ? "Video title unavailable" : "Loading video title…");
+    private bool HasInspectedTitle => !string.IsNullOrWhiteSpace(Entry.Title) && Entry.Title != Entry.Url;
+    internal bool NeedsTitle => !HasInspectedTitle && previewTitle == null && !titleAttempted;
+    internal void SetPreviewTitle(string title)
+    {
+        previewTitle = string.IsNullOrWhiteSpace(title) ? null : title.Trim();
+        if (previewTitle?.Length > 512) previewTitle = previewTitle[..512];
+        titleAttempted = true;
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(HasArabicTitle));
+    }
+    internal void RetryTitle() => titleAttempted = false;
     public bool HasArabicTitle => Title.Any(c => c is >= '\u0600' and <= '\u06ff' or >= '\u0750' and <= '\u077f' or >= '\u08a0' and <= '\u08ff' or >= '\ufb50' and <= '\ufdff' or >= '\ufe70' and <= '\ufeff');
     public string Url => Entry.Url;
     public string Status { get; private set; }
@@ -36,6 +50,7 @@ public sealed class QueueItemView : ObservableObject
     public QueueItemView(QueueEntry entry) => Entry = entry;
     public void Refresh(Func<string, string> translate, bool running)
     {
+        this.translate = translate;
         Status = translate(Entry.State.ToString());
         Error = Entry.Error == null ? translate(Entry.Result?.Warning ?? "") : translate(MainViewModel.DescribeError(new InvalidOperationException(Entry.Error)));
         CanRetry = !running && Entry.State is QueueState.Failed or QueueState.Cancelled;
@@ -77,7 +92,7 @@ public sealed partial class MainViewModel
     public string CaptionsLabel => T("Subtitles");
     public string CaptionLanguagesLabel => T("Get subtitle languages");
     public string AddQueueLabel => T("Add to queue");
-    public string StartQueueLabel => T("Start queue");
+    public string StartQueueLabel => T("Start download");
     public string RetryLabel => T("Retry");
     public string RemoveLabel => T("Remove");
     public string QueueHeading => T("Download queue");
@@ -106,7 +121,12 @@ public sealed partial class MainViewModel
 
     private void InitializeWorkflows()
     {
-        QueueCommand = new RelayCommand(() => actions.ShowQueue(this));
+        QueueCommand = new RelayCommand(() =>
+        {
+            BeginQueueTitles();
+            try { actions.ShowQueue(this); }
+            finally { StopQueueTitles(); }
+        });
         OptionsCommand = new RelayCommand(() => actions.ShowOutputOptions(this), () => IsIdle);
         AddQueueCommand = new RelayCommand(() =>
         {
@@ -213,6 +233,8 @@ public sealed partial class MainViewModel
             if (row == null) { row = new QueueItemView(entry); QueueItems.Add(row); }
             row.Refresh(T, Queue.IsRunning);
         }
+        if (queueTitleEntry != null && !entries.Any(entry => entry.Id == queueTitleEntry)) queueTitleRequest?.Cancel();
+        ScheduleQueueTitles();
         OnPropertyChanged(nameof(QueueLabel));
         OnPropertyChanged(nameof(HasQueue));
         OnPropertyChanged(nameof(QueueRunning));

@@ -36,6 +36,7 @@ internal static partial class Program
                         var input = QueueFields(dialog).Single();
                         var viewport = (ScrollViewer)WpfTree.Find(dialog, "QueueViewport");
                         var start = (Button)WpfTree.Find(dialog, "QueueStartButton");
+                        Check(Equals(start.Content, arabic ? "بدء التنزيل" : "Start download"), "The queue action clearly names starting the download in both languages");
                         var cancel = (Button)WpfTree.Find(dialog, "QueueCancelButton");
                         var close = (Button)WpfTree.Find(dialog, "QueueCloseButton");
                         var jobs = (FrameworkElement)WpfTree.Find(dialog, "QueuedDownloadsSection");
