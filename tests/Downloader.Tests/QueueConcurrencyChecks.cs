@@ -13,14 +13,20 @@ internal static class QueueConcurrencyChecks
             Task reporter = Task.CompletedTask;
             IProgress<DownloadProgress> late = null;
             int terminalSeen = 0, regressed = 0;
+            var observations = new object();
             Action observer = () =>
             {
-                // Also exercises re-entry into the queue from an event subscriber.
-                var state = queue.Entries.Single().State;
-                if (state is QueueState.Completed or QueueState.Cancelled or QueueState.Failed)
-                    Interlocked.Exchange(ref terminalSeen, 1);
-                else if (Volatile.Read(ref terminalSeen) != 0)
-                    Interlocked.Exchange(ref regressed, 1);
+                // Serialize the snapshot and its observation history, not producer progress.
+                // Otherwise a callback paused after reading Downloading can resume after
+                // another callback records Completed and report a false regression.
+                lock (observations)
+                {
+                    var state = queue.Entries.Single().State;
+                    if (state is QueueState.Completed or QueueState.Cancelled or QueueState.Failed)
+                        terminalSeen = 1;
+                    else if (terminalSeen != 0)
+                        regressed = 1;
+                }
             };
             queue.Changed += observer;
             int outcome = iteration % 3;

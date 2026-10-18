@@ -6,6 +6,7 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 1 && args[0] == "--queue-concurrency") { await QueueConcurrencyChecks.Run(); return 0; }
             if (args.Length == 2 && args[0] == "--native-host") return await NativeHostChecks.Run(args[1]);
             if (args.Length == 2 && args[0] == "--package") return PackageArtifactChecks.Run(args[1]);
             if (args.Length == 3 && args[0] == "--direct-media-live") return DirectMediaLiveChecks.Run(args[1], args[2]);
