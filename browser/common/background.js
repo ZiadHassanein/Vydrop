@@ -1,9 +1,9 @@
 if (!globalThis.ViFreeConnection) importScripts("connection.js", "video-detection.js");
-const { api, name, sendLink } = globalThis.ViFreeConnection;
+const { api, name, sendLink, errorMessage } = globalThis.ViFreeConnection;
 const arabic = /^ar\b/iu.test(api.i18n?.getUILanguage?.() ?? "");
 const text = arabic
-  ? { link: `فتح الرابط في ${name}`, video: `فتح الفيديو في ${name}`, retry: `افتح ${name} وفعّل الربط بالمتصفح، ثم حاول مجددًا.` }
-  : { link: `Open link in ${name}`, video: `Open video in ${name}`, retry: `Open ${name}, enable Browser integration, then try again.` };
+  ? { link: `فتح الرابط في ${name}`, video: `فتح الفيديو في ${name}` }
+  : { link: `Open link in ${name}`, video: `Open video in ${name}` };
 
 api.runtime.onMessage.addListener((message, sender, respond) => {
   if (message?.type !== "vifree-open-video" || message.version !== 1) return false;
@@ -13,7 +13,7 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
     allowed = sender.id === api.runtime.id && Number.isInteger(sender.tab?.id) &&
       Number.isInteger(sender.frameId) && sender.frameId >= 0 && /^https?:$/u.test(page.protocol) && !page.username && !page.password;
   } catch { /* Only this extension's web content scripts can forward an explicit video click. */ }
-  if (!allowed) { respond({ ok: false, message: "This video page cannot open Vydrop." }); return false; }
+  if (!allowed) { respond({ ok: false, code: "invalid", message: "This video page cannot open Vydrop." }); return false; }
   globalThis.ViFreeVideoDetection.resolveSource({ url: message.url, linkedinAsset: message.linkedinAsset, sourcePage: message.sourcePage })
     .then(async url => { await sendLink(url); respond({ ok: true, url }); }, error => respond({ ok: false, code: error.code, message: error.message }))
     .catch(error => respond({ ok: false, code: error.code, message: error.message }));
@@ -34,6 +34,6 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   } catch (error) {
     await api.action.setBadgeText({ text: "!", tabId: tab?.id });
     await api.action.setBadgeBackgroundColor({ color: "#AF2527", tabId: tab?.id });
-    await api.action.setTitle({ title: (arabic && error.code === "unavailable" ? text.retry : error.message) || text.retry, tabId: tab?.id });
+    await api.action.setTitle({ title: errorMessage(error, arabic), tabId: tab?.id });
   }
 });

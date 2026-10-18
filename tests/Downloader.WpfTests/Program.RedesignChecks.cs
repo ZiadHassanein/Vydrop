@@ -7,7 +7,7 @@ internal static partial class Program
     private static async Task CheckRedesign(Window window, MainViewModel model, FakeProvider provider, FixtureThumbnailLoader thumbnailLoader, string captures)
     {
         await CheckPreviewPanel(window, model, provider, captures);
-        if (model.IsArabic) model.LanguageCommand.Execute(null);
+        if (model.IsArabic) model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
         model.Audio = false;
         window.Width = 1160;
         model.Url = "https://youtu.be/jNQXAC9IVRw";
@@ -22,7 +22,7 @@ internal static partial class Program
         var brand = (FrameworkElement)WpfTree.Find(window, "BrandWordmark");
         foreach (bool arabic in new[] { false, true })
         {
-            if (model.IsArabic != arabic) model.LanguageCommand.Execute(null);
+            if (model.IsArabic != arabic) model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
             foreach (bool dark in new[] { false, true })
             {
                 if (model.IsDark != dark) model.ThemeCommand.Execute(null);
@@ -105,7 +105,7 @@ internal static partial class Program
             !((FrameworkElement)WpfTree.Find(window, "ContextViewport")).IsVisible,
             "A manually narrowed window places the compact preview below its link without a top banner");
         await CaptureCompact(window, System.IO.Path.Combine(captures, "redesign-compact-ar.png"));
-        model.LanguageCommand.Execute(null);
+        model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
         await Task.Delay(150);
         window.UpdateLayout();
         await CaptureCompact(window, System.IO.Path.Combine(captures, "redesign-compact-en.png"));

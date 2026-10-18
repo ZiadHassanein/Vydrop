@@ -1,3 +1,4 @@
+#nullable enable
 namespace YouTubeDownloader;
 
 public enum QueueState { Pending, Preparing, Downloading, Completed, Failed, Cancelled }
@@ -11,11 +12,11 @@ public sealed class QueueEntry
     public QueueState State { get; internal set; }
     public double Percent { get; internal set; }
     public int Attempts { get; internal set; }
-    public string Error { get; internal set; }
-    public DownloadResult Result { get; internal set; }
+    public string? Error { get; internal set; }
+    public DownloadResult? Result { get; internal set; }
     internal long Generation { get; set; }
     public DownloadOptions Options => request.Snapshot();
-    internal QueueEntry(DownloadOptions options, string title)
+    internal QueueEntry(DownloadOptions options, string? title)
         => (request, Title) = (options.Snapshot(), title ?? options.Url);
 }
 
@@ -25,12 +26,12 @@ public sealed class DownloadQueue
     public const int Capacity = 100;
     private readonly object gate = new();
     private readonly List<QueueEntry> entries = new();
-    private CancellationTokenSource lifetime;
-    public event Action Changed;
+    private CancellationTokenSource? lifetime;
+    public event Action? Changed;
     public bool IsRunning { get { lock (gate) return lifetime != null; } }
     public IReadOnlyList<QueueEntry> Entries { get { lock (gate) return entries.ToArray(); } }
 
-    public QueueEntry Add(DownloadOptions options, string title = null)
+    public QueueEntry Add(DownloadOptions options, string? title = null)
     {
         if (options == null || string.IsNullOrWhiteSpace(options.Url)) throw new ArgumentException("Choose a media link.");
         QueueEntry entry;
@@ -68,10 +69,17 @@ public sealed class DownloadQueue
         Changed?.Invoke();
         return true;
     }
-    public void Stop() { lock (gate) lifetime?.Cancel(); }
+    public void Stop()
+    {
+        CancellationTokenSource? run;
+        lock (gate) run = lifetime;
+        // Cancellation can invoke provider callbacks; never hold the mutation gate here.
+        try { run?.Cancel(); }
+        catch (ObjectDisposedException) { } // The run may have finished after the snapshot.
+    }
 
     public async Task RunAsync(Func<DownloadOptions, IProgress<DownloadProgress>, CancellationToken, Task<DownloadResult>> execute,
-        Func<TimeSpan, CancellationToken, Task> wait = null, CancellationToken token = default)
+        Func<TimeSpan, CancellationToken, Task>? wait = null, CancellationToken token = default)
     {
         CancellationTokenSource run;
         lock (gate)
@@ -85,7 +93,7 @@ public sealed class DownloadQueue
         {
             while (!run.IsCancellationRequested)
             {
-                QueueEntry entry;
+                QueueEntry? entry;
                 lock (gate)
                 {
                     entry = entries.FirstOrDefault(e => e.State == QueueState.Pending);
@@ -99,8 +107,11 @@ public sealed class DownloadQueue
                     try
                     {
                         long generation;
-                        lock (gate) generation = ++entry.Generation;
-                        entry.Attempts++;
+                        lock (gate)
+                        {
+                            generation = ++entry.Generation;
+                            entry.Attempts++;
+                        }
                         var progress = new QueueProgress(p =>
                         {
                             lock (gate)
@@ -113,20 +124,26 @@ public sealed class DownloadQueue
                             Changed?.Invoke();
                         });
                         var result = await execute(entry.Options, progress, run.Token).ConfigureAwait(false);
-                        entry.Result = result;
+                        lock (gate) entry.Result = result;
                         if (result.Cancelled) throw new OperationCanceledException();
                         halt = result.StopQueue;
                         if (result.Failed > 0 || result.Remaining > 0 || result.StopReason != null)
                             throw new InvalidOperationException(result.StopReason ?? "Some playlist items failed. Retry to resume completed files.");
-                        entry.State = QueueState.Completed;
-                        entry.Percent = 100;
-                        entry.Error = null;
+                        lock (gate)
+                        {
+                            entry.State = QueueState.Completed;
+                            entry.Percent = 100;
+                            entry.Error = null;
+                        }
                         break;
                     }
                     catch (OperationCanceledException)
                     {
-                        entry.State = QueueState.Cancelled;
-                        entry.Error = null;
+                        lock (gate)
+                        {
+                            entry.State = QueueState.Cancelled;
+                            entry.Error = null;
+                        }
                         halt = true;
                         break;
                     }
@@ -135,15 +152,26 @@ public sealed class DownloadQueue
                         string error = ex.Message ?? "Download failed.";
                         if (attempt == 0 && !halt && ex is not MediaToolRecoveryException && !DownloadErrors.IsBlocked(error) && DownloadErrors.IsTransient(error))
                         {
-                            lock (gate) entry.Generation++;
-                            entry.Error = "Connection interrupted. Retrying…";
+                            lock (gate)
+                            {
+                                entry.Generation++;
+                                entry.Error = "Connection interrupted. Retrying…";
+                            }
                             Changed?.Invoke();
                             try { await wait(TimeSpan.FromSeconds(3), run.Token).ConfigureAwait(false); }
-                            catch (OperationCanceledException) { entry.State = QueueState.Cancelled; entry.Error = null; halt = true; break; }
+                            catch (OperationCanceledException)
+                            {
+                                lock (gate) { entry.State = QueueState.Cancelled; entry.Error = null; }
+                                halt = true;
+                                break;
+                            }
                             continue;
                         }
-                        entry.Error = error.Length > 512 ? error[..512] : error;
-                        entry.State = QueueState.Failed;
+                        lock (gate)
+                        {
+                            entry.Error = error.Length > 512 ? error[..512] : error;
+                            entry.State = QueueState.Failed;
+                        }
                         halt = halt || ex is UnauthorizedAccessException or MediaToolRecoveryException || DownloadErrors.IsBlocked(error) || DownloadErrors.IsTransient(error);
                         break;
                     }

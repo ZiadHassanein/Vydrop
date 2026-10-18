@@ -7,6 +7,7 @@ public static class BrowserHost
     public static bool IsInvocation(string[] args) => args.Length > 0 && (args[0].StartsWith("chrome-extension://", StringComparison.Ordinal) || args[0].EndsWith(HostName + ".firefox.json", StringComparison.OrdinalIgnoreCase));
     public static bool IsAllowedCaller(string[] args)
     {
+        // Browser origin filtering; command-line arguments do not authenticate local processes.
         if (args.Length is < 1 or > 3) return false;
         if (args[0] == "chrome-extension://" + ChromiumId + "/")
             return args.Skip(1).All(a => a.StartsWith("--parent-window=", StringComparison.Ordinal) && ulong.TryParse(a[16..], out _));
@@ -29,7 +30,11 @@ public static class BrowserHost
                 ? new { ok = true, code = "opened", message = "Link opened in Vydrop. Review it before downloading." }
                 : new { ok = false, code = "busy", message = "Vydrop is busy. Finish or cancel the current download, then try again." };
         }
-        catch { response = new { ok = false, message = "Could not send this link. Open Vydrop and enable browser integration, then try again." }; }
+        catch (Exception error)
+        {
+            response = new { ok = false, code = error is ArgumentException or InvalidDataException ? "invalid" : "unavailable",
+                message = "Could not send this link. Open Vydrop and enable browser integration, then try again." };
+        }
         try { await BrowserProtocol.WriteAsync(Console.OpenStandardOutput(), response, CancellationToken.None).ConfigureAwait(false); } catch (IOException) { }
     }
 

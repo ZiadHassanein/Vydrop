@@ -49,18 +49,4 @@ body+=rect(814,186,302,52,'#F1EDF0','#8E7D87')+icon(825,194,34)+text(868,219,'Do
 body+=text(84,627,'Click the tab, then review the detected link, format and save folder in the app.',22)+text(62,719,'No tab visible? Open the Vydrop toolbar popup. Click Download in the app to start saving.',21,'#655963')
 save(DEST/'04-send-video.svg','Send a playing video to Vydrop','Playback diagram showing the V-only icon beside Download by Vydrop above the right video border, with review in the desktop app before download.',body)
 
-for theme,page,ink,field,border,accent,selected,muted in [('dark','#181B20','#F6F2F4','#282B32','#94828D','#CB2D42','#3E2933','#BEB2BB'),('light','#F8F7F8','#272329','#FFFFFF','#8E7D87','#BA263A','#F8E3E9','#655963')]:
-    lockup=(ROOT/f'assets/brand-logo-{theme}.svg').read_text(encoding='utf-8')
-    inner=re.search(r'<g transform=.*?</g>',lockup).group()
-    body=rect(0,0,1000,1040,page,border,0)+rect(0,0,1000,32,'#20242A','#20242A',0)+icon(10,5,22)+text(40,23,'Vydrop',16,'#F6F2F4')
-    body+=f'<svg x="34" y="52" width="170" height="56" viewBox="0 0 128 42">{inner}</svg>'+text(600,85,'Recent downloads',18,ink)+text(826,85,'English',18,ink)+f'<circle cx="943" cy="78" r="14" stroke="{ink}" fill="none" stroke-width="2"/><path d="M943 64A14 14 0 0 1 943 92Z" fill="{ink}"/>'
-    body+='<path d="M0 132H1000" stroke="'+border+'"/>'+text(110,199,'New download',32,ink,600)+text(110,263,'Video link',20,ink,600)
-    body+=rect(110,282,650,56,field,border)+text(130,318,'Videos, Shorts, and playlists',20,muted)+rect(776,282,114,56,field,border)+text(833,318,'Paste',20,ink,500,'middle')
-    body+=text(110,398,'Save as',20,ink,600)+rect(110,420,380,60,selected,border)+text(300,459,'Video · MP4',22,ink,500,'middle')+rect(510,420,380,60,field,border)+text(700,459,'Audio · MP3',22,ink,500,'middle')
-    body+=text(110,540,'Quality',20,ink,600)+rect(110,562,590,56,field,border)+text(130,598,'Best available',20,ink)+rect(720,562,170,56,field,border)+text(805,598,'Subtitles',20,ink,500,'middle')
-    body+=text(110,682,'Save to',20,ink,600)+rect(110,704,610,56,field,border)+text(134,740,'Downloads',20,ink)+rect(736,704,154,56,field,border)+text(813,740,'Change',20,ink,500,'middle')
-    body+=text(110,821,'+ Add to queue',19,muted)+text(890,821,'Queue (0)',19,ink,400,'end')+rect(330,858,340,62,accent,accent)+text(500,898,'Download',24,'#FFFFFF',600,'middle')
-    body+='<path d="M0 975H1000" stroke="'+border+'"/>'+text(34,1011,'Settings',17,ink)+text(966,1011,'Contact',17,ink,400,'end')+text(500,1070,'UI illustration · Vydrop 4.2.0 · not a screenshot',18,'#655963',400,'middle')
-    save(ROOT/f'docs/images/app-overview-{theme}.svg',f'Vydrop {theme} interface overview','Labelled illustration of the Vydrop 4.2.0 interface, red V wordmark with a solid white arrow, video/audio choice, subtitles, output folder and centered Download action. Not a native app screenshot.',body,1000,1090)
-
-print('Rendered Chrome, Edge, Firefox and playback guides, plus both labelled app overviews.')
+print('Rendered Chrome, Edge, Firefox and playback guides.')

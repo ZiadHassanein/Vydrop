@@ -81,7 +81,6 @@ public sealed partial class MainViewModel
     public string RetryLabel => T("Retry");
     public string RemoveLabel => T("Remove");
     public string QueueHeading => T("Download queue");
-    public string QueueHint => T("Enter a link, add more fields if needed, then choose Start queue.");
     public string QueueSettingsHint => T("Choose the format and quality in the main window before adding links.");
     public string QueueInputLabel => T("Video links");
     public string CloseLabel => T("Close");
@@ -103,7 +102,7 @@ public sealed partial class MainViewModel
     public IAsyncRelayCommand ToolRefreshCommand { get; private set; }
     public IAsyncRelayCommand CaptionLanguagesCommand { get; private set; }
     internal Func<string, string> Translate => T;
-    internal static string DescribeError(Exception error) => FriendlyError(error);
+    internal static string DescribeError(Exception error) => DownloadErrorPresentation.Describe(error);
 
     private void InitializeWorkflows()
     {
@@ -160,7 +159,7 @@ public sealed partial class MainViewModel
             catch (OperationCanceledException) when (token.IsCancellationRequested) { }
             catch (Exception ex)
             {
-                ShowNotice("Subtitles", FriendlyError(ex, "Check your internet connection, then choose Get subtitle languages to try again."), true, "options");
+                ShowNotice("Subtitles", DownloadErrorPresentation.Describe(ex, "Check your internet connection, then choose Get subtitle languages to try again."), true, "options");
             }
             finally { RefreshAvailability(); }
         }, () => CanGetCaptionLanguages);

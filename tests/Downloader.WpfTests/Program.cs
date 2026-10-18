@@ -26,7 +26,7 @@ internal static partial class Program
         if (args.Contains("--dpi-unaware") && !args.Contains("--dpi-child"))
         {
             var start = new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath)
-                { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
+            { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
             start.Environment["__COMPAT_LAYER"] = "DPIUNAWARE";
             foreach (string argument in args) start.ArgumentList.Add(argument);
             // Windows may consume/remove __COMPAT_LAYER before managed startup.
@@ -106,6 +106,29 @@ internal static partial class Program
                 {
                     await CheckCheckingFeedback(window, model, provider, captures);
                     Console.WriteLine(count + " WPF checking-feedback checks passed.");
+                    return;
+                }
+                if (args.Contains("--close-race"))
+                {
+                    await CheckCloseRace(root);
+                    Console.WriteLine(count + " WPF close-race checks passed.");
+                    return;
+                }
+                if (args.Contains("--system-theme"))
+                {
+                    await CheckSystemTheme(window, model, provider, captures);
+                    Console.WriteLine(count + " WPF system-theme checks passed.");
+                    return;
+                }
+                if (args.Contains("--performance"))
+                {
+                    await MeasurePlaylistPerformance(window, captures);
+                    return;
+                }
+                if (args.Contains("--error-presentation"))
+                {
+                    CheckErrorPresentation();
+                    Console.WriteLine(count + " WPF error-presentation checks passed.");
                     return;
                 }
                 if (args.Contains("--motion"))
@@ -209,19 +232,15 @@ internal static partial class Program
                 {
                     "en",
                     "ar"
-                }
-
-                )
+                })
                     foreach (bool dark in new[]
                     {
                         true,
                         false
-                    }
-
-                    )
+                    })
                     {
                         if (model.IsArabic != (language == "ar"))
-                            model.LanguageCommand.Execute(null);
+                            model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
                         if (model.IsDark != dark)
                             model.ThemeCommand.Execute(null);
                         await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Loaded);
@@ -326,7 +345,7 @@ internal static partial class Program
                 var viewport = (ScrollViewer)WpfTree.Find(window, "Viewport");
                 foreach (string language in new[] { "en", "ar" })
                 {
-                    if (model.IsArabic != (language == "ar")) model.LanguageCommand.Execute(null);
+                    if (model.IsArabic != (language == "ar")) model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
                     foreach (bool dark in new[] { true, false })
                     {
                         if (model.IsDark != dark) model.ThemeCommand.Execute(null);
@@ -388,8 +407,24 @@ internal static partial class Program
         return 0;
     }
 
-    private static void Capture(Window window, string file)
+    private static void Capture(Window window, string file, bool transitionFrame = false)
     {
+        var main = window as MainWindow ?? window.Owner as MainWindow;
+        if (!transitionFrame && main != null)
+        {
+            var deadline = System.Diagnostics.Stopwatch.StartNew();
+            while (main.ThemeTransition.IsTransitioning && deadline.Elapsed < TimeSpan.FromSeconds(3))
+            {
+                var frame = new System.Windows.Threading.DispatcherFrame();
+                var timer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Background)
+                { Interval = TimeSpan.FromMilliseconds(16) };
+                timer.Tick += (_, _) => { timer.Stop(); frame.Continue = false; };
+                timer.Start();
+                System.Windows.Threading.Dispatcher.PushFrame(frame);
+            }
+            Check(!main.ThemeTransition.IsTransitioning, "Static capture waits for the settled palette: " + System.IO.Path.GetFileName(file));
+            window.UpdateLayout();
+        }
         var dpi = VisualTreeHelper.GetDpi(window);
         GetClientRect(new WindowInteropHelper(window).Handle, out var client);
         var bitmap = new RenderTargetBitmap(client.Right - client.Left, client.Bottom - client.Top, dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
@@ -412,7 +447,7 @@ internal static partial class Program
         foreach (string language in new[] { "en", "ar" })
             foreach (bool dark in new[] { true, false })
             {
-                if (model.IsArabic != (language == "ar")) model.LanguageCommand.Execute(null);
+                if (model.IsArabic != (language == "ar")) model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
                 if (model.IsDark != dark) model.ThemeCommand.Execute(null);
                 await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Loaded);
                 window.UpdateLayout();
@@ -491,6 +526,7 @@ internal static partial class Program
         public int DownloadDelayMilliseconds = 10000;
         public Func<DownloadOptions, CancellationToken, IProgress<DownloadProgress>, DownloadResult> DownloadHandler;
         public int DownloadCalls;
+        public bool FailDispose;
         public List<CaptionChoice> CaptionTracks = new();
         public Action<CancellationToken> InspectionHook;
         public Func<IProgress<DownloadProgress>, CancellationToken, Task<MediaToolUpdateResult>> MaintenanceHandler;
@@ -573,6 +609,11 @@ internal static partial class Program
 
         public void Dispose()
         {
+            if (FailDispose)
+            {
+                FailDispose = false;
+                throw new System.IO.IOException("Fixture shutdown failed.");
+            }
         }
     }
 }

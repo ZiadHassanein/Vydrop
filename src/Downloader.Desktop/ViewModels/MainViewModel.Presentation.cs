@@ -91,6 +91,12 @@ public sealed partial class MainViewModel
         Save();
     }
 
+    internal void RefreshThemeBindings()
+    {
+        OnPropertyChanged(nameof(StatusBrush));
+        OnPropertyChanged(nameof(NoticeBrush));
+    }
+
     private void RefreshMediaPresentation()
     {
         if (notifiedHasMediaPreview != HasMediaPreview)

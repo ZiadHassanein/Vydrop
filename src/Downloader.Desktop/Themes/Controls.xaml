@@ -334,4 +334,25 @@
       <Trigger Property="FlowDirection" Value="RightToLeft"><Setter Property="Padding" Value="20,0,0,0"/></Trigger>
     </Style.Triggers>
   </Style>
+  <Style x:Key="PlaylistChoices" TargetType="ListBox">
+    <Setter Property="SelectionMode" Value="Multiple"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+    <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+    <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+    <Setter Property="VirtualizingPanel.ScrollUnit" Value="Item"/>
+    <Setter Property="ItemsPanel"><Setter.Value><ItemsPanelTemplate><VirtualizingStackPanel/></ItemsPanelTemplate></Setter.Value></Setter>
+    <Setter Property="ItemContainerStyle"><Setter.Value><Style TargetType="ListBoxItem">
+      <Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="IsEnabled"><Setter.Value><Binding Path="Content.IsEnabled" RelativeSource="{RelativeSource Self}"/></Setter.Value></Setter>
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/></ControlTemplate></Setter.Value></Setter>
+    </Style></Setter.Value></Setter>
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBox">
+      <ScrollViewer CanContentScroll="True" Focusable="False" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Style="{StaticResource InsetScrollFrame}"><ItemsPresenter/></ScrollViewer>
+    </ControlTemplate></Setter.Value></Setter>
+  </Style>
 </ResourceDictionary>

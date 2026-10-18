@@ -36,7 +36,7 @@ const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:751722773
         globalThis.browser = { runtime: { sendMessage: async value => { testSent.push(value); return testResponse; } } };
         Object.defineProperty(navigator, 'clipboard', { value: { writeText: async value => { globalThis.testCopied = value; } }, configurable: true });
       });
-      for (const file of ['video-detection.js', 'video-overlay.js']) await page.addScriptTag({ path: path.join(root, 'browser/common', file) });
+      for (const file of ['connection.js', 'video-detection.js', 'video-overlay.js']) await page.addScriptTag({ path: path.join(root, 'browser/common', file) });
       const button = page.locator('#vifree-video-action').getByRole('button');
       assert.equal(await button.isVisible(), false);
       // No mutation, scrolling or resizing: only the post-buffering media event can reveal it.
@@ -85,6 +85,30 @@ const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:751722773
         await page.waitForFunction(() => document.querySelector('#vifree-video-action').shadowRoot.querySelector('button').dataset.state === 'success');
         assert.equal(await button.getAttribute('title'), 'Copy video link and open Vydrop');
       }
+      if (site === 'linkedin' || site === 'youtube' && !theater && !crowdedHeader) {
+        for (const code of ['missing', 'ambiguous', 'inspect', 'busy', 'unavailable', 'invalid', 'unknown', 'legacy']) {
+          const before = await page.evaluate(() => testSent.length);
+          await page.evaluate(({ code, expected }) => {
+            globalThis.originalInspector ??= ViFreeVideoDetection.inspectVideoPage;
+            ViFreeVideoDetection.inspectVideoPage = () => {
+              if (code === 'inspect') throw new Error('RAW PRIVATE ERROR');
+              if (code === 'missing' || code === 'ambiguous') return { url: '', reason: code };
+              return { url: expected };
+            };
+            testResponse = { ok: false, code: code === 'legacy' ? undefined : code, message: 'RAW PRIVATE ERROR' };
+          }, { code, expected });
+          await button.click();
+          await page.waitForFunction(() => document.querySelector('#vifree-video-action').shadowRoot.querySelector('button').dataset.state === 'error');
+          const message = await button.getAttribute('title');
+          assert.doesNotMatch(message, /RAW PRIVATE/u);
+          assert.match(message, lang === 'ar' ? /[\u0600-\u06ff]/u : /video|page|Vydrop/u);
+          assert.equal(await page.evaluate(() => testSent.length), before + (['missing', 'ambiguous', 'inspect'].includes(code) ? 0 : 1));
+          if (['missing', 'ambiguous', 'inspect'].includes(code)) assert.doesNotMatch(message, /Browser integration|الربط بالمتصفح/u);
+        }
+        await page.evaluate(() => { ViFreeVideoDetection.inspectVideoPage = originalInspector; testResponse = { ok: true }; });
+        await button.click();
+        await page.waitForFunction(() => document.querySelector('#vifree-video-action').shadowRoot.querySelector('button').dataset.state === 'success');
+      }
       await page.evaluate(() => {
         const modal = document.createElement('div'); modal.role = 'dialog'; modal.setAttribute('aria-modal', 'true'); modal.id = 'test-modal';
         modal.style.cssText = 'position:fixed;inset:100px;width:200px;height:200px;background:white'; document.body.append(modal);
@@ -101,6 +125,32 @@ const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:751722773
       }
       await page.evaluate(() => { testPaused = true; document.querySelector('video').dispatchEvent(new Event('pause')); });
       await button.waitFor({ state: 'hidden' });
+      if (site === 'youtube' && lang === 'en' && !theater && !crowdedHeader) {
+        const samples = await page.evaluate(async () => {
+          const fixture = document.createElement('section');
+          for (let index = 0; index < 99; index++) {
+            const item = document.createElement('video');
+            item.style.cssText = 'width:320px;height:180px;display:block';
+            Object.defineProperties(item, { readyState: { get: () => 4 }, paused: { get: () => false }, ended: { get: () => false } });
+            fixture.append(item);
+          }
+          document.body.append(fixture);
+          testPaused = false;
+          const original = requestAnimationFrame, timings = [];
+          globalThis.requestAnimationFrame = callback => original(time => {
+            const start = performance.now(); callback(time); timings.push(performance.now() - start);
+          });
+          try {
+            for (let index = 0; index < 30; index++) {
+              dispatchEvent(new Event('resize'));
+              await new Promise(resolve => original(() => original(resolve)));
+            }
+          } finally { globalThis.requestAnimationFrame = original; fixture.remove(); }
+          return timings;
+        });
+        samples.sort((a, b) => a - b);
+        console.log(`MEASURE: 100-player overlay, ${samples.length} callbacks: p95=${samples[Math.floor(samples.length * .95)].toFixed(2)}ms, max=${samples.at(-1).toFixed(2)}ms`);
+      }
       console.log(`PASS: ${site}/${lang}/${width}${theater ? '/theater' : ''}${crowdedHeader ? '/crowded-header' : ''}: delayed playback, outside placement, exact-player click and pause`); passed++;
       await context.close();
     }

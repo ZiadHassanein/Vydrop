@@ -101,7 +101,7 @@ internal static partial class Program
             Check(predicate(), label + $" (busy={model.IsBusy}, progress={model.Progress}, phase={model.DownloadActionState}, status={model.StatusHeading}: {model.StatusDetail})");
         }
         Rect Bounds(FrameworkElement view) => view.TransformToAncestor(window).TransformBounds(new Rect(view.RenderSize));
-        void Shot(string name) { window.UpdateLayout(); Capture(window, System.IO.Path.Combine(captures, "motion-" + name + ".png")); }
+        void Shot(string name) { window.UpdateLayout(); Capture(window, System.IO.Path.Combine(captures, "motion-" + name + ".png"), transitionFrame: name == "theme-midpoint"); }
         async Task Input()
         {
             model.Url = "";

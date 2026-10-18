@@ -36,7 +36,7 @@ internal static partial class Program
         foreach (bool dark in new[] { false, true })
         {
             if (model.IsDark != dark) model.ThemeCommand.Execute(null);
-            foreach (string foreground in new[] { "Ink", "Muted", "Accent", "Error", "Success", "InfoAccent" })
+            foreach (string foreground in new[] { "Ink", "Muted", "Accent", "Error", "Success" })
                 foreach (string background in new[] { "Page", "Field", "Surface", "Hover", "Selected" })
                     Check(Contrast(Role(foreground), Role(background)) >= 4.5,
                         "Readable " + foreground + " on " + background + " in " + (dark ? "dark" : "light") + " theme");

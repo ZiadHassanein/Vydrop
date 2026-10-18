@@ -68,8 +68,6 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
         return result.Result;
     }
 
-    public event Action<string> Title;
-    public event Action<string> Log;
     public bool IsBusy
     {
         get
@@ -112,7 +110,6 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
                 errors.Add(line);
                 if (errors.Count > 80)
                     errors.RemoveAt(0);
-                Log?.Invoke(line);
             }
         }, token, args.Contains("--dump-single-json") ? TimeSpan.FromMinutes(2) : null);
         if (cancelled || token.IsCancellationRequested)
@@ -250,12 +247,6 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
             {
                 if (line.StartsWith("YTDL_FILE:", StringComparison.Ordinal))
                     saved = Json().Deserialize<string>(line.Substring(10));
-                else if (line.StartsWith("YTDL_TITLE:", StringComparison.Ordinal))
-                {
-                    var h = Title;
-                    if (h != null)
-                        h(Json().Deserialize<string>(line.Substring(11)));
-                }
                 else if (line.StartsWith("YTDL_PROGRESS:", StringComparison.Ordinal))
                 {
                     var p = Json().Deserialize<Dictionary<string, object>>(line.Substring(14));

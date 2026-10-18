@@ -333,6 +333,28 @@ test('LinkedIn temporary lookup rejects mismatched media and preserves the publi
   assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: linkedInActivity, sourcePage: linkedInGroupFeed, linkedinAsset: linkedInAsset }), linkedInActivity);
   assert.equal(removed, true);
 });
+test('LinkedIn optional source hints outside its allowlist never open a privileged lookup', async () => {
+  const { context } = fixture('https://www.linkedin.com/feed/');
+  let lookups = 0;
+  context.ViFreeConnection = { api: { tabs: {
+    create: async () => { lookups++; throw new Error('Unexpected lookup'); },
+    sendMessage: async () => { throw new Error('Unexpected message'); }, remove: async () => {}
+  } } };
+  const original = { url: linkedInActivity, sourcePage: linkedInGroupFeed, linkedinAsset: linkedInAsset };
+  for (const change of [
+    { sourcePage: 'https://evil.example/post' }, { sourcePage: linkedInGroupFeed.replace('https:', 'http:') },
+    { sourcePage: linkedInGroupFeed.replace('www.linkedin.com', 'user:secret@www.linkedin.com') },
+    { sourcePage: linkedInGroupFeed.replace('www.linkedin.com', 'www.linkedin.com:8443') },
+    { sourcePage: 'https://127.0.0.1/post' }, { sourcePage: 'https://192.168.1.2/post' },
+    { sourcePage: 'https://[::1]/post' }, { sourcePage: 'https://www.linkedin.com.evil.example/post' },
+    { linkedinAsset: '../untrusted' }, { linkedinAsset: 'a'.repeat(101) },
+    { url: 'https://www.linkedin.com/feed/update/urn:li:activity:invalid/' }
+  ]) {
+    const hint = { ...original, ...change };
+    assert.equal(await context.ViFreeVideoDetection.resolveSource(hint), hint.url, 'retain ordinary post handling when optional hints do not qualify');
+    assert.equal(lookups, 0);
+  }
+});
 test('LinkedIn cleanup leaves a temporary tab alone if the user navigated it elsewhere', async () => {
   const { context } = fixture('https://www.linkedin.com/feed/');
   let removed = false;

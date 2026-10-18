@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 
 namespace YouTubeDownloader;
+
 public static class AppPaths
 {
     // These legacy directories retain existing preferences, history and verified media tools.
@@ -36,9 +37,7 @@ public static class AppPaths
             {
                 Downloads,
                 Path.Combine(Path.GetPathRoot(Downloads), "Downloads")
-            }
-
-            )
+            })
                 if (string.Equals(saved.Trim().TrimEnd('\\', '/'), Path.Combine(parent, "YouTube"), StringComparison.OrdinalIgnoreCase))
                     return parent;
         return saved;

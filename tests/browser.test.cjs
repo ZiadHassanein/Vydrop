@@ -76,7 +76,7 @@ test('popup waits for user action and reports failure without opening hidden pag
   await click();
   assert.equal(calls, 1);
   assert.equal(button.disabled, false);
-  assert.match(status.textContent, /enable browser integration/iu);
+  assert.match(status.textContent, /copy the video link into the app/iu);
 });
 
 test('public Chromium key matches native-host identity and carries no private key', () => {
@@ -104,7 +104,7 @@ test('busy native delivery retains its error code through connection and backgro
   });
   assert.equal(response.ok, false);
   assert.equal(response.code, 'busy');
-  assert.equal(response.message, 'Vydrop is busy.');
+  assert.equal(response.message, 'The native host rejected this link.');
 });
 
 for (const detected of [true, false]) test(`popup ${detected ? 'sends the detected TikTok video' : 'explains a missing video without sending its homepage'}`, async () => {
@@ -135,7 +135,7 @@ if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identit
     assert.equal(manifest.version, '1.3.5'); assert.equal(manifest.name, 'Vydrop Preview');
     assert.deepEqual([...manifest.permissions].sort(), ['activeTab', 'clipboardWrite', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
     assert.equal(manifest.host_permissions, undefined);
-    assert.deepEqual(manifest.content_scripts, [{ matches: ['https://*/*', 'http://*/*'], js: ['video-detection.js', 'video-overlay.js'], all_frames: true, run_at: 'document_idle' }]);
+    assert.deepEqual(manifest.content_scripts, [{ matches: ['https://*/*', 'http://*/*'], js: ['connection.js', 'video-detection.js', 'video-overlay.js'], all_frames: true, run_at: 'document_idle' }]);
     for (const name of ['connection.js', 'video-detection.js', 'video-overlay.js', 'popup.js', 'background.js']) assert.equal(fs.readFileSync(path.join(folder, name), 'utf8'), fs.readFileSync(path.join(root, 'Browser/common', name), 'utf8'));
     assert.match(fs.readFileSync(path.join(folder, 'popup.html'), 'utf8'), /video-detection\.js/u);
     if (browser === 'chromium') assert.equal(manifest.key, fs.readFileSync(path.join(root, 'Browser/public-key.txt'), 'utf8').trim());

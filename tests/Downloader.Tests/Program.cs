@@ -20,6 +20,7 @@ internal static class Program
             await ReliabilityChecks.Run(args[0]);
             await BoundaryChecks.Run(args[0]);
             await ServiceChecks.Run();
+            await QueueConcurrencyChecks.Run();
             await WorkflowChecks.Run(args[0]);
             OutputProfileChecks.Run(args[0]);
             await AutomaticToolChecks.Run(args[0]);

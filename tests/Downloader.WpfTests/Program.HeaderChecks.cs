@@ -157,7 +157,7 @@ internal static partial class Program
                 Check(!menu.IsOpen && model.IsArabic == (locale == "ar"), "Outside interaction dismisses the language picker without changing selection");
                 language.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 await Task.Delay(80);
-                model.LanguageCommand.Execute(null);
+                model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
                 await Task.Delay(80);
                 Check(!menu.IsOpen, "External language changes close the old header popup before reuse");
             }

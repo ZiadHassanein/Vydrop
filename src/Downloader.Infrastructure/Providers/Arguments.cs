@@ -101,7 +101,7 @@ public static class Arguments
         // Postprocessing may delete its input. A distinct target-profile stem
         // prevents it from reusing a user's already completed MP4 as that input.
         string filename = "%(title).100B [" + sourceId + "] - " + profile + ".%(ext)s";
-        args.AddRange(new[] { "--no-simulate", "--continue", "--part", "--newline", "--progress", "--progress-delta", "0.3", "--windows-filenames", "--no-overwrites", "--trim-filenames", "180", "--paths", folder, "--output", filename, "--progress-template", "download:YTDL_PROGRESS:%(progress)j", "--progress-template", "postprocess:YTDL_POST:%(progress)j", "--print", "before_dl:YTDL_TITLE:%(title)j", "--print", "after_move:YTDL_FILE:%(filepath)j" });
+        args.AddRange(new[] { "--no-simulate", "--continue", "--part", "--newline", "--progress", "--progress-delta", "0.3", "--windows-filenames", "--no-overwrites", "--trim-filenames", "180", "--paths", folder, "--output", filename, "--progress-template", "download:YTDL_PROGRESS:%(progress)j", "--progress-template", "postprocess:YTDL_POST:%(progress)j", "--print", "after_move:YTDL_FILE:%(filepath)j" });
         if (options.Audio)
         {
             args.AddRange(new[] { "--format", "bestaudio/best", "--extract-audio", "--audio-format", OutputProfiles.AudioExtension(options.AudioEncoding) });

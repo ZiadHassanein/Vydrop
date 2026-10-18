@@ -160,7 +160,6 @@ internal static class FakeDownloader
         int videoIndex = Array.IndexOf(args, "--remux-video");
         string extensionName = formatIndex >= 0 ? args[formatIndex + 1] : videoIndex >= 0 ? args[videoIndex + 1] : "mp4";
         string file = Path.Combine(folder, "fixture " + url.Substring(Math.Max(0, url.Length - 11)).Replace('/', '_').Replace('?', '_') + "." + extensionName);
-        Console.WriteLine("YTDL_TITLE:" + System.Text.Json.JsonSerializer.Serialize("Fixture title"));
         Console.WriteLine("YTDL_PROGRESS:{\"downloaded_bytes\":512,\"total_bytes\":1024,\"speed\":128,\"eta\":4}");
         File.WriteAllText(file, "Local fixture only");
         int subtitleIndex = Array.IndexOf(args, "--sub-langs");

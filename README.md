@@ -159,6 +159,8 @@ On Windows, install the **.NET 10 SDK**. **Node.js 20+** is also required for br
 
 The solution contains `Downloader.Core`, `Downloader.Infrastructure` and the WPF `Downloader.Desktop` project. See [Security](SECURITY.md) for supported media and update limitations.
 
+The check command includes core, infrastructure, WPF, checking-feedback, isolated shutdown, simulated system-theme, virtualized playlist selection, browser, localization and documentation checks. System-theme tests inject colours without changing Windows accessibility settings. Set `VYDROP_PLAYWRIGHT` to an installed Playwright module to also run the synthetic headless Edge overlay checks; these use an isolated browser profile and a simulated native connection.
+
 ## Vydrop بالعربية — برنامج تنزيل الفيديو والصوت لويندوز
 
 <div dir="rtl" lang="ar">

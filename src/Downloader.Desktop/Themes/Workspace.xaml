@@ -23,6 +23,7 @@
      <MultiTrigger><MultiTrigger.Conditions><Condition Property="IsMouseOver" Value="True"/><Condition Property="IsChecked" Value="False"/></MultiTrigger.Conditions>
       <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/>
      </MultiTrigger>
+     <Trigger Property="IsChecked" Value="True"><Setter TargetName="Face" Property="BorderThickness" Value="{DynamicResource SelectedBorderThickness}"/></Trigger>
      <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Face" Property="BorderThickness" Value="2"/><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
      <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/></Trigger>
     </ControlTemplate.Triggers>

@@ -20,7 +20,7 @@ internal static partial class Program
             foreach (bool dark in new[] { true, false })
                 foreach (bool updated in new[] { false, true })
                 {
-                    if (model.IsArabic != arabic) model.LanguageCommand.Execute(null);
+                    if (model.IsArabic != arabic) model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
                     if (model.IsDark != dark) model.ThemeCommand.Execute(null);
                     if (!updated)
                     {

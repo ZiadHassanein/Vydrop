@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace YouTubeDownloader;
 public sealed partial class DesktopActions
@@ -49,7 +48,6 @@ public sealed partial class DesktopActions
         var all = new Button { Content = t("Select all"), Style = (Style)Application.Current.Resources["QuietButton"] };
         var none = new Button { Content = t("Clear selection"), Style = all.Style, Margin = new Thickness(12, 0, 0, 0) };
         selectActions.Children.Add(all); selectActions.Children.Add(none); header.Children.Add(selectActions); grid.Children.Add(header);
-        var rows = new StackPanel();
         var checks = new List<CheckBox>();
         int index = 0;
         foreach (var entry in playlist.Entries)
@@ -60,15 +58,22 @@ public sealed partial class DesktopActions
                 Tag = entry.Id, Content = new TextBlock { Text = index + ". " + entry.Title, TextWrapping = TextWrapping.Wrap },
                 IsEnabled = entry.Id != null && entry.MediaUrl != null,
                 IsChecked = entry.Id != null && entry.MediaUrl != null && (selected == null || selected.Contains(entry.Id)),
-                Margin = new Thickness(0, 0, 0, 12), Foreground = (Brush)Application.Current.Resources["Ink"]
+                Margin = new Thickness(0, 0, 0, 12)
             };
-            checks.Add(check); rows.Children.Add(check);
+            check.SetResourceReference(Control.ForegroundProperty, "Ink");
+            checks.Add(check);
         }
         all.Click += (_, _) => { foreach (var check in checks.Where(c => c.IsEnabled)) check.IsChecked = true; };
         none.Click += (_, _) => { foreach (var check in checks) check.IsChecked = false; };
-        var scroll = new ScrollViewer { Content = rows, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Style = (Style)Application.Current.Resources["InsetScrollFrame"] };
-        Grid.SetRow(scroll, 1); grid.Children.Add(scroll);
-        var error = new TextBlock { Foreground = (Brush)Application.Current.Resources["Error"], TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 0) };
+        var choices = new ListBox { ItemsSource = checks, Style = (Style)Application.Current.Resources["PlaylistChoices"] };
+        // The list supplies virtualized navigation; each checkbox owns its checked state.
+        choices.GotKeyboardFocus += (_, args) =>
+        {
+            if (args.NewFocus is ListBoxItem { Content: CheckBox check }) check.Focus();
+        };
+        Grid.SetRow(choices, 1); grid.Children.Add(choices);
+        var error = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 0) };
+        error.SetResourceReference(TextBlock.ForegroundProperty, "Error");
         Grid.SetRow(error, 2); grid.Children.Add(error);
         var buttons = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 18, 0, 0) };
         var apply = new Button { Content = t("Use selection"), Style = (Style)Application.Current.Resources["PrimaryButton"] };
@@ -87,12 +92,15 @@ public sealed partial class DesktopActions
         var dialog = Dialog(t("Browser integration"), 400);
         var panel = new StackPanel { Margin = new Thickness(24) };
         panel.Children.Add(new TextBlock { Text = t("Send a link from your browser"), FontSize = 20, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap });
-        panel.Children.Add(new TextBlock { Text = t("Keep Vydrop in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading."), TextWrapping = TextWrapping.Wrap, Foreground = (Brush)Application.Current.Resources["Muted"], Margin = new Thickness(0, 12, 0, 0) });
+        var hint = new TextBlock { Text = t("Keep Vydrop in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading."), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 0) };
+        hint.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+        panel.Children.Add(hint);
         panel.Children.Add(new TextBlock { Text = t("Click the extension or right-click a link to open it in Vydrop. Nothing downloads until you choose Download."), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 20) });
         var buttons = new WrapPanel();
         var enable = new Button { Content = t("Enable connection"), Style = (Style)Application.Current.Resources["PrimaryButton"] };
         var disable = new Button { Content = t("Disable connection"), Margin = new Thickness(12, 0, 0, 0) };
-        var message = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 16, 0, 0), Foreground = (Brush)Application.Current.Resources["Muted"] };
+        var message = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 16, 0, 0) };
+        message.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
         CancellationTokenSource notice = null;
         async void Run(Action action, string success)
         {

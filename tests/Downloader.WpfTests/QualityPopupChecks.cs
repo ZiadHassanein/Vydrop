@@ -26,15 +26,23 @@ internal static class QualityPopupChecks
                     // Alternate ordinary language changes with changes while the popup is open.
                     quality.IsDropDownOpen = toggle % 2 == 0;
                     await Settle(window);
-                    model.LanguageCommand.Execute(null);
+                    model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
                     if (toggle == 3)
-                        for (int burst = 0; burst < 4; burst++) model.LanguageCommand.Execute(null);
+                        for (int burst = 0; burst < 4; burst++) model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
                     await Settle(window);
+                    quality.Focus();
                     quality.IsDropDownOpen = true;
                     await Settle(window);
                     var popup = (Popup)quality.Template.FindName("PART_Popup", quality);
                     var panel = (FrameworkElement)popup.Child;
-                    var source = (HwndSource)PresentationSource.FromVisual(panel);
+                    HwndSource source = null;
+                    for (int attempt = 0; attempt < 100 && source == null; attempt++)
+                    {
+                        source = PresentationSource.FromVisual(panel) as HwndSource;
+                        if (source == null) await Settle(window);
+                    }
+                    if (source == null || !quality.IsDropDownOpen || !popup.IsOpen)
+                        throw new InvalidOperationException($"The quality popup did not attach to its native window (active={window.IsActive}, enabled={quality.IsEnabled}, focused={quality.IsKeyboardFocusWithin}, open={quality.IsDropDownOpen}).");
                     if (!GetClientRect(source.Handle, out var native))
                         throw new InvalidOperationException("Could not measure the native quality popup.");
                     var nativeSize = source.CompositionTarget.TransformFromDevice.Transform(new Vector(native.Right, native.Bottom));

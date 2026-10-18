@@ -104,9 +104,9 @@ internal static partial class Program
                         model.SelectedEncoding = model.Encodings.First(choice => choice.Encoding == AudioEncoding.Mp3);
                         if (!loaded) { model.Url = "https://youtu.be/jNQXAC9IVRw"; await Task.Delay(850); }
                         model.SelectedQuality = model.Qualities.First(choice => choice.Bitrate == 128);
-                        model.LanguageCommand.Execute(null);
+                        model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
                         Check(model.SelectedQuality.Bitrate == 128, "Expanded quality selections survive language changes in " + variant);
-                        model.LanguageCommand.Execute(null);
+                        model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
                         quality.Focus();
                         await SettleMaintenance(window);
                         quality.IsDropDownOpen = true;

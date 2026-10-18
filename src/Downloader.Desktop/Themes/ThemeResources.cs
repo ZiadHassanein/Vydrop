@@ -7,9 +7,12 @@ namespace YouTubeDownloader;
 
 internal static class ThemeResources
 {
+    internal sealed record ContrastPalette(Brush Background, Brush Foreground, Brush Highlight, Brush HighlightText);
+    internal static ContrastPalette ContrastOverride { get; set; }
+    internal static bool HighContrast => ContrastOverride != null || SystemParameters.HighContrast;
     internal static void ApplyTitleBar(Window window, bool dark)
     {
-        int enabled = dark && !SystemParameters.HighContrast ? 1 : 0;
+        int enabled = dark && !HighContrast ? 1 : 0;
         var handle = new WindowInteropHelper(window).Handle;
         if (handle == IntPtr.Zero) return;
         try
@@ -40,28 +43,30 @@ internal static class ThemeResources
         ["Hover"] = ("#F3E9ED", "#353039"),
         ["Selected"] = ("#F8E3E9", "#3E2933"),
         ["Error"] = ("#A12232", "#FFB0B7"),
-        ["InfoAccent"] = ("#355F8D", "#AACAF1"),
         ["Divider"] = ("#DFD7DC", "#48414A"),
         ["Success"] = ("#24643E", "#85D1A2")
     };
 
     public static void Apply(bool dark, bool animate = false)
     {
-        if (animate && Application.Current.MainWindow is MainWindow { IsVisible: true } window)
+        if (animate && !HighContrast && Application.Current.MainWindow is MainWindow { IsVisible: true } window)
         {
             window.ThemeTransition.Run((FrameworkElement)window.Content, window.HeaderContent.ThemeButton, () => Apply(dark));
             return;
         }
+        var contrast = ContrastOverride ?? new ContrastPalette(SystemColors.WindowBrush, SystemColors.WindowTextBrush,
+            SystemColors.HighlightBrush, SystemColors.HighlightTextBrush);
+        Application.Current.Resources["SelectedBorderThickness"] = new Thickness(HighContrast ? 3 : 1);
         foreach (var (key, colors) in Palette)
         {
             Brush brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? colors.Dark : colors.Light));
-            if (SystemParameters.HighContrast)
+            if (HighContrast)
                 brush = key switch
                 {
-                    "Ink" or "Muted" or "Error" or "Success" => SystemColors.WindowTextBrush,
-                    "Accent" or "Action" or "Border" or "DownloadActionFill" => SystemColors.HighlightBrush,
-                    "OnAccent" or "DownloadActionInk" or "DownloadActionProgress" => SystemColors.HighlightTextBrush,
-                    _ => SystemColors.WindowBrush
+                    "Ink" or "Muted" or "Error" or "Success" => contrast.Foreground,
+                    "Accent" or "Action" or "Border" or "DownloadActionFill" => contrast.Highlight,
+                    "OnAccent" or "DownloadActionInk" or "DownloadActionProgress" => contrast.HighlightText,
+                    _ => contrast.Background
                 };
             if (brush.CanFreeze) brush.Freeze();
             Application.Current.Resources[key] = brush;

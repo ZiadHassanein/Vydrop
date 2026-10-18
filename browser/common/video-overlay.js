@@ -9,15 +9,13 @@
   const text = arabic ? {
     open: "تنزيل بواسطة Vydrop", action: "نسخ رابط الفيديو وفتحه في Vydrop", finding: "جارٍ تحديد الفيديو…",
     opening: "جارٍ الفتح…", opened: "تم الفتح في Vydrop", copied: "تم نسخ الرابط وفتح الفيديو في Vydrop.",
-    clipboard: "تم الفتح في Vydrop، لكن تعذّر نسخ الرابط.", missing: "افتح صفحة هذا الفيديو أو استخدم مشاركة ثم نسخ الرابط.",
-    busy: "Vydrop مشغول. أنهِ التنزيل الحالي أو ألغِه، ثم حاول مجددًا.",
-    retry: "حاول مجددًا", failed: "تعذّر فتح Vydrop. افتح التطبيق وفعّل الربط بالمتصفح، وأنهِ أي تنزيل جارٍ ثم حاول مجددًا."
+    clipboard: "تم الفتح في Vydrop، لكن تعذّر نسخ الرابط.",
+    retry: "حاول مجددًا"
   } : {
     open: "Download by Vydrop", action: "Copy video link and open Vydrop", finding: "Finding video…",
     opening: "Opening…", opened: "Opened in Vydrop", copied: "Link copied and video opened in Vydrop.",
-    clipboard: "Opened in Vydrop. The clipboard was unavailable.", missing: "Open this video's own page or use Share → Copy link.",
-    busy: "Vydrop is busy. Finish or cancel the current download, then try again.",
-    retry: "Try again", failed: "Could not open Vydrop. Open the app, enable Browser integration and finish any active download, then try again."
+    clipboard: "Opened in Vydrop. The clipboard was unavailable.",
+    retry: "Try again"
   };
   const host = document.createElement("div");
   host.id = "vifree-video-action";
@@ -213,13 +211,15 @@
     delete button.dataset.state; button.title = text.action;
     try {
       const source = pendingVideo.currentSrc || pendingVideo.src;
-      const found = await globalThis.ViFreeVideoDetection.inspectVideoPage(source, true, pendingVideo);
-      if (!found?.url) throw new Error(text.missing);
+      let found;
+      try { found = await globalThis.ViFreeVideoDetection.inspectVideoPage(source, true, pendingVideo); }
+      catch { throw Object.assign(new Error("Page inspection failed."), { code: "inspect" }); }
+      if (!found?.url) throw Object.assign(new Error("No unambiguous video link."), { code: found?.reason === "ambiguous" ? "ambiguous" : "missing" });
       let copied = false;
       try { await navigator.clipboard.writeText(found.url); copied = true; } catch { /* Opening the app remains useful when clipboard access is unavailable. */ }
       label.textContent = text.opening;
       const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage });
-      if (!response?.ok) throw new Error(response?.code === "busy" ? text.busy : text.failed);
+      if (!response?.ok) throw Object.assign(new Error("Video delivery failed."), { code: response?.code });
       if (response.url && response.url !== found.url) {
         try { await navigator.clipboard.writeText(response.url); copied = true; } catch { copied = false; }
       }
@@ -228,7 +228,7 @@
     } catch (error) {
       label.textContent = text.retry;
       button.dataset.state = "error";
-      status.textContent = error.message === text.missing ? text.missing : error.message === text.busy ? text.busy : text.failed;
+      status.textContent = globalThis.ViFreeConnection.errorMessage(error, arabic);
       button.title = status.textContent;
     } finally {
       busy = false; pendingVideo = null; button.disabled = false; button.removeAttribute("aria-busy");

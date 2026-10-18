@@ -14,5 +14,15 @@ if($LASTEXITCODE -ne 0) { throw 'Core or infrastructure checks failed.' }
 if(!$CaptureDirectory) { $CaptureDirectory=Join-Path $projectRoot 'build/ui-captures' }
 & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') $CaptureDirectory
 if($LASTEXITCODE -ne 0) { throw 'WPF checks failed.' }
-& node --test (Join-Path $projectRoot 'tests/browser.test.cjs') (Join-Path $projectRoot 'tests/browser-video.test.cjs') (Join-Path $projectRoot 'tests/docs.test.cjs') (Join-Path $projectRoot 'tests/localization.test.cjs')
+foreach($mode in @('checking-feedback', 'close-race', 'system-theme', 'performance', 'error-presentation')) {
+    & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') (Join-Path $CaptureDirectory $mode) "--$mode"
+    if($LASTEXITCODE -ne 0) { throw "WPF $mode checks failed." }
+}
+& node --test (Join-Path $projectRoot 'tests/browser.test.cjs') (Join-Path $projectRoot 'tests/browser-video.test.cjs') (Join-Path $projectRoot 'tests/browser-errors.test.cjs') (Join-Path $projectRoot 'tests/docs.test.cjs') (Join-Path $projectRoot 'tests/localization.test.cjs') (Join-Path $projectRoot 'tests/search-discovery.test.cjs') (Join-Path $projectRoot 'tests/international.test.cjs')
 if($LASTEXITCODE -ne 0) { throw 'Browser companion, documentation or localization checks failed.' }
+if($env:VYDROP_PLAYWRIGHT) {
+    & node (Join-Path $projectRoot 'tests/browser-overlay-live.cjs')
+    if($LASTEXITCODE -ne 0) { throw 'Rendered browser overlay checks failed.' }
+} else {
+    Write-Output 'Rendered overlay checks are opt-in: set VYDROP_PLAYWRIGHT to an installed Playwright module.'
+}

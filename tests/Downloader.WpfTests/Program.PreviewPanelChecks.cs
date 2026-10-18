@@ -13,7 +13,7 @@ internal static partial class Program
         var surface = (Border)WpfTree.Find(window, "PreviewSurface");
         foreach (bool arabic in new[] { false, true })
         {
-            if (model.IsArabic != arabic) model.LanguageCommand.Execute(null);
+            if (model.IsArabic != arabic) model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
             foreach (bool dark in new[] { false, true })
             {
                 if (model.IsDark != dark) model.ThemeCommand.Execute(null);

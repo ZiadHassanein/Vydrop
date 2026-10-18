@@ -16,7 +16,7 @@ internal static partial class Program
         var more = (Button)WpfTree.Find(owner, "MoreOptionsButton");
         foreach (bool arabic in new[] { false, true })
         {
-            if (model.IsArabic != arabic) model.LanguageCommand.Execute(null);
+            if (model.IsArabic != arabic) model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
             foreach (bool dark in new[] { false, true })
             {
                 if (model.IsDark != dark) model.ThemeCommand.Execute(null);
@@ -73,7 +73,7 @@ internal static partial class Program
                 await Task.Delay(100);
                 Check(IsWindowEnabled(new WindowInteropHelper(owner).Handle) && more.IsKeyboardFocused &&
                     Math.Abs(owner.ActualHeight - height) <= 2 && model.VttCaptions && model.SelectedCaption.Language == "en",
-                    "Closing restores focus, retains choices and leaves the main layout unchanged");
+                    $"Closing restores focus, retains choices and leaves the main layout unchanged (active={owner.IsActive}, enabled={IsWindowEnabled(new WindowInteropHelper(owner).Handle)}, focus={more.IsKeyboardFocused}, height={height}->{owner.ActualHeight}, vtt={model.VttCaptions}, language={model.SelectedCaption?.Language})");
             }
         }
         double previousMaxHeight = owner.MaxHeight;

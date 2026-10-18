@@ -14,6 +14,7 @@ public partial class MainWindow : Window
     private bool closing, closed;
     private FlowDirection presentationDirection;
     private readonly MediaPaneWindowState mediaFrame;
+    internal SystemThemeMonitor SystemTheme { get; }
     public MainWindow() : this(null, null)
     {
     }
@@ -28,6 +29,7 @@ public partial class MainWindow : Window
         model = new MainViewModel(service ?? new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage()), repository ?? new SettingsRepository(), actions, thumbnailLoader);
         presentationDirection = model.ContentDirection;
         DataContext = model;
+        SystemTheme = new SystemThemeMonitor(this, () => model.IsDark, model.RefreshThemeBindings);
         model.NoticeRequested += PlaceNotice;
         SizeChanged += (_, _) => { mediaFrame.ObserveBounds(); ApplyResponsiveLayout(); };
         LocationChanged += (_, _) => mediaFrame.ObserveBounds();
