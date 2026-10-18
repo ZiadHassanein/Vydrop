@@ -132,7 +132,7 @@ test('missing native host has actionable guidance instead of a browser API error
 if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identity and enable on-video actions across web frames', () => {
   for (const browser of ['chromium', 'firefox']) {
     const folder = path.join(process.env.VIFREE_BROWSER_PACKAGE, browser), manifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
-    assert.equal(manifest.version, '1.3.5'); assert.equal(manifest.name, 'Vydrop Preview');
+    assert.equal(manifest.version, '1.3.6'); assert.equal(manifest.name, 'Vydrop Preview');
     assert.deepEqual([...manifest.permissions].sort(), ['activeTab', 'clipboardWrite', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
     assert.equal(manifest.host_permissions, undefined);
     assert.deepEqual(manifest.content_scripts, [{ matches: ['https://*/*', 'http://*/*'], js: ['connection.js', 'video-detection.js', 'video-overlay.js'], all_frames: true, run_at: 'document_idle' }]);

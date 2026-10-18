@@ -14,9 +14,9 @@ local_guide: true
 
 # Vydrop: Videos und Audio unter Windows herunterladen
 
-[Vydrop für Windows herunterladen](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.3/Vydrop-v4.2.3-win-x64.zip) · Windows 10/11 x64 · v4.2.3
+[Vydrop für Windows herunterladen](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.4/Vydrop-v4.2.4-win-x64.zip) · Windows 10/11 x64 · v4.2.4
 
-Vydrop 4.2.3 von Ziad Hassanein ist ein kostenloser, quelloffener Downloader für öffentliche Videos und Audio. Die Windows-App verwendet yt-dlp und unterstützt unter anderem YouTube, TikTok, Facebook und Vimeo, sofern ein geeigneter öffentlicher Stream verfügbar ist.
+Vydrop 4.2.4 von Ziad Hassanein ist ein kostenloser, quelloffener Downloader für öffentliche Videos und Audio. Die Windows-App verwendet yt-dlp und unterstützt unter anderem YouTube, TikTok, Facebook und Vimeo, sofern ein geeigneter öffentlicher Stream verfügbar ist.
 
 ## Die Windows-App starten
 
@@ -44,7 +44,7 @@ Eine höhere Bitrate erzeugt keine zusätzlichen Quelldetails. Bei unbekannten A
 
 <h2 id="extension">Chrome, Edge und Firefox verbinden</h2>
 
-Öffnen Sie in Vydrop **Settings → Browser integration → Enable connection**. Installieren Sie anschließend die mitgelieferte Erweiterung 1.3.5:
+Öffnen Sie in Vydrop **Settings → Browser integration → Enable connection**. Installieren Sie anschließend die mitgelieferte Erweiterung 1.3.6:
 
 - **Chrome:** Öffnen Sie chrome://extensions, aktivieren Sie den Entwicklermodus und laden Sie den entpackten Ordner **Browser/chromium**.
 - **Edge:** Öffnen Sie edge://extensions und laden Sie nach Aktivierung des Entwicklermodus denselben Ordner.

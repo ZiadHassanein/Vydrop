@@ -14,9 +14,9 @@ local_guide: true
 
 # Vydrop : télécharger des vidéos et de l’audio sur Windows
 
-[Télécharger Vydrop pour Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.3/Vydrop-v4.2.3-win-x64.zip) · Windows 10/11 x64 · v4.2.3
+[Télécharger Vydrop pour Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.4/Vydrop-v4.2.4-win-x64.zip) · Windows 10/11 x64 · v4.2.4
 
-Vydrop 4.2.3 est un logiciel libre et gratuit de Ziad Hassanein pour enregistrer des vidéos publiques et leur audio sur Windows 10 ou 11 x64. Il prend en charge YouTube, TikTok, Facebook, Vimeo et d’autres sites compatibles avec yt-dlp. Le téléchargement dépend de l’accès au média et des formats disponibles.
+Vydrop 4.2.4 est un logiciel libre et gratuit de Ziad Hassanein pour enregistrer des vidéos publiques et leur audio sur Windows 10 ou 11 x64. Il prend en charge YouTube, TikTok, Facebook, Vimeo et d’autres sites compatibles avec yt-dlp. Le téléchargement dépend de l’accès au média et des formats disponibles.
 
 ## Installer et lancer Vydrop
 
@@ -44,7 +44,7 @@ Un débit élevé ne rétablit pas les détails perdus dans le son d’origine. 
 
 <h2 id="extension">Configurer l’extension du navigateur</h2>
 
-Dans Vydrop, ouvrez **Settings → Browser integration → Enable connection**. Installez ensuite l’extension 1.3.5 incluse dans le dossier **Browser** de l’archive décompressée :
+Dans Vydrop, ouvrez **Settings → Browser integration → Enable connection**. Installez ensuite l’extension 1.3.6 incluse dans le dossier **Browser** de l’archive décompressée :
 
 - **Chrome :** ouvrez chrome://extensions, activez le mode développeur et chargez le dossier **Browser/chromium**.
 - **Edge :** ouvrez edge://extensions et chargez le même dossier après avoir activé le mode développeur.

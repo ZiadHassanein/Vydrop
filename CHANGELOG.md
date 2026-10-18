@@ -4,12 +4,25 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.2.4] - 2026-10-18
+
 ### Added
 - Publish US English, French, German and Spanish website guides, plus an Arabic terminology guide covering 22 countries. The app interface remains English and Arabic.
 - Connect localized pages with reciprocal language links and include them in the sitemap and readable documentation reference.
 
 ### Fixed
 - Skip the browser video overlay on XML, feeds and plain-text viewers.
+- Make thumbnail teardown safe during shutdown without losing successful completion or saved-file history.
+- Serialize queue progress, retries and terminal transitions; invoke cancellation callbacks outside the queue lock.
+- Refresh system contrast colours in the main window and open dialogs, and keep selected Video/Audio controls distinguishable without changing their text styling.
+- Include companion 1.3.6 with shared English/Arabic recovery messages for video detection, native connection and busy errors. Retain compatibility with earlier companions and native hosts.
+- Use the current Change button name in save-folder recovery guidance.
+
+### Changed
+- Render only visible playlist rows while preserving checked choices, unavailable entries and keyboard navigation for large playlists.
+- Remove unused UI members, provider events, translations and retired overview images; derive the download user-agent from the app version.
+- Keep the current interface design, native connection identifiers and stored preferences/history format.
+- Run checking feedback, shutdown, system contrast, playlist and error-presentation checks through the standard test command; wait for settled themes before static screenshots.
 
 ## [4.2.3] - 2026-10-18
 
@@ -48,9 +61,10 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 - Builds run the recommended .NET analyzers and code-style rules with warnings treated as errors; sources use file-scoped namespaces and an explicit line-ending policy.
 
 [Unreleased]: https://github.com/ZiadHassanein/Vydrop/tree/main
+[4.2.4]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.4
 [4.2.3]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.3
 [4.2.1]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.1
 
 ## ملخص بالعربية
 
-يحسّن الإصدار **4.2.3** ألوان زر التنزيل وحركات الشعار والزر، ويعرض فحص الفيديو داخله مع زر إلغاء، ويرسم علامة النجاح بعد اكتمال التنزيل فقط. يبقى لون ووزن نص زري الفيديو والصوت ثابتًا عند الاختيار. تتضمن الحزمة إضافة **1.3.5** لتحسين موضع الزر على YouTube واكتشاف فيديو LinkedIn وإرساله، مع تحديث الصور وروابط التنزيل والأدلة. تحتاج النسخ حتى 4.2.1 إلى تنزيل الحزمة الجديدة يدويًا مرة واحدة بعد تغيير اسم المستودع.
+يعالج الإصدار **4.2.4** مشاكل الإغلاق وحالات قائمة التنزيل وتحديث ألوان التباين، ويحسّن أداء اختيار الفيديوهات في القوائم الكبيرة. تتضمن الحزمة إضافة **1.3.6** برسائل استعادة عربية وإنجليزية أوضح. يبقى التصميم الحالي وتوافق الإعدادات والسجل والربط مع الإصدارات القديمة محفوظًا. تحتاج النسخ حتى 4.2.1 إلى تنزيل الحزمة الجديدة يدويًا مرة واحدة بعد تغيير اسم المستودع.

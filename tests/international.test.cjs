@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root,file),'utf8').replaceAll('\r\n','\n');
+const version = read('Directory.Build.props').match(/<Version>([^<]+)<\/Version>/u)[1];
 const locales = JSON.parse(read('docs/_data/locales.json'));
 const regions = JSON.parse(read('docs/_data/arabic-regions.json'));
 const faq = JSON.parse(read('docs/_data/faq.json'));
@@ -30,7 +31,7 @@ test('The six home variants resolve to complete content with accurate language a
       assert.match(text,/id="extension"/u);
       assert.match(text,/Browser\/chromium/u);
       assert.match(text,/Browser\/firefox\/manifest\.json/u);
-      assert.match(text,/4\.2\.3/u);
+      assert.ok(text.includes(`Vydrop-v${version}-win-x64.zip`), `${file}: downloads the current release`);
       assert.ok(text.split(/\s+/u).length>350,`${file}: a usable guide, not a thin country doorway`);
     }
   }

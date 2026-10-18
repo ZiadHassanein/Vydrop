@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require(process.env.VYDROP_PLAYWRIGHT || 'playwright');
 const root = path.resolve(__dirname, '..');
-const extension = path.resolve(process.env.VYDROP_EXTENSION || path.join(root, 'dist/Vydrop-4.2.3-win-x64/Browser/chromium'));
+const extension = path.resolve(process.env.VYDROP_EXTENSION || path.join(root, 'dist/Vydrop-4.2.4-win-x64/Browser/chromium'));
 const media = process.env.VYDROP_FIXTURE_MEDIA;
 const asset = 'D4D05AQTestSelectedVideo';
 const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:7517135049939525632/';
@@ -25,7 +25,7 @@ const metadata = JSON.stringify({ included: [{ $type: 'com.linkedin.videocontent
   const results = [];
   try {
     const worker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker', { timeout: 10000 });
-    assert.equal(await worker.evaluate(() => chrome.runtime.getManifest().version), '1.3.5');
+    assert.equal(await worker.evaluate(() => chrome.runtime.getManifest().version), '1.3.6');
     await worker.evaluate(() => {
       globalThis.testNative = [];
       globalThis.testLookup = [];
@@ -92,6 +92,6 @@ const metadata = JSON.stringify({ included: [{ $type: 'com.linkedin.videocontent
         console.log(`PASS: packaged MV3 ${scenario}: exact media, outside button and temporary-tab lifecycle`);
       } finally { context.off('page', onPage); await page.close(); }
     }
-    fs.writeFileSync(path.join(root, 'build/linkedin-v135-mv3-results.json'), JSON.stringify({ version: '1.3.5', results }, null, 2));
+    fs.writeFileSync(path.join(root, 'build/linkedin-v136-mv3-results.json'), JSON.stringify({ version: '1.3.6', results }, null, 2));
   } finally { await context.close(); console.log('Disposable test profile: ' + profile); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
