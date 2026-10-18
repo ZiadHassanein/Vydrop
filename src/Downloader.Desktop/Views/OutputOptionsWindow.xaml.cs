@@ -111,7 +111,11 @@ public partial class OutputOptionsWindow : Window
         }
     }
 
-    private void KeepSearchInput(object sender, KeyEventArgs args) => args.Handled = true;
+    private void KeepSearchInput(object sender, KeyEventArgs args)
+    {
+        // Text editing belongs to this field; Tab still follows normal keyboard navigation.
+        if (args.Key != Key.Tab) args.Handled = true;
+    }
 
     private void NoticeChanged(object sender, PropertyChangedEventArgs args)
     {
