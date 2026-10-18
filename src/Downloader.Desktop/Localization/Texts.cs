@@ -46,7 +46,7 @@ internal static class Texts
         { "File moved or deleted", "الملف نُقل أو حُذف" },
         { "This file is no longer in its saved location.", "لم نعثر على الملف في مكانه. ربما نُقل أو حُذف." },
         { "Settings", "الإعدادات" },
-        { "Contact", "تواصل معي" },
+        { "Contact me", "تواصل معي" },
         { "Email", "البريد الإلكتروني" },
         { "Video", "فيديو" },
         { "Format", "الصيغة" },

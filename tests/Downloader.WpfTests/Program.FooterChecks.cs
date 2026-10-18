@@ -49,7 +49,7 @@ internal static partial class Program
                     var settingsBounds = settings.TransformToAncestor(root).TransformBounds(new Rect(settings.RenderSize));
                     var contactBounds = contact.TransformToAncestor(root).TransformBounds(new Rect(contact.RenderSize));
                     Check(WpfTree.Find(window, "AuthorCredit") == null && settingsBounds.Left < 40 && contactBounds.Right > root.ActualWidth - 40 && settingsBounds.Right < contactBounds.Left &&
-                        model.ContactLabel == (arabic ? "تواصل معي" : "Contact"),
+                        model.ContactLabel == (arabic ? "تواصل معي" : "Contact me"),
                         "The footer has no author credit and keeps Settings left and Contact right");
                     double height = window.ActualHeight, footerHeight = footer.ActualHeight;
                     window.Activate();

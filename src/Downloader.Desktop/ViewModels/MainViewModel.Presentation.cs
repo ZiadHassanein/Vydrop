@@ -44,7 +44,7 @@ public sealed partial class MainViewModel
     public bool IsEnglish => !IsArabic;
     public string NewDownloadLabel => T("New download");
     public string SettingsLabel => T("Settings");
-    public string ContactLabel => T("Contact");
+    public string ContactLabel => T("Contact me");
     public string EmailLabel => T("Email");
     public string OptionsHint => T("Choose a subtitle language and file format.");
     public string ChangeFolderLabel => T("Change");
