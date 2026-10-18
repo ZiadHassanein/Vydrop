@@ -4,6 +4,11 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+### Changed
+- Guide browser setup through app connection, browser-specific loading and a first video, with exact path-copy actions and persistent recovery feedback.
+- Report whether the native connection points to this app, while keeping browser extension installation a separate manual step.
+- Add a compact setup checklist to the English/Arabic illustrated guides, with current paths and troubleshooting for missing files or an unavailable browser.
+
 ## [4.2.4] - 2026-10-18
 
 ### Added

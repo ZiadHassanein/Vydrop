@@ -413,7 +413,24 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html
 
 شرح Chrome وإرسال الفيديو يستخدم **لقطات حقيقية** بواجهة إنجليزية، محفوظة كملفات PNG الأصلية، مع تحديد الأزرار المطلوبة. اختر **كبّر التفاصيل بالحجم الأصلي** أسفل أي صورة لقراءة الأزرار دون تصغيرها، ومرّر داخل العرض المكبّر، أو اضغط الصورة لفتح الأصل. صور تفعيل الاتصال وEdge وFirefox رسومات توضيحية مذكورة بوضوح.
 
-## جهّز التطبيق
+## الإعداد السريع
+
+1. **فكّ ضغط الحزمة كاملة** في مجلد دائم، وافتح **Vydrop.exe** مع الاحتفاظ بمجلد **Browser** بجانبه.
+2. اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال**، أو **إعادة تفعيل الاتصال** إذا كان مفعّلًا بالفعل. حالة الاتصال تؤكد ربط تطبيق سطح المكتب فقط؛ يجب تحميل الإضافة داخل المتصفح أيضًا.
+3. **حمّل الإضافة** وفق الجدول التالي. إذا كانت نسختك تعرض شاشة الإعداد الموجّه، اختر متصفحك واضغط **فتح صفحة الإضافات** و**نسخ مسار المجلد**، أو **نسخ مسار الملف** في Firefox. تستخدم النسخ الأقدم العناوين والملفات نفسها؛ انسخ المسار من مستكشف الملفات.
+4. **أغلق الإعداد وحدّث صفحة الفيديو وشغّله.** اضغط زر Vydrop، وراجع الفيديو داخل التطبيق، ثم اضغط «تنزيل».
+
+| المتصفح | العنوان المطلوب كتابته في المتصفح نفسه | طريقة التحميل | المطلوب اختياره |
+| --- | --- | --- | --- |
+| [Chrome](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html#chrome) | `chrome://extensions` | Developer mode ثم Load unpacked | مجلد **Browser\chromium** |
+| [Edge](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html#edge) | `edge://extensions` | Developer mode ثم Load unpacked | مجلد **Browser\chromium** نفسه |
+| [Firefox](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html#firefox) | `about:debugging#/runtime/this-firefox` | This Firefox ثم Load Temporary Add-on… | ملف **Browser\firefox\manifest.json** |
+
+الصق المسار المنسوخ في شريط عنوان نافذة اختيار الملفات واضغط **Enter**. يحتاج Chrome وEdge إلى **مجلد**، بينما يحتاج Firefox إلى **ملف**. يلزم تأكيد التحميل داخل المتصفح. تثبيت Firefox محلي ومؤقت، ويحتاج إلى تحميل الإضافة مجددًا بعد إعادة تشغيله.
+
+إذا تعذّر فتح المتصفح من التطبيق، اضغط **نسخ عنوان صفحة الإضافات** والصقه في شريط عنوان المتصفح. إذا كانت أزرار المسار معطّلة، فكّ ضغط حزمة البرنامج **كاملة**؛ نسخ Vydrop.exe وحده لا يتضمن ملفات الإضافة.
+
+## الشرح بالصور: جهّز التطبيق
 
 تُظهر لقطات Chrome الإضافة 1.3.5. تستخدم الإضافة المرفقة 1.3.6 خطوات الإعداد نفسها؛ تأكد من ظهور الإصدار الجديد بعد تحميلها أو إعادة تحميلها.
 
@@ -514,6 +531,12 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html
 راجع الفيديو واختر فيديو أو صوتًا، ثم الجودة ومجلد الحفظ واضغط تنزيل. الإضافة لا تبدأ حفظ الملف تلقائيًا.
 
 ## حل المشكلات
+
+| ما الذي يظهر؟ | الحل |
+| --- | --- |
+| الاتصال مفعّل لكن الإضافة غير موجودة | الحالة تؤكد اتصال تطبيق سطح المكتب فقط. حمّل الإضافة في المتصفح المختار وحدّث صفحة الفيديو. |
+| تعذّر فتح المتصفح من الإعداد | انسخ عنوان صفحة الإضافات الموضّح في التطبيق والصقه في شريط عنوان المتصفح نفسه. |
+| أزرار نسخ المسار وعرض الملفات معطّلة | فكّ ضغط حزمة Vydrop كاملة واحتفظ بمجلد Browser بجوار Vydrop.exe، ثم أعد فتح التطبيق. |
 
 عند تحديث المجلد أعد تحميل الإضافة ثم صفحة الفيديو. إذا كان التطبيق مشغولًا، أنهِ التنزيل الحالي أو ألغِه ثم حاول مجددًا. عند فشل الربط افتح التطبيق وفعّله من الإعدادات. استخدم مجلد Browser من حزمة التطبيق المستقرة نفسها، وتجنّب خلطه مع Preview.
 
@@ -902,6 +925,25 @@ Use the optional companion to send the video you are watching to the desktop app
 
 [Published downloads](https://github.com/ZiadHassanein/Vydrop/releases/latest) · [Chrome](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome) · [Edge](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) · [Firefox](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) · [Troubleshooting](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#troubleshooting) · [العربية](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#arabic)
 
+## Quick setup
+
+1. **Extract the full ZIP** into a permanent folder and open **Vydrop.exe**. Keep **Browser** beside the app.
+2. Open **Settings → Browser integration → Enable connection** (or **Reconnect app** if already connected). A connected status refers to this desktop app; you still load the extension in your browser.
+3. **Load the extension** using the matching row below. If your app shows the guided setup with a browser selector, choose your browser, then use **Open extensions page** and **Copy folder path** (Firefox: **Copy file path**). Earlier versions use the same addresses and files; copy the path from File Explorer.
+4. **Close setup, refresh your video page and play the video.** Click the Vydrop button, review the video in the app, then choose Download.
+
+| Browser | Address to enter in that browser | Loading action | What to select |
+| --- | --- | --- | --- |
+| [Chrome](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome) | `chrome://extensions` | Developer mode → Load unpacked | The **Browser\chromium** folder |
+| [Edge](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) | `edge://extensions` | Developer mode → Load unpacked | The same **Browser\chromium** folder |
+| [Firefox](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) | `about:debugging#/runtime/this-firefox` | This Firefox → Load Temporary Add-on… | The **Browser\firefox\manifest.json** file |
+
+Paste the copied path into the browser's file-picker address bar and press **Enter**. Chrome/Edge need a **folder**; Firefox needs a **file**. Browser confirmation is required. Firefox's local installation is temporary and must be loaded again after a restart.
+
+If **Open extensions page** cannot find your browser, use **Copy browser address** and paste it into that browser's address bar. If the path buttons are disabled, extract the **complete** app ZIP again; copying Vydrop.exe alone leaves out the extension.
+
+## Detailed illustrated instructions
+
 The Chrome and video-to-app steps below use **real screenshots**, preserved as original PNG files. Highlighted frames focus on the controls to use. Choose **Zoom to original size** below a screenshot to read its controls without shrinking them; scroll inside the enlarged view, or click the image to open the original. Edge, Firefox and the desktop connection diagram are labelled illustrations. Control positions can vary by browser version.
 
 ## 1. Extract and keep the app folder
@@ -1024,6 +1066,9 @@ To disconnect, choose **Disable connection** in the app and remove the browser c
 | What happens | What to try |
 | --- | --- |
 | The app does not open | Open it manually, then use Settings → Browser integration → Enable connection again. Keep its folder in place. |
+| Setup says connected, but no extension is present | The status confirms the desktop connection only. Load the extension in the selected browser, then refresh your video page. |
+| The setup cannot open my browser | Copy the browser address shown in setup and paste it into that browser's address bar. |
+| The extension path buttons are disabled | Extract the complete Vydrop ZIP and keep Browser beside Vydrop.exe. Reopen setup from the extracted app. |
 | No tab appears beside the video | Check the companion is enabled and allowed on that site, refresh the page and play the visible video. Try its toolbar popup outside native fullscreen or picture-in-picture. |
 | Several videos are present, or the wrong link appears | Open the specific video's public page, or paste the site's Share → Copy link into the app. |
 | The right video opens, but downloading fails | DRM, private/sign-in-only media, custom players and site restrictions can prevent downloading. Report the public link and app version in [GitHub issues](https://github.com/ZiadHassanein/Vydrop/issues). |

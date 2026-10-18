@@ -88,36 +88,23 @@ public sealed partial class DesktopActions
         return dialog.ShowDialog() == true ? checks.Where(c => c.IsEnabled && c.IsChecked == true).Select(c => (string)c.Tag).ToHashSet() : null;
     }
     public void ShowBrowserIntegration(Func<string, string> t)
+        => ShowBrowserIntegration(t, new BrowserSetupActions());
+
+    internal void ShowBrowserIntegration(Func<string, string> t, IBrowserSetupActions actions)
     {
-        var dialog = Dialog(t("Browser integration"), 400);
-        var panel = new StackPanel { Margin = new Thickness(24) };
-        panel.Children.Add(new TextBlock { Text = t("Send a link from your browser"), FontSize = 20, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap });
-        var hint = new TextBlock { Text = t("Keep Vydrop in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading."), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 0) };
-        hint.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
-        panel.Children.Add(hint);
-        panel.Children.Add(new TextBlock { Text = t("Click the extension or right-click a link to open it in Vydrop. Nothing downloads until you choose Download."), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 20) });
-        var buttons = new WrapPanel();
-        var enable = new Button { Content = t("Enable connection"), Style = (Style)Application.Current.Resources["PrimaryButton"] };
-        var disable = new Button { Content = t("Disable connection"), Margin = new Thickness(12, 0, 0, 0) };
-        var message = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 16, 0, 0) };
-        message.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
-        CancellationTokenSource notice = null;
-        async void Run(Action action, string success)
+        var main = owner.DataContext as MainViewModel;
+        var workArea = owner is MainWindow window ? window.CurrentWorkArea() : SystemParameters.WorkArea;
+        var dialog = new BrowserSetupWindow
         {
-            notice?.Cancel();
-            var lifetime = notice = new();
-            try { action(); message.Text = t(success); }
-            catch { message.Text = t("Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again."); }
-            try { await Task.Delay(5000, lifetime.Token); message.Text = ""; } catch (OperationCanceledException) { }
-            finally { lifetime.Dispose(); if (ReferenceEquals(notice, lifetime)) notice = null; }
-        }
-        enable.Click += (_, _) => Run(() => BrowserRegistration.Enable(Environment.ProcessPath), "Browser connection enabled. Load the companion extension to send links.");
-        disable.Click += (_, _) => Run(BrowserRegistration.Disable, "Browser connection disabled.");
-        buttons.Children.Add(enable); buttons.Children.Add(disable); panel.Children.Add(buttons); panel.Children.Add(message);
-        var close = new Button { Content = t("Close"), IsCancel = true, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 20, 0, 0) };
-        panel.Children.Add(close);
-        dialog.Content = new ScrollViewer { Content = panel, Style = (Style)Application.Current.Resources["VerticalScrollFrame"], VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
-        dialog.Closed += (_, _) => notice?.Cancel();
+            Owner = owner, Icon = owner.Icon,
+            DataContext = new BrowserSetupViewModel(t, actions, main?.IsArabic == true),
+            FontFamily = main?.ContentFont ?? owner.FontFamily,
+            FlowDirection = main?.ContentDirection ?? owner.FlowDirection,
+            Width = Math.Min(680, Math.Min(owner.ActualWidth - 48, workArea.Width - 48)),
+            Height = Math.Min(700, Math.Min(owner.ActualHeight - 48, workArea.Height - 48))
+        };
+        var previousFocus = System.Windows.Input.Keyboard.FocusedElement as UIElement;
         dialog.ShowDialog();
+        if (previousFocus is { IsEnabled: true, IsVisible: true }) previousFocus.Focus();
     }
 }

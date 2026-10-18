@@ -4,6 +4,8 @@ Optional Chrome/Edge and Firefox companions are included in the app ZIP under `B
 
 **New to the extension? Follow the illustrated [Chrome](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome), [Edge](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) or [Firefox](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) guide**, with English and Arabic instructions. The regular **Vydrop** companion connects to the regular app. A separately built **Vydrop Preview** companion uses the preview channel.
 
+In builds with the guided setup, choose your browser in **Settings → Browser integration**. **Open extensions page** opens that browser's loading page; **Copy folder path** copies the exact Chromium directory, or **Copy file path** copies Firefox's manifest. If the browser cannot be opened, copy the displayed browser address manually. A connected status confirms the desktop app registration, not that the browser has installed the extension. Missing package files disable the path actions and explain how to restore them. These controls do not install an extension without browser confirmation.
+
 1. Extract the app ZIP into a permanent folder and open `Vydrop.exe`.
 2. Choose **Settings → Browser integration → Enable connection** in the app. This registers the connection for your Windows account only.
 3. Chrome/Edge: open the extensions page, enable Developer mode, choose **Load unpacked**, and select `Browser/chromium`. Firefox: open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `Browser/firefox/manifest.json`.

@@ -9,6 +9,39 @@ public static class BrowserRegistration
 
     private static readonly string[] RegistryPaths = { @"Software\Google\Chrome\NativeMessagingHosts\" + HostName, @"Software\Microsoft\Edge\NativeMessagingHosts\" + HostName, @"Software\Mozilla\NativeMessagingHosts\" + HostName };
 
+    public static bool IsEnabled(string executable)
+    {
+        try
+        {
+            if (!File.Exists(executable)) return false;
+            foreach (RegistryView view in new[] { RegistryView.Registry32, RegistryView.Registry64 })
+                using (var user = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view))
+                    for (int index = 0; index < RegistryPaths.Length; index++)
+                    {
+                        using var key = user.OpenSubKey(RegistryPaths[index]);
+                        string manifest = Path.Combine(DirectoryPath, HostName + (index == 2 ? ".firefox.json" : ".chromium.json"));
+                        if (!string.Equals(key?.GetValue("") as string, manifest, StringComparison.OrdinalIgnoreCase) ||
+                            !MatchesManifest(File.ReadAllText(manifest), executable, index == 2)) return false;
+                    }
+            return true;
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or System.Security.SecurityException or JsonException or ArgumentException)
+        { return false; }
+    }
+
+    internal static bool MatchesManifest(string json, string executable, bool firefox)
+    {
+        using var document = JsonDocument.Parse(json);
+        var root = document.RootElement;
+        static string Text(JsonElement value, string key) => value.TryGetProperty(key, out var text) && text.ValueKind == JsonValueKind.String ? text.GetString() : null;
+        if (root.ValueKind != JsonValueKind.Object || Text(root, "name") != HostName || Text(root, "type") != "stdio" ||
+            !string.Equals(Text(root, "path"), executable, StringComparison.OrdinalIgnoreCase)) return false;
+        return root.TryGetProperty(firefox ? "allowed_extensions" : "allowed_origins", out var origins) &&
+            origins.ValueKind == JsonValueKind.Array && origins.GetArrayLength() == 1 &&
+            origins[0].ValueKind == JsonValueKind.String &&
+            origins[0].GetString() == (firefox ? FirefoxId : "chrome-extension://" + ChromiumId + "/");
+    }
+
     public static void Enable(string executable)
     {
         if (!Path.IsPathFullyQualified(executable) || !File.Exists(executable) || Path.GetExtension(executable) != ".exe") throw new IOException("Keep Vydrop.exe in a permanent folder before connecting your browser.");

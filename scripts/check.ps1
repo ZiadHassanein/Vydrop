@@ -14,7 +14,7 @@ if($LASTEXITCODE -ne 0) { throw 'Core or infrastructure checks failed.' }
 if(!$CaptureDirectory) { $CaptureDirectory=Join-Path $projectRoot 'build/ui-captures' }
 & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') $CaptureDirectory
 if($LASTEXITCODE -ne 0) { throw 'WPF checks failed.' }
-foreach($mode in @('checking-feedback', 'close-race', 'system-theme', 'performance', 'error-presentation')) {
+foreach($mode in @('checking-feedback', 'close-race', 'system-theme', 'performance', 'error-presentation', 'browser-setup')) {
     & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') (Join-Path $CaptureDirectory $mode) "--$mode"
     if($LASTEXITCODE -ne 0) { throw "WPF $mode checks failed." }
 }
