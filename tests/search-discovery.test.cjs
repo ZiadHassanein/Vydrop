@@ -11,9 +11,9 @@ test('AI reference contains the actual bilingual guides and repository limitatio
   const text = buildReference();
   assert.equal(read('docs/llms-full.txt'), text);
   assert.ok(Buffer.byteLength(text) < 200 * 1024);
-  assert.equal((text.match(/^Source: https:/gmu) || []).length, 24);
+  assert.equal((text.match(/^Source: https:/gmu) || []).length, 30);
   for (const source of ['README.md', 'SECURITY.md']) assert.ok(text.includes(`Source: https://github.com/ZiadHassanein/Vydrop/blob/main/${source}`));
-  for (const locale of ['', 'ar/']) for (const page of ['supported-sites', 'browser-extension-setup', 'youtube-subtitles-srt']) {
+  for (const locale of ['', 'ar/']) for (const page of ['supported-sites', 'browser-extension-setup', 'youtube-subtitles-srt', 'download', 'troubleshooting', 'about']) {
     assert.ok(text.includes(`Source: https://ziadhassanein.github.io/Vydrop/${locale}${page}.html`));
   }
   assert.ok(text.includes(read('docs/_includes/facts.md').trim()));

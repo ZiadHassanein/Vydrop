@@ -32,6 +32,12 @@ jobs:
           bundle exec --gemfile docs/Gemfile jekyll build --source docs --destination build/site
           node --test tests/docs.test.cjs tests/search-discovery.test.cjs tests/international.test.cjs
           node scripts/check-site.cjs build/site
+      - name: Save the validated site for review
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: documentation-preview
+          path: build/site
+          retention-days: 7
       - name: Upload the checked documentation
         if: github.repository == 'ZiadHassanein/Vydrop' && github.event.repository.private == false && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
@@ -69,3 +75,7 @@ jobs:
       - name: Publish to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Notify IndexNow after successful publication
+        continue-on-error: true
+        run: node scripts/notify-search.cjs --submit

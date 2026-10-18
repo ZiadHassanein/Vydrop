@@ -21,7 +21,14 @@
       </details>
     </nav>
   </header>
-  <main id="content" tabindex="-1"><article>{{ content }}</article></main>
-  <footer>{{ ui.footer }} <a href="{{ site.data.product.repository }}/blob/main/SECURITY.md">{{ ui.privacy }}</a></footer>
+  <main id="content" tabindex="-1">
+    {% unless page.home %}<nav class="breadcrumbs" aria-label="{{ ui.breadcrumbs }}"><ol><li><a href="{% if page.lang == 'ar' %}{{ '/ar/' | relative_url }}{% else %}{{ '/' | relative_url }}{% endif %}">Vydrop</a></li><li aria-current="page">{{ page.title }}</li></ol></nav>{% endunless %}
+    <article>{{ content }}</article>
+    {% if page.last_reviewed %}<p class="page-reviewed">{{ ui.reviewed }} <time datetime="{{ page.last_reviewed | date: '%Y-%m-%d' }}">{{ page.last_reviewed | date: '%Y-%m-%d' }}</time> · <a href="https://github.com/ZiadHassanein">Ziad Hassanein</a></p>{% endif %}
+  </main>
+  <footer><span>{{ ui.footer }}</span><nav aria-label="{{ ui.help }}">
+    {% if page.lang == 'ar' %}<a href="{{ '/ar/download.html' | relative_url }}">{{ ui.download }}</a><a href="{{ '/ar/troubleshooting.html' | relative_url }}">{{ ui.troubleshooting }}</a><a href="{{ '/ar/about.html' | relative_url }}">{{ ui.about }}</a>{% else %}<a href="{{ '/download.html' | relative_url }}" lang="en">{{ ui.download }}</a><a href="{{ '/troubleshooting.html' | relative_url }}" lang="en">{{ ui.troubleshooting }}</a><a href="{{ '/about.html' | relative_url }}" lang="en">{{ ui.about }}</a>{% endif %}
+    <a href="{{ site.data.product.repository }}/blob/main/SECURITY.md">{{ ui.privacy }}</a>
+  </nav></footer>
 </body>
 </html>

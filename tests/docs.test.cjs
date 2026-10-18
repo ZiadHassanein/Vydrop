@@ -5,7 +5,7 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8').replaceAll('\r\n', '\n');
 const version = read('Directory.Build.props').match(/<Version>([^<]+)<\/Version>/u)[1];
-const pages = ['index', 'supported-sites', 'download-video-from-any-website-windows', 'tiktok-facebook-video-downloader-windows', 'youtube-to-mp3-windows', 'download-youtube-playlist-windows', 'youtube-subtitles-srt', 'browser-extension-setup'];
+const pages = ['index', 'supported-sites', 'download-video-from-any-website-windows', 'tiktok-facebook-video-downloader-windows', 'youtube-to-mp3-windows', 'download-youtube-playlist-windows', 'youtube-subtitles-srt', 'browser-extension-setup', 'download', 'troubleshooting', 'about'];
 
 test('Canonical product facts, version and FAQ match README and site data', () => {
   assert.match(read('docs/_data/product.yml'), new RegExp(`version: "${version.replaceAll('.', '\\.')}"`, 'u'));

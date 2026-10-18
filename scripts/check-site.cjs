@@ -9,15 +9,19 @@ function walk(folder) { return fs.readdirSync(folder, { withFileTypes: true }).f
 const htmlFiles = walk(site).filter(file => file.endsWith('.html'));
 const locales = JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/_data/locales.json'),'utf8'));
 const entities = text => text.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#39;', "'");
+const canonicals = new Set();
 for (const file of htmlFiles) {
   const text = fs.readFileSync(file, 'utf8');
   const route = '/' + path.relative(site, file).replaceAll('\\', '/').replace(/index\.html$/u, '');
   const canonical = `${origin}${base}${route}`;
+  canonicals.add(canonical);
   const title = text.match(/<title>([^<]+)<\/title>/u)?.[1];
   assert.ok(title && entities(title).length <= 60, `${route}: title ${title}`);
   const desc = text.match(/<meta name="description" content="([^"]*)"/u)?.[1];
   assert.ok(desc && entities(desc).length <= 155, `${route}: description`);
   assert.ok(text.includes(`rel="canonical" href="${canonical}"`), `${route}: canonical`);
+  assert.equal((text.match(/rel="canonical"/gu) || []).length, 1, `${route}: exactly one canonical`);
+  assert.ok(text.includes('name="robots" content="index, follow, max-image-preview:large"'), `${route}: indexing and image previews`);
   assert.ok(text.includes('hreflang="en"') && text.includes('hreflang="ar"'), `${route}: alternates`);
   const alternates=[...text.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"/gu)];
   assert.equal(new Set(alternates.map(item=>item[1])).size,alternates.length,`${route}: unique alternate languages`);
@@ -51,12 +55,31 @@ for (const file of htmlFiles) {
     const data = JSON.parse(match[1]);
     if (data['@graph']) {
       const faq = data['@graph'].find(item => item['@type'] === 'FAQPage');
-      for (const item of faq.mainEntity) assert.ok(text.includes(entities(item.name)), `${route}: visible FAQ`);
+      if (faq) for (const item of faq.mainEntity) {
+        assert.ok(text.includes(entities(item.name)), `${route}: visible FAQ question`);
+        const visible = entities(text.replace(/<[^>]+>/gu, ' ')).replace(/\s+/gu, ' ');
+        assert.ok(visible.includes(item.acceptedAnswer.text.replace(/\s+/gu, ' ')), `${route}: visible FAQ answer`);
+      }
       const app = data['@graph'].find(item => item['@type'] === 'SoftwareApplication');
       const code = data['@graph'].find(item => item['@type'] === 'SoftwareSourceCode');
-      assert.equal(code.codeRepository, 'https://github.com/ZiadHassanein/Vydrop');
-      assert.equal(code.targetProduct['@id'], app['@id']);
-      assert.equal(app.sameAs, code.codeRepository);
+      if (app) {
+        assert.equal(code.codeRepository, 'https://github.com/ZiadHassanein/Vydrop');
+        assert.equal(code.targetProduct['@id'], app['@id']);
+        assert.equal(app.sameAs, code.codeRepository);
+      }
+      const page = data['@graph'].find(item => item['@type'] === 'WebPage');
+      if (page) {
+        assert.equal(page.url, canonical, `${route}: page entity has the canonical URL`);
+        assert.equal(page.about['@id'], `${origin}${base}/#application`, `${route}: stable product identity`);
+        assert.equal(page.isPartOf['@id'], `${origin}${base}/#website`);
+        assert.ok(data['@graph'].some(item => item['@type'] === 'Person' && item['@id'] === page.author['@id']));
+        const breadcrumb = data['@graph'].find(item => item['@type'] === 'BreadcrumbList');
+        if (!localeHome) {
+          assert.ok(breadcrumb && text.includes('class="breadcrumbs"'), `${route}: visible breadcrumbs match structured data`);
+          assert.equal(breadcrumb.itemListElement.at(-1).item, canonical);
+        }
+        if (page.dateModified) assert.ok(text.includes(`<time datetime="${page.dateModified}">`), `${route}: review date is visible`);
+      }
     }
   }
   for (const match of text.matchAll(/(?:href|src|srcset)="([^"]+)"/gu)) {
@@ -76,6 +99,9 @@ for (const file of htmlFiles) {
   }
 }
 assert.ok(fs.existsSync(path.join(site, 'sitemap.xml')));
+const {sitemapUrls} = require('./notify-search.cjs');
+const sitemap = sitemapUrls(fs.readFileSync(path.join(site, 'sitemap.xml'), 'utf8'), new URL(`${origin}${base}/`));
+assert.deepEqual([...sitemap].sort(), [...canonicals].sort(), 'Sitemap lists exactly the canonical HTML pages, including every localized guide');
 assert.ok(fs.readFileSync(path.join(site, 'robots.txt'), 'utf8').includes(`${origin}${base}/sitemap.xml`));
 assert.ok(fs.readFileSync(path.join(site, 'llms-full.txt'), 'utf8').includes('Source: https://github.com/ZiadHassanein/Vydrop/blob/main/README.md'));
 console.log(`PASS: ${htmlFiles.length} rendered pages: metadata, links, alternates, JSON-LD, RTL, assets and sitemap.`);

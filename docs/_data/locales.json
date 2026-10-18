@@ -1,17 +1,127 @@
 {
   "homes": [
-    {"code":"en","lang":"en","name":"English","url":"/"},
-    {"code":"ar","lang":"ar","name":"العربية","url":"/ar/"},
-    {"code":"en-US","lang":"en","name":"English (US)","url":"/en-us/"},
-    {"code":"fr-FR","lang":"fr","name":"Français","url":"/fr/"},
-    {"code":"de-DE","lang":"de","name":"Deutsch","url":"/de/"},
-    {"code":"es-ES","lang":"es","name":"Español","url":"/es/"}
+    {
+      "code": "en",
+      "lang": "en",
+      "name": "English",
+      "url": "/"
+    },
+    {
+      "code": "ar",
+      "lang": "ar",
+      "name": "العربية",
+      "url": "/ar/"
+    },
+    {
+      "code": "en-US",
+      "lang": "en",
+      "name": "English (US)",
+      "url": "/en-us/"
+    },
+    {
+      "code": "fr-FR",
+      "lang": "fr",
+      "name": "Français",
+      "url": "/fr/"
+    },
+    {
+      "code": "de-DE",
+      "lang": "de",
+      "name": "Deutsch",
+      "url": "/de/"
+    },
+    {
+      "code": "es-ES",
+      "lang": "es",
+      "name": "Español",
+      "url": "/es/"
+    }
   ],
   "ui": {
-    "en":{"skip":"Skip to content","navigation":"Navigation","sites":"Supported sites","setup":"Browser setup","languages":"Languages","privacy":"Security and privacy","footer":"Vydrop by Ziad Hassanein · Free and open source under MIT.","formats":"Formats","extension":"Browser extension"},
-    "ar":{"skip":"انتقل إلى المحتوى","navigation":"التنقل","sites":"المواقع المدعومة","setup":"إضافة المتصفح","languages":"اللغات","privacy":"الأمان والخصوصية","footer":"Vydrop من تطوير زياد حسنين · مجاني ومفتوح المصدر بترخيص MIT.","formats":"الصيغ","extension":"إضافة المتصفح"},
-    "fr":{"skip":"Aller au contenu","navigation":"Navigation","sites":"Sites compatibles","setup":"Extension du navigateur","languages":"Langues","privacy":"Sécurité et confidentialité (anglais)","footer":"Vydrop, par Ziad Hassanein · Logiciel libre et gratuit sous licence MIT.","formats":"Formats","extension":"Extension"},
-    "de":{"skip":"Zum Inhalt","navigation":"Navigation","sites":"Unterstützte Websites","setup":"Browser-Erweiterung","languages":"Sprachen","privacy":"Sicherheit und Datenschutz (Englisch)","footer":"Vydrop von Ziad Hassanein · Kostenlos und quelloffen unter der MIT-Lizenz.","formats":"Formate","extension":"Browser-Erweiterung"},
-    "es":{"skip":"Ir al contenido","navigation":"Navegación","sites":"Sitios compatibles","setup":"Extensión del navegador","languages":"Idiomas","privacy":"Seguridad y privacidad (inglés)","footer":"Vydrop, de Ziad Hassanein · Gratuito y de código abierto con licencia MIT.","formats":"Formatos","extension":"Extensión"}
+    "en": {
+      "skip": "Skip to content",
+      "navigation": "Navigation",
+      "sites": "Supported sites",
+      "setup": "Browser setup",
+      "languages": "Languages",
+      "privacy": "Security and privacy",
+      "footer": "Vydrop by Ziad Hassanein · Free and open source under MIT.",
+      "formats": "Formats",
+      "extension": "Browser extension",
+      "download": "Download and install",
+      "troubleshooting": "Troubleshooting",
+      "about": "About Vydrop",
+      "breadcrumbs": "Breadcrumb",
+      "reviewed": "Last reviewed:",
+      "help": "Help and project information"
+    },
+    "ar": {
+      "skip": "انتقل إلى المحتوى",
+      "navigation": "التنقل",
+      "sites": "المواقع المدعومة",
+      "setup": "إضافة المتصفح",
+      "languages": "اللغات",
+      "privacy": "الأمان والخصوصية",
+      "footer": "Vydrop من تطوير زياد حسنين · مجاني ومفتوح المصدر بترخيص MIT.",
+      "formats": "الصيغ",
+      "extension": "إضافة المتصفح",
+      "download": "التنزيل والتشغيل",
+      "troubleshooting": "حل المشكلات",
+      "about": "عن Vydrop",
+      "breadcrumbs": "مسار الصفحة",
+      "reviewed": "آخر مراجعة:",
+      "help": "المساعدة ومعلومات المشروع"
+    },
+    "fr": {
+      "skip": "Aller au contenu",
+      "navigation": "Navigation",
+      "sites": "Sites compatibles",
+      "setup": "Extension du navigateur",
+      "languages": "Langues",
+      "privacy": "Sécurité et confidentialité (anglais)",
+      "footer": "Vydrop, par Ziad Hassanein · Logiciel libre et gratuit sous licence MIT.",
+      "formats": "Formats",
+      "extension": "Extension",
+      "download": "Installation (anglais)",
+      "troubleshooting": "Dépannage (anglais)",
+      "about": "À propos (anglais)",
+      "breadcrumbs": "Fil d’Ariane",
+      "reviewed": "Dernière révision :",
+      "help": "Aide et projet"
+    },
+    "de": {
+      "skip": "Zum Inhalt",
+      "navigation": "Navigation",
+      "sites": "Unterstützte Websites",
+      "setup": "Browser-Erweiterung",
+      "languages": "Sprachen",
+      "privacy": "Sicherheit und Datenschutz (Englisch)",
+      "footer": "Vydrop von Ziad Hassanein · Kostenlos und quelloffen unter der MIT-Lizenz.",
+      "formats": "Formate",
+      "extension": "Browser-Erweiterung",
+      "download": "Installation (Englisch)",
+      "troubleshooting": "Problemlösung (Englisch)",
+      "about": "Über Vydrop (Englisch)",
+      "breadcrumbs": "Brotkrümelnavigation",
+      "reviewed": "Zuletzt geprüft:",
+      "help": "Hilfe und Projekt"
+    },
+    "es": {
+      "skip": "Ir al contenido",
+      "navigation": "Navegación",
+      "sites": "Sitios compatibles",
+      "setup": "Extensión del navegador",
+      "languages": "Idiomas",
+      "privacy": "Seguridad y privacidad (inglés)",
+      "footer": "Vydrop, de Ziad Hassanein · Gratuito y de código abierto con licencia MIT.",
+      "formats": "Formatos",
+      "extension": "Extensión",
+      "download": "Instalación (inglés)",
+      "troubleshooting": "Solución de problemas (inglés)",
+      "about": "Acerca de Vydrop (inglés)",
+      "breadcrumbs": "Ruta de navegación",
+      "reviewed": "Última revisión:",
+      "help": "Ayuda y proyecto"
+    }
   }
 }

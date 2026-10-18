@@ -5,6 +5,10 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 ## [Unreleased]
 
 ### Changed
+- Simplify browser setup to one action that connects the app, copies the correct path and opens the browser page, with manual recovery controls kept available.
+- Make subtitle languages searchable by name or language code without changing the selected subtitle until a result is chosen.
+- Allow two-line recent-file titles, tighten metadata spacing, expand the list for multiple files and mark missing files with strikethrough and a clear status badge.
+- Add English/Arabic install, troubleshooting and project-information guides, visible provenance and breadcrumbs, consistent page entities and stricter crawl-output validation.
 - Guide browser setup through app connection, browser-specific loading and a first video, with exact path-copy actions and persistent recovery feedback.
 - Report whether the native connection points to this app, while keeping browser extension installation a separate manual step.
 - Add a compact setup checklist to the English/Arabic illustrated guides, with current paths and troubleshooting for missing files or an unavailable browser.

@@ -7,6 +7,7 @@ alternate: true
 english: /
 arabic: /ar/
 home: true
+last_reviewed: 2026-10-19
 ---
 
 # Vydrop: free video and audio downloader for Windows
@@ -34,6 +35,8 @@ Read the [US English](en-us/index.md), [Arabic](ar/index.md), [French](fr/index.
 
 ## Start with a public video link
 
+New to the app? Read the [official download, installation and update guide](download.md). If you downloaded GitHub's source ZIP, this guide shows which release asset contains the ready-to-run Windows app.
+
 1. Download the Windows ZIP, extract it to a writable folder, and open **Vydrop.exe**. The .NET runtime is bundled.
 2. Paste a video's own link or a public playlist link. Review the detected title and available quality.
 3. Choose **Video** or **Audio**, the output format, and your save folder. Select **Subtitles** if captions are available.
@@ -53,6 +56,8 @@ See [supported sites and limitations](supported-sites.md). Public pages are rout
 - [Download selected playlist entries](download-youtube-playlist-windows.md)
 - [Save available subtitles as SRT](youtube-subtitles-srt.md)
 - [Set up Chrome, Edge or Firefox with pictures](browser-extension-setup.md)
+- [Fix video checks, browser errors and missing files](troubleshooting.md)
+- [Understand Vydrop's features, source and privacy](about.md)
 
 ## Why use the desktop app?
 

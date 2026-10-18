@@ -1,4 +1,5 @@
-// One explicit notification after publication. No account, paid API or recurring job.
+// One notification after a successful publication (or an explicit local --submit).
+// No account, paid API or scheduled polling.
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');

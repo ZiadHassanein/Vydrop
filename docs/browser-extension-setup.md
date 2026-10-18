@@ -19,8 +19,8 @@ Use the optional companion to send the video you are watching to the desktop app
 ## Quick setup
 
 1. **Extract the full ZIP** into a permanent folder and open **Vydrop.exe**. Keep **Browser** beside the app.
-2. Open **Settings → Browser integration → Enable connection** (or **Reconnect app** if already connected). A connected status refers to this desktop app; you still load the extension in your browser.
-3. **Load the extension** using the matching row below. If your app shows the guided setup with a browser selector, choose your browser, then use **Open extensions page** and **Copy folder path** (Firefox: **Copy file path**). Earlier versions use the same addresses and files; copy the path from File Explorer.
+2. Open **Settings → Browser integration**. In earlier builds, choose **Enable connection** (or **Reconnect app**). A connected status refers to this desktop app; you still load the extension in your browser.
+3. **Load the extension** using the matching row below. In newer guided builds, choose your browser and **Set up Chrome**, **Set up Edge** or **Set up Firefox**. This connects the app, copies the correct path and opens the browser page. Manual actions remain under **Manual setup and troubleshooting**. Earlier versions use **Enable connection**, then the same addresses and files below; copy the path from File Explorer.
 4. **Close setup, refresh your video page and play the video.** Click the Vydrop button, review the video in the app, then choose Download.
 
 | Browser | Address to enter in that browser | Loading action | What to select |

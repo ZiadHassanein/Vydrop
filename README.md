@@ -30,6 +30,8 @@ GitHub counts release downloads, including repeats and automated downloads; this
 
 Website guides: [English (US)](docs/en-us/index.md) · [Français](docs/fr/index.md) · [Deutsch](docs/de/index.md) · [Español](docs/es/index.md) · [Arabic terminology across 22 countries](docs/ar/arabic-regional-guide.md). The desktop interface supports English and Arabic.
 
+[Download and install](docs/download.md) · [Troubleshooting](docs/troubleshooting.md) · [About Vydrop, its maintainer and privacy](docs/about.md) · [التنزيل والتشغيل](docs/ar/download.md) · [حل المشكلات](docs/ar/troubleshooting.md)
+
 ## Latest release: Vydrop 4.2.4
 
 **Vydrop 4.2.4** fixes shutdown and queue state races, refreshes system contrast colours in open windows, and makes large playlist selection faster with keyboard support. Companion **1.3.6** gives clearer English/Arabic recovery messages. The current design, stored preferences/history and existing browser connection identities are preserved.

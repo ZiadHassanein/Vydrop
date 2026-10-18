@@ -8,6 +8,9 @@ Vydrop (formerly ViFree and YouTube Downloader) is a free MIT-licensed Windows 1
 - [Raw README](https://raw.githubusercontent.com/ZiadHassanein/Vydrop/main/README.md)
 - [README](https://github.com/ZiadHassanein/Vydrop#readme)
 - [Supported sites](https://ziadhassanein.github.io/Vydrop/supported-sites.html)
+- [Download and install](https://ziadhassanein.github.io/Vydrop/download.html)
+- [Troubleshooting](https://ziadhassanein.github.io/Vydrop/troubleshooting.html)
+- [About, maintainer and privacy](https://ziadhassanein.github.io/Vydrop/about.html)
 - [Browser setup](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html)
 - [Security](https://github.com/ZiadHassanein/Vydrop/blob/main/SECURITY.md)
 - [Source code](https://github.com/ZiadHassanein/Vydrop/tree/main/src)
@@ -52,6 +55,8 @@ GitHub counts release downloads, including repeats and automated downloads; this
 [Documentation](https://ziadhassanein.github.io/Vydrop/) · [العربية](https://ziadhassanein.github.io/Vydrop/ar/) · [Setup guide](https://github.com/ZiadHassanein/Vydrop/blob/main/README.md#getting-started) · [Theme previews](https://github.com/ZiadHassanein/Vydrop/blob/main/README.md#theme-previews) · [Extension setup with pictures](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html) · [Report a download problem](https://github.com/ZiadHassanein/Vydrop/issues)
 
 Website guides: [English (US)](https://ziadhassanein.github.io/Vydrop/en-us/) · [Français](https://ziadhassanein.github.io/Vydrop/fr/) · [Deutsch](https://ziadhassanein.github.io/Vydrop/de/) · [Español](https://ziadhassanein.github.io/Vydrop/es/) · [Arabic terminology across 22 countries](https://ziadhassanein.github.io/Vydrop/ar/arabic-regional-guide.html). The desktop interface supports English and Arabic.
+
+[Download and install](https://ziadhassanein.github.io/Vydrop/download.html) · [Troubleshooting](https://ziadhassanein.github.io/Vydrop/troubleshooting.html) · [About Vydrop, its maintainer and privacy](https://ziadhassanein.github.io/Vydrop/about.html) · [التنزيل والتشغيل](https://ziadhassanein.github.io/Vydrop/ar/download.html) · [حل المشكلات](https://ziadhassanein.github.io/Vydrop/ar/troubleshooting.html)
 
 ## Latest release: Vydrop 4.2.4
 
@@ -251,6 +256,92 @@ An independent signing scheme and opt-in PATH reuse are proposed changes, not sh
 
 ---
 
+Source: https://ziadhassanein.github.io/Vydrop/about.html
+
+# About Vydrop
+
+**Vydrop is a free, MIT-licensed Windows video and audio downloader maintained by [Ziad Hassanein](https://github.com/ZiadHassanein).** It provides English and Arabic desktop controls for public media, using yt-dlp for supported websites and media tools for inspection, processing and conversion. Earlier versions used the names ViFree and YouTube Downloader.
+
+## When Vydrop is a useful fit
+
+- You use **Windows 10/11 x64** and prefer a desktop interface to command-line options.
+- You want **English or Arabic** controls, playlists, a multi-link queue and visible download progress.
+- You need video containers **MP4, MKV or WebM**, audio outputs **MP3, M4A, Opus, WAV or FLAC**, or available **SRT/VTT subtitles**.
+- You want an optional **Chrome, Edge or Firefox** action that sends a playing video to the app for review.
+- You prefer free, inspectable source code with no Vydrop account, subscription or app telemetry.
+
+For scripting or operating systems outside this Windows release, the [yt-dlp command-line project](https://github.com/yt-dlp/yt-dlp) may suit a different workflow. Vydrop's desktop interface is not a replacement for every upstream command-line option.
+
+## Capabilities have limits
+
+Vydrop routes public website links to yt-dlp, whose [extractor list](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md) covers more than 1,000 sites. That count describes upstream scope, not a promise that every page on every listed site was tested or works today. Site changes, source availability, regions and player restrictions can prevent a download.
+
+The app does not bypass sign-in, import browser cookies, decrypt DRM, invent unavailable caption tracks or restore detail missing from the source. Read the [site support guide](https://ziadhassanein.github.io/Vydrop/supported-sites.html) before relying on a particular workflow.
+
+## Local data and network access
+
+Your chosen folder holds media downloads. Settings, recent-file paths and prepared tools use `%LocalAppData%\YouTubeDownloader`, retaining the historical directory for compatibility. Vydrop has no app telemetry. It still needs network access for requested media, relevant metadata and official app or tool update checks. Optional download-count badges on this website are served by Shields.io and reflect GitHub asset downloads, not unique users.
+
+Browser integration registers a local native messaging connection for your Windows account. Sending a video is an explicit action. Review the [security policy](https://github.com/ZiadHassanein/Vydrop/blob/main/SECURITY.md) for executable probes, update verification and the current unsigned-package limitation.
+
+## Official project records
+
+| Record | Source |
+| --- | --- |
+| Current public package and notes | [GitHub Releases](https://github.com/ZiadHassanein/Vydrop/releases/latest) |
+| Code and implementation | [Public source tree](https://github.com/ZiadHassanein/Vydrop/tree/main/src) |
+| License | [MIT license](https://github.com/ZiadHassanein/Vydrop/blob/main/LICENSE) |
+| Version history | [Changelog](https://github.com/ZiadHassanein/Vydrop/blob/main/CHANGELOG.md) |
+| Bugs and feature requests | [GitHub Issues](https://github.com/ZiadHassanein/Vydrop/issues) |
+| Readable documentation | [Plain-text reference](https://ziadhassanein.github.io/Vydrop/llms-full.txt) |
+
+These are the project's own capabilities and disclosures, not an independent review or a claim of superiority over every downloader. [Download and install](https://ziadhassanein.github.io/Vydrop/download.html), [set up the companion](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html), or [solve a problem](https://ziadhassanein.github.io/Vydrop/troubleshooting.html).
+
+---
+
+Source: https://ziadhassanein.github.io/Vydrop/ar/about.html
+
+# عن Vydrop
+
+**Vydrop برنامج مجاني لتنزيل الفيديو والصوت على ويندوز، مفتوح المصدر بترخيص MIT ومن تطوير [زياد حسنين](https://github.com/ZiadHassanein).** يوفّر عناصر تحكم بالعربية والإنجليزية للوسائط العامة، ويستخدم yt-dlp للمواقع المدعومة وأدوات الوسائط للفحص والمعالجة والتحويل. حملت النسخ السابقة اسمَي ViFree وYouTube Downloader.
+
+## متى يناسبك Vydrop؟
+
+- تستخدم **Windows 10/11 x64** وتفضّل واجهة سطح مكتب على كتابة الأوامر.
+- تريد التحكم **بالعربية أو الإنجليزية** في القوائم والروابط المتعددة، مع متابعة تقدم التنزيل.
+- تحتاج حاويات **MP4 أوMKV أوWebM**، أو صوت **MP3 أوM4A أوOpus أوWAV أوFLAC**، أو الترجمة المتاحة بصيغة **SRT أوVTT**.
+- تريد زرًا اختياريًا في **Chrome أوEdge أوFirefox** لإرسال الفيديو الجاري تشغيله إلى التطبيق للمراجعة.
+- تفضّل مصدرًا يمكن فحصه، دون حساب Vydrop أو اشتراك أو تتبّع داخل التطبيق.
+
+للأوامر الآلية أو أنظمة التشغيل الأخرى، قد تناسبك طريقة عمل [yt-dlp عبر سطر الأوامر](https://github.com/yt-dlp/yt-dlp). واجهة Vydrop لا تستبدل كل خيارات المشروع الأصلي.
+
+## حدود الإمكانات
+
+يرسل Vydrop روابط صفحات المواقع العامة إلى yt-dlp، وتغطي [قائمة مستخرجاته](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md) أكثر من ١٠٠٠ موقع. يصف العدد نطاق دعم المشروع الأصلي، ولا يعني اختبار كل صفحة أو ضمان عملها اليوم. قد تمنع تغييرات المواقع وإتاحة الوسائط والقيود الإقليمية والمشغّلات تنزيل رابط معيّن.
+
+لا يتجاوز التطبيق تسجيل الدخول، ولا يستورد ملفات تعريف الارتباط، ولا يفك DRM، ولا ينشئ ترجمة غير موجودة أو يستعيد تفاصيل فقدها المصدر. راجع [دليل الدعم والقيود](https://ziadhassanein.github.io/Vydrop/ar/supported-sites.html) قبل الاعتماد على طريقة عمل محددة.
+
+## البيانات المحلية والاتصال بالإنترنت
+
+تُحفظ الوسائط في المجلد الذي تختاره. تستخدم الإعدادات ومسارات الملفات الأخيرة والأدوات المجهّزة `%LocalAppData%\YouTubeDownloader`، مع الاحتفاظ بالاسم القديم للتوافق. لا يجمع Vydrop تتبّعًا داخل التطبيق، لكنه يتصل بالإنترنت لجلب الوسائط ومعلوماتها وفحص التحديثات الرسمية عند الحاجة. شارات أعداد التنزيل في الموقع من Shields.io وتحسب تنزيلات ملفات GitHub، لا عدد المستخدمين الفريدين.
+
+يسجّل ربط المتصفح اتصالًا محليًا ضمن حسابك على ويندوز، ويتطلب إرسال الفيديو اختيارًا صريحًا. راجع [سياسة الأمان](https://github.com/ZiadHassanein/Vydrop/blob/main/SECURITY.md) لحدود فحص الأدوات والتحقق من التحديثات وغياب توقيع الملف التنفيذي الحالي.
+
+## سجلات المشروع الرسمية
+
+| المرجع | المصدر |
+| --- | --- |
+| الحزمة الحالية وملاحظاتها | [إصدارات GitHub](https://github.com/ZiadHassanein/Vydrop/releases/latest) |
+| الكود والتنفيذ | [المصدر العام](https://github.com/ZiadHassanein/Vydrop/tree/main/src) |
+| الترخيص | [ترخيص MIT](https://github.com/ZiadHassanein/Vydrop/blob/main/LICENSE) |
+| تاريخ الإصدارات | [سجل التغييرات](https://github.com/ZiadHassanein/Vydrop/blob/main/CHANGELOG.md) |
+| المشكلات والاقتراحات | [بلاغات GitHub](https://github.com/ZiadHassanein/Vydrop/issues) |
+| دليل قابل للقراءة النصية | [المرجع النصي](https://ziadhassanein.github.io/Vydrop/llms-full.txt) |
+
+تعرض هذه الصفحة إمكانات المشروع وإفصاحاته؛ ليست مراجعة مستقلة أو ادعاءً بالتفوق على كل برامج التنزيل. تابع [التنزيل والتشغيل](https://ziadhassanein.github.io/Vydrop/ar/download.html)، أو [إعداد الإضافة](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html)، أو [حل المشكلات](https://ziadhassanein.github.io/Vydrop/ar/troubleshooting.html).
+
+---
+
 Source: https://ziadhassanein.github.io/Vydrop/ar/arabic-regional-guide.html
 
 # تحميل الفيديو وتنزيله: نفس المهمة بصيغ عربية مختلفة
@@ -416,8 +507,8 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html
 ## الإعداد السريع
 
 1. **فكّ ضغط الحزمة كاملة** في مجلد دائم، وافتح **Vydrop.exe** مع الاحتفاظ بمجلد **Browser** بجانبه.
-2. اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال**، أو **إعادة تفعيل الاتصال** إذا كان مفعّلًا بالفعل. حالة الاتصال تؤكد ربط تطبيق سطح المكتب فقط؛ يجب تحميل الإضافة داخل المتصفح أيضًا.
-3. **حمّل الإضافة** وفق الجدول التالي. إذا كانت نسختك تعرض شاشة الإعداد الموجّه، اختر متصفحك واضغط **فتح صفحة الإضافات** و**نسخ مسار المجلد**، أو **نسخ مسار الملف** في Firefox. تستخدم النسخ الأقدم العناوين والملفات نفسها؛ انسخ المسار من مستكشف الملفات.
+2. افتح **الإعدادات ← الربط بالمتصفح**. في النسخ الأقدم اضغط **تفعيل الاتصال**، أو **إعادة تفعيل الاتصال** إذا كان مفعّلًا بالفعل. تؤكد الحالة ربط تطبيق سطح المكتب فقط؛ يجب تحميل الإضافة في المتصفح أيضًا.
+3. **حمّل الإضافة** وفق الجدول التالي. في النسخ الأحدث ذات الإعداد الموجّه، اختر متصفحك واضغط **إعداد Chrome** أو **إعداد Edge** أو **إعداد Firefox**؛ يربط الزر التطبيق وينسخ المسار الصحيح ويفتح صفحة المتصفح. تبقى الأزرار المنفصلة داخل **الإعداد اليدوي وحل المشكلات**. في النسخ الأقدم، فعّل الاتصال واستخدم العناوين والملفات نفسها، وانسخ المسار من مستكشف الملفات.
 4. **أغلق الإعداد وحدّث صفحة الفيديو وشغّله.** اضغط زر Vydrop، وراجع الفيديو داخل التطبيق، ثم اضغط «تنزيل».
 
 | المتصفح | العنوان المطلوب كتابته في المتصفح نفسه | طريقة التحميل | المطلوب اختياره |
@@ -590,6 +681,54 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/download-youtube-playlist-wind
 
 ---
 
+Source: https://ziadhassanein.github.io/Vydrop/ar/download.html
+
+# تنزيل Vydrop وتشغيله على ويندوز
+
+**Vydrop برنامج مجاني ومفتوح المصدر لتنزيل الفيديو والصوت على Windows 10/11 x64.** نزّل حزمة التطبيق الجاهزة من إصدارات المشروع على GitHub. واجهة التطبيق متاحة بالعربية والإنجليزية.
+
+[تنزيل Vydrop 4.2.4 — ملف Windows x64 ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.4/Vydrop-v4.2.4-win-x64.zip) · [ملاحظات الإصدار وملفاته](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.4)
+
+## اختر الحزمة الصحيحة
+
+| المطلوب | التفاصيل |
+| --- | --- |
+| نظام التشغيل | Windows 10 أو Windows 11 بمعمارية x64 |
+| ملف التطبيق | `Vydrop-v4.2.4-win-x64.zip` من صفحة الإصدارات |
+| بيئة .NET | مضمّنة؛ لا تحتاج تثبيتًا منفصلًا |
+| أدوات الوسائط | تُجهّز الأدوات الناقصة عند الحاجة؛ الاستخدام الأول يحتاج اتصالًا بالإنترنت |
+| إضافة المتصفح | اختيارية لـChrome وEdge وFirefox، داخل مجلد **Browser** المرفق |
+| الحساب والدفع | لا يحتاج حساب Vydrop أو مفتاح API أو اشتراكًا |
+
+خيار **Code → Download ZIP** في GitHub ينزّل الكود المصدري. لتشغيل البرنامج مباشرة، اختر حزمة ويندوز المسماة أعلاه من **Releases → Assets**. لا يتضمن هذا الإصدار نسخة أصلية لنظامَي macOS أوLinux.
+
+## شغّل البرنامج بعد فك الضغط
+
+1. فكّ ضغط الحزمة **كاملة** في مجلد دائم قابل للكتابة، مثل **Documents\Vydrop**.
+2. افتح **Vydrop.exe** من المجلد الناتج. احتفظ بمجلد **Browser** بجانبه إذا أردت ربط المتصفح.
+3. الصق رابط الفيديو العام نفسه، وانتظر ظهور عنوانه والجودة المتاحة، ثم اختر الفيديو أو الصوت واضغط **تنزيل**.
+4. لإرسال الفيديو من المتصفح، اتبع [دليل إعداد الإضافة بالصور](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html).
+
+تفتح الإضافة الرابط للمراجعة ولا تبدأ التنزيل تلقائيًا. لا يستورد Vydrop ملفات تعريف الارتباط ولا يفتح المحتوى الخاص أو المحمي بـDRM. راجع [المواقع المدعومة والقيود](https://ziadhassanein.github.io/Vydrop/ar/supported-sites.html).
+
+## تحقّق من المصدر
+
+المستودع الرسمي هو **[ZiadHassanein/Vydrop](https://github.com/ZiadHassanein/Vydrop)**، من تطوير زياد حسنين. راجع ملاحظات الإصدار وتفاصيل ملفاته قبل التشغيل. الملف التنفيذي الحالي **لا يحمل توقيع Authenticode**. تساعد البصمة أو بيانات GitHub في اكتشاف اختلاف الملف عن نسخة الناشر، لكنها ليست دليلًا مستقلًا على أمانه. اقرأ [سياسة الأمان](https://github.com/ZiadHassanein/Vydrop/blob/main/SECURITY.md).
+
+## تحديث نسخة موجودة
+
+أغلق Vydrop قبل استبدال ملفاته، وفكّ الحزمة الجديدة كاملة ثم افتح التطبيق منها. احتفظ به في مكان دائم. إذا تغيّر مكانه، افتح **الإعدادات ← الربط بالمتصفح** وأعد تفعيل الاتصال من النسخة الجديدة، ثم أعد تحميل الإضافة من مجلد Browser الخاص بها.
+
+تحتاج النسخ حتى **4.2.1** إلى تنزيل يدوي مرة واحدة بعد تغيير اسم المستودع من ViFree إلى Vydrop. تحديث التطبيق منفصل عن تحديث أدوات الوسائط؛ خيار **تحديث أداة التنزيل** في الإعدادات يفحص الأدوات ولا يستبدل حزمة التطبيق.
+
+تُحفظ الإعدادات وسجل الملفات محليًا في `%LocalAppData%\YouTubeDownloader` للتوافق مع النسخ السابقة، وتبقى ملفات الفيديو في مجلد الحفظ الذي اخترته. راجع [حل المشكلات](https://ziadhassanein.github.io/Vydrop/ar/troubleshooting.html) عند تعذّر فحص الفيديو أو ظهور «حاول مجددًا» في الإضافة.
+
+## تابع حسب المهمة
+
+[حفظ صوت يوتيوب بصيغة MP3](https://ziadhassanein.github.io/Vydrop/ar/youtube-to-mp3-windows.html) · [تنزيل قائمة تشغيل](https://ziadhassanein.github.io/Vydrop/ar/download-youtube-playlist-windows.html) · [حفظ الترجمة](https://ziadhassanein.github.io/Vydrop/ar/youtube-subtitles-srt.html) · [عن Vydrop](https://ziadhassanein.github.io/Vydrop/ar/about.html)
+
+---
+
 Source: https://ziadhassanein.github.io/Vydrop/ar/
 
 # Vydrop: برنامج مجاني لتنزيل الفيديو والصوت لويندوز
@@ -619,6 +758,8 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/
 
 ## ابدأ برابط فيديو عام
 
+لو بتستخدم البرنامج لأول مرة، راجع [التنزيل والتشغيل والتحديث من المصدر الرسمي](https://ziadhassanein.github.io/Vydrop/ar/download.html). يوضّح الدليل الفرق بين كود GitHub المصدري وحزمة ويندوز الجاهزة للتشغيل.
+
 1. نزّل ملف Windows ZIP وفكّ ضغطه في مجلد قابل للكتابة، ثم افتح **Vydrop.exe**. بيئة .NET مضمّنة.
 2. الصق رابط الفيديو نفسه أو رابط قائمة عامة، وراجع العنوان والجودة المتاحة.
 3. اختر الفيديو أو الصوت والصيغة ومجلد الحفظ. فعّل **الترجمة** عند توافرها.
@@ -638,6 +779,8 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/
 - [تنزيل عناصر قائمة تشغيل](https://ziadhassanein.github.io/Vydrop/ar/download-youtube-playlist-windows.html)
 - [حفظ الترجمة المتاحة بصيغة SRT](https://ziadhassanein.github.io/Vydrop/ar/youtube-subtitles-srt.html)
 - [إعداد Chrome وEdge وFirefox بالصور](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html)
+- [حل مشكلات فحص الفيديو والإضافة والملفات](https://ziadhassanein.github.io/Vydrop/ar/troubleshooting.html)
+- [عن Vydrop والمصدر والخصوصية](https://ziadhassanein.github.io/Vydrop/ar/about.html)
 
 ## لماذا تطبيق سطح المكتب؟
 
@@ -723,6 +866,52 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/tiktok-facebook-video-download
 ![واجهة Vydrop الأصلية: راجع الصيغة والجودة قبل التنزيل](https://ziadhassanein.github.io/Vydrop/images/screenshots/vydrop-light-ar-download.png)
 
 *عرض أصلي لواجهة مصدر الإصدار 4.2.0، دون مؤشر الفأرة.*
+
+---
+
+Source: https://ziadhassanein.github.io/Vydrop/ar/troubleshooting.html
+
+# حل مشكلات Vydrop على ويندوز
+
+ابدأ بأحدث [حزمة رسمية لويندوز](https://ziadhassanein.github.io/Vydrop/ar/download.html)، واستخدم رابط الفيديو العام نفسه. تشغيل الصفحة في المتصفح لا يعني دائمًا أن الفيديو متاح للتنزيل. تفصل الخطوات التالية بين اتصال التطبيق واكتشاف الفيديو واستخراج الوسائط ومكان الملف المحفوظ.
+
+## الإضافة تعرض «حاول مجددًا» أو لا تفتح التطبيق
+
+1. افتح نسخة Vydrop التي تريد استخدامها، ثم اختر **الإعدادات ← الربط بالمتصفح** وفعّل الاتصال أو أعد تفعيله.
+2. احتفظ بالملف التنفيذي في مجلد دائم؛ نقله أو حذفه يترك المتصفح يشير إلى مكان قديم.
+3. تأكد من تفعيل الإضافة وتحميلها من **Browser\chromium** في الحزمة نفسها، أو **Browser\firefox\manifest.json** في Firefox.
+4. بعد إعادة تحميل الإضافة، حدّث صفحة الفيديو وشغّله مجددًا، ثم جرّب زر Vydrop أو زر الإضافة في شريط المتصفح.
+5. أغلق شاشة الإعداد قبل الإرسال، وأنهِ أي تنزيل جارٍ أو ألغِه قبل إرسال رابط آخر.
+
+بعد تسجيل الاتصال المحلي، صُمّمت الإضافة لتشغيل Vydrop وهو مغلق. ظهور الزر وحده لا يؤكد أن الاتصال يعمل. اتبع [خطوات المتصفح بالصور](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html)، بما فيها اختبار فتح الفيديو في التطبيق.
+
+## زر الفيديو لا يظهر
+
+يتبع الزر فيديو ظاهرًا وقيد التشغيل. شغّله وأبقِه في الجزء الظاهر من الصفحة، وحدّثها بعد تحديث الإضافة. تحقق من سماح المتصفح للإضافة بالعمل على الموقع. قد تمنع الإطارات المضمّنة أو المشغّلات المخصصة أو عدة فيديوهات متزامنة تحديد الفيديو المطلوب. جرّب زر الإضافة على صفحة الفيديو نفسه، أو الصق رابط المشاركة داخل Vydrop.
+
+## تعذّر فحص الفيديو
+
+استخدم رابط الفيديو نفسه بدل الملف الشخصي أو صفحة المنشورات أو الصفحة الرئيسية. تحقق من إتاحته للعامة دون تسجيل دخول، ومن اتصال الإنترنت، ثم اختر **تحديث أداة التنزيل** في الإعدادات وأعد المحاولة مرة واحدة. قد يحتاج تغيير حديث في الموقع إلى إصلاح من yt-dlp؛ تكرار المحاولة لا يلغي قيود الموقع.
+
+في LinkedIn، جرّب الإضافة على الفيديو الجاري تشغيله. بعض روابط المنشورات لا تُستخرج مباشرة رغم تشغيلها في المتصفح. قد يفشل الاكتشاف أيضًا مع الفيديو الخاص أو المشغّل غير المدعوم. لا يستورد Vydrop جلسة تسجيل الدخول.
+
+## صيغة أو جودة غير متاحة
+
+تعتمد الخيارات على المصدر المكتشف. اختيار حاوية مختلفة لا يحوّل فيديو منخفض الدقة إلى HD. تشير MP4 وMKV وWebM إلى حاوية الملف، ولا تستعيد زيادة معدل بت MP3 تفاصيل الصوت المفقودة. راجع [دليل MP3](https://ziadhassanein.github.io/Vydrop/ar/youtube-to-mp3-windows.html) و[قيود المواقع](https://ziadhassanein.github.io/Vydrop/ar/supported-sites.html).
+
+## لا تظهر لغات ترجمة
+
+يمكن حفظ الترجمة التي يتيحها المصدر فقط. مع قائمة التشغيل، اضغط **جلب لغات الترجمة**؛ تأتي النتيجة من أول فيديو متاح وقد تختلف عن بقية العناصر. يحدد SRT أوVTT صيغة ملف الترجمة المنفصل. لا ينشئ Vydrop ترجمة جديدة بالتعرف على الكلام. راجع [دليل الترجمة](https://ziadhassanein.github.io/Vydrop/ar/youtube-subtitles-srt.html).
+
+## لا يمكن فتح ملف مكتمل
+
+تسجّل التنزيلات الأخيرة مسار الحفظ. إذا أُعيدت تسمية الملف أو نُقل أو حُذف خارج Vydrop، فلن يعمل المسار القديم. ابحث في مجلد التنزيل الذي اخترته أو سلة محذوفات ويندوز. لا يستطيع التطبيق استعادة الوسائط المحذوفة؛ أعد التنزيل فقط إذا كان المصدر متاحًا وتملك إذنًا بحفظه.
+
+## أرسل بلاغًا يمكن إعادة اختباره
+
+[افتح بلاغ مشكلة تنزيل](https://github.com/ZiadHassanein/Vydrop/issues/new?template=download-problem.yml) مع إصدار التطبيق وويندوز ورابط فيديو عام وخطوات المشكلة. لمشكلات الإضافة، اذكر إصدار المتصفح والإضافة. أخفِ المسارات الشخصية ولا تنشر روابط خاصة أو كلمات مرور أو ملفات تعريف ارتباط أو رموز وصول. استخدم [قناة الأمان الخاصة](https://github.com/ZiadHassanein/Vydrop/security/advisories/new) للثغرات.
+
+[عن التطبيق وحدوده](https://ziadhassanein.github.io/Vydrop/ar/about.html) · [التنزيل والتحديث](https://ziadhassanein.github.io/Vydrop/ar/download.html) · [الصفحة الرئيسية](https://ziadhassanein.github.io/Vydrop/ar/)
 
 ---
 
@@ -928,8 +1117,8 @@ Use the optional companion to send the video you are watching to the desktop app
 ## Quick setup
 
 1. **Extract the full ZIP** into a permanent folder and open **Vydrop.exe**. Keep **Browser** beside the app.
-2. Open **Settings → Browser integration → Enable connection** (or **Reconnect app** if already connected). A connected status refers to this desktop app; you still load the extension in your browser.
-3. **Load the extension** using the matching row below. If your app shows the guided setup with a browser selector, choose your browser, then use **Open extensions page** and **Copy folder path** (Firefox: **Copy file path**). Earlier versions use the same addresses and files; copy the path from File Explorer.
+2. Open **Settings → Browser integration**. In earlier builds, choose **Enable connection** (or **Reconnect app**). A connected status refers to this desktop app; you still load the extension in your browser.
+3. **Load the extension** using the matching row below. In newer guided builds, choose your browser and **Set up Chrome**, **Set up Edge** or **Set up Firefox**. This connects the app, copies the correct path and opens the browser page. Manual actions remain under **Manual setup and troubleshooting**. Earlier versions use **Enable connection**, then the same addresses and files below; copy the path from File Explorer.
 4. **Close setup, refresh your video page and play the video.** Click the Vydrop button, review the video in the app, then choose Download.
 
 | Browser | Address to enter in that browser | Loading action | What to select |
@@ -1204,6 +1393,54 @@ Only compatible completed outputs are eligible for resume. Subtitle settings are
 
 ---
 
+Source: https://ziadhassanein.github.io/Vydrop/download.html
+
+# Download and install Vydrop for Windows
+
+**Vydrop is a free, open-source video and audio downloader for Windows 10/11 x64.** Download the packaged app from the project's GitHub Releases page. The desktop interface supports English and Arabic.
+
+[Download Vydrop 4.2.4 — Windows x64 ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.4/Vydrop-v4.2.4-win-x64.zip) · [Release notes and assets](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.4)
+
+## Choose the application package
+
+| Item | What you need |
+| --- | --- |
+| Operating system | Windows 10 or Windows 11, x64 |
+| App file | `Vydrop-v4.2.4-win-x64.zip` from GitHub Releases |
+| .NET | Included in the package; no separate runtime installation |
+| Media tools | Missing tools are prepared when needed; first use needs an internet connection |
+| Browser companion | Optional Chrome, Edge or Firefox companion, inside the app's **Browser** folder |
+| Account or payment | No Vydrop account, API key or subscription |
+
+GitHub's **Code → Download ZIP** downloads the source code. Choose the named Windows ZIP under **Releases → Assets** for the ready-to-run app. There is no native macOS or Linux package in this release.
+
+## Run the extracted app
+
+1. Extract the complete ZIP to a permanent writable folder, such as **Documents\Vydrop**.
+2. Open **Vydrop.exe** from the extracted folder. Keep **Browser** beside it if you want browser integration.
+3. Paste a public video's own link. Wait for its title and available quality, choose Video or Audio, then choose **Download**.
+4. For browser handoff, follow the [illustrated extension guide](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html).
+
+The browser companion opens the link for review; it does not start a download automatically. Vydrop does not import browser cookies or unlock private or DRM-protected media. See [supported sites and limitations](https://ziadhassanein.github.io/Vydrop/supported-sites.html).
+
+## Check the publisher and package
+
+The official repository is **[ZiadHassanein/Vydrop](https://github.com/ZiadHassanein/Vydrop)**, maintained by Ziad Hassanein. Review its release notes and asset details before running a package. The current Windows executable is **not Authenticode-signed**. A checksum or GitHub asset digest can detect a changed download relative to that publisher; it is not independent proof that a package is safe. Read the [security policy](https://github.com/ZiadHassanein/Vydrop/blob/main/SECURITY.md) for the full trust boundary.
+
+## Update an existing copy
+
+Close Vydrop before replacing its files. Extract the full new package, then run the new executable. Keep the app in a permanent location. If its location changes, open **Settings → Browser integration** and reconnect from the new copy; reload the companion from that package's Browser folder.
+
+Versions through **4.2.1** need one manual download after the repository was renamed from ViFree to Vydrop. Application updates and media-tool updates are separate: **Settings → Update downloader** checks the media tools, not the desktop application package.
+
+Settings and recent-file history use `%LocalAppData%\YouTubeDownloader` for compatibility. Your media files remain in your chosen save folder. See [troubleshooting](https://ziadhassanein.github.io/Vydrop/troubleshooting.html) if the app cannot check a video or the companion shows Try again.
+
+## Continue
+
+[Save YouTube audio as MP3](https://ziadhassanein.github.io/Vydrop/youtube-to-mp3-windows.html) · [Download playlist entries](https://ziadhassanein.github.io/Vydrop/download-youtube-playlist-windows.html) · [Save subtitles](https://ziadhassanein.github.io/Vydrop/youtube-subtitles-srt.html) · [About Vydrop](https://ziadhassanein.github.io/Vydrop/about.html)
+
+---
+
 Source: https://ziadhassanein.github.io/Vydrop/en-us/
 
 # Vydrop: a free video downloader for Windows
@@ -1435,6 +1672,8 @@ Read the [US English](https://ziadhassanein.github.io/Vydrop/en-us/), [Arabic](h
 
 ## Start with a public video link
 
+New to the app? Read the [official download, installation and update guide](https://ziadhassanein.github.io/Vydrop/download.html). If you downloaded GitHub's source ZIP, this guide shows which release asset contains the ready-to-run Windows app.
+
 1. Download the Windows ZIP, extract it to a writable folder, and open **Vydrop.exe**. The .NET runtime is bundled.
 2. Paste a video's own link or a public playlist link. Review the detected title and available quality.
 3. Choose **Video** or **Audio**, the output format, and your save folder. Select **Subtitles** if captions are available.
@@ -1454,6 +1693,8 @@ See [supported sites and limitations](https://ziadhassanein.github.io/Vydrop/sup
 - [Download selected playlist entries](https://ziadhassanein.github.io/Vydrop/download-youtube-playlist-windows.html)
 - [Save available subtitles as SRT](https://ziadhassanein.github.io/Vydrop/youtube-subtitles-srt.html)
 - [Set up Chrome, Edge or Firefox with pictures](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html)
+- [Fix video checks, browser errors and missing files](https://ziadhassanein.github.io/Vydrop/troubleshooting.html)
+- [Understand Vydrop's features, source and privacy](https://ziadhassanein.github.io/Vydrop/about.html)
 
 ## Why use the desktop app?
 
@@ -1539,6 +1780,52 @@ See the [Chrome, Edge and Firefox setup guide](https://ziadhassanein.github.io/V
 ![Native Vydrop interface: review format and quality before downloading](https://ziadhassanein.github.io/Vydrop/images/screenshots/vydrop-dark-en-download.png)
 
 *Native render of the 4.2.0 source interface, without a mouse pointer.*
+
+---
+
+Source: https://ziadhassanein.github.io/Vydrop/troubleshooting.html
+
+# Troubleshoot Vydrop on Windows
+
+Start with the latest [official Windows package](https://ziadhassanein.github.io/Vydrop/download.html) and the exact video's own public link. A working browser page does not always expose a stream Vydrop can download. These steps distinguish the app connection, video detection, media extraction and saved file location.
+
+## The extension says Try again, or the app does not open
+
+1. Open the Vydrop copy you intend to use. Choose **Settings → Browser integration** and enable or reconnect it.
+2. Keep that executable in its permanent folder. Moving or deleting it leaves the browser pointing to an old app location.
+3. Confirm the companion is enabled and loaded from the matching package's **Browser\chromium** folder, or **Browser\firefox\manifest.json** in Firefox.
+4. After reloading an extension, refresh the video page and play the video again. Try its Vydrop button or the extension's toolbar action.
+5. Close the setup dialog before sending a video. The app also needs to finish or cancel any active download before accepting another link.
+
+Once the native connection is registered, it is designed to start Vydrop when closed. A browser button appearing is not proof that this connection works. Follow the [browser-specific illustrated setup](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html), including the real send-to-app test.
+
+## The video button is missing
+
+The overlay follows a visible playing video. Play the video, keep it in view, and refresh after an extension update. Check that the companion has access to that site. An iframe, custom player or multiple visible videos can prevent unambiguous detection. Use the toolbar action on the video's own page, or paste its share link into Vydrop.
+
+## Could not check video
+
+Use the video's own link instead of a profile, feed or website homepage. Check that it is public and reachable without signing in. Check your connection, then use **Settings → Update downloader** and retry once. A recent site change may require an upstream yt-dlp fix; repeated retries cannot remove site restrictions.
+
+For LinkedIn, use the companion on the playing video. Some LinkedIn post URLs cannot be extracted directly even though the browser can play the video. Detection may still fail on private or unsupported players. Vydrop does not import your login session.
+
+## A format or quality is unavailable
+
+Vydrop lists choices from the detected source. A low-resolution source does not become HD by selecting a different container. MP4/MKV/WebM describe the file container. Audio conversion targets such as MP3 bitrate do not restore missing source detail. See the [MP3 guide](https://ziadhassanein.github.io/Vydrop/youtube-to-mp3-windows.html) and [site limitations](https://ziadhassanein.github.io/Vydrop/supported-sites.html).
+
+## No subtitles are listed
+
+Only captions exposed by the source can be saved. For a playlist, choose **Get subtitle languages**; those results come from the first available video and may differ for other entries. **SRT** and **VTT** choose the sidecar file format. Vydrop does not generate new captions by speech recognition. See [subtitle instructions](https://ziadhassanein.github.io/Vydrop/youtube-subtitles-srt.html).
+
+## A completed file cannot be opened
+
+Recent downloads records the saved path. If the file was renamed, moved or deleted outside Vydrop, that old path is unavailable. Check your selected download folder or Windows Recycle Bin. The app cannot recover deleted media; download again only if the source is available and you have permission.
+
+## Report a reproducible problem
+
+[Open a download problem report](https://github.com/ZiadHassanein/Vydrop/issues/new?template=download-problem.yml) with the app version, Windows version, public video URL and steps. For browser issues, include the browser and companion versions. Redact personal paths and never post private URLs, cookies, passwords or tokens. Report security vulnerabilities through the [private security channel](https://github.com/ZiadHassanein/Vydrop/security/advisories/new).
+
+[About the app and its limitations](https://ziadhassanein.github.io/Vydrop/about.html) · [Download and update](https://ziadhassanein.github.io/Vydrop/download.html) · [Documentation home](https://ziadhassanein.github.io/Vydrop/)
 
 ---
 

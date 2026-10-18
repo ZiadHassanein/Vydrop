@@ -3,6 +3,13 @@ description: Free open-source Windows downloader for video and audio from YouTub
 url: https://ziadhassanein.github.io
 baseurl: /Vydrop
 lang: en
+author:
+  name: Ziad Hassanein
+  url: https://github.com/ZiadHassanein
+social:
+  name: Vydrop
+  links:
+    - https://github.com/ZiadHassanein/Vydrop
 google_site_verification: "Yk1fw4aP9pRpV1XWgzD5h_jbbWPOVR1rdgVT-X47vts"
 markdown: kramdown
 kramdown:

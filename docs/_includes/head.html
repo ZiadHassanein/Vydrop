@@ -1,5 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <title>{{ page.title | escape }}</title>
 {% seo title=false %}
 {% if page.home %}
@@ -17,3 +18,4 @@
 <link rel="sitemap" type="application/xml" href="{{ '/sitemap.xml' | absolute_url }}">
 <link rel="alternate" type="text/plain" title="Vydrop documentation as text" href="{{ '/llms-full.txt' | absolute_url }}">
 {% if page.home %}{% include jsonld.html %}{% endif %}
+{% include page-schema.html %}
