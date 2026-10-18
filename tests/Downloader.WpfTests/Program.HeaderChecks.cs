@@ -212,7 +212,7 @@ internal static partial class Program
     private static void CaptureVisual(Visual visual, string path, int width = 0, int height = 0)
     {
         var dpi = VisualTreeHelper.GetDpi(visual);
-        if (visual is FrameworkElement element)
+        if (visual is FrameworkElement element && (width <= 0 || height <= 0))
         {
             width = (int)Math.Ceiling(element.ActualWidth * dpi.DpiScaleX);
             height = (int)Math.Ceiling(element.ActualHeight * dpi.DpiScaleY);

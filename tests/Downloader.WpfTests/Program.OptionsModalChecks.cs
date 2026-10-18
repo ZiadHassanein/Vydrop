@@ -204,8 +204,11 @@ internal static partial class Program
         search.Text = "العربية";
         await Task.Delay(75);
         var popup = (System.Windows.Controls.Primitives.Popup)caption.Template.FindName("PART_Popup", caption);
-        // Capture the popup directly: a modal's inset/RTL origin differs from the main client surface.
-        CaptureVisual(popup.Child, System.IO.Path.Combine(captures, "subtitle-search-" + variant + ".png"));
+        // The native root retains the RTL transform; rendering its child alone mirrors the text.
+        var source = (HwndSource)PresentationSource.FromVisual(popup.Child);
+        GetWindowRect(source.Handle, out var popupBounds);
+        CaptureVisual(source.RootVisual, System.IO.Path.Combine(captures, "subtitle-search-" + variant + ".png"),
+            popupBounds.Right - popupBounds.Left, popupBounds.Bottom - popupBounds.Top);
         search.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(search), Environment.TickCount, Key.Enter)
             { RoutedEvent = Keyboard.PreviewKeyDownEvent });
         Check(model.SelectedCaption.Language == "ar" && !caption.IsDropDownOpen && dialog.IsVisible,
