@@ -5,6 +5,7 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 ## [Unreleased]
 
 ### Changed
+- Color the recent-download, language and theme header icons with the theme-aware app accent.
 - Simplify browser setup to one action that connects the app, copies the correct path and opens the browser page, with manual recovery controls kept available.
 - Make subtitle languages searchable by name or language code without changing the selected subtitle until a result is chosen.
 - Allow two-line recent-file titles, tighten metadata spacing, expand the list for multiple files and mark missing files with strikethrough and a clear status badge.
