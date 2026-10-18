@@ -204,8 +204,8 @@ internal static partial class Program
         search.Text = "العربية";
         await Task.Delay(75);
         var popup = (System.Windows.Controls.Primitives.Popup)caption.Template.FindName("PART_Popup", caption);
-        CapturePopup((FrameworkElement)dialog.Content, (HwndSource)PresentationSource.FromVisual(popup.Child),
-            System.IO.Path.Combine(captures, "subtitle-search-" + variant + ".png"));
+        // Capture the popup directly: a modal's inset/RTL origin differs from the main client surface.
+        CaptureVisual(popup.Child, System.IO.Path.Combine(captures, "subtitle-search-" + variant + ".png"));
         search.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(search), Environment.TickCount, Key.Enter)
             { RoutedEvent = Keyboard.PreviewKeyDownEvent });
         Check(model.SelectedCaption.Language == "ar" && !caption.IsDropDownOpen && dialog.IsVisible,
