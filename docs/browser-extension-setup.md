@@ -40,11 +40,15 @@ The video covers extraction, the app connection, the correct Chrome/Edge folder,
 3. **Load the extension** using the matching row below. In Vydrop 4.2.5 and later, choose your browser and **Set up Chrome**, **Set up Edge** or **Set up Firefox**. This connects the app, copies the correct path and opens the browser page. Manual actions remain under **Manual setup and troubleshooting**. Earlier versions use **Enable connection**, then the same addresses and files below; copy the path from File Explorer.
 4. **Close setup, refresh your video page and play the video.** Click the Vydrop button, review the video in the app, then choose Download.
 
+<div class="table-scroll" role="region" aria-label="Browser setup comparison" tabindex="0" markdown="1">
+
 | Browser | Address to enter in that browser | Loading action | What to select |
 | --- | --- | --- | --- |
 | [Chrome](#chrome) | `chrome://extensions` | Developer mode → Load unpacked | The **Browser\chromium** folder |
 | [Edge](#edge) | `edge://extensions` | Developer mode → Load unpacked | The same **Browser\chromium** folder |
 | [Firefox](#firefox) | `about:debugging#/runtime/this-firefox` | This Firefox → Load Temporary Add-on… | The **Browser\firefox\manifest.json** file |
+
+</div>
 
 Paste the copied path into the browser's file-picker address bar and press **Enter**. Chrome/Edge need a **folder**; Firefox needs a **file**. Browser confirmation is required. Firefox's local installation is temporary and must be loaded again after a restart.
 
@@ -52,7 +56,7 @@ If **Open extensions page** cannot find your browser, use **Copy browser address
 
 ## Detailed illustrated instructions
 
-The Chrome and video-to-app steps below use **real screenshots**, preserved as original PNG files. Highlighted frames focus on the controls to use. Choose **Zoom to original size** below a screenshot to read its controls without shrinking them; scroll inside the enlarged view, or click the image to open the original. Edge, Firefox and the desktop connection diagram are labelled illustrations. Control positions can vary by browser version.
+The native app setup, Chrome and video-to-app steps below use **real screenshots**, preserved as original PNG files. Highlighted frames focus on the controls to use. Choose **Zoom to original size** below a screenshot to read its controls without shrinking them; scroll inside the enlarged view, or click the image to open the original. Edge and Firefox use labelled illustrations. Control positions can vary by browser version.
 
 ## 1. Extract and keep the app folder
 
@@ -157,6 +161,8 @@ To disconnect, choose **Disable connection** in the app and remove the browser c
 
 ## Troubleshooting
 
+<div class="table-scroll" role="region" aria-label="Extension troubleshooting" tabindex="0" markdown="1">
+
 | What happens | What to try |
 | --- | --- |
 | The app does not open | Open it manually, then use Settings → Browser integration → Enable connection again. Keep its folder in place. |
@@ -170,6 +176,8 @@ To disconnect, choose **Disable connection** in the app and remove the browser c
 | The app opens Preview | Load the regular companion from the matching desktop package and enable the connection from that app. |
 | The icon or name looks old after an update | Reload the companion, then refresh the video page. The current Vydrop icon is the red V alone. |
 
+</div>
+
 The companion locates visible players and sends a public link after your click. It does not import accounts or cookies. Read the [permissions and limitations](https://github.com/ZiadHassanein/Vydrop/blob/main/browser/README.md). These local packages are not Chrome, Edge or Firefox store listings.
 
 <a id="arabic"></a>
@@ -178,7 +186,7 @@ The companion locates visible players and sends a public link after your click. 
 
 <div dir="rtl" lang="ar" markdown="1">
 
-الإضافة اختيارية ومجانية. شرح Chrome وإرسال الفيديو أعلاه يستخدم لقطات حقيقية، بينما صور Edge وFirefox وتفعيل الاتصال رسومات توضيحية. يتضمن إصدار **Vydrop 4.2.5** إضافة **Vydrop 1.3.6**. فكّ ضغط حزمة البرنامج وافتح **Vydrop.exe**. [افتح الشرح العربي الكامل بالصور](ar/browser-extension-setup.md).
+الإضافة اختيارية ومجانية. شرح إعداد التطبيق وChrome وإرسال الفيديو أعلاه يستخدم لقطات حقيقية، بينما صور Edge وFirefox رسومات توضيحية. يتضمن إصدار **Vydrop 4.2.5** إضافة **Vydrop 1.3.6**. فكّ ضغط حزمة البرنامج وافتح **Vydrop.exe**. [افتح الشرح العربي الكامل بالصور](ar/browser-extension-setup.md).
 
 1. **فك الضغط:** احتفظ بمجلد البرنامج في مكان دائم، وبمجلد **Browser** بجوار الملف التنفيذي.
 2. **فعّل الاتصال:** اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال** وانتظر رسالة التأكيد.
