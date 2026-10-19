@@ -19,6 +19,10 @@ settings.json
 *.flac
 *.srt
 *.vtt
+!/docs/media/vydrop-extension-setup.mp4
+!/docs/media/vydrop-extension-setup.en.vtt
+!/docs/media/vydrop-extension-setup.ar.vtt
+!/docs/media/vydrop-extension-setup.chapters.vtt
 *.part
 *.ytdl
 *.log

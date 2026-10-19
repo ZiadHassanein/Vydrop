@@ -4,6 +4,9 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+### Added
+- A narrated 1080p browser-setup video with English/Arabic captions, chapter markers and responsive players in both illustrated guides.
+
 ## [4.2.5] - 2026-10-19
 
 ### Changed

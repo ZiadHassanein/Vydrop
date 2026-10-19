@@ -69,6 +69,8 @@ Facebook, TikTok and YouTube detection uses the selected player's public permali
 
 Follow the **[illustrated extension setup guide](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html)** for Chrome, Edge and Firefox, including [Arabic instructions](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html). See [permissions and limitations](browser/README.md) for more detail. The extension does not import accounts or cookies and does not start hidden downloads. Reload an older unpacked companion after updating its folder, or load the new ZIP's `Browser` companion.
 
+Prefer a walkthrough? [Watch or download the 1080p setup video](docs/media/vydrop-extension-setup.mp4). It includes English narration and embedded English/Arabic captions, from connecting the app to sending your first video.
+
 
 Start in the app with **Settings → Browser integration**, choose your browser, then select **Set up Chrome**, **Set up Edge** or **Set up Firefox**. Vydrop connects the app, copies the correct extension path and opens the browser's setup page. Complete the browser's loading step below:
 

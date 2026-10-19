@@ -1,0 +1,130 @@
+{
+  "title": "Set up the Vydrop browser extension",
+  "version": "4.2.5",
+  "companionVersion": "1.3.6",
+  "voice": "Microsoft Zira Desktop",
+  "scenes": [
+    {
+      "id": "intro", "chapter": "Start here", "kind": "intro", "minSeconds": 7,
+      "heading": "Set up the\nVydrop extension.",
+      "body": "Chrome, Edge or Firefox.\nOne guide, from setup to your first video.",
+      "note": "English narration · English and Arabic captions",
+      "captions": [
+        {"en": "Connect your browser to Vydrop in a few simple steps.", "ar": "اربط متصفحك بتطبيق Vydrop بخطوات بسيطة."},
+        {"en": "Follow the section for Chrome, Edge, or Firefox.", "ar": "اتبع الجزء الخاص بمتصفح Chrome أو Edge أو Firefox."}
+      ]
+    },
+    {
+      "id": "extract", "chapter": "Keep the app folder", "kind": "folder", "minSeconds": 9,
+      "heading": "Extract the\nwhole ZIP.",
+      "body": "Open Vydrop.exe.\nKeep Browser beside the app.",
+      "note": "Choose a permanent, writable folder.",
+      "captions": [
+        {"en": "Download the official Windows ZIP and extract the whole package into a permanent folder.", "ar": "نزّل حزمة Windows الرسمية، ثم فك ضغطها بالكامل في مجلد دائم."},
+        {"en": "Open Vydrop dot exe. Keep the Browser folder beside it.", "ar": "افتح Vydrop.exe، واحتفظ بمجلد Browser بجواره."}
+      ]
+    },
+    {
+      "id": "open-setup", "chapter": "Open browser setup", "kind": "native", "minSeconds": 9,
+      "heading": "Open browser\nintegration.",
+      "body": "Settings → Browser integration.\nChoose your browser.",
+      "note": "The guided setup is available in Vydrop 4.2.5.",
+      "captions": [
+        {"en": "In Vydrop, open Settings, then Browser integration.", "ar": "من Vydrop افتح الإعدادات، ثم الربط بالمتصفح."},
+        {"en": "Choose the browser where you want to use the extension.", "ar": "اختر المتصفح الذي تريد استخدام الإضافة فيه."}
+      ]
+    },
+    {
+      "id": "connect", "chapter": "Connect the app", "kind": "action", "minSeconds": 11,
+      "heading": "Connect.\nCopy. Open.",
+      "body": "Choose Set up Chrome,\nSet up Edge or Set up Firefox.",
+      "note": "You complete the extension loading step in your browser.",
+      "captions": [
+        {"en": "Select Set up for your chosen browser.", "ar": "اضغط زر إعداد المتصفح الذي اخترته."},
+        {"en": "Vydrop connects the app, copies the correct path, and opens the browser setup page.", "ar": "يربط Vydrop التطبيق، وينسخ المسار الصحيح، ويفتح صفحة إعداد المتصفح."}
+      ]
+    },
+    {
+      "id": "chrome", "chapter": "Chrome", "kind": "chrome", "minSeconds": 9,
+      "heading": "Chrome:\nload the extension.",
+      "body": "Turn on Developer mode.\nChoose Load unpacked.",
+      "note": "Address: chrome://extensions",
+      "captions": [
+        {"en": "In Chrome, turn on Developer mode and choose Load unpacked.", "ar": "في Chrome فعّل Developer mode، ثم اضغط Load unpacked."},
+        {"en": "If the page did not open, enter chrome colon slash slash extensions in the address bar.", "ar": "إذا لم تُفتح الصفحة، اكتب chrome://extensions في شريط العنوان."}
+      ]
+    },
+    {
+      "id": "select-folder", "chapter": "Select the correct folder", "kind": "picker", "minSeconds": 11,
+      "heading": "Choose the\nchromium folder.",
+      "body": "Paste the copied path.\nPress Enter, then Select Folder.",
+      "note": "The selected folder must end in Browser\\chromium.",
+      "captions": [
+        {"en": "Paste the copied path into the folder picker's address bar and press Enter.", "ar": "الصق المسار المنسوخ في شريط عنوان نافذة اختيار المجلد، ثم اضغط Enter."},
+        {"en": "Select the chromium folder inside Browser, then choose Select Folder.", "ar": "اختر مجلد chromium الموجود داخل Browser، ثم اضغط Select Folder."}
+      ]
+    },
+    {
+      "id": "enabled", "chapter": "Enable website access", "kind": "enabled", "minSeconds": 9,
+      "heading": "Keep Vydrop\nenabled.",
+      "body": "Allow access to your video websites.\nRefresh pages that were already open.",
+      "note": "Pin the extension for a toolbar shortcut, if you prefer.",
+      "captions": [
+        {"en": "Keep the Vydrop extension enabled. In Details, allow access to the websites you use.", "ar": "اترك إضافة Vydrop مفعّلة، واسمح بالوصول إلى المواقع التي تستخدمها من Details."},
+        {"en": "You can also pin it to the browser toolbar.", "ar": "ويمكنك تثبيت الإضافة في شريط أدوات المتصفح."}
+      ]
+    },
+    {
+      "id": "edge", "chapter": "Microsoft Edge", "kind": "edge", "minSeconds": 9,
+      "heading": "Edge:\nthe same folder.",
+      "body": "Open edge://extensions.\nDeveloper mode → Load unpacked.",
+      "note": "Edge also uses Browser\\chromium.",
+      "captions": [
+        {"en": "For Edge, choose Set up Edge in Vydrop, then turn on Developer mode and choose Load unpacked.", "ar": "في Edge اختر إعداد Edge من Vydrop، ثم فعّل Developer mode واضغط Load unpacked."},
+        {"en": "Select the same Browser slash chromium folder.", "ar": "اختر مجلد Browser\\chromium نفسه."}
+      ]
+    },
+    {
+      "id": "firefox", "chapter": "Firefox", "kind": "firefox", "minSeconds": 14,
+      "heading": "Firefox:\nselect the manifest.",
+      "body": "Choose Load Temporary Add-on…\nOpen Browser\\firefox\\manifest.json.",
+      "note": "Firefox removes this temporary add-on when it restarts.",
+      "captions": [
+        {"en": "For Firefox, choose Set up Firefox in Vydrop, then Load Temporary Add-on in the browser.", "ar": "في Firefox اختر إعداد Firefox من Vydrop، ثم اضغط Load Temporary Add-on في المتصفح."},
+        {"en": "Select manifest dot json inside Browser, then firefox.", "ar": "اختر ملف manifest.json الموجود داخل Browser ثم firefox."},
+        {"en": "This installation is temporary. Load the add-on again after restarting Firefox.", "ar": "هذا التثبيت مؤقت؛ حمّل الإضافة مجددًا بعد إعادة تشغيل Firefox."}
+      ]
+    },
+    {
+      "id": "send", "chapter": "Try a public video", "kind": "player", "minSeconds": 12,
+      "heading": "Refresh.\nPlay. Send.",
+      "body": "Play a public video.\nClick Download by Vydrop.",
+      "note": "The toolbar button is another way to send the video.",
+      "captions": [
+        {"en": "Refresh the video page and start playing a public video.", "ar": "حدّث صفحة الفيديو، ثم شغّل فيديو عامًا."},
+        {"en": "Click Download by Vydrop, or use the extension's toolbar button.", "ar": "اضغط Download by Vydrop، أو استخدم زر الإضافة في شريط المتصفح."},
+        {"en": "With the connection enabled, the extension can launch Vydrop even when the app is closed.", "ar": "عند تفعيل الاتصال، تستطيع الإضافة فتح Vydrop حتى إذا كان التطبيق مغلقًا."}
+      ]
+    },
+    {
+      "id": "review", "chapter": "Review and download", "kind": "review", "minSeconds": 10,
+      "heading": "Review first.\nThen download.",
+      "body": "Choose Video or Audio.\nCheck quality and the save folder.",
+      "note": "Sending a link does not start a download automatically.",
+      "captions": [
+        {"en": "Wait for Vydrop to check the video, then choose video or audio, quality, and a save folder.", "ar": "انتظر حتى يفحص Vydrop الفيديو، ثم اختر الفيديو أو الصوت والجودة ومجلد الحفظ."},
+        {"en": "Choose Download when you are ready. Sending the link does not start saving automatically.", "ar": "اضغط تنزيل عندما تكون جاهزًا؛ إرسال الرابط لا يبدأ الحفظ تلقائيًا."}
+      ]
+    },
+    {
+      "id": "finish", "chapter": "Ready to use", "kind": "finish", "minSeconds": 10,
+      "heading": "All set.\nKeep the folder.",
+      "body": "Moved Vydrop? Run setup again.\nReload the extension and refresh the page.",
+      "note": "More help: ziadhassanein.github.io/Vydrop",
+      "captions": [
+        {"en": "If the button is missing, refresh the page and check website access.", "ar": "إذا لم يظهر الزر، حدّث الصفحة وتحقق من السماح بالوصول إلى الموقع."},
+        {"en": "If you move Vydrop, run browser setup again. The illustrated guide has more help.", "ar": "إذا نقلت Vydrop، أعد إعداد الربط بالمتصفح. ستجد مساعدة إضافية في الدليل المصوّر."}
+      ]
+    }
+  ]
+}

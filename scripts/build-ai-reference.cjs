@@ -38,7 +38,7 @@ function asText(source) {
   });
   text = text.replace(/<img\b[^>]*alt="([^"]*)"[^>]*>/gu, '$1');
   text = text.replace(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gu, (_, level, heading) => '\n' + '#'.repeat(Number(level)) + ' ' + heading + '\n');
-  text = text.replace(/<\/?(?:p|div|span|figure|figcaption|picture|source|details|summary|em|bdi|a|br)\b[^>]*>/gu, '\n');
+  text = text.replace(/<\/?(?:p|div|span|figure|figcaption|picture|source|video|track|details|summary|em|bdi|a|br)\b[^>]*>/gu, '\n');
   text = text.replace(/(!?\[[^\]\n]*\])\(([^)\s]+)\)/gu, (_, label, ref) => `${label}(${absoluteLink(ref, source)})`);
   return decode(text).replace(/[ \t]+\n/gu, '\n').replace(/\n{3,}/gu, '\n\n').trim();
 }

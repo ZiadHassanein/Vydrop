@@ -14,6 +14,23 @@ arabic: /ar/browser-extension-setup.html
 
 شرح Chrome وإرسال الفيديو يستخدم **لقطات حقيقية** بواجهة إنجليزية، محفوظة كملفات PNG الأصلية، مع تحديد الأزرار المطلوبة. اختر **كبّر التفاصيل بالحجم الأصلي** أسفل أي صورة لقراءة الأزرار دون تصغيرها، ومرّر داخل العرض المكبّر، أو اضغط الصورة لفتح الأصل. صور تفعيل الاتصال وEdge وFirefox رسومات توضيحية مذكورة بوضوح.
 
+## شاهد فيديو الإعداد
+
+<figure class="setup-video">
+  <video controls playsinline preload="none" width="1920" height="1080" poster="../images/extension/video/poster.jpg" aria-label="شرح إعداد إضافة Vydrop في Chrome وEdge وFirefox">
+    <source src="../media/vydrop-extension-setup.mp4" type="video/mp4">
+    <track kind="captions" src="../media/vydrop-extension-setup.en.vtt" srclang="en" label="English">
+    <track kind="captions" src="../media/vydrop-extension-setup.ar.vtt" srclang="ar" label="العربية" default>
+    <track kind="chapters" src="../media/vydrop-extension-setup.chapters.vtt" srclang="en" label="الفصول بالإنجليزية">
+    يمكنك تنزيل ملف MP4 من الرابط التالي.
+  </video>
+  <figcaption>شرح صوتي بالإنجليزية مع ترجمة عربية وإنجليزية. يستخدم نافذة الإعداد الحالية وصورًا توضيحية للمتصفحات مذكورة بوضوح. افتح العرض الكامل لرؤية الأزرار بوضوح، واختر العربية من زر الترجمة عند الحاجة.</figcaption>
+</figure>
+
+[تنزيل فيديو الإعداد (MP4)](../media/vydrop-extension-setup.mp4) · [الترجمة العربية](../media/vydrop-extension-setup.ar.vtt) · [English captions](../media/vydrop-extension-setup.en.vtt)
+
+يوضح الفيديو فك الضغط، وربط التطبيق، واختيار مجلد Chrome وEdge الصحيح، وتثبيت Firefox المؤقت، وإرسال أول فيديو عام إلى Vydrop. تشرح الخطوات المكتوبة التالية الإعداد نفسه.
+
 ## الإعداد السريع
 
 1. **فكّ ضغط الحزمة كاملة** في مجلد دائم، وافتح **Vydrop.exe** مع الاحتفاظ بمجلد **Browser** بجانبه.
@@ -39,9 +56,11 @@ arabic: /ar/browser-extension-setup.html
 
 {% include setup-shot.html id="folders" %}
 
-اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال** وانتظر تأكيد التفعيل. إذا كانت الواجهة بالإنجليزية فالمسار هو **Settings → Browser integration → Enable connection**. عند نقل التطبيق فعّل الربط من مكانه الجديد.
+في Vydrop 4.2.5 افتح **الإعدادات ← الربط بالمتصفح**، واختر متصفحك، ثم اضغط **إعداد Chrome** أو **إعداد Edge** أو **إعداد Firefox**. يربط الزر التطبيق وينسخ مسار الإضافة المناسب ويفتح صفحة إعداد المتصفح. الصق المسار المنسوخ عندما يطلب المتصفح اختيار الإضافة، ثم حدّث صفحة الفيديو بعد إكمال التحميل.
 
-![توضيح تفعيل الاتصال من إعدادات Vydrop](../images/extension/02-enable-connection.svg)
+![نافذة إعداد Vydrop الأصلية مع اختيار المتصفح وزر Set up Chrome وحالة الاتصال](../images/extension/video/guided-setup.png)
+
+في النسخ الأقدم استخدم **تفعيل الاتصال** أو **إعادة تفعيل الاتصال** ثم خطوات تحميل الإضافة يدويًا. تبقى هذه الإجراءات المنفصلة في النافذة الحالية داخل **الإعداد اليدوي وحل المشكلات**. عند نقل التطبيق، أعد الإعداد من مكانه الجديد.
 
 <a id="chrome"></a>
 

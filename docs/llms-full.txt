@@ -96,6 +96,8 @@ Facebook, TikTok and YouTube detection uses the selected player's public permali
 
 Follow the **[illustrated extension setup guide](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html)** for Chrome, Edge and Firefox, including [Arabic instructions](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html). See [permissions and limitations](https://github.com/ZiadHassanein/Vydrop/blob/main/browser/README.md) for more detail. The extension does not import accounts or cookies and does not start hidden downloads. Reload an older unpacked companion after updating its folder, or load the new ZIP's `Browser` companion.
 
+Prefer a walkthrough? [Watch or download the 1080p setup video](https://ziadhassanein.github.io/Vydrop/media/vydrop-extension-setup.mp4). It includes English narration and embedded English/Arabic captions, from connecting the app to sending your first video.
+
 Start in the app with **Settings → Browser integration**, choose your browser, then select **Set up Chrome**, **Set up Edge** or **Set up Firefox**. Vydrop connects the app, copies the correct extension path and opens the browser's setup page. Complete the browser's loading step below:
 
 | Browser | Open this address | Install from the extracted folder |
@@ -500,6 +502,16 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html
 
 شرح Chrome وإرسال الفيديو يستخدم **لقطات حقيقية** بواجهة إنجليزية، محفوظة كملفات PNG الأصلية، مع تحديد الأزرار المطلوبة. اختر **كبّر التفاصيل بالحجم الأصلي** أسفل أي صورة لقراءة الأزرار دون تصغيرها، ومرّر داخل العرض المكبّر، أو اضغط الصورة لفتح الأصل. صور تفعيل الاتصال وEdge وFirefox رسومات توضيحية مذكورة بوضوح.
 
+## شاهد فيديو الإعداد
+
+    يمكنك تنزيل ملف MP4 من الرابط التالي.
+
+شرح صوتي بالإنجليزية مع ترجمة عربية وإنجليزية. يستخدم نافذة الإعداد الحالية وصورًا توضيحية للمتصفحات مذكورة بوضوح. افتح العرض الكامل لرؤية الأزرار بوضوح، واختر العربية من زر الترجمة عند الحاجة.
+
+[تنزيل فيديو الإعداد (MP4)](https://ziadhassanein.github.io/Vydrop/media/vydrop-extension-setup.mp4) · [الترجمة العربية](https://ziadhassanein.github.io/Vydrop/media/vydrop-extension-setup.ar.vtt) · [English captions](https://ziadhassanein.github.io/Vydrop/media/vydrop-extension-setup.en.vtt)
+
+يوضح الفيديو فك الضغط، وربط التطبيق، واختيار مجلد Chrome وEdge الصحيح، وتثبيت Firefox المؤقت، وإرسال أول فيديو عام إلى Vydrop. تشرح الخطوات المكتوبة التالية الإعداد نفسه.
+
 ## الإعداد السريع
 
 1. **فكّ ضغط الحزمة كاملة** في مجلد دائم، وافتح **Vydrop.exe** مع الاحتفاظ بمجلد **Browser** بجانبه.
@@ -527,9 +539,11 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html
 
 احتفظ بمجلد Browser بجوار Vydrop.exe. اسم المجلد وحرف القرص في الصورة مجرد مثال.
 
-اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال** وانتظر تأكيد التفعيل. إذا كانت الواجهة بالإنجليزية فالمسار هو **Settings → Browser integration → Enable connection**. عند نقل التطبيق فعّل الربط من مكانه الجديد.
+في Vydrop 4.2.5 افتح **الإعدادات ← الربط بالمتصفح**، واختر متصفحك، ثم اضغط **إعداد Chrome** أو **إعداد Edge** أو **إعداد Firefox**. يربط الزر التطبيق وينسخ مسار الإضافة المناسب ويفتح صفحة إعداد المتصفح. الصق المسار المنسوخ عندما يطلب المتصفح اختيار الإضافة، ثم حدّث صفحة الفيديو بعد إكمال التحميل.
 
-![توضيح تفعيل الاتصال من إعدادات Vydrop](https://ziadhassanein.github.io/Vydrop/images/extension/02-enable-connection.svg)
+![نافذة إعداد Vydrop الأصلية مع اختيار المتصفح وزر Set up Chrome وحالة الاتصال](https://ziadhassanein.github.io/Vydrop/images/extension/video/guided-setup.png)
+
+في النسخ الأقدم استخدم **تفعيل الاتصال** أو **إعادة تفعيل الاتصال** ثم خطوات تحميل الإضافة يدويًا. تبقى هذه الإجراءات المنفصلة في النافذة الحالية داخل **الإعداد اليدوي وحل المشكلات**. عند نقل التطبيق، أعد الإعداد من مكانه الجديد.
 
 ## Google Chrome
 
@@ -1106,6 +1120,16 @@ Use the optional companion to send the video you are watching to the desktop app
 
 [Published downloads](https://github.com/ZiadHassanein/Vydrop/releases/latest) · [Chrome](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome) · [Edge](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) · [Firefox](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) · [Troubleshooting](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#troubleshooting) · [العربية](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#arabic)
 
+## Watch the setup video
+
+    Your browser can download the MP4 using the link below.
+
+English narration with English and Arabic captions. The guide uses the current native setup window and labeled browser illustrations. Choose full screen to see the controls clearly.
+
+[Download the setup video (MP4)](https://ziadhassanein.github.io/Vydrop/media/vydrop-extension-setup.mp4) · [English captions](https://ziadhassanein.github.io/Vydrop/media/vydrop-extension-setup.en.vtt) · [الترجمة العربية](https://ziadhassanein.github.io/Vydrop/media/vydrop-extension-setup.ar.vtt)
+
+The video covers extraction, the app connection, the correct Chrome/Edge folder, Firefox's temporary installation and sending your first public video. The written steps below cover the same setup.
+
 ## Quick setup
 
 1. **Extract the full ZIP** into a permanent folder and open **Vydrop.exe**. Keep **Browser** beside the app.
@@ -1137,11 +1161,13 @@ Extract the app ZIP into a permanent writable folder, such as **Documents\Vydrop
 
 Keep Browser beside Vydrop.exe in the extracted app folder. The drive and folder name shown are examples.
 
-## 2. Enable the desktop connection
+## 2. Connect the app and choose your browser
 
-In the app, choose **Settings → Browser integration → Enable connection**. Wait for **Browser connection enabled**, then close the connection dialog. This registers the app location for your Windows account. Browser installation is the next step.
+In Vydrop 4.2.5, open **Settings → Browser integration**, choose your browser, then choose **Set up Chrome**, **Set up Edge** or **Set up Firefox**. The action registers this app, copies the matching extension path and opens the browser's setup page. Paste the copied path when the browser asks you to select the extension. Keep setup open until you finish loading it, then refresh your video page.
 
-![Connection illustration: Settings, Browser integration and Enable connection](https://ziadhassanein.github.io/Vydrop/images/extension/02-enable-connection.svg)
+![Native Vydrop setup window with browser selection, Set up Chrome and connection status](https://ziadhassanein.github.io/Vydrop/images/extension/video/guided-setup.png)
+
+Earlier app versions use **Enable connection** or **Reconnect app**, followed by the manual browser-loading steps below. In the current dialog, those separate actions remain under **Manual setup and troubleshooting**.
 
 ## Chrome
 
