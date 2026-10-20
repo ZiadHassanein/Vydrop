@@ -37,7 +37,7 @@
  </UserControl.Resources>
  <Grid>
   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-  <Button x:Name="SettingsButton" Content="{Binding SettingsLabel}" Command="{Binding SettingsCommand}" FontFamily="{Binding ContentFont}" Style="{StaticResource QuietButton}" FontSize="12" Padding="7,4" MinHeight="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+  <Button x:Name="SettingsButton" ToolTip="{Binding SettingsShortcutHint}" AutomationProperties.AcceleratorKey="Ctrl+," Content="{Binding SettingsLabel}" Command="{Binding SettingsCommand}" FontFamily="{Binding ContentFont}" Style="{StaticResource QuietButton}" FontSize="12" Padding="7,4" MinHeight="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
   <Button x:Name="ContactButton" Grid.Column="1" Click="ContactClicked" PreviewKeyDown="ContactKeyDown"
           Style="{StaticResource ContactTriggerStyle}" FontFamily="{Binding ContentFont}" FontSize="12" Height="32" MinHeight="32" Padding="7,4" AutomationProperties.Name="{Binding ContactLabel}" ContextMenuService.Placement="Custom">
    <Button.ContextMenu>

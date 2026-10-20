@@ -44,7 +44,11 @@ public sealed partial class MainViewModel
     public bool IsEnglish => !IsArabic;
     public string NewDownloadLabel => T("New download");
     public string SettingsLabel => T("Settings");
-    public string ContactLabel => T("Contact");
+    public string ContactLabel => T("Contact me");
+    public string HistoryShortcutHint => T("Recent downloads") + " (Ctrl+J)";
+    public string LinkShortcutHint => T("Video link") + " (Ctrl+L)";
+    public string QueueShortcutHint => T("Download queue") + " (Ctrl+Shift+Q)";
+    public string SettingsShortcutHint => T("Settings") + " (Ctrl+,)";
     public string EmailLabel => T("Email");
     public string OptionsHint => T("Choose a subtitle language and file format.");
     public string ChangeFolderLabel => T("Change");
@@ -74,6 +78,10 @@ public sealed partial class MainViewModel
         ? OutputProfiles.AudioExtension(request.AudioEncoding).ToUpperInvariant() + " · " + (OutputProfiles.IsLossless(request.AudioEncoding) ? T("No bitrate setting") : request.AudioBitrate == 0 ? T("Automatic") : request.AudioBitrate + " kbps")
         : OutputProfiles.VideoExtension(request.VideoContainer).ToUpperInvariant() + " · " + (request.Height == 0 ? T("Best available") : request.Height + "p");
     public string PreviewStatus => HasStatus ? StatusHeading : CanDownload ? T("Ready to download") : T("Paste a video or playlist link");
+    private bool ActivityReady => HasFile || !HasStatus && CanDownload;
+    public Geometry ActivityIcon => (Geometry)Application.Current.Resources[statusError ? "AlertIcon" : IsBusy ? "DownloadIcon" : ActivityReady ? "CheckIcon" : "VideoIcon"];
+    public Brush ActivityBrush => (Brush)Application.Current.Resources[statusError ? "Error" : IsBusy ? "Accent" : ActivityReady ? "Success" : "Muted"];
+    public bool HasActivityActions => IsBusy || HasFile;
 
     private void InitializePresentation()
     {
@@ -95,6 +103,7 @@ public sealed partial class MainViewModel
     {
         OnPropertyChanged(nameof(StatusBrush));
         OnPropertyChanged(nameof(NoticeBrush));
+        OnPropertyChanged(nameof(ActivityBrush));
     }
 
     private void RefreshMediaPresentation()
@@ -109,7 +118,7 @@ public sealed partial class MainViewModel
             nameof(HasMediaContext), nameof(PlaylistLabel), nameof(PreviewImage), nameof(HasPreviewCaptions), nameof(PreviewCaptions), nameof(AudioSourceHint), nameof(PreviewIsAudio),
             nameof(PreviewTitle), nameof(PreviewSubtitle), nameof(PreviewTitleDirection),
             nameof(PreviewDuration), nameof(HasPreviewDuration), nameof(PreviewOutput),
-            nameof(PreviewStatus), nameof(IsCheckingMedia), nameof(DownloadActionLabel), nameof(ShowInlineActivity), nameof(ShowDownloadActivity)
+            nameof(PreviewStatus), nameof(ActivityIcon), nameof(ActivityBrush), nameof(HasActivityActions), nameof(IsCheckingMedia), nameof(DownloadActionLabel), nameof(ShowInlineActivity), nameof(ShowDownloadActivity)
         }) OnPropertyChanged(property);
         string address = videoInfo?.ThumbnailUrl ?? playlistInfo?.ThumbnailUrl;
         if (thumbnailAddress == address) return;

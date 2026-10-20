@@ -27,12 +27,14 @@ public sealed partial class MainViewModel
     public string MoveDownLabel => T("Move down");
     public string RefreshSourceLabel => T("Refresh source");
     public string DownloadLimitsLabel => T("Download controls");
+    public string WholeNumberHint => T("Enter a whole number.");
     public string DownloadLimitsHint => T("These defaults apply when adding a download. Queued jobs keep the settings they were added with.");
     public string ConnectionsLabel => T("Parallel fragments (1, 2 or 4)");
     public string SpeedLimitLabel => T("Speed limit in KiB/s (0 = unlimited)");
     public string AttemptsLabel => T("Queue attempts (1–5)");
     public string RangeAccelerationLabel => T("Accelerate compatible direct MP4 files");
     public string ScheduleLabel => T("Schedule queue");
+    public string ScheduleDateLabel => T("Start date");
     public string ScheduleStartLabel => T("Start time (HH:mm)");
     public string ScheduleStopLabel => T("Optional stop time (HH:mm)");
     public string ClearScheduleLabel => T("Clear schedule");

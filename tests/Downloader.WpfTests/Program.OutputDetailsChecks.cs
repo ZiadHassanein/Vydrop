@@ -95,7 +95,7 @@ internal static partial class Program
                         "The download receives the chosen container and selected subtitles");
                     Check(model.RecentDownloadCount == before + 1 && badge.IsVisible && !inline.IsVisible && model.Url == "" && window.Width == 740,
                         "Success collapses media context and increments the recent badge without a completion block");
-                    var numeral = (TextBlock)((Border)badge).Child;
+                    var numeral = (FrameworkElement)((Border)badge).Child;
                     var center = numeral.TranslatePoint(new Point(numeral.ActualWidth / 2, numeral.ActualHeight / 2), badge);
                     Check(Math.Abs(center.X - badge.ActualWidth / 2) < 0.6 && Math.Abs(center.Y - badge.ActualHeight / 2) < 0.6,
                         "The recent count is centered horizontally and vertically inside its badge");

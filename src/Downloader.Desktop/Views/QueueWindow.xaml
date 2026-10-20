@@ -18,7 +18,7 @@
  <Grid x:Name="QueueContent" Margin="24,20" FlowDirection="{Binding ContentDirection}"
        TextBlock.LineHeight="20" TextBlock.LineStackingStrategy="BlockLineHeight" KeyboardNavigation.TabNavigation="Cycle">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-  <TextBlock Text="{Binding QueueHeading}" FontSize="21" LineHeight="28" FontWeight="SemiBold" Margin="0,0,0,16"/>
+  <TextBlock Text="{Binding QueueHeading}" Style="{StaticResource DialogHeading}" Margin="0,0,0,16"/>
   <ScrollViewer x:Name="QueueViewport" Grid.Row="1" Style="{StaticResource InsetScrollFrame}"
                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
    <StackPanel>
@@ -75,7 +75,8 @@
     <Expander Header="{Binding ScheduleLabel}" Foreground="{DynamicResource Ink}" Margin="0,0,0,16">
      <StackPanel Margin="0,8,0,0">
       <TextBlock Text="{Binding ScheduleSummary}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,8"/>
-      <DatePicker SelectedDate="{Binding ScheduledDate}" HorizontalAlignment="Left"/>
+      <TextBlock Text="{Binding ScheduleDateLabel}" Margin="0,4,0,6"/>
+      <DatePicker SelectedDate="{Binding ScheduledDate}" HorizontalAlignment="Left" MinWidth="180" FlowDirection="LeftToRight" FontFamily="{StaticResource LatinFont}" AutomationProperties.Name="{Binding ScheduleDateLabel}"/>
       <WrapPanel Margin="0,8,0,0">
        <StackPanel Margin="0,0,12,0"><TextBlock Text="{Binding ScheduleStartLabel}"/><TextBox Text="{Binding ScheduledTime,UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight" Width="130" MaxLength="5" AutomationProperties.Name="{Binding ScheduleStartLabel}"/></StackPanel>
        <StackPanel><TextBlock Text="{Binding ScheduleStopLabel}"/><TextBox Text="{Binding ScheduledStopTime,UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight" Width="130" MaxLength="5" AutomationProperties.Name="{Binding ScheduleStopLabel}"/></StackPanel>
@@ -85,15 +86,15 @@
     </Expander>
     <StackPanel x:Name="QueuedDownloadsSection" Visibility="{Binding HasQueue,Converter={StaticResource BoolVisibility}}">
     <TextBlock Text="{Binding QueueLabel}" FontWeight="SemiBold" Margin="0,0,0,8"/>
-    <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+    <Border>
       <ItemsControl x:Name="QueueItemsHost" ItemsSource="{Binding QueueItems}">
        <ItemsControl.ItemTemplate>
         <DataTemplate>
-         <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="0,10">
+         <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,12">
           <Grid>
-           <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+           <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
            <StackPanel>
-            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" ToolTip="{Binding Title}">
+            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" MaxHeight="40" ToolTip="{Binding Title}">
              <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="FontFamily" Value="{StaticResource LatinFont}"/><Style.Triggers><DataTrigger Binding="{Binding HasArabicTitle}" Value="True"><Setter Property="FontFamily" Value="{StaticResource ArabicFont}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
             </TextBlock>
             <TextBlock Text="{Binding Url}" FontFamily="{StaticResource LatinFont}" FlowDirection="LeftToRight" TextAlignment="Left"
@@ -108,9 +109,9 @@
             <ProgressBar Value="{Binding Percent,Mode=OneWay}" IsIndeterminate="{Binding IsPreparing}" Maximum="100" Height="4"
                          Foreground="{DynamicResource Accent}" Background="{DynamicResource Surface}" Margin="0,8,0,0"
                          Visibility="{Binding IsActive,Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="{Binding Status}"/>
-            <TextBlock Text="{Binding Error}" Foreground="{DynamicResource Error}" FontSize="12" Margin="0,6,0,0" Visibility="{Binding HasError,Converter={StaticResource BoolVisibility}}"/>
+            <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Foreground="{DynamicResource Error}" FontSize="12" Margin="0,6,0,0" Visibility="{Binding HasError,Converter={StaticResource BoolVisibility}}"/>
            </StackPanel>
-           <StackPanel Grid.Column="2" VerticalAlignment="Top">
+           <WrapPanel Grid.Row="1" Margin="0,6,0,0">
             <Button x:Name="QueueOpenFolder" Content="{Binding DataContext.OpenFolderLabel,RelativeSource={RelativeSource AncestorType=Window}}"
                     Command="{Binding DataContext.OpenQueueFolderCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}"
                     Visibility="{Binding HasCompletedOutput,Converter={StaticResource BoolVisibility}}" IsEnabled="{Binding CanOpenFolder}"
@@ -119,14 +120,14 @@
             <Button Content="{Binding RetryAction}" Command="{Binding DataContext.RetryQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Visibility="{Binding CanRetry,Converter={StaticResource BoolVisibility}}" Style="{StaticResource QueueQuietButton}"/>
             <Button Content="{Binding DataContext.RemoveLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RemoveQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" IsEnabled="{Binding CanRemove}" Style="{StaticResource QueueQuietButton}"/>
             </WrapPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal">
             <Button Content="{Binding DataContext.RefreshSourceLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RefreshQueueSourceCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Visibility="{Binding CanRefresh,Converter={StaticResource BoolVisibility}}" Style="{StaticResource QueueQuietButton}"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
              <Button Command="{Binding DataContext.MoveQueueUpCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource QueueQuietButton}" Width="34" ToolTip="{Binding DataContext.MoveUpLabel,RelativeSource={RelativeSource AncestorType=Window}}" AutomationProperties.Name="{Binding DataContext.MoveUpLabel,RelativeSource={RelativeSource AncestorType=Window}}"><Path Data="M1,9 L7,3 13,9" Style="{StaticResource LineIcon}" Width="12" Height="8"/></Button>
              <Button Command="{Binding DataContext.MoveQueueDownCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource QueueQuietButton}" Width="34" ToolTip="{Binding DataContext.MoveDownLabel,RelativeSource={RelativeSource AncestorType=Window}}" AutomationProperties.Name="{Binding DataContext.MoveDownLabel,RelativeSource={RelativeSource AncestorType=Window}}"><Path Data="M1,3 L7,9 13,3" Style="{StaticResource LineIcon}" Width="12" Height="8"/></Button>
             </StackPanel>
             </StackPanel>
-           </StackPanel>
+           </WrapPanel>
           </Grid>
          </Border>
         </DataTemplate>

@@ -27,11 +27,15 @@
    <Border x:Name="PreviewDivider" Height="1" Background="{DynamicResource Divider}" Margin="0,22,0,20"/>
    <local:DownloadActivityView x:Name="Activity"/>
    <StackPanel x:Name="OutputSummary" Margin="0,18,0,0">
-    <TextBlock Text="{Binding FormatLabel}" Foreground="{DynamicResource Muted}" FontSize="12"/>
-    <TextBlock Text="{Binding PreviewOutput}" Foreground="{DynamicResource Ink}" Margin="0,5,0,16" FlowDirection="LeftToRight"/>
-    <TextBlock x:Name="SourceAudioSummary" Text="{Binding AudioSourceHint}" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16" Visibility="{Binding PreviewIsAudio,Converter={StaticResource BoolVisibility}}"/>
-    <TextBlock Text="{Binding FolderLabel}" Foreground="{DynamicResource Muted}" FontSize="12"/>
-    <TextBlock Text="{Binding FolderDisplay}" Foreground="{DynamicResource Ink}" Margin="0,5,0,0" TextTrimming="CharacterEllipsis" FlowDirection="LeftToRight" ToolTip="{Binding Folder}"/>
+    <Grid>
+     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <TextBlock Text="{Binding FormatLabel}" Foreground="{DynamicResource Muted}" FontSize="12" VerticalAlignment="Center"/>
+     <TextBlock Grid.Column="2" Text="{Binding PreviewOutput}" Foreground="{DynamicResource Ink}" FlowDirection="LeftToRight"/>
+     <TextBlock Grid.Row="1" Text="{Binding FolderLabel}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,10,0,0"/>
+     <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding FolderDisplay}" Foreground="{DynamicResource Ink}" Margin="0,10,0,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" FlowDirection="LeftToRight" ToolTip="{Binding Folder}"/>
+    </Grid>
+    <TextBlock x:Name="SourceAudioSummary" Text="{Binding AudioSourceHint}" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,0" Visibility="{Binding PreviewIsAudio,Converter={StaticResource BoolVisibility}}"/>
    </StackPanel>
    <StackPanel x:Name="PreviewCaptionsSummary" Margin="0,16,0,0" Visibility="{Binding HasPreviewCaptions,Converter={StaticResource BoolVisibility}}">
     <TextBlock Text="{Binding CaptionsLabel}" Foreground="{DynamicResource Muted}" FontSize="12"/>

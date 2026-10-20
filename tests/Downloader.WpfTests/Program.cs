@@ -65,6 +65,12 @@ internal static partial class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--", StringComparison.Ordinal)) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--ui-refinement"))
+                {
+                    await CheckUiRefinement(window, model, captures);
+                    Console.WriteLine(count + " WPF UI-refinement checks passed.");
+                    return;
+                }
                 if (args.Contains("--docs"))
                 {
                     Check(Math.Abs(VisualTreeHelper.GetDpi(window).DpiScaleX - 1) < .01, "Documentation captures render at 100% scale");

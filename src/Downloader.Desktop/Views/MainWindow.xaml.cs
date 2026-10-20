@@ -6,10 +6,12 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Automation.Peers;
 using System.Windows.Threading;
+using System.Windows.Input;
 
 namespace YouTubeDownloader;
 public partial class MainWindow : Window
 {
+    internal static readonly RoutedCommand FocusLinkCommand = new();
     private readonly MainViewModel model;
     private bool closing, closed;
     private FlowDirection presentationDirection;
@@ -29,6 +31,21 @@ public partial class MainWindow : Window
         model = new MainViewModel(service ?? new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage()), repository ?? new SettingsRepository(), actions, thumbnailLoader);
         presentationDirection = model.ContentDirection;
         DataContext = model;
+        CommandBindings.Add(new CommandBinding(FocusLinkCommand, (_, e) =>
+        {
+            model.NewDownloadCommand.Execute(null);
+            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
+            {
+                DownloadForm.LinkInput.BringIntoView();
+                DownloadForm.LinkInput.Focus();
+                DownloadForm.LinkInput.SelectAll();
+            });
+            e.Handled = true;
+        }, (_, e) => { e.CanExecute = model.IsIdle; e.Handled = true; }));
+        InputBindings.Add(new KeyBinding(FocusLinkCommand, Key.L, ModifierKeys.Control));
+        InputBindings.Add(new KeyBinding(model.HistoryCommand, Key.J, ModifierKeys.Control));
+        InputBindings.Add(new KeyBinding(model.QueueCommand, Key.Q, ModifierKeys.Control | ModifierKeys.Shift));
+        InputBindings.Add(new KeyBinding(model.SettingsCommand, Key.OemComma, ModifierKeys.Control));
         SystemTheme = new SystemThemeMonitor(this, () => model.IsDark, model.RefreshThemeBindings);
         model.NoticeRequested += PlaceNotice;
         SizeChanged += (_, _) => { mediaFrame.ObserveBounds(); ApplyResponsiveLayout(); };

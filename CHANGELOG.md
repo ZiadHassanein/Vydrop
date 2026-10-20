@@ -6,6 +6,18 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ### Added
 - A narrated 1080p browser-setup video with English/Arabic captions, chapter markers and responsive players in both illustrated guides.
+- Keyboard shortcuts for the video link (Ctrl+L), recent downloads (Ctrl+J), queue (Ctrl+Shift+Q) and settings (Ctrl+,), with accessible shortcut hints.
+
+### Changed
+- Refine the shared outline icons, dialog headings, settings hierarchy and ready/error feedback while preserving the approved branding, crimson Download button and English/Arabic layouts.
+- Give queue titles two lines and the full row width, group recovery actions beneath them and remove the duplicate separator above the footer.
+- Theme advanced-option headers, checkboxes and the schedule date input; align download limits and show localized numeric validation without replacing valid saved settings.
+- Compact the media output summary and improve recent-file path readability.
+
+### Fixed
+- Center recent-download badge numerals by their visible outline rather than font line height.
+- Restore the English “Contact me” label and apply the current title-bar theme to recent downloads.
+- Keep schedule dates readable in dark mode and avoid success-colored feedback for cancelled downloads.
 
 ## [4.2.5] - 2026-10-19
 
