@@ -313,7 +313,7 @@ internal static partial class Program
                 await CheckRedesign(window, model, provider, thumbnailLoader, captures);
                 await CheckMediaPanel(window, model, provider, captures);
                 await CheckOutputDetails(window, model, provider, captures);
-                await CheckMotion(window, model, provider, captures);
+                // Run --motion in its own process so earlier popup/focus fixtures cannot affect animation captures.
                 await MaximizeChecks(window, model, captures);
                 window.Width = 820;
                 await Task.Delay(50);
