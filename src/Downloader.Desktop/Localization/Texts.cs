@@ -6,6 +6,14 @@ internal static class Texts
 {
     private static readonly Dictionary<string, string> Arabic = new()
     {
+        { "Add to {0}", "إضافة إلى {0}" },
+        { "Vydrop is ready. Add the official extension and approve your browser's confirmation. The connection is automatic.", "Vydrop جاهز. أضف الإضافة الرسمية ووافق على رسالة المتصفح. يتم الربط تلقائيًا." },
+        { "Vydrop is ready. The browser-store release is being prepared. Until it is published, use Manual setup and troubleshooting below.", "Vydrop جاهز. يجري تجهيز إصدار متاجر المتصفحات. إلى أن يُنشر، استخدم الإعداد اليدوي واستكشاف الأخطاء أدناه." },
+        { "Choose Add or Get on the official store page, approve the extension, then refresh your video page.", "اختر إضافة أو تنزيل في صفحة المتجر الرسمية، ووافق على الإضافة، ثم حدّث صفحة الفيديو." },
+        { "The store button becomes available when the official listing is published. You can still download by pasting a video link into Vydrop.", "يتاح زر المتجر عند نشر الصفحة الرسمية. يمكنك التنزيل حاليًا بلصق رابط الفيديو داخل Vydrop." },
+        { "Load the local companion", "تحميل الإضافة المحلية" },
+        { "Approve the extension in your browser, then choose Test connection in its popup.", "وافق على الإضافة في المتصفح، ثم اختر اختبار الاتصال من نافذتها." },
+        { "Could not open the store page. Open the illustrated guide for help.", "تعذّر فتح صفحة المتجر. افتح الدليل المصوّر للمساعدة." },
         { "New download", "تنزيل فيديو جديد" },
         { "These defaults apply when adding a download. Queued jobs keep the settings they were added with.", "تُطبَّق هذه الخيارات عند إضافة تنزيل جديد. تحتفظ التنزيلات الموجودة بالإعدادات التي أُضيفت بها." },
         { "Download paused", "توقف التنزيل مؤقتًا" },

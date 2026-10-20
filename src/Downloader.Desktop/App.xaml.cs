@@ -43,6 +43,9 @@ public partial class App : Application
         else
             MainWindow = new MainWindow();
         MainWindow.Show();
+        if (e.Args.Length == 1 && e.Args[0] == "--browser-setup")
+            _ = Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(() =>
+                ((MainViewModel)MainWindow.DataContext).BrowserCommand.Execute(null)));
         if (!smoke)
         {
             browserLifetime = new();

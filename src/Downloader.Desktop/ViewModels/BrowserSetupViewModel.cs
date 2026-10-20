@@ -11,6 +11,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     private bool isConnected;
     private string message = "";
     private bool hasError;
+    private bool localSetupStarted;
     public IReadOnlyList<SetupBrowser> Browsers { get; } = Enum.GetValues<SetupBrowser>();
     public SetupBrowser SelectedBrowser
     {
@@ -18,11 +19,13 @@ internal sealed class BrowserSetupViewModel : ObservableObject
         set
         {
             if (!SetProperty(ref selectedBrowser, value)) return;
+            localSetupStarted = false;
             Message = "";
             OnPropertyChanged(string.Empty);
             CopyPathCommand.NotifyCanExecuteChanged();
             ShowFolderCommand.NotifyCanExecuteChanged();
             StartSetupCommand.NotifyCanExecuteChanged();
+            LocalSetupCommand.NotifyCanExecuteChanged();
         }
     }
     public bool IsConnected
@@ -39,6 +42,10 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public bool HasMessage => Message.Length > 0;
     public bool HasError { get => hasError; private set => SetProperty(ref hasError, value); }
     public bool IsFirefox => SelectedBrowser == SetupBrowser.Firefox;
+    public bool UseStoreSetup => actions.IsInstalled || HasStoreListing;
+    public bool HasStoreListing => actions.StoreAddress(SelectedBrowser).Length > 0;
+    public bool ShowFirefoxTemporaryHint => IsFirefox && (!UseStoreSetup || localSetupStarted);
+    public bool ShowMissingFiles => !UseStoreSetup && !HasExtension;
     public string ExtensionPath => actions.ExtensionPath(SelectedBrowser);
     public bool HasExtension => actions.HasExtension(SelectedBrowser);
     public string BrowserAddress => BrowserSetupActions.BrowserAddress(SelectedBrowser);
@@ -65,15 +72,23 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public string ReviewHint => t("Nothing downloads until you choose Download in Vydrop.");
     public string GuideLabel => t("View illustrated guide");
     public string CloseLabel => t("Close");
-    public string StartSetupLabel => string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Set up {0}"), SelectedBrowser);
-    public string StartSetupHint => t("Connects this app, copies the extension path and opens your browser's setup page.");
+    public string StartSetupLabel => UseStoreSetup ? string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Add to {0}"), SelectedBrowser) : string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Set up {0}"), SelectedBrowser);
+    public string StartSetupHint => t(UseStoreSetup
+        ? HasStoreListing ? "Vydrop is ready. Add the official extension and approve your browser's confirmation. The connection is automatic."
+            : "Vydrop is ready. The browser-store release is being prepared. Until it is published, use Manual setup and troubleshooting below."
+        : "Connects this app, copies the extension path and opens your browser's setup page.");
     public string ManualStepsLabel => t("Finish in your browser");
-    public string BrowserSteps => t(IsFirefox
+    public string BrowserSteps => UseStoreSetup ? t(HasStoreListing ? "Choose Add or Get on the official store page, approve the extension, then refresh your video page." : "The store button becomes available when the official listing is published. You can still download by pasting a video link into Vydrop.") : t(IsFirefox
+        ? "Choose This Firefox → Load Temporary Add-on…, paste the copied file path and choose Open."
+        : "Turn on Developer mode → Load unpacked. Paste the copied folder path and choose Select Folder.");
+    public string LocalSetupHint => t(IsFirefox
         ? "Choose This Firefox → Load Temporary Add-on…, paste the copied file path and choose Open."
         : "Turn on Developer mode → Load unpacked. Paste the copied folder path and choose Select Folder.");
     public string RecoveryLabel => t("Manual setup and troubleshooting");
     public string ClosedAppHint => t("Once connected, the extension can open Vydrop even when the app is closed.");
     public IRelayCommand StartSetupCommand { get; }
+    public IRelayCommand LocalSetupCommand { get; }
+    public string LocalSetupLabel => t("Load the local companion");
     public IRelayCommand EnableCommand { get; }
     public IRelayCommand DisableCommand { get; }
     public IRelayCommand OpenPageCommand { get; }
@@ -87,7 +102,8 @@ internal sealed class BrowserSetupViewModel : ObservableObject
         t = translate;
         this.actions = actions;
         IsConnected = actions.IsConnected;
-        StartSetupCommand = new RelayCommand(StartSetup, () => HasExtension);
+        StartSetupCommand = new RelayCommand(StartSetup, () => UseStoreSetup ? HasStoreListing : HasExtension);
+        LocalSetupCommand = new RelayCommand(StartLocalSetup, () => HasExtension);
         EnableCommand = new RelayCommand(() => Run(() => SetConnection(true),
             "Browser connection enabled. Load the companion extension to send links.",
             "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again."));
@@ -107,6 +123,15 @@ internal sealed class BrowserSetupViewModel : ObservableObject
 
     private void StartSetup()
     {
+        if (!UseStoreSetup) { StartLocalSetup(); return; }
+        if (!Run(() => SetConnection(true), "", "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.")) return;
+        Run(() => actions.OpenStore(SelectedBrowser), "Approve the extension in your browser, then choose Test connection in its popup.", "Could not open the store page. Open the illustrated guide for help.");
+    }
+
+    private void StartLocalSetup()
+    {
+        localSetupStarted = true;
+        OnPropertyChanged(nameof(ShowFirefoxTemporaryHint));
         // Stop at the failed step; retain the manual actions for recovery.
         if (!Run(() => SetConnection(true), "", "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.")) return;
         if (!Run(() => actions.Copy(ExtensionPath), "", "Could not copy to the clipboard. Select the address or path and copy it manually.")) return;

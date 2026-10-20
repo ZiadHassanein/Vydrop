@@ -120,6 +120,12 @@ internal static partial class Program
                     Console.WriteLine(count + " WPF system-theme checks passed.");
                     return;
                 }
+                if (args.Contains("--store-setup"))
+                {
+                    await CheckStoreSetup(window, model, captures);
+                    Console.WriteLine(count + " WPF store-setup checks passed.");
+                    return;
+                }
                 if (args.Contains("--browser-setup"))
                 {
                     await CheckBrowserSetup(window, model, captures);

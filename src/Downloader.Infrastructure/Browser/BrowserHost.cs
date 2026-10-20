@@ -9,7 +9,7 @@ public static class BrowserHost
     {
         // Browser origin filtering; command-line arguments do not authenticate local processes.
         if (args.Length is < 1 or > 3) return false;
-        if (args[0] == "chrome-extension://" + ChromiumId + "/")
+        if (ChromiumIds.Any(id => args[0] == "chrome-extension://" + id + "/"))
             return args.Skip(1).All(a => a.StartsWith("--parent-window=", StringComparison.Ordinal) && ulong.TryParse(a[16..], out _));
         return args.Length == 2 && args[0].EndsWith(HostName + ".firefox.json", StringComparison.OrdinalIgnoreCase) && args[1] == FirefoxId;
     }

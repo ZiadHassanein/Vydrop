@@ -1,6 +1,10 @@
 # Vydrop browser companion
 
-## Development companion 1.4.0
+## Development companion 1.4.1
+
+The Windows installer registers the native connection automatically for the current user. When official store listings are configured, **Settings → Browser integration → Add to Chrome/Edge/Firefox** opens the selected store; approve the browser confirmation and use **Test connection**. Developer mode and folder selection are only needed for the local development companion. Store listings are not published yet. Preview builds retain a separate connection and use the local preview companion.
+
+Firefox 140+ displays built-in consent for browsing activity and website content: selected page/media URLs are transferred to the local desktop app. No analytics or cloud collection is added. Optional stream discovery remains off until its separate permissions are granted.
 
 The current development package adds **Test connection** (keep the app open for a full round trip), **Add to download queue**, and optional media-stream discovery in the popup. The stable release described below still includes 1.3.6. Version-1 link sending and existing extension/native-host identities are retained for compatibility.
 

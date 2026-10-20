@@ -24,8 +24,8 @@ foreach($taskStore in @('chrome','edge','firefox')) {
 }
 $taskReadiness=@{
     ready_for_publication=$false
-    version='1.4.0'
-    completed=@('Root-manifest archives for Chrome, Edge and Firefox','Optional network discovery permission','No cookie or account-data import','Source and license included in repository')
+    version=$taskManifest.version
+    completed=@('Root-manifest archives for Chrome, Edge and Firefox','Optional network discovery permission','No cookie or account-data import','Firefox declares local URL transfer using built-in data consent','Source and license included in repository')
     required_before_publication=@('Publisher accounts and store registration','Record assigned Chromium/Edge IDs and add them alongside the existing ID in native-host origins and caller validation','Sign Firefox package through AMO using its retained add-on ID','Review permission/privacy declarations','Test actual signed/store-installed packages with native host and cold start')
     preserves_unpacked_identity=$true
     references=@('https://developer.chrome.com/docs/webstore/publish','https://extensionworkshop.com/documentation/publish/signing-and-distribution-overview/')

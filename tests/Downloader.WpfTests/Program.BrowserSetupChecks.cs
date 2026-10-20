@@ -11,6 +11,10 @@ internal static partial class Program
     {
         public bool IsConnected { get; private set; }
         internal bool FilesPresent = true;
+        public bool IsInstalled { get; set; }
+        internal BrowserStoreCatalog Catalog = new("", "", "");
+        public string StoreAddress(SetupBrowser browser) => Catalog.Address(browser.ToString());
+        public void OpenStore(SetupBrowser browser) { Action("store"); Opened = browser; }
         internal bool ApplyRegistration = true;
         internal string AppFolder = @"C:\Apps\Vydrop";
         internal string Failure, Copied;

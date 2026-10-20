@@ -10,6 +10,9 @@ internal interface IBrowserSetupActions
 {
     bool IsConnected { get; }
     bool IsVerified => false;
+    bool IsInstalled => false;
+    string StoreAddress(SetupBrowser browser) => "";
+    void OpenStore(SetupBrowser browser) => throw new InvalidOperationException();
     string ExtensionPath(SetupBrowser browser);
     bool HasExtension(SetupBrowser browser);
     void Enable();
@@ -24,6 +27,14 @@ internal sealed class BrowserSetupActions : IBrowserSetupActions
 {
     public bool IsConnected => BrowserRegistration.IsEnabled(Environment.ProcessPath);
     public bool IsVerified => IsConnected && BrowserHealth.IsRecentlyVerified(Environment.ProcessPath);
+    public bool IsInstalled => BrowserStores.IsInstalled(Environment.ProcessPath);
+    public string StoreAddress(SetupBrowser browser) => BrowserStores.Current.Address(browser.ToString());
+    public void OpenStore(SetupBrowser browser)
+    {
+        string address = StoreAddress(browser);
+        if (address.Length == 0) throw new InvalidOperationException();
+        OpenBrowser(browser, address);
+    }
     public string ExtensionPath(SetupBrowser browser)
     {
         string folder = Path.Combine(AppContext.BaseDirectory, "Browser", browser == SetupBrowser.Firefox ? "firefox" : "chromium");
@@ -31,7 +42,7 @@ internal sealed class BrowserSetupActions : IBrowserSetupActions
     }
     public bool HasExtension(SetupBrowser browser) => File.Exists(browser == SetupBrowser.Firefox ? ExtensionPath(browser) : Path.Combine(ExtensionPath(browser), "manifest.json"));
     public void Enable() => BrowserRegistration.Enable(Environment.ProcessPath);
-    public void Disable() => BrowserRegistration.Disable();
+    public void Disable() => BrowserRegistration.Disable(Environment.ProcessPath);
     public void Copy(string text) => Clipboard.SetText(text);
     public void ShowFolder(SetupBrowser browser)
     {
@@ -49,6 +60,9 @@ internal sealed class BrowserSetupActions : IBrowserSetupActions
     };
 
     public void OpenExtensions(SetupBrowser browser)
+        => OpenBrowser(browser, BrowserAddress(browser));
+
+    private static void OpenBrowser(SetupBrowser browser, string address)
     {
         string executable = browser switch { SetupBrowser.Chrome => "chrome.exe", SetupBrowser.Edge => "msedge.exe", _ => "firefox.exe" };
         string relative = browser switch
@@ -70,7 +84,7 @@ internal sealed class BrowserSetupActions : IBrowserSetupActions
         string application = candidates.FirstOrDefault(path => Path.IsPathFullyQualified(path) && File.Exists(path));
         if (application == null) throw new FileNotFoundException();
         var start = new ProcessStartInfo(application) { UseShellExecute = false };
-        start.ArgumentList.Add(BrowserAddress(browser));
+        start.ArgumentList.Add(address);
         Process.Start(start);
     }
 }

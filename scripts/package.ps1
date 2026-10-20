@@ -42,7 +42,7 @@ $instructions += "`r`n`r`n" + [IO.File]::ReadAllText((Join-Path $projectRoot 'LI
 $files=@('Vydrop.exe','README.txt','THIRD-PARTY-NOTICES.txt')
 if($CertificateThumbprint) { & (Join-Path $PSScriptRoot 'sign-desktop.ps1') -PackageDirectory $package -CertificateThumbprint $CertificateThumbprint -TimestampServer $TimestampServer }
 & (Join-Path $PSScriptRoot 'package-browser.ps1') -OutputDirectory (Join-Path $package 'Browser') -Preview:$Preview -NoArchive | Out-Null
-$manifest=@{Version=$Version;Architecture='win-x64';Files=@{}}
+$manifest=@{Version=$Version;Architecture='win-x64';BrowserStoresHash=(Get-FileHash -LiteralPath (Join-Path $projectRoot 'browser/store-listings.json') -Algorithm SHA256).Hash;Files=@{}}
 foreach($name in $files) { $manifest.Files[$name]=(Get-FileHash -LiteralPath (Join-Path $package $name) -Algorithm SHA256).Hash }
 [IO.File]::WriteAllText((Join-Path $package 'package.json'),($manifest | ConvertTo-Json -Depth 4),[Text.UTF8Encoding]::new($false))
 $zip=Join-Path $projectRoot "dist/Vydrop-v$Version-win-x64.zip"
