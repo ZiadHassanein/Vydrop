@@ -66,8 +66,9 @@ public partial class QueueWindow : Window
         QueueInputFields.UpdateLayout();
         var container = QueueInputFields.ItemContainerGenerator.ContainerFromItem(field);
         if (FindInput(container) is not { } input) return;
-        input.Focus();
         input.BringIntoView();
+        QueueViewport.UpdateLayout();
+        input.Focus();
     }
 
     private static TextBox FindInput(DependencyObject root)

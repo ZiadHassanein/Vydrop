@@ -55,9 +55,9 @@ internal static partial class Program
                         double initialFieldWidth = input.ActualWidth;
                         Capture(dialog, System.IO.Path.Combine(captures, "queue-empty-" + variant + ".png"));
                         InvokeQueueButton((Button)WpfTree.Find(dialog, "AddLinkFieldButton"));
-                        await Task.Delay(100);
+                        for (int settle = 0; settle < 30 && !(QueueFields(dialog).Length == 2 && QueueFields(dialog).Last().IsKeyboardFocusWithin); settle++) await Task.Delay(25);
                         Check(QueueFields(dialog).Length == 2 && QueueFields(dialog).Last().IsKeyboardFocusWithin,
-                            "Add another link creates and focuses a separate single-line editor");
+                            $"Add another link creates and focuses a separate single-line editor ({variant}: fields={QueueFields(dialog).Length}, active={dialog.IsActive}, focused={System.Windows.Input.Keyboard.FocusedElement})");
                         Check(Math.Abs(QueueFields(dialog).First().ActualWidth - initialFieldWidth) < 1,
                             "Adding a link field does not narrow the existing queue input in " + variant);
                         var removeField = Descendants<Button>(dialog).Last(button => AutomationProperties.GetName(button) == model.RemoveLinkLabel);
