@@ -775,7 +775,9 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/
 
 # Vydrop: برنامج مجاني لتنزيل الفيديو والصوت لويندوز
 
-نزّل من YouTube وTikTok وFacebook وVimeo وأكثر من ١٠٠٠ موقع عبر yt-dlp، بواجهة عربية وإنجليزية ومصدر مفتوح.
+**Vydrop** برنامج مجاني ومفتوح المصدر لتنزيل الفيديو والصوت لويندوز، من تطوير [زياد حسنين](https://github.com/ZiadHassanein). هذا هو الموقع الرسمي للبرنامج؛ [إصدارات ويندوز](https://ziadhassanein.github.io/Vydrop/ar/download.html) و[الكود المصدري](https://github.com/ZiadHassanein/Vydrop) منشورة ضمن المشروع نفسه.
+
+نزّل من YouTube وTikTok وFacebook وVimeo وأكثر من ١٠٠٠ موقع عبر yt-dlp، بواجهة عربية وإنجليزية.
 
   [تنزيل Vydrop Windows 10/11 x64 · v4.3.0 · Setup](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe)
   [إجمالي تنزيلات إصدارات GitHub](https://github.com/ZiadHassanein/Vydrop/releases)
@@ -786,7 +788,7 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/
 
 واجهة Vydrop العربية الأصلية في ويندوز مع رابط الفيديو والصيغة وجودة الصوت والترجمة وزر تنزيل في المنتصف
 
-عرض أصلي لنافذة واجهة الإصدار 4.2.4 بمقياس ١٠٠٪، دون مؤشر الفأرة.
+عرض أصلي لنافذة واجهة الإصدار 4.3.0 بمقياس ١٠٠٪، دون مؤشر الفأرة.
 
 ## إرشادات بلغتك
 
@@ -1709,7 +1711,9 @@ Source: https://ziadhassanein.github.io/Vydrop/
 
 # Vydrop: free video and audio downloader for Windows
 
-Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp. Free, open source, with English and Arabic interfaces.
+**Vydrop** is a free, open-source video and audio downloader for Windows by [Ziad Hassanein](https://github.com/ZiadHassanein). This is the official Vydrop website; [Windows downloads](https://ziadhassanein.github.io/Vydrop/download.html) and [source code](https://github.com/ZiadHassanein/Vydrop) come from the same project.
+
+Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp, with English and Arabic interfaces.
 
   [Download Vydrop Windows 10/11 x64 · v4.3.0 · Setup](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe)
   [Total GitHub release downloads](https://github.com/ZiadHassanein/Vydrop/releases)

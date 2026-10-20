@@ -1,5 +1,5 @@
 ---
-title: "Vydrop: تنزيل الفيديو والصوت مجانًا لويندوز"
+title: "Vydrop — الموقع الرسمي لتنزيل الفيديو والصوت لويندوز"
 description: "نزّل الفيديو والصوت من يوتيوب وتيك توك وفيسبوك وأكثر من ١٠٠٠ موقع. برنامج مجاني لويندوز بواجهة عربية وقوائم وترجمة وإضافة متصفح."
 lang: ar
 dir: rtl
@@ -12,7 +12,9 @@ last_reviewed: 2026-10-21
 
 # Vydrop: برنامج مجاني لتنزيل الفيديو والصوت لويندوز
 
-نزّل من YouTube وTikTok وFacebook وVimeo وأكثر من ١٠٠٠ موقع عبر yt-dlp، بواجهة عربية وإنجليزية ومصدر مفتوح.
+**Vydrop** برنامج مجاني ومفتوح المصدر لتنزيل الفيديو والصوت لويندوز، من تطوير [زياد حسنين](https://github.com/ZiadHassanein). هذا هو الموقع الرسمي للبرنامج؛ [إصدارات ويندوز](download.md) و[الكود المصدري](https://github.com/ZiadHassanein/Vydrop) منشورة ضمن المشروع نفسه.
+
+نزّل من YouTube وTikTok وFacebook وVimeo وأكثر من ١٠٠٠ موقع عبر yt-dlp، بواجهة عربية وإنجليزية.
 
 <div class="download-block">
   <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe">
@@ -26,7 +28,7 @@ last_reviewed: 2026-10-21
 
 {% include facts-ar.md %}
 
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="../images/screenshots/vydrop-dark-ar-download.png"><img src="../images/screenshots/vydrop-light-ar-download.png" width="724" height="761" alt="واجهة Vydrop العربية الأصلية في ويندوز مع رابط الفيديو والصيغة وجودة الصوت والترجمة وزر تنزيل في المنتصف"></picture><figcaption>عرض أصلي لنافذة واجهة الإصدار 4.2.4 بمقياس ١٠٠٪، دون مؤشر الفأرة.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="../images/screenshots/vydrop-dark-ar-download.png"><img src="../images/screenshots/vydrop-light-ar-download.png" width="724" height="761" alt="واجهة Vydrop العربية الأصلية في ويندوز مع رابط الفيديو والصيغة وجودة الصوت والترجمة وزر تنزيل في المنتصف"></picture><figcaption>عرض أصلي لنافذة واجهة الإصدار 4.3.0 بمقياس ١٠٠٪، دون مؤشر الفأرة.</figcaption></figure>
 
 ## إرشادات بلغتك
 

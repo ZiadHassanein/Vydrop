@@ -31,3 +31,5 @@ settings.json
 .impeccable/
 *.previous
 *.backup
+__pycache__/
+*.pyc

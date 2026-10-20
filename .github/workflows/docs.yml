@@ -30,6 +30,8 @@ jobs:
           node scripts/build-ai-reference.cjs --check
           bundle install --gemfile docs/Gemfile
           bundle exec --gemfile docs/Gemfile jekyll build --source docs --destination build/site
+          python3 -m unittest discover -s tests -p test_sitemaps.py
+          python3 scripts/sitemaps.py build build/site
           node --test tests/docs.test.cjs tests/search-discovery.test.cjs tests/international.test.cjs
           node scripts/check-site.cjs build/site
       - name: Save the validated site for review
@@ -77,6 +79,13 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Download the validated site for public-response checks
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: documentation-preview
+          path: build/site
+      - name: Verify the published XML and text sitemaps
+        run: python3 scripts/sitemaps.py verify-published build/site
       - name: Notify IndexNow after successful publication
         continue-on-error: true
         run: node scripts/notify-search.cjs --submit

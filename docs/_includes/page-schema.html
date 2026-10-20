@@ -13,6 +13,8 @@
       "@id": "{{ '/' | absolute_url }}#website",
       "url": {{ '/' | absolute_url | jsonify }},
       "name": "Vydrop",
+      "sameAs": {{ site.data.product.repository | jsonify }},
+      "about": {"@id": "{{ '/' | absolute_url }}#application"},
       "inLanguage": ["en", "ar", "en-US", "fr-FR", "de-DE", "es-ES"],
       "publisher": {"@id": "https://github.com/ZiadHassanein#person"}
     },
@@ -25,6 +27,7 @@
       "inLanguage": {{ page.language_code | default: page.lang | jsonify }},
       "isPartOf": {"@id": "{{ '/' | absolute_url }}#website"},
       "about": {"@id": "{{ '/' | absolute_url }}#application"},
+      {% if page.home %}"mainEntity": {"@id": "{{ '/' | absolute_url }}#application"},{% endif %}
       "author": {"@id": "https://github.com/ZiadHassanein#person"},
       "isAccessibleForFree": true{% if page.last_reviewed %},
       "dateModified": "{{ page.last_reviewed | date: '%Y-%m-%d' }}"{% endif %}{% unless page.home %},

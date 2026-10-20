@@ -1,5 +1,5 @@
 ---
-title: "Vydrop: Free Video & Audio Downloader for Windows"
+title: "Vydrop — Official Video & Audio Downloader for Windows"
 description: "Download public video and audio from YouTube, TikTok, Facebook and 1,000+ sites. Free Windows app with Arabic, playlists, subtitles and browser setup."
 lang: en
 dir: ltr
@@ -12,7 +12,9 @@ last_reviewed: 2026-10-21
 
 # Vydrop: free video and audio downloader for Windows
 
-Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp. Free, open source, with English and Arabic interfaces.
+**Vydrop** is a free, open-source video and audio downloader for Windows by [Ziad Hassanein](https://github.com/ZiadHassanein). This is the official Vydrop website; [Windows downloads](download.md) and [source code](https://github.com/ZiadHassanein/Vydrop) come from the same project.
+
+Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp, with English and Arabic interfaces.
 
 <div class="download-block">
   <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe">
