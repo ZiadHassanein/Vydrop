@@ -22,6 +22,8 @@ For Windows Authenticode signing, optionally provide access to your code-signing
 
 Upload the corresponding `dist/Vydrop-browser/Vydrop-{chrome,edge,firefox}-unsigned.zip`. Each archive has its manifest at the root. The Chromium development public key is omitted in store archives so the assigned store identity can be recorded explicitly. The legacy unpacked key is retained in local packages. Keep Firefox's existing stable ID `vifree@ziadhassanein.github.io`; do not publish the separate preview identity as stable.
 
+Select desktop Firefox as the AMO target. Do not enable Android distribution: Vydrop requires the Windows native app. The manifest's Android minimum 142 only expresses the data-consent API minimum; it does not add mobile native messaging support.
+
 **Name:** Vydrop
 
 **Short description:** Send a playing video's link to Vydrop for Windows and review it before downloading.
