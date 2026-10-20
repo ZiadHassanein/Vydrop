@@ -29,8 +29,11 @@ assert.equal(manifest.name, 'Vydrop Preview');
   } finally {
     const start = Date.now();
     await context.close();
-    assert.ok(Date.now() - start < 15000, 'The browser must close while its launched desktop app remains open.');
-    if (proof) proof.browserShutdownMs = Date.now() - start;
+    const elapsed = Date.now() - start;
+    // MV3's native port has a 30-second idle lease. The desktop must survive
+    // browser teardown; no test-owned app closure is used to release the pipes.
+    assert.ok(elapsed < 45000, `Browser shutdown exceeded the native-port lease: ${elapsed} ms`);
+    if (proof) proof.browserShutdownMs = elapsed;
   }
   fs.writeFileSync(report, JSON.stringify(proof, null, 2));
   console.log('PASS: real Edge companion cold-starts the installed app, queues the fixture, and the browser exits independently.');

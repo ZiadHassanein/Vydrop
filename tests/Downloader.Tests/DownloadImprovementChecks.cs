@@ -146,6 +146,7 @@ internal static class DownloadImprovementChecks
         {
             for (int index = 0; index < 2; index++)
             {
+                if (index == 1) await Task.Delay(1000, closingLifetime.Token); // Released v1 apps back off after rejecting v2.
                 using var pipe = new System.IO.Pipes.NamedPipeServerStream(BrowserLinkTransport.PipeName, System.IO.Pipes.PipeDirection.InOut, 1,
                     System.IO.Pipes.PipeTransmissionMode.Byte, System.IO.Pipes.PipeOptions.Asynchronous | System.IO.Pipes.PipeOptions.CurrentUserOnly);
                 await pipe.WaitForConnectionAsync(closingLifetime.Token);

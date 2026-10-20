@@ -65,18 +65,23 @@ public static class BrowserHost
     }
     internal static async Task<BrowserReceipt> DeliverRequestAsync(BrowserRequest request, Action launch, CancellationToken token)
     {
+        bool useLegacy = false;
         for (int attempt = 0; attempt <= 20; attempt++)
         {
-            var (receipt, legacyListener) = await BrowserLinkTransport.TrySendCompatibleRequestAsync(request, 250, token).ConfigureAwait(false);
-            if (receipt != null) return receipt;
+            if (!useLegacy)
+            {
+                var (receipt, legacyListener) = await BrowserLinkTransport.TrySendCompatibleRequestAsync(request, 250, token).ConfigureAwait(false);
+                if (receipt != null) return receipt;
+                useLegacy = legacyListener;
+            }
             // A newer native host may share a pipe with an already running older desktop build.
-            if (legacyListener)
+            if (useLegacy)
             {
                 var legacy = await BrowserLinkTransport.TrySendAsync(request.Url, 250, token).ConfigureAwait(false);
                 if (legacy != BrowserDelivery.NoListener)
                     return new(legacy == BrowserDelivery.Accepted, legacy == BrowserDelivery.Accepted ? "opened" : "busy");
             }
-            if (attempt == 0) launch();
+            if (attempt == 0 && !useLegacy) launch();
             await Task.Delay(200, token).ConfigureAwait(false);
         }
         throw new IOException("Open Vydrop and try sending the link again.");
