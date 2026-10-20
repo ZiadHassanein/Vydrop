@@ -33,3 +33,5 @@ node --test tests/browser.test.cjs tests/browser-video.test.cjs tests/browser-er
 ```
 
 `scripts/test-installer.ps1` exercises a preview installer in a fresh test directory: real install, in-place upgrade, automatic native registration, cold start of the installed app, ownership-aware uninstall, unrelated-file/data preservation and restoration of pre-existing preview registration. It refuses to run over an existing installer or queue. Run it only when Vydrop is closed. This does not substitute for clean Windows 10/11 VM and approved-store tests.
+
+Pass `-PlaywrightPath <absolute Playwright module directory>` to include a real native-messaging round trip from an isolated, headless Edge companion. The companion uses the retained unpacked identity, not a simulated native API. The browser profile stays separate from signed-in user profiles; no OS pointer input is used. Store installation/approval is a later test with actual published IDs.

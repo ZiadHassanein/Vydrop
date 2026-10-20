@@ -57,7 +57,12 @@ public static class BrowserHost
             if (!IsAllowedCaller(args)) return;
         }
     }
-    private static void Launch() { using var process = Process.Start(new ProcessStartInfo(Environment.ProcessPath) { UseShellExecute = false, CreateNoWindow = true, ArgumentList = { "--browser-launch" } }); }
+    private static void Launch()
+    {
+        // Launch the GUI independently: inheriting the native host's redirected
+        // standard handles keeps the browser's native-messaging pipes alive.
+        using var process = Process.Start(new ProcessStartInfo(Environment.ProcessPath) { UseShellExecute = true, ArgumentList = { "--browser-launch" } });
+    }
     internal static async Task<BrowserReceipt> DeliverRequestAsync(BrowserRequest request, Action launch, CancellationToken token)
     {
         for (int attempt = 0; attempt <= 20; attempt++)

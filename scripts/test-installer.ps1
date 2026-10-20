@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$Installer,[Parameter(Mandatory)][string]$TestDirectory)
+param([Parameter(Mandatory)][string]$Installer,[Parameter(Mandatory)][string]$TestDirectory,[string]$PlaywrightPath)
 $ErrorActionPreference='Stop'
 $Installer=(Resolve-Path -LiteralPath $Installer).Path
 $TestDirectory=[IO.Path]::GetFullPath($TestDirectory)
@@ -68,6 +68,18 @@ try {
     $taskHost.StandardInput.Close();Assert-Task ($taskHost.WaitForExit(5000)) 'Native host exits cleanly';$taskHost.Dispose();$taskHost=$null
     $null=$taskUi.CloseMainWindow();Assert-Task ($taskUi.WaitForExit(10000)) 'Test app closes cleanly';$taskUi=$null
     $taskReport.coldStart=$true;$taskReport.pendingWithoutDownload=$true;$taskReport.runningAppGuard=$true
+    if($PlaywrightPath) {
+        $taskOriginalPlaywright=$env:VYDROP_PLAYWRIGHT
+        try {
+            $env:VYDROP_PLAYWRIGHT=$PlaywrightPath
+            & node (Join-Path $PSScriptRoot '../tests/browser-installed-native.cjs') $TestDirectory $taskUrl ($TestDirectory+'.browser.json')
+            Assert-Task ($LASTEXITCODE -eq 0) 'A real isolated Edge companion connects through the installed native registration with Vydrop closed'
+        } finally {$env:VYDROP_PLAYWRIGHT=$taskOriginalPlaywright}
+        $taskUi=Get-Process -Name Vydrop -ErrorAction SilentlyContinue|Where-Object {$_.Path -eq $taskExe -and $_.MainWindowHandle -ne 0}|Select-Object -First 1
+        Assert-Task ($null -ne $taskUi) 'Browser-launched installed desktop is running'
+        $null=$taskUi.CloseMainWindow();Assert-Task ($taskUi.WaitForExit(10000)) 'Browser-launched test app closes cleanly';$taskUi=$null
+        $taskReport.realBrowserColdStart=$true
+    }
 
     # Simulate a user reconnecting Firefox to a different app copy before uninstalling this one.
     $taskOther=Join-Path $TestDirectory 'another-copy-manifest.json';[IO.File]::WriteAllText($taskOther,'{}')
