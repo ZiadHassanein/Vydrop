@@ -1,4 +1,5 @@
-version: "4.2.5"
+version: "4.3.0"
 repository: "https://github.com/ZiadHassanein/Vydrop"
-download: "https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip"
+download: "https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe"
+portable_download: "https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/Vydrop-v4.3.0-win-x64.zip"
 author: "Ziad Hassanein"

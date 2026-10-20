@@ -132,14 +132,15 @@ test('missing native host has actionable guidance instead of a browser API error
 if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identity and enable on-video actions across web frames', () => {
   for (const browser of ['chromium', 'firefox']) {
     const folder = path.join(process.env.VIFREE_BROWSER_PACKAGE, browser), manifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
-    assert.equal(manifest.version, '1.3.6'); assert.equal(manifest.name, 'Vydrop Preview');
+    const preview = process.env.VIFREE_BROWSER_CHANNEL !== 'stable';
+    assert.equal(manifest.version, '1.4.1'); assert.equal(manifest.name, preview ? 'Vydrop Preview' : 'Vydrop');
     assert.deepEqual([...manifest.permissions].sort(), ['activeTab', 'clipboardWrite', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
     assert.equal(manifest.host_permissions, undefined);
     assert.deepEqual(manifest.content_scripts, [{ matches: ['https://*/*', 'http://*/*'], js: ['connection.js', 'video-detection.js', 'video-overlay.js'], all_frames: true, run_at: 'document_idle' }]);
     for (const name of ['connection.js', 'video-detection.js', 'video-overlay.js', 'popup.js', 'background.js']) assert.equal(fs.readFileSync(path.join(folder, name), 'utf8'), fs.readFileSync(path.join(root, 'Browser/common', name), 'utf8'));
     assert.match(fs.readFileSync(path.join(folder, 'popup.html'), 'utf8'), /video-detection\.js/u);
     if (browser === 'chromium') assert.equal(manifest.key, fs.readFileSync(path.join(root, 'Browser/public-key.txt'), 'utf8').trim());
-    else { assert.deepEqual(manifest.background.scripts, ['connection.js', 'video-detection.js', 'background.js']); assert.equal(manifest.browser_specific_settings.gecko.id, 'vifree-preview@ziadhassanein.github.io'); }
+    else { assert.deepEqual(manifest.background.scripts, ['connection.js', 'video-detection.js', 'media-discovery.js', 'background.js']); assert.equal(manifest.browser_specific_settings.gecko.id, preview ? 'vifree-preview@ziadhassanein.github.io' : 'vifree@ziadhassanein.github.io'); }
   }
 });
 

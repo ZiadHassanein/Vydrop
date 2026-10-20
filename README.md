@@ -1,7 +1,7 @@
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand-logo-dark.svg"><img src="assets/brand-logo-light.svg" width="238" alt="Vydrop video downloader logo"></picture></p>
 
 <p align="center">
-  <a href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip"><img src="assets/download-windows.svg" width="210" alt="Download Vydrop v4.2.5 for Windows — ZIP"></a>
+  <a href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe"><img src="assets/download-windows.svg" width="210" alt="Download Vydrop v4.3.0 for Windows — Installer"></a>
   <br><br>
   <a href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads"></a>
 </p>
@@ -13,7 +13,7 @@
   <a href="docs/images/screenshots/vydrop-light-ar-download.png"><img src="docs/images/screenshots/vydrop-light-ar-download.png" width="48%" alt="واجهة Vydrop العربية الفاتحة: الرابط والصيغة والجودة والترجمة والتنزيل"></a>
 </p>
 
-<p align="center"><em>Native 100% scale client renders of the 4.2.3 interface, without a pointer. The Chrome setup guide uses real screenshots; Edge and Firefox diagrams are labelled illustrations.</em></p>
+<p align="center"><em>Native 100% scale client renders of the 4.3.0 interface, without a pointer. The Chrome setup guide uses real screenshots; Edge and Firefox diagrams are labelled illustrations.</em></p>
 
 # Vydrop — Free Video & Audio Downloader for Windows
 
@@ -25,16 +25,16 @@ Website guides: [English (US)](docs/en-us/index.md) · [Français](docs/fr/index
 
 [Download and install](docs/download.md) · [Troubleshooting](docs/troubleshooting.md) · [About Vydrop, its maintainer and privacy](docs/about.md) · [التنزيل والتشغيل](docs/ar/download.md) · [حل المشكلات](docs/ar/troubleshooting.md)
 
-## Latest release: Vydrop 4.2.5
+## Latest release: Vydrop 4.3.0
 
-An installer and browser-store onboarding are in development on `feature/installer-and-browser-onboarding`. See [installer build and verification](installer/README.md) and [store publication checklist](browser/PUBLISHING.md). This does not change the current public release.
+The Windows installer is now included. It registers the app connection automatically. Browser-store listings remain pending; load the bundled companion from **Manual setup and troubleshooting → Load the local companion** until those listings are approved. A [portable ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/Vydrop-v4.3.0-win-x64.zip) is also available.
 
-**Vydrop 4.2.5** simplifies browser setup with a guided connection check, adds subtitle-language search, and makes recent downloads easier to scan with clear markings for moved or deleted files. Header icons use the theme's accent color. Companion **1.3.6**, stored preferences/history and existing browser connection identities remain compatible.
+**Vydrop 4.3.0** adds a per-user Windows installer, reliable browser handoff with older-companion fallback, persistent queue recovery with pause/resume and scheduling, and a refined English/Arabic interface. Icons, badge alignment, queue actions, validation and keyboard access are improved. Companion **1.4.1** and existing settings/history remain compatible.
 
 | Channel | Version | What to use |
 | --- | --- | --- |
-| Latest stable release | Vydrop 4.2.5 | The Windows ZIP linked above; extract it and open Vydrop.exe. |
-| Included companion | Vydrop 1.3.6 | Chrome, Edge and Firefox folders inside Browser. |
+| Latest stable release | Vydrop 4.3.0 | The Windows installer linked above; the portable ZIP is also available. |
+| Included companion | Vydrop 1.4.1 | Chrome, Edge and Firefox folders inside Browser. |
 
 This is the official repository for Vydrop source code, Windows downloads, release notes and support. The source is MIT licensed.
 
@@ -45,7 +45,7 @@ For a readable copy outside GitHub, use the [documentation website](https://ziad
 ### At a glance
 
 <!-- facts:start -->
-**Vydrop (formerly ViFree and YouTube Downloader)** is a free, MIT-licensed video and audio downloader for Windows 10/11 x64. Version **4.2.5** uses yt-dlp for public pages from 1,000+ supported sites, including YouTube, TikTok, Facebook, Vimeo, X/Twitter, Reddit, Dailymotion and Twitch clips, plus direct MP4/MP3 links. Video outputs: MP4, MKV, WebM. Audio outputs: MP3, M4A, Opus, WAV, FLAC. It supports playlists, queues, SRT/VTT subtitles, an optional browser companion, English and Arabic. Private, sign-in-only and DRM-protected media are unsupported. Settings, history and media tools stay locally in `%LocalAppData%\YouTubeDownloader`; downloads use your chosen folder. Vydrop has no telemetry.
+**Vydrop (formerly ViFree and YouTube Downloader)** is a free, MIT-licensed video and audio downloader for Windows 10/11 x64. Version **4.3.0** uses yt-dlp for public pages from 1,000+ supported sites, including YouTube, TikTok, Facebook, Vimeo, X/Twitter, Reddit, Dailymotion and Twitch clips, plus direct MP4/MP3 links. Video outputs: MP4, MKV, WebM. Audio outputs: MP3, M4A, Opus, WAV, FLAC. It supports playlists, queues, SRT/VTT subtitles, an optional browser companion, English and Arabic. Private, sign-in-only and DRM-protected media are unsupported. Settings, history and media tools stay locally in `%LocalAppData%\YouTubeDownloader`; downloads use your chosen folder. Vydrop has no telemetry.
 <!-- facts:end -->
 
 Vydrop retains these download features:
@@ -65,7 +65,9 @@ Quality depends on the source. A higher output bitrate or a lossless file does n
 
 ## Browser extension: Download by Vydrop
 
-The optional **Chrome, Microsoft Edge and Firefox** companion **1.3.6** is in the Vydrop 4.2.5 ZIP's `Browser` folder. The companion shows a **Download by Vydrop** tab outside a playing video's top-right border. Clicking it copies the resolved link and opens Vydrop for review; downloading still requires your action in the app.
+The installer configures the app connection automatically. The browser-store listings are not published yet: open **Settings → Browser integration → Manual setup and troubleshooting → Load the local companion**, approve the browser loading step, then use **Test connection**. Portable copies can still use the guided local setup below.
+
+The optional **Chrome, Microsoft Edge and Firefox** companion **1.4.1** is in the Vydrop 4.3.0 ZIP's `Browser` folder. The companion shows a **Download by Vydrop** tab outside a playing video's top-right border. Clicking it copies the resolved link and opens Vydrop for review; downloading still requires your action in the app.
 
 Facebook, TikTok and YouTube detection uses the selected player's public permalink. Other HTML5 players may provide a direct media URL or a single-video page link. Available space, custom players and site restrictions can limit detection. Use the toolbar popup when the tab cannot be placed safely.
 
@@ -92,7 +94,7 @@ Keep the extracted folder, allow access to the desired websites and refresh open
 
 ## Getting started
 
-1. Download the [official stable Windows ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip), extract it into a writable folder, and open **Vydrop.exe**. Target platform: Windows 10/11 x64; the .NET runtime is bundled.
+1. Download and run the [official Windows installer](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe), then open **Vydrop** from Start. Alternatively, extract the complete [portable ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/Vydrop-v4.3.0-win-x64.zip) and open **Vydrop.exe**. Target platform: Windows 10/11 x64; the .NET runtime is bundled.
 2. Paste a video or playlist link, choose output, quality and a save folder, then click **Download**.
 3. Choose the Video/Audio format buttons and **Subtitles** for captions. Use **Choose videos** for playlist entries and **Queue** for multiple links.
 
@@ -100,7 +102,7 @@ Internet access is required for downloads and missing-tool preparation. No accou
 
 **Upgrading from ViFree or YouTube Downloader to Vydrop:** close the old app and extract the Vydrop ZIP into a new writable folder once. Stable preferences, history and verified media tools retain their existing storage location. Enable Browser integration from Vydrop to refresh the executable path. Existing companion IDs and permissions are retained.
 
-**App updates after the repository rename:** versions through 4.2.1 need one manual download from the [releases page](https://github.com/ZiadHassanein/Vydrop/releases). Version 4.2.5 uses the current Vydrop update endpoint. Extract the new ZIP and enable Browser integration again if the app moved.
+**App updates after the repository rename:** versions through 4.2.1 need one manual download from the [releases page](https://github.com/ZiadHassanein/Vydrop/releases). Version 4.3.0 uses the current Vydrop update endpoint. Extract the new ZIP and enable Browser integration again if the app moved.
 
 ## Frequently asked questions
 
@@ -159,13 +161,13 @@ HLS/DASH downloads can use 1, 2 or 4 parallel fragments with an optional speed l
 
 Queued URLs (including any signed media query), source pages, output choices and completion paths are saved in `queue.json` and its previous-state backup inside the existing local app data directory. Preview builds use `ViFreePreview`; stable builds keep `YouTubeDownloader`. Removing a job updates the current queue; a previous-state backup may retain it until replaced. No queue data is sent to an analytics service.
 
-Use `scripts/package.ps1 -Preview -Version 4.3.0-preview.1` for a separate test build. `scripts/package-browser.ps1 -StorePackages` prepares unsigned store upload archives and a readiness report. Store publication, permanent Firefox signing and desktop Authenticode signing still need publisher accounts, assigned store IDs and a code-signing certificate. `scripts/sign-desktop.ps1` supports an explicitly selected certificate; it never creates trust certificates or exports private keys. Public 4.2.5 downloads remain the current stable release.
+Use `scripts/package.ps1 -Preview -Version 4.3.0-preview.1` for a separate test build. `scripts/package-browser.ps1 -StorePackages` prepares unsigned store upload archives and a readiness report. Store publication, permanent Firefox signing and desktop Authenticode signing still need publisher accounts, assigned store IDs and a code-signing certificate. `scripts/sign-desktop.ps1` supports an explicitly selected certificate; it never creates trust certificates or exports private keys. The published 4.3.0 installer and portable ZIP are the stable downloads.
 
 On Windows, install the **.NET 10 SDK**. **Node.js 20+** is also required for browser-companion tests.
 
 ```powershell
 ./scripts/check.ps1
-./scripts/package.ps1 -Version 4.2.5
+./scripts/package.ps1 -Version 4.3.0
 ```
 
 The solution contains `Downloader.Core`, `Downloader.Infrastructure` and the WPF `Downloader.Desktop` project. See [Security](SECURITY.md) for supported media and update limitations.
@@ -178,7 +180,7 @@ The check command includes core, infrastructure, WPF, checking-feedback, isolate
 
 **Vydrop** برنامج مجاني ومفتوح المصدر من تطوير **زياد حسنين**، لتنزيل الفيديو والصوت من الصفحات العامة في يوتيوب وتيك توك وفيسبوك وVimeo وأكثر من ١٠٠٠ موقع مدعوم عبر yt-dlp، إضافة إلى روابط الوسائط المباشرة. يدعم العربية والإنجليزية والمظهرين الفاتح والداكن، مع قائمة تنزيلات واختيار فيديوهات القائمة وحفظ الترجمة المتاحة.
 
-الإصدار الحالي هو **Vydrop 4.2.5**، ويسهّل إعداد إضافة المتصفح بخطوات موجهة وفحص للاتصال، ويضيف البحث في لغات الترجمة، ويحسّن عرض التنزيلات الأخيرة مع علامة واضحة للملفات المنقولة أو المحذوفة. أصبحت أيقونات الشريط العلوي ملونة مع الحفاظ على التصميم والإعدادات والسجل وتوافق الربط السابق. تتضمن الحزمة إضافة المتصفح **1.3.6**. [نزّل ملف Windows ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip)، ثم فكّ الضغط وافتح **Vydrop.exe**. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. اختر متصفحك من إعدادات الربط وأكمل تحميل الإضافة من مجلد Browser الجديد. راجع [دليل تفعيل Chrome وEdge وFirefox بالصور](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html). تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو وجودة المصدر.
+الإصدار الحالي هو **Vydrop 4.3.0**، ويتضمن مُثبّت ويندوز يجهّز ربط التطبيق تلقائيًا، وتحسينات لإرسال الفيديو من المتصفح، وحفظ قائمة التنزيلات واستئنافها وجدولتها، وأيقونات أوضح وواجهة محسّنة بالعربية والإنجليزية مع الحفاظ على الإعدادات والسجل والتوافق السابق. تتضمن الحزمة إضافة المتصفح **1.4.1**. [نزّل مُثبّت ويندوز](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe) أو [ملف ZIP المحمول](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/Vydrop-v4.3.0-win-x64.zip). شغّل المُثبّت، أو فكّ ZIP كاملًا وافتح **Vydrop.exe**. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. اختر متصفحك من إعدادات الربط وأكمل تحميل الإضافة من مجلد Browser الجديد. راجع [دليل تفعيل Chrome وEdge وFirefox بالصور](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html). تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو وجودة المصدر.
 
 ### أسئلة شائعة
 

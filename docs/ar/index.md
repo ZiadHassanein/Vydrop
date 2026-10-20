@@ -7,7 +7,7 @@ alternate: true
 english: /
 arabic: /ar/
 home: true
-last_reviewed: 2026-10-19
+last_reviewed: 2026-10-21
 ---
 
 # Vydrop: برنامج مجاني لتنزيل الفيديو والصوت لويندوز
@@ -15,9 +15,9 @@ last_reviewed: 2026-10-19
 نزّل من YouTube وTikTok وFacebook وVimeo وأكثر من ١٠٠٠ موقع عبر yt-dlp، بواجهة عربية وإنجليزية ومصدر مفتوح.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.2.5 · ZIP</bdi></span></span>
+    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.3.0 · Setup</bdi></span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="إجمالي تنزيلات إصدارات GitHub" height="20"></a>
 </div>
@@ -38,7 +38,7 @@ last_reviewed: 2026-10-19
 
 لو بتستخدم البرنامج لأول مرة، راجع [التنزيل والتشغيل والتحديث من المصدر الرسمي](download.md). يوضّح الدليل الفرق بين كود GitHub المصدري وحزمة ويندوز الجاهزة للتشغيل.
 
-1. نزّل ملف Windows ZIP وفكّ ضغطه في مجلد قابل للكتابة، ثم افتح **Vydrop.exe**. بيئة .NET مضمّنة.
+1. شغّل مُثبّت ويندوز وافتح **Vydrop** من قائمة ابدأ. للنسخة المحمولة، فكّ ملف ZIP كاملًا وافتح **Vydrop.exe**. بيئة .NET مضمّنة.
 2. الصق رابط الفيديو نفسه أو رابط قائمة عامة، وراجع العنوان والجودة المتاحة.
 3. اختر الفيديو أو الصوت والصيغة ومجلد الحفظ. فعّل **الترجمة** عند توافرها.
 4. اضغط **تنزيل**، واستخدم قائمة التنزيلات لروابط متعددة والتنزيلات الأخيرة لفتح الملفات المكتملة.

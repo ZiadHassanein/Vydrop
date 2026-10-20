@@ -327,6 +327,18 @@ internal static class BoundaryChecks
         var zipOnly = AppUpdates.Parse(zipOnlyJson, new Version(3, 0, 2));
         Check(zipOnly.PackageHash == digest && zipOnly.ChecksumUrl == null, "A single-ZIP release uses GitHub's published SHA256 without a separate checksum asset");
         Check(AppUpdates.Parse(zipOnlyJson, new Version(4, 0, 0)) == null, "The current single-ZIP release is recognized as up to date");
+        string installerRelease = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            draft = false, prerelease = false, tag_name = "v4.3.0",
+            assets = new[]
+            {
+                new { name = "VydropSetup-v4.3.0-win-x64.exe", browser_download_url = AppUpdates.Repository + "/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe", digest = "sha256:" + new string('b', 64) },
+                new { name = "Vydrop-v4.3.0-win-x64.zip", browser_download_url = AppUpdates.Repository + "/releases/download/v4.3.0/Vydrop-v4.3.0-win-x64.zip", digest = "sha256:" + digest }
+            }
+        });
+        var compatibleUpdate = AppUpdates.Parse(installerRelease, new Version(4, 2, 5));
+        Check(compatibleUpdate.PackageName == "Vydrop-v4.3.0-win-x64.zip" && compatibleUpdate.PackageHash == digest,
+            "Older desktop update behavior selects the verified portable ZIP when an installer is also published");
         foreach (string invalid in new[] { zipOnlyJson.Replace("sha256:" + digest, "sha256:bad"), zipOnlyJson.Replace("sha256:", "sha1:"), zipOnlyJson.Replace(AppUpdates.Repository, "https://github.com/other/ViFree") })
         {
             bool rejected = false;

@@ -1,26 +1,35 @@
 ---
 title: "Download Vydrop for Windows: Install and Update"
-description: "Get the official free Vydrop Windows ZIP. Check requirements, extract the app, keep the browser companion, and update safely from GitHub Releases."
+description: "Download the official Vydrop Windows installer or portable ZIP. Check requirements, browser setup and safe updates from GitHub Releases."
 lang: en
 dir: ltr
 alternate: true
 english: /download.html
 arabic: /ar/download.html
-last_reviewed: 2026-10-19
+last_reviewed: 2026-10-21
 ---
 
 # Download and install Vydrop for Windows
 
 **Vydrop is a free, open-source video and audio downloader for Windows 10/11 x64.** Download the packaged app from the project's GitHub Releases page. The desktop interface supports English and Arabic.
 
-[Download Vydrop 4.2.5 — Windows x64 ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip) · [Release notes and assets](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.5)
+[Download Vydrop 4.3.0 — Windows installer](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe) · [Portable ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/Vydrop-v4.3.0-win-x64.zip) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.3.0)
+
+## Install Vydrop
+
+1. Run **VydropSetup-v4.3.0-win-x64.exe**. Installation is for your Windows account and does not need administrator rights.
+2. Open **Vydrop** from Start. Setup installs the app, creates its uninstaller and registers the browser connection automatically.
+3. To add the optional companion, open **Settings → Browser integration**. Store listings are still pending: choose **Manual setup and troubleshooting → Load the local companion**, finish the browser's loading step, then use **Test connection**.
+
+The installer closes the setup gap on the app side. Your browser still requires approval to load an extension. See the [illustrated extension guide](browser-extension-setup.md).
 
 ## Choose the application package
 
 | Item | What you need |
 | --- | --- |
 | Operating system | Windows 10 or Windows 11, x64 |
-| App file | `Vydrop-v4.2.5-win-x64.zip` from GitHub Releases |
+| Installer | `VydropSetup-v4.3.0-win-x64.exe` from GitHub Releases |
+| Portable app | `Vydrop-v4.3.0-win-x64.zip`; extract the complete folder |
 | .NET | Included in the package; no separate runtime installation |
 | Media tools | Missing tools are prepared when needed; first use needs an internet connection |
 | Browser companion | Optional Chrome, Edge or Firefox companion, inside the app's **Browser** folder |
@@ -43,7 +52,7 @@ The official repository is **[ZiadHassanein/Vydrop](https://github.com/ZiadHassa
 
 ## Update an existing copy
 
-Close Vydrop before replacing its files. Extract the full new package, then run the new executable. Keep the app in a permanent location. If its location changes, open **Settings → Browser integration** and reconnect from the new copy; reload the companion from that package's Browser folder.
+Close Vydrop, then run the new installer to update an installed copy. For a portable copy, extract the complete new ZIP and run its executable. Existing settings, queue and history remain in their compatible storage location. If you move a portable copy, open **Settings → Browser integration** and reconnect from that copy; reload the companion from its Browser folder.
 
 Versions through **4.2.1** need one manual download after the repository was renamed from ViFree to Vydrop. Application updates and media-tool updates are separate: **Settings → Update downloader** checks the media tools, not the desktop application package.
 

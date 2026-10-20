@@ -4,7 +4,12 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.3.0] - 2026-10-21
+
 ### Added
+- A per-user Windows installer with automatic native-host registration, upgrade/uninstall support and a separate portable ZIP. Browser-store listings remain pending; local companion loading is available.
+- Durable queue recovery, pause/resume, scheduling, per-job retries, optional speed/connection limits and compatible direct-MP4 acceleration.
+- Companion 1.4.1 with connection testing, explicit queue handoff, optional media discovery and retained version-1/legacy-host fallback.
 - A narrated 1080p browser-setup video with English/Arabic captions, chapter markers and responsive players in both illustrated guides.
 - Keyboard shortcuts for the video link (Ctrl+L), recent downloads (Ctrl+J), queue (Ctrl+Shift+Q) and settings (Ctrl+,), with accessible shortcut hints.
 
@@ -15,6 +20,7 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 - Compact the media output summary and improve recent-file path readability.
 
 ### Fixed
+- Acknowledge browser requests reliably during app startup and retain compatibility with older app/extension transports.
 - Center recent-download badge numerals by their visible outline rather than font line height.
 - Restore the English “Contact me” label and apply the current title-bar theme to recent downloads.
 - Keep schedule dates readable in dark mode and avoid success-colored feedback for cancelled downloads.
@@ -89,6 +95,7 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 - Builds run the recommended .NET analyzers and code-style rules with warnings treated as errors; sources use file-scoped namespaces and an explicit line-ending policy.
 
 [Unreleased]: https://github.com/ZiadHassanein/Vydrop/tree/main
+[4.3.0]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.3.0
 [4.2.5]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.5
 [4.2.4]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.4
 [4.2.3]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.3
@@ -96,4 +103,4 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## ملخص بالعربية
 
-يسهّل الإصدار **4.2.5** إعداد إضافة المتصفح بخطوات موجهة وفحص للاتصال، ويضيف البحث في لغات الترجمة، ويحسّن عرض التنزيلات الأخيرة بعلامة واضحة للملفات المنقولة أو المحذوفة وأيقونات علوية ملونة. تتضمن الحزمة إضافة **1.3.6** مع الحفاظ على توافق الإعدادات والسجل والربط مع الإصدارات القديمة. تحتاج النسخ حتى 4.2.1 إلى تنزيل الحزمة الجديدة يدويًا مرة واحدة بعد تغيير اسم المستودع.
+يتضمن الإصدار **4.3.0** مُثبّت ويندوز يجهّز ربط التطبيق تلقائيًا، ونسخة ZIP محمولة، وتحسينات لإرسال الفيديو من المتصفح وقائمة تنزيلات محفوظة قابلة للاستئناف والجدولة. أصبحت الأيقونات والعدادات وخيارات القائمة ورسائل التحقق أوضح في المظهرين وبالعربية والإنجليزية. تتضمن الحزمة إضافة **1.4.1** مع الحفاظ على الإعدادات والسجل وتوافق الربط السابق. تظل متاجر المتصفحات قيد التجهيز، وتتوفر خطوات تحميل الإضافة المحلية من داخل التطبيق.

@@ -7,7 +7,7 @@ alternate: true
 english: /
 arabic: /ar/
 home: true
-last_reviewed: 2026-10-19
+last_reviewed: 2026-10-21
 ---
 
 # Vydrop: free video and audio downloader for Windows
@@ -15,9 +15,9 @@ last_reviewed: 2026-10-19
 Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp. Free, open source, with English and Arabic interfaces.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.5/Vydrop-v4.2.5-win-x64.zip">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">Download Vydrop</span><span class="download-meta">Windows 10/11 x64 · v4.2.5 · ZIP</span></span>
+    <span class="download-copy"><span class="download-title">Download Vydrop</span><span class="download-meta">Windows 10/11 x64 · v4.3.0 · Setup</span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads" height="20"></a>
 </div>
@@ -26,7 +26,7 @@ Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-d
 
 {% include facts.md %}
 
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-download.png"><img src="images/screenshots/vydrop-light-en-download.png" width="724" height="761" alt="Vydrop native Windows interface with video link, format, quality, subtitles and a centered Download action"></picture><figcaption>Native 100% scale client render of the 4.2.3 interface. No mouse pointer.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-download.png"><img src="images/screenshots/vydrop-light-en-download.png" width="724" height="761" alt="Vydrop native Windows interface with video link, format, quality, subtitles and a centered Download action"></picture><figcaption>Native 100% scale client render of the 4.3.0 interface. No mouse pointer.</figcaption></figure>
 
 ## Guides by language and region
 
@@ -36,7 +36,7 @@ Read the [US English](en-us/index.md), [Arabic](ar/index.md), [French](fr/index.
 
 New to the app? Read the [official download, installation and update guide](download.md). If you downloaded GitHub's source ZIP, this guide shows which release asset contains the ready-to-run Windows app.
 
-1. Download the Windows ZIP, extract it to a writable folder, and open **Vydrop.exe**. The .NET runtime is bundled.
+1. Run the Windows installer and open **Vydrop** from Start. For the portable ZIP, extract the complete folder and open **Vydrop.exe**. The .NET runtime is bundled.
 2. Paste a video's own link or a public playlist link. Review the detected title and available quality.
 3. Choose **Video** or **Audio**, the output format, and your save folder. Select **Subtitles** if captions are available.
 4. Choose **Download**. Use **Queue** for multiple links and **Recent downloads** to open completed files.
