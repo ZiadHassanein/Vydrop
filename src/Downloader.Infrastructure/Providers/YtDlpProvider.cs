@@ -243,7 +243,9 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
         Emit(progress, "Connecting", "Preparing your download…", 0, true);
         try
         {
-            Execute(args, delegate (string line)
+            using var ranges = new DirectRangeDownloader();
+            saved = ranges.TryDownloadAsync(options, progress, file => MediaValidator.Validate(file, options, tools, token), token).GetAwaiter().GetResult();
+            if (saved == null) Execute(args, delegate (string line)
             {
                 if (line.StartsWith("YTDL_FILE:", StringComparison.Ordinal))
                     saved = Json().Deserialize<string>(line.Substring(10));

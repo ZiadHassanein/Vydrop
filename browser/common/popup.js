@@ -24,8 +24,8 @@ button.addEventListener("click", async () => {
     const [tab] = await api.tabs.query({ active: true, currentWindow: true });
     const url = await globalThis.ViFreeVideoDetection.resolve(tab);
     status.textContent = text.opening;
-    await sendLink(url);
-    status.textContent = text.opened;
+    const response = await sendLink(url, { sourcePage: tab?.url });
+    status.textContent = response.code === "queued" ? (arabic ? "أُضيف إلى قائمة التنزيل. راجعه في التطبيق قبل البدء." : "Added to the queue. Review it in the app before starting.") : text.opened;
   } catch (error) {
     status.textContent = errorMessage(error, arabic);
   } finally { button.disabled = false; }

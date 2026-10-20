@@ -207,8 +207,23 @@ public sealed partial class MainViewModel
             if (string.IsNullOrWhiteSpace(request.Folder) || !Path.IsPathFullyQualified(request.Folder))
                 throw new ArgumentException("Use Change to choose a valid folder on this computer.");
             SetStatus("Connecting", "Preparing your download…", false, true);
-            var result = await downloads.DownloadAsync(request, PreparationProgress(inputGeneration), CancellationToken.None);
-            if (result.Cancelled)
+            var job = Queue.Entries.FirstOrDefault(entry =>
+            {
+                if (entry.State != QueueState.Pending || entry.Url != request.Url) return false;
+                var queued = entry.Options;
+                return queued.Folder == request.Folder && OutputProfiles.Key(queued) == OutputProfiles.Key(request) && SamePlaylist(queued, request);
+            }) ?? Queue.Add(request, videoInfo?.Title ?? playlistInfo?.Title);
+            request = job.Options;
+            DownloadResult result = null;
+            await Queue.RunJobAsync(job.Id, async (options, progress, token) =>
+            {
+                result = await downloads.DownloadQueueItemAsync(options, progress, Queue.CapturePreparedOptions, token);
+                return result;
+            });
+            if (result == null) throw new InvalidOperationException(job.Error ?? "The download failed.");
+            if (result.Cancelled && job.State == QueueState.Paused)
+                SetStatus("Download paused", "Open the queue to resume this download.", false);
+            else if (result.Cancelled)
                 SetStatus("Download cancelled", "Partial files are kept so the same download can resume later.", false);
             else if (request.Playlist != null)
             {
@@ -250,6 +265,10 @@ public sealed partial class MainViewModel
             RefreshAvailability();
         }
     }
+
+    private static bool SamePlaylist(DownloadOptions left, DownloadOptions right) =>
+        left.Playlist == null ? right.Playlist == null : right.Playlist != null &&
+        left.Playlist.Entries.Select(entry => entry.Id).SequenceEqual(right.Playlist.Entries.Select(entry => entry.Id));
 
     private void ClearLink()
     {
@@ -355,12 +374,13 @@ public sealed partial class MainViewModel
 
     public async Task CloseAsync()
     {
+        queueClock?.Stop();
         thumbnailCancellation?.Cancel();
         thumbnailCancellation?.Dispose();
         thumbnailCancellation = null;
         debounce?.Cancel();
         noticeLifetime?.Cancel();
-        Queue.Stop();
+        Queue.Pause();
         downloads.Cancel();
         await inspection;
         await downloads.Operations.WaitForIdleAsync();

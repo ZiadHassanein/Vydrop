@@ -203,7 +203,7 @@ globalThis.ViFreeVideoDetection = (() => {
     if (ranked.length > 1 && Math.abs(ranked[0].score - ranked[1].score) < 30) return { url: "", reason: "ambiguous" };
     if (ranked.length) {
       const media = linkedInMedia(ranked[0].video);
-      if (media) return { url: media, reason: "source" };
+      if (media) return { url: media, reason: "source", sourcePage: localLink(ranked[0].video, videos.map(item => item.video)) || permalink(location.href) };
       const local = localLink(ranked[0].video, videos.map(item => item.video));
       if (local) {
         const asset = platform(location.href) === "linkedin" && !ranked[0].video.mediaKeys && linkedInAsset(ranked[0].video);

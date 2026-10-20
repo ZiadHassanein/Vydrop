@@ -11,5 +11,9 @@ public sealed class SavedState
     public AudioEncoding AudioEncoding = AudioEncoding.Mp3;
     public VideoContainer VideoContainer;
     public int UnseenDownloads;
+    public int Connections = 1;
+    public int SpeedLimitKiB;
+    public int QueueAttempts = 2;
+    public bool DirectFileAcceleration;
     public List<string> Recent = new List<string>();
 }

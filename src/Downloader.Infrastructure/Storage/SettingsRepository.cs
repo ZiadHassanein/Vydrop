@@ -164,6 +164,9 @@ public sealed class SettingsRepository
         state.Language = state.Language == "ar" ? "ar" : "en";
         state.Format = state.Format == 1 ? 1 : 0;
         state.Quality = Math.Clamp(state.Quality, 0, 100);
+        state.Connections = state.Connections is 2 or 4 ? state.Connections : 1;
+        state.SpeedLimitKiB = Math.Clamp(state.SpeedLimitKiB, 0, 1024 * 1024);
+        state.QueueAttempts = Math.Clamp(state.QueueAttempts, 1, 5);
         if (!Enum.IsDefined(state.AudioEncoding)) state.AudioEncoding = AudioEncoding.Mp3;
         if (!Enum.IsDefined(state.VideoContainer)) state.VideoContainer = VideoContainer.Mp4;
         state.UnseenDownloads = Math.Clamp(state.UnseenDownloads, 0, 9999);

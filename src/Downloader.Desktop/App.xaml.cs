@@ -46,11 +46,11 @@ public partial class App : Application
         if (!smoke)
         {
             browserLifetime = new();
-            _ = BrowserLinkTransport.ListenAsync(link => Dispatcher.Invoke(() =>
+            _ = BrowserLinkTransport.ListenRequestsAsync(request => Dispatcher.Invoke(() =>
             {
-                bool accepted = ((MainViewModel)MainWindow.DataContext).ReceiveBrowserLink(link);
-                if (accepted) { if (MainWindow.WindowState == WindowState.Minimized) MainWindow.WindowState = WindowState.Normal; MainWindow.Activate(); }
-                return accepted;
+                var receipt = ((MainViewModel)MainWindow.DataContext).ReceiveBrowserRequest(request);
+                if (receipt.Accepted && request.Type != "ping") { if (MainWindow.WindowState == WindowState.Minimized) MainWindow.WindowState = WindowState.Normal; MainWindow.Activate(); }
+                return receipt;
             }), browserLifetime.Token);
         }
     }

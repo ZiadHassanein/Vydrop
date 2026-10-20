@@ -1,6 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.ComponentModel;
+using System.Windows.Input;
 
 namespace YouTubeDownloader;
 
@@ -28,7 +28,7 @@ public static class HoverMotion
     {
         private readonly FrameworkElement layer;
         private Control owner;
-        private DependencyPropertyDescriptor mouseOver;
+        private bool hovered;
 
         internal HoverState(FrameworkElement layer)
         {
@@ -42,21 +42,23 @@ public static class HoverMotion
         {
             if (owner != null || layer.TemplatedParent is not Control control) return;
             owner = control;
-            mouseOver = DependencyPropertyDescriptor.FromProperty(UIElement.IsMouseOverProperty, owner.GetType());
-            mouseOver.AddValueChanged(owner, PointerChanged);
+            hovered = owner.IsMouseOver;
+            owner.MouseEnter += Entered;
+            owner.MouseLeave += Left;
             owner.IsEnabledChanged += StateChanged;
             owner.IsVisibleChanged += StateChanged;
             MotionPreferences.Changed += Settle;
             Settle();
         }
 
-        private void PointerChanged(object sender, EventArgs args) => Update(true);
+        private void Entered(object sender, MouseEventArgs args) { hovered = true; Update(true); }
+        private void Left(object sender, MouseEventArgs args) { hovered = false; Update(true); }
         private void StateChanged(object sender, DependencyPropertyChangedEventArgs args) => Update(false);
         private void Settle() => Update(false);
 
         private void Update(bool animate)
         {
-            double target = owner is { IsEnabled: true, IsVisible: true, IsMouseOver: true } ? GetStrength(layer) : 0;
+            double target = hovered && owner is { IsEnabled: true, IsVisible: true } ? GetStrength(layer) : 0;
             double from = layer.Opacity;
             layer.BeginAnimation(UIElement.OpacityProperty, null);
             layer.Opacity = target;
@@ -71,8 +73,9 @@ public static class HoverMotion
         private void Unloaded(object sender, RoutedEventArgs args)
         {
             if (owner == null) return;
-            mouseOver.RemoveValueChanged(owner, PointerChanged);
-            mouseOver = null;
+            owner.MouseEnter -= Entered;
+            owner.MouseLeave -= Left;
+            hovered = false;
             owner.IsEnabledChanged -= StateChanged;
             owner.IsVisibleChanged -= StateChanged;
             MotionPreferences.Changed -= Settle;

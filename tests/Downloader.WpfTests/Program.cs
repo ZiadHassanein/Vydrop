@@ -126,6 +126,12 @@ internal static partial class Program
                     Console.WriteLine(count + " WPF browser-setup checks passed.");
                     return;
                 }
+                if (args.Contains("--download-improvements-ui"))
+                {
+                    await CheckDownloadImprovements(window, model, provider, root, captures);
+                    Console.WriteLine(count + " WPF download-improvement checks passed.");
+                    return;
+                }
                 if (args.Contains("--performance"))
                 {
                     await MeasurePlaylistPerformance(window, captures);

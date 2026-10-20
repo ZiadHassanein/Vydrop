@@ -48,6 +48,7 @@ public sealed partial class DesktopActions
     }
 
     public void OpenFolder(string folder) => Process.Start(new ProcessStartInfo(Path.GetFullPath(folder)) { UseShellExecute = true });
+    public void OpenPublicPage(string url) => Process.Start(new ProcessStartInfo(MediaLink.PublicUrl(url)) { UseShellExecute = true });
     public void OpenMedia(string file, bool reveal)
     {
         if (!File.Exists(file) || !OutputProfiles.IsMediaExtension(Path.GetExtension(file)))

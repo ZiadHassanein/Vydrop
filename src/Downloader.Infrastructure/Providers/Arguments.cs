@@ -79,6 +79,10 @@ public static class Arguments
         if (options.Audio && !OutputProfiles.SupportsAudioBitrate(options.AudioEncoding, options.AudioBitrate))
             throw new ArgumentException("Choose a supported audio quality.");
         var args = Common(tools);
+        if (options.Connections is not (1 or 2 or 4) || options.BytesPerSecond < 0 || options.BytesPerSecond > 1024L * 1024 * 1024 || options.MaximumAttempts is < 1 or > 5)
+            throw new ArgumentException("Choose supported download limits.");
+        args.AddRange(new[] { "--concurrent-fragments", options.Connections.ToString(CultureInfo.InvariantCulture) });
+        if (options.BytesPerSecond > 0) args.AddRange(new[] { "--limit-rate", options.BytesPerSecond.ToString(CultureInfo.InvariantCulture) });
         bool playlist = options.Playlist != null || options.PlaylistItem;
         if (options.Playlist != null)
         {
@@ -101,6 +105,13 @@ public static class Arguments
         // Postprocessing may delete its input. A distinct target-profile stem
         // prevents it from reusing a user's already completed MP4 as that input.
         string filename = "%(title).100B [" + sourceId + "] - " + profile + ".%(ext)s";
+        if (options.JobId != Guid.Empty && !options.PlaylistItem)
+        {
+            string title = StableTitle(options.StableOutputName);
+            filename = title.Replace("%", "%%") + " [" + options.JobId.ToString("N")[..12] + "] - " + profile + ".%(ext)s";
+            string temporary = Path.Combine(folder, ".vydrop-partials", options.JobId.ToString("N"), options.PartialGeneration.ToString(CultureInfo.InvariantCulture));
+            args.AddRange(new[] { "--paths", "temp:" + temporary });
+        }
         args.AddRange(new[] { "--no-simulate", "--continue", "--part", "--newline", "--progress", "--progress-delta", "0.3", "--windows-filenames", "--no-overwrites", "--trim-filenames", "180", "--paths", folder, "--output", filename, "--progress-template", "download:YTDL_PROGRESS:%(progress)j", "--progress-template", "postprocess:YTDL_POST:%(progress)j", "--print", "after_move:YTDL_FILE:%(filepath)j" });
         if (options.Audio)
         {
@@ -131,5 +142,18 @@ public static class Arguments
         args.Add("--");
         args.Add(url);
         return args;
+    }
+    internal static string StableTitle(string value)
+    {
+        var result = new StringBuilder();
+        foreach (var rune in (value ?? "Video").EnumerateRunes())
+        {
+            string text = rune.ToString();
+            if (rune.Value < 32 || text.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) text = "_";
+            if (Encoding.UTF8.GetByteCount(result.ToString()) + Encoding.UTF8.GetByteCount(text) > 100) break;
+            result.Append(text);
+        }
+        string title = result.ToString().Trim().TrimEnd('.', ' ');
+        return string.IsNullOrEmpty(title) ? "Video" : title;
     }
 }

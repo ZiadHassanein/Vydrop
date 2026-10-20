@@ -75,6 +75,8 @@ internal static partial class Program
             await Task.Delay(150); await Settle();
             Check(model.IsBusy && ((ProgressBar)WpfTree.Find(preview, "JobProgress")).IsVisible && !inline.IsVisible,
                 "Active progress appears only in the right context pane");
+            Check(model.QueueItems.Single().Entry.State == QueueState.Downloading && model.QueueItems.Single().Percent > 0,
+                "A main-window download forwards its actual progress into its durable queue job");
             HeadingFirst("downloading");
             Capture(window, Path.Combine(captures, "media-progress-en-dark.png"));
             model.CancelCommand.Execute(null); await running; await Settle();
@@ -109,6 +111,9 @@ internal static partial class Program
             Check(Math.Abs(window.Left - edgeLeft) <= 1 && window.Width == 740,
                 "Collapse restores the original position after screen-edge containment");
             window.Left = left;
+            Check(model.QueueItems.Count == 2 && model.QueueItems.Any(item => item.Entry.State == QueueState.Cancelled) && model.QueueItems.Any(item => item.HasCompletedOutput),
+                "Main-window downloads retain their cancelled and completed jobs for durable queue recovery");
+            foreach (var entry in model.Queue.Entries) model.RemoveQueueCommand.Execute(entry.Id);
             await Input("https://www.youtube.com/shorts/jNQXAC9IVRw");
             model.AddQueueCommand.Execute(null); model.DismissNoticeCommand.Execute(null);
             await model.QueueStartCommand.ExecuteAsync(null); await Settle();

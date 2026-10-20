@@ -1,0 +1,13 @@
+<UserControl x:Class="YouTubeDownloader.DownloadLimitsView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Foreground="{DynamicResource Ink}" FontFamily="{Binding ContentFont}">
+ <StackPanel Margin="0,10,0,8">
+  <TextBlock Text="{Binding DownloadLimitsHint}" Foreground="{DynamicResource Muted}" Margin="0,0,0,10"/>
+  <TextBlock Text="{Binding ConnectionsLabel}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+  <ComboBox ItemsSource="{Binding ConnectionChoices}" SelectedItem="{Binding DownloadConnections}" HorizontalAlignment="Left" MinWidth="100" AutomationProperties.Name="{Binding ConnectionsLabel}"/>
+  <TextBlock Text="{Binding SpeedLimitLabel}" TextWrapping="Wrap" Margin="0,12,0,6"/>
+  <TextBox Text="{Binding SpeedLimitKiB,UpdateSourceTrigger=LostFocus,ValidatesOnExceptions=True}" FlowDirection="LeftToRight" HorizontalAlignment="Left" MinWidth="130" MaxLength="7" AutomationProperties.Name="{Binding SpeedLimitLabel}"/>
+  <TextBlock Text="{Binding AttemptsLabel}" TextWrapping="Wrap" Margin="0,12,0,6"/>
+  <TextBox Text="{Binding QueueAttempts,UpdateSourceTrigger=LostFocus,ValidatesOnExceptions=True}" FlowDirection="LeftToRight" HorizontalAlignment="Left" MinWidth="100" MaxLength="1" AutomationProperties.Name="{Binding AttemptsLabel}"/>
+  <CheckBox Content="{Binding RangeAccelerationLabel}" IsChecked="{Binding DirectFileAcceleration}" Margin="0,14,0,0"/>
+ </StackPanel>
+</UserControl>

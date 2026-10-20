@@ -9,6 +9,7 @@ internal enum SetupBrowser { Chrome, Edge, Firefox }
 internal interface IBrowserSetupActions
 {
     bool IsConnected { get; }
+    bool IsVerified => false;
     string ExtensionPath(SetupBrowser browser);
     bool HasExtension(SetupBrowser browser);
     void Enable();
@@ -22,6 +23,7 @@ internal interface IBrowserSetupActions
 internal sealed class BrowserSetupActions : IBrowserSetupActions
 {
     public bool IsConnected => BrowserRegistration.IsEnabled(Environment.ProcessPath);
+    public bool IsVerified => IsConnected && BrowserHealth.IsRecentlyVerified(Environment.ProcessPath);
     public string ExtensionPath(SetupBrowser browser)
     {
         string folder = Path.Combine(AppContext.BaseDirectory, "Browser", browser == SetupBrowser.Firefox ? "firefox" : "chromium");

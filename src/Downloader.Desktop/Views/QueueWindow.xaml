@@ -1,5 +1,5 @@
 <Window x:Class="YouTubeDownloader.QueueWindow"
- xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:YouTubeDownloader"
  Title="{Binding QueueHeading}" Width="700" Height="460" MinWidth="580" MinHeight="360"
  WindowStartupLocation="CenterOwner" ShowInTaskbar="False" AutomationProperties.IsDialog="True"
  Background="{DynamicResource Page}" Foreground="{DynamicResource Ink}" FontFamily="{Binding ContentFont}" FontSize="13"
@@ -71,6 +71,18 @@
      <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding QueueMessage}" Value=""><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Border.Style>
      <TextBlock Text="{Binding QueueMessage}" Foreground="{DynamicResource Ink}" AutomationProperties.LiveSetting="Polite"/>
     </Border>
+    <Expander Header="{Binding DownloadLimitsLabel}" Foreground="{DynamicResource Ink}" Margin="0,0,0,12"><local:DownloadLimitsView/></Expander>
+    <Expander Header="{Binding ScheduleLabel}" Foreground="{DynamicResource Ink}" Margin="0,0,0,16">
+     <StackPanel Margin="0,8,0,0">
+      <TextBlock Text="{Binding ScheduleSummary}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,8"/>
+      <DatePicker SelectedDate="{Binding ScheduledDate}" HorizontalAlignment="Left"/>
+      <WrapPanel Margin="0,8,0,0">
+       <StackPanel Margin="0,0,12,0"><TextBlock Text="{Binding ScheduleStartLabel}"/><TextBox Text="{Binding ScheduledTime,UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight" Width="130" MaxLength="5" AutomationProperties.Name="{Binding ScheduleStartLabel}"/></StackPanel>
+       <StackPanel><TextBlock Text="{Binding ScheduleStopLabel}"/><TextBox Text="{Binding ScheduledStopTime,UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight" Width="130" MaxLength="5" AutomationProperties.Name="{Binding ScheduleStopLabel}"/></StackPanel>
+      </WrapPanel>
+      <WrapPanel Margin="0,8,0,0"><Button Content="{Binding ScheduleLabel}" Command="{Binding ScheduleQueueCommand}" Style="{StaticResource QueueButton}"/><Button Content="{Binding ClearScheduleLabel}" Command="{Binding ClearScheduleCommand}" Style="{StaticResource QueueQuietButton}" Margin="8,0,0,0"/></WrapPanel>
+     </StackPanel>
+    </Expander>
     <StackPanel x:Name="QueuedDownloadsSection" Visibility="{Binding HasQueue,Converter={StaticResource BoolVisibility}}">
     <TextBlock Text="{Binding QueueLabel}" FontWeight="SemiBold" Margin="0,0,0,8"/>
     <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
@@ -103,8 +115,17 @@
                     Command="{Binding DataContext.OpenQueueFolderCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}"
                     Visibility="{Binding HasCompletedOutput,Converter={StaticResource BoolVisibility}}" IsEnabled="{Binding CanOpenFolder}"
                     ToolTip="{Binding CompletedFolder}" Style="{StaticResource QueueQuietButton}"/>
-            <Button Content="{Binding DataContext.RetryLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RetryQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Visibility="{Binding CanRetry,Converter={StaticResource BoolVisibility}}" Style="{StaticResource QueueQuietButton}"/>
+            <WrapPanel HorizontalAlignment="Right">
+            <Button Content="{Binding RetryAction}" Command="{Binding DataContext.RetryQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Visibility="{Binding CanRetry,Converter={StaticResource BoolVisibility}}" Style="{StaticResource QueueQuietButton}"/>
             <Button Content="{Binding DataContext.RemoveLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RemoveQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" IsEnabled="{Binding CanRemove}" Style="{StaticResource QueueQuietButton}"/>
+            </WrapPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="{Binding DataContext.RefreshSourceLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RefreshQueueSourceCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Visibility="{Binding CanRefresh,Converter={StaticResource BoolVisibility}}" Style="{StaticResource QueueQuietButton}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+             <Button Command="{Binding DataContext.MoveQueueUpCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource QueueQuietButton}" Width="34" ToolTip="{Binding DataContext.MoveUpLabel,RelativeSource={RelativeSource AncestorType=Window}}" AutomationProperties.Name="{Binding DataContext.MoveUpLabel,RelativeSource={RelativeSource AncestorType=Window}}"><Path Data="M1,9 L7,3 13,9" Style="{StaticResource LineIcon}" Width="12" Height="8"/></Button>
+             <Button Command="{Binding DataContext.MoveQueueDownCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource QueueQuietButton}" Width="34" ToolTip="{Binding DataContext.MoveDownLabel,RelativeSource={RelativeSource AncestorType=Window}}" AutomationProperties.Name="{Binding DataContext.MoveDownLabel,RelativeSource={RelativeSource AncestorType=Window}}"><Path Data="M1,3 L7,9 13,3" Style="{StaticResource LineIcon}" Width="12" Height="8"/></Button>
+            </StackPanel>
+            </StackPanel>
            </StackPanel>
           </Grid>
          </Border>
@@ -117,10 +138,11 @@
   </ScrollViewer>
   <Border x:Name="QueueFooter" Grid.Row="2" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,12,0,0" Margin="0,16,0,0">
    <Grid>
-    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
     <Button x:Name="QueueCloseButton" Content="{Binding CloseLabel}" Click="CloseClicked" IsCancel="True" Style="{StaticResource QueueButton}" MinWidth="76"/>
-    <Button x:Name="QueueCancelButton" Grid.Column="2" Content="{Binding CancelLabel}" Command="{Binding CancelCommand}" Style="{StaticResource QueueButton}" Margin="0,0,10,0" Visibility="{Binding QueueRunning,Converter={StaticResource BoolVisibility}}"/>
-    <Button x:Name="QueueStartButton" Grid.Column="3" Content="{Binding StartQueueLabel}" Command="{Binding QueueDownloadCommand}" Click="SubmitLinksClicked" Style="{StaticResource QueuePrimaryButton}" MinWidth="136"/>
+    <Button x:Name="QueuePauseButton" Grid.Column="2" Content="{Binding PauseQueueLabel}" Command="{Binding QueuePauseCommand}" Style="{StaticResource QueueButton}" Margin="0,0,8,0" Visibility="{Binding QueueRunning,Converter={StaticResource BoolVisibility}}"/>
+    <Button x:Name="QueueCancelButton" Grid.Column="3" Content="{Binding CancelLabel}" Command="{Binding CancelCommand}" Style="{StaticResource QueueButton}" Margin="0,0,10,0" Visibility="{Binding QueueRunning,Converter={StaticResource BoolVisibility}}"/>
+    <Button x:Name="QueueStartButton" Grid.Column="4" Content="{Binding StartQueueLabel}" Command="{Binding QueueDownloadCommand}" Click="SubmitLinksClicked" Style="{StaticResource QueuePrimaryButton}" MinWidth="136"/>
    </Grid>
   </Border>
  </Grid>

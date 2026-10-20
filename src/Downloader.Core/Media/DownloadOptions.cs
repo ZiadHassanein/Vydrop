@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 namespace YouTubeDownloader;
 public sealed class DownloadOptions
 {
@@ -10,11 +11,18 @@ public sealed class DownloadOptions
     public int AudioBitrate;
     public AudioEncoding AudioEncoding = AudioEncoding.Mp3;
     public VideoContainer VideoContainer;
-    public AudioSourceInfo AudioSource;
+    [JsonIgnore] public AudioSourceInfo AudioSource;
     public CaptionRequest Captions;
-    public MediaSelection Selection;
+    [JsonIgnore] public MediaSelection Selection;
     public PlaylistInfo Playlist;
     public bool PlaylistItem;
+    public Guid JobId;
+    public string StableOutputName, SourcePage, MediaId;
+    public int PartialGeneration;
+    public int Connections = 1;
+    public long BytesPerSecond;
+    public int MaximumAttempts = 2;
+    public bool DirectFileAcceleration;
     internal string ResumeDirectory { get; set; }
 
     public DownloadOptions Snapshot() => new()
@@ -23,6 +31,8 @@ public sealed class DownloadOptions
         Audio = Audio, AudioBitrate = AudioBitrate, AudioEncoding = AudioEncoding, VideoContainer = VideoContainer, AudioSource = AudioSource,
         Height = Height, Captions = Captions, Selection = Selection, PlaylistItem = PlaylistItem,
         ResumeDirectory = ResumeDirectory,
+        JobId = JobId, StableOutputName = StableOutputName, SourcePage = SourcePage, MediaId = MediaId, PartialGeneration = PartialGeneration,
+        Connections = Connections, BytesPerSecond = BytesPerSecond, MaximumAttempts = MaximumAttempts, DirectFileAcceleration = DirectFileAcceleration,
         Playlist = Playlist == null ? null : new PlaylistInfo
         {
             Id = Playlist.Id, Url = Playlist.Url, Title = Playlist.Title, ThumbnailUrl = Playlist.ThumbnailUrl, IsMix = Playlist.IsMix,

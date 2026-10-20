@@ -39,7 +39,9 @@ public partial class OutputOptionsWindow : Window
         if (SearchInput is not { } search) return;
         search.Clear();
         FilterCaptionChoices();
-        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+        // ComboBox also queues selection focus while its native popup opens.
+        // Run after that work so the editable search remains the keyboard target.
+        Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
         {
             if (CaptionInput.IsDropDownOpen) search.Focus();
         }));

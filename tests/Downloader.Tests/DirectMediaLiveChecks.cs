@@ -15,7 +15,8 @@ internal static class DirectMediaLiveChecks
         if (quality.Resolution != 176 || !info.HasAudio || info.Duration < 10 || info.AudioSource.BitrateKbps is not (> 160 and < 161))
             throw new Exception("The live sample did not retain its measured 176p/AAC source facts.");
         Directory.CreateDirectory(output);
-        var options = new DownloadOptions { Url = url, Folder = Path.GetFullPath(output), Height = quality.Resolution, Selection = quality.Selection };
+        var options = new DownloadOptions { Url = url, Folder = Path.GetFullPath(output), Height = quality.Resolution, Selection = quality.Selection,
+            JobId = Guid.NewGuid(), StableOutputName = "Public compatibility sample", Connections = 2, BytesPerSecond = 1024 * 1024, DirectFileAcceleration = true };
         var result = provider.DownloadItem(options);
         using var runner = new WindowsProcessRunner();
         var json = new StringBuilder();

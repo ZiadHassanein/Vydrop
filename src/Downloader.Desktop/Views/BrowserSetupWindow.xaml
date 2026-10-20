@@ -34,6 +34,8 @@
        <DataTrigger Binding="{Binding IsConnected}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Success}"/></DataTrigger>
       </Style.Triggers></Style></TextBlock.Style>
      </TextBlock>
+    <TextBlock Text="{Binding VerificationStatus}" FontWeight="SemiBold" AutomationProperties.LiveSetting="Polite" Margin="0,6,0,0"/>
+    <TextBlock Text="{Binding VerificationHint}" Style="{StaticResource SetupHint}" Margin="0,4,0,12"/>
     <TextBlock Text="{Binding ManualStepsLabel}" Style="{StaticResource SetupHeading}" Margin="0,22,0,8"/>
     <TextBlock Text="{Binding BrowserSteps}" TextWrapping="Wrap"/>
     <TextBlock Text="{Binding FirefoxHint}" Style="{StaticResource SetupHint}" Margin="0,8,0,0" Visibility="{Binding IsFirefox,Converter={StaticResource BoolVisibility}}"/>

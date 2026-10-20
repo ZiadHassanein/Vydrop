@@ -37,6 +37,7 @@ public sealed partial class MainViewModel : ObservableObject
         this.thumbnailLoader = thumbnailLoader ?? new MediaThumbnailLoader();
         InitializePresentation();
         state = settings.Load();
+        Queue = new DownloadQueue(new LocalQueueStorage(Path.GetDirectoryName(settings.FilePath)));
         encoding = Encodings.FirstOrDefault(e => e.Encoding == state.AudioEncoding) ?? Encodings[0];
         folder = AppPaths.InitialFolder(state.Folder, state.FolderVersion == 0);
         state.FolderVersion = 1;
@@ -98,6 +99,7 @@ public sealed partial class MainViewModel : ObservableObject
         downloads.Operations.Changed += () => actions.Dispatch(RefreshAvailability);
         if (settings.RecoveryMessage != null)
             ShowNotice("Settings recovered", settings.RecoveryMessage, false, "folder");
+        if (Queue.StorageError != null) ShowNotice("Queue needs attention", Queue.StorageError, true, "folder");
         if (AppUpdates.RecoveryMessage != null)
             SetStatus("Update needs recovery", AppUpdates.RecoveryMessage, true);
     }
@@ -135,6 +137,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             if (!SetProperty(ref url, value ?? ""))
                 return;
+            incomingSourcePage = null; incomingMediaId = null;
             if (IsIdle)
             {
                 lastFile = null;

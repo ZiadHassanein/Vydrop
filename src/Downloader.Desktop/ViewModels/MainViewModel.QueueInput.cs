@@ -94,6 +94,7 @@ public sealed partial class MainViewModel
             catch (ArgumentException) { field.SetError("Enter a valid video or playlist link."); }
             catch (UriFormatException) { field.SetError("Enter a valid video or playlist link."); }
             catch (InvalidOperationException exception) { field.SetError(exception.Message); }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException) { field.SetError("Queue changes could not be saved. Keep Vydrop open and check free space and folder access."); }
         }
         if (QueueLinkInputs.Count == 0) QueueLinkInputs.Add(NewQueueLinkInput());
         QueueMessage = added > 0 ? F("{0} links added to the queue.", added) : "";

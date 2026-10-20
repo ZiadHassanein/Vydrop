@@ -46,6 +46,10 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public string Intro => t("Send a video to Vydrop, then review it before downloading.");
     public string BrowserLabel => t("Your browser");
     public string ConnectionStatus => t(IsConnected ? "Connected to this Vydrop app" : "App connection is not enabled");
+    public bool IsVerified => actions.IsVerified;
+    public string VerificationStatus => t(IsVerified ? "Browser connection verified" : "Browser connection not tested yet");
+    public string VerificationHint => t("Keep this app open. In the extension popup, choose Test connection to verify the complete browser-to-app link.");
+    internal void RefreshVerification() { OnPropertyChanged(nameof(IsVerified)); OnPropertyChanged(nameof(VerificationStatus)); }
     public string KeepFolderHint => t("Keep Vydrop in a permanent folder. Reconnect here if you move it.");
     public string EnableLabel => t(IsConnected ? "Reconnect app" : "Enable connection");
     public string DisableLabel => t("Disable connection");

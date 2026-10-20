@@ -20,7 +20,9 @@ public sealed class QueueItemView : ObservableObject
     public bool IsActive => Entry.State is QueueState.Preparing or QueueState.Downloading;
     public bool IsPreparing => Entry.State == QueueState.Preparing;
     public bool CanRetry { get; private set; }
+    public string RetryAction { get; private set; }
     public bool CanRemove => Entry.State is not (QueueState.Preparing or QueueState.Downloading);
+    public bool CanRefresh => Entry.Options.SourcePage != null && !string.IsNullOrEmpty(Entry.Options.MediaId) && Entry.State is QueueState.Failed or QueueState.Paused or QueueState.Interrupted or QueueState.AwaitingSource;
     public bool HasError => Error.Length > 0;
     public bool HasCompletedOutput => Entry.State == QueueState.Completed && (Entry.Result?.FilePath != null || Entry.Result?.Files.Count > 0);
     public string CompletedFolder
@@ -38,14 +40,15 @@ public sealed class QueueItemView : ObservableObject
     {
         Status = translate(Entry.State.ToString());
         Error = Entry.Error == null ? translate(Entry.Result?.Warning ?? "") : translate(MainViewModel.DescribeError(new InvalidOperationException(Entry.Error)));
-        CanRetry = !running && Entry.State is QueueState.Failed or QueueState.Cancelled;
+        CanRetry = !running && Entry.State is QueueState.Failed or QueueState.Cancelled or QueueState.Paused or QueueState.Interrupted;
+        RetryAction = translate(Entry.State is QueueState.Paused or QueueState.Interrupted ? "Resume" : "Retry");
         OnPropertyChanged(string.Empty);
     }
 }
 
 public sealed partial class MainViewModel
 {
-    public DownloadQueue Queue { get; } = new();
+    public DownloadQueue Queue { get; private set; } = new();
     public ObservableCollection<QueueItemView> QueueItems { get; } = new();
     public ObservableCollection<CaptionChoice> CaptionChoices { get; } = new();
     public IReadOnlyList<EncodingChoice> Encodings { get; } = new[] { new EncodingChoice("MP3", AudioEncoding.Mp3), new EncodingChoice("M4A", AudioEncoding.M4a), new EncodingChoice("Opus", AudioEncoding.Opus), new EncodingChoice("WAV", AudioEncoding.Wav), new EncodingChoice("FLAC", AudioEncoding.Flac) };
@@ -80,7 +83,7 @@ public sealed partial class MainViewModel
     public string CaptionSearchEmptyLabel => T("No matching languages. Try another name or code.");
     public string CaptionLanguagesLabel => T("Get subtitle languages");
     public string AddQueueLabel => T("Add to queue");
-    public string StartQueueLabel => T("Start queue");
+    public string StartQueueLabel => T("Start download");
     public string RetryLabel => T("Retry");
     public string RemoveLabel => T("Remove");
     public string QueueHeading => T("Download queue");
@@ -167,6 +170,8 @@ public sealed partial class MainViewModel
             finally { RefreshAvailability(); }
         }, () => CanGetCaptionLanguages);
         Queue.Changed += () => actions.Dispatch(SyncQueue);
+        InitializeQueueReliability();
+        SyncQueue();
         RefreshCaptions();
     }
 
@@ -198,7 +203,10 @@ public sealed partial class MainViewModel
             VideoContainer = SelectedVideoFormat.Container, AudioSource = videoInfo?.AudioSource,
             Height = SelectedQuality?.Height ?? 1080, QualityKey = SelectedQuality?.Key,
             Selection = SelectedQuality?.Selection,
-            Captions = CurrentCaption()
+            Captions = CurrentCaption(),
+            Connections = DownloadConnections, BytesPerSecond = SpeedLimitKiB * 1024L, MaximumAttempts = QueueAttempts,
+            DirectFileAcceleration = DirectFileAcceleration, StableOutputName = videoInfo?.Title,
+            SourcePage = incomingSourcePage, MediaId = incomingMediaId
         };
     internal void ClearQueueMessage()
     {
@@ -216,9 +224,17 @@ public sealed partial class MainViewModel
             if (row == null) { row = new QueueItemView(entry); QueueItems.Add(row); }
             row.Refresh(T, Queue.IsRunning);
         }
+        for (int index = 0; index < entries.Count; index++)
+        {
+            var row = QueueItems.First(q => q.Id == entries[index].Id);
+            int old = QueueItems.IndexOf(row);
+            if (old != index) QueueItems.Move(old, index);
+        }
+        if (Queue.StorageError != null) { QueueMessage = T(Queue.StorageError); OnPropertyChanged(nameof(QueueMessage)); }
         OnPropertyChanged(nameof(QueueLabel));
         OnPropertyChanged(nameof(HasQueue));
         OnPropertyChanged(nameof(QueueRunning));
+        QueuePauseCommand?.NotifyCanExecuteChanged(); MoveQueueUpCommand?.NotifyCanExecuteChanged(); MoveQueueDownCommand?.NotifyCanExecuteChanged();
         RefreshAvailability();
     }
     private async Task StartQueueAsync()
@@ -227,7 +243,7 @@ public sealed partial class MainViewModel
         SetStatus("Download queue", "Preparing your download…", false, true);
         await Queue.RunAsync(async (request, progress, token) =>
         {
-                var result = await downloads.DownloadQueueItemAsync(request, progress, token);
+                var result = await downloads.DownloadQueueItemAsync(request, progress, Queue.CapturePreparedOptions, token);
                 actions.Dispatch(() =>
                 {
                     RememberFiles(result);
@@ -235,8 +251,8 @@ public sealed partial class MainViewModel
                 });
                 return result;
         });
-        bool pending = Queue.Entries.Any(e => e.State == QueueState.Pending);
-        SetStatus(pending ? "Queue paused" : "Queue finished", pending ? "Review failed items before starting the remaining downloads." : "Open the queue to review completed or failed downloads.", false);
+        bool pending = Queue.Entries.Any(e => e.State is QueueState.Pending or QueueState.Paused or QueueState.Interrupted or QueueState.AwaitingSource);
+        SetStatus(pending ? "Queue paused" : "Queue finished", pending ? "Review the queue to resume or start the remaining downloads." : "Open the queue to review completed or failed downloads.", false);
         quietCompletion = Queue.Entries.All(entry => entry.State == QueueState.Completed && entry.Result?.Warning == null);
         SyncQueue();
     }
@@ -273,8 +289,6 @@ public sealed partial class MainViewModel
     }
     public bool ReceiveBrowserLink(string link)
     {
-        if (!IsIdle) return false;
-        Url = link;
-        return true;
+        return ReceiveBrowserRequest(new BrowserRequest(1, "open-link", link)).Accepted;
     }
 }

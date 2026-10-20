@@ -169,6 +169,18 @@ Each web service differs. This compares workflows, not other products’ safety.
 
 ## Build from source
 
+### Download reliability preview on this branch
+
+The development branch adds a locally saved queue with Pause/Resume and restart recovery, queue reordering, one-time start/stop scheduling, per-job snapshots of retry/speed/concurrency settings, and a browser inbox that accepts explicitly sent links while another job is busy. Interrupted jobs wait for your action. Scheduled jobs require Vydrop to remain open. Download controls apply to newly added jobs; existing jobs retain their saved settings.
+
+Companion 1.4.0 adds **Test connection**, **Add to download queue** and optional media-stream discovery. Discovery requires a separate permission grant, reads response media types/URLs without cookies or account import, and keeps candidates briefly in memory. Sending a candidate still opens the app for review. Older companions and hosts retain version-1 link sending; capabilities requiring the new app are unavailable on an older host.
+
+HLS/DASH downloads can use 1, 2 or 4 parallel fragments with an optional speed limit. Opt-in direct-MP4 acceleration requires correct byte ranges and a strong ETag, validates ranges and media before promoting the completed file, and keeps partial chunks for safe resume. Unsupported files use the existing downloader. Expired browser sources with a recognized video identity can be refreshed from their original page. Unidentified sources must be added again. Changed URLs restart in a separate partial generation rather than appending to unverified bytes.
+
+Queued URLs (including any signed media query), source pages, output choices and completion paths are saved in `queue.json` and its previous-state backup inside the existing local app data directory. Preview builds use `ViFreePreview`; stable builds keep `YouTubeDownloader`. Removing a job updates the current queue; a previous-state backup may retain it until replaced. No queue data is sent to an analytics service.
+
+Use `scripts/package.ps1 -Preview -Version 4.3.0-preview.1` for a separate test build. `scripts/package-browser.ps1 -StorePackages` prepares unsigned store upload archives and a readiness report. Store publication, permanent Firefox signing and desktop Authenticode signing still need publisher accounts, assigned store IDs and a code-signing certificate. `scripts/sign-desktop.ps1` supports an explicitly selected certificate; it never creates trust certificates or exports private keys. Public 4.2.5 downloads remain the current stable release.
+
 On Windows, install the **.NET 10 SDK**. **Node.js 20+** is also required for browser-companion tests.
 
 ```powershell
@@ -239,6 +251,12 @@ Media URLs and metadata are untrusted. Vydrop uses bounded input handling, expli
 Supported sites depend on upstream extractors. Public-link validation is not a full network sandbox, and this application does not bypass DRM or authentication. Download media only when you have permission.
 
 ## Update trust boundary
+
+The active development preview persists queue jobs and recovery backups locally. This includes URLs with any signed query parameters, source pages, output preferences and completion paths. These files are not encrypted application secrets: other processes running as the same Windows user can read them. Removing a queue item changes the primary file; its previous-state backup can retain the item until a later save. Keep these files out of public bug reports.
+
+Optional stream discovery requires an explicit browser permission grant. It observes media response metadata, not request headers, cookies, login data or response bodies. Candidate URLs stay in bounded, short-lived browser memory and are sent to the app only after an explicit action. Discovery does not establish that a resource is publicly accessible; the app downloads without importing the browser session. The native protocol retains version 1 and validates version-2 message types, sizes, source URLs and request IDs. Host registration and a recent end-to-end connection test are distinct states.
+
+Direct-file acceleration requires a strong ETag and exact HTTP range responses. Changed validators or inconsistent ranges stop assembly; incomplete data is never promoted as a verified completed download. Current-user process/pipe limits and existing stable/preview identities remain in effect.
 
 Release hashes, GitHub asset digests and official tool checksums detect corruption and substitutions relative to the expected publisher. They are fetched from the same publisher accounts as the binaries, so they do not protect against a compromised publisher account or release workflow. Current desktop packages are not Authenticode-signed and there is no independent embedded signing key. New app releases require the user's install action; tool checks can happen automatically.
 

@@ -1,4 +1,5 @@
 if (!globalThis.ViFreeConnection) importScripts("connection.js", "video-detection.js");
+if (typeof importScripts === "function" && !globalThis.VydropMediaDiscovery) importScripts("media-discovery.js");
 const { api, name, sendLink, errorMessage } = globalThis.ViFreeConnection;
 const arabic = /^ar\b/iu.test(api.i18n?.getUILanguage?.() ?? "");
 const text = arabic
@@ -15,7 +16,7 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
   } catch { /* Only this extension's web content scripts can forward an explicit video click. */ }
   if (!allowed) { respond({ ok: false, code: "invalid", message: "This video page cannot open Vydrop." }); return false; }
   globalThis.ViFreeVideoDetection.resolveSource({ url: message.url, linkedinAsset: message.linkedinAsset, sourcePage: message.sourcePage })
-    .then(async url => { await sendLink(url); respond({ ok: true, url }); }, error => respond({ ok: false, code: error.code, message: error.message }))
+    .then(async url => { const result = await sendLink(url, { sourcePage: message.sourcePage || (url === message.url ? sender.tab.url || sender.url : message.url) }); respond({ ok: true, url, code: result.code }); }, error => respond({ ok: false, code: error.code, message: error.message }))
     .catch(error => respond({ ok: false, code: error.code, message: error.message }));
   return true;
 });

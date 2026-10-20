@@ -2,6 +2,8 @@ using System.Buffers.Binary;
 using System.Text.Json;
 
 namespace YouTubeDownloader;
+public sealed record BrowserRequest(int Version, string Type, string Url = null, string RequestId = null, string SourcePage = null, string MediaId = null);
+public sealed record BrowserReceipt(bool Accepted, string Code, string Message = null);
 public static class BrowserProtocol
 {
     public const int MaximumBytes = 65536;
@@ -33,5 +35,26 @@ public static class BrowserProtocol
             !message.TryGetProperty("url", out var url) || url.ValueKind != JsonValueKind.String)
             throw new InvalidDataException("The browser message is not supported.");
         return MediaLink.PublicUrl(url.GetString());
+    }
+    public static BrowserRequest ReadRequest(JsonElement message)
+    {
+        if (message.ValueKind != JsonValueKind.Object || message.EnumerateObject().Select(p => p.Name).Distinct(StringComparer.Ordinal).Count() != message.EnumerateObject().Count()) throw new InvalidDataException("The browser message is invalid.");
+        if (!message.TryGetProperty("version", out var version) || !version.TryGetInt32(out int number)) throw new InvalidDataException("The browser message is not supported.");
+        if (number == 1) return new(1, "open-link", ReadUrl(message));
+        if (number != 2 || message.EnumerateObject().Any(p => p.Name is not ("version" or "type" or "url" or "requestId" or "sourcePage" or "mediaId"))) throw new InvalidDataException("The browser message is not supported.");
+        if (message.EnumerateObject().Any(p => p.Name != "version" && p.Value.ValueKind != JsonValueKind.String)) throw new InvalidDataException("The browser fields must be strings.");
+        static string Text(JsonElement root, string key) => root.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
+        string type = Text(message, "type"), id = Text(message, "requestId"), mediaId = Text(message, "mediaId");
+        if (type is not ("ping" or "open-link" or "enqueue") || id == null || !System.Text.RegularExpressions.Regex.IsMatch(id, @"^[A-Za-z0-9_-]{1,64}$") ||
+            mediaId != null && !System.Text.RegularExpressions.Regex.IsMatch(mediaId, @"^[A-Za-z0-9_-]{1,128}$")) throw new InvalidDataException("The browser request is invalid.");
+        if (type == "ping")
+        {
+            if (message.EnumerateObject().Count() != 3) throw new InvalidDataException("The health request is invalid.");
+            return new(2, type, RequestId: id);
+        }
+        string url = MediaLink.PublicUrl(Text(message, "url"));
+        string page = Text(message, "sourcePage");
+        if (page != null) page = MediaLink.PublicUrl(page);
+        return new(2, type, url, id, page, mediaId);
     }
 }

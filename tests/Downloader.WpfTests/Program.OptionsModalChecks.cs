@@ -185,6 +185,7 @@ internal static partial class Program
         await Task.Delay(150);
         var search = (TextBox)caption.Template.FindName("CaptionSearchInput", caption);
         var empty = (TextBlock)caption.Template.FindName("CaptionSearchEmpty", caption);
+        for (int attempt = 0; attempt < 20 && !search.IsKeyboardFocused; attempt++) await Task.Delay(50);
         Check(search.IsKeyboardFocused && search.Text == "", "Opening subtitle choices focuses the search field");
         bool Visible(string language) => ((ComboBoxItem)caption.ItemContainerGenerator.ContainerFromItem(model.CaptionChoices.First(choice => choice.Language == language))).Visibility == Visibility.Visible;
         search.Text = "  ENGLISH  ";

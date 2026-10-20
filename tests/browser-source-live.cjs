@@ -6,8 +6,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require(process.env.VYDROP_PLAYWRIGHT || 'playwright');
 const root = path.resolve(__dirname, '..');
-const extension = path.resolve(process.env.VYDROP_EXTENSION || path.join(root, 'dist/Vydrop-4.2.5-win-x64/Browser/chromium'));
+const extension = path.resolve(process.env.VYDROP_EXTENSION || path.join(root, 'dist/Vydrop-4.3.0-preview.1-win-x64/Browser/chromium'));
 const media = process.env.VYDROP_FIXTURE_MEDIA;
+const expectedVersion = process.env.VYDROP_EXPECTED_COMPANION || '1.4.0';
 const asset = 'D4D05AQTestSelectedVideo';
 const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:7517135049939525632/';
 const group = 'https://www.linkedin.com/groups/2066905/?q=highlightedFeedForGroups&highlightedUpdateUrn=urn%3Ali%3Aactivity%3A7517135049939525632';
@@ -25,7 +26,8 @@ const metadata = JSON.stringify({ included: [{ $type: 'com.linkedin.videocontent
   const results = [];
   try {
     const worker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker', { timeout: 10000 });
-    assert.equal(await worker.evaluate(() => chrome.runtime.getManifest().version), '1.3.6');
+    assert.equal(await worker.evaluate(() => chrome.runtime.getManifest().version), expectedVersion);
+    const expectedHost = (await worker.evaluate(() => chrome.runtime.getManifest().name)).endsWith(' Preview') ? 'com.vifree.preview' : 'com.vifree';
     await worker.evaluate(() => {
       globalThis.testNative = [];
       globalThis.testLookup = [];
@@ -45,6 +47,7 @@ const metadata = JSON.stringify({ included: [{ $type: 'com.linkedin.videocontent
         try { const response = await send(...args); testLookup.push({ response }); return response; }
         catch (error) { testLookup.push({ error: error.message }); throw error; }
       };
+      chrome.runtime.connectNative = undefined; // This detection-only fixture must never reach a registered local native host.
       chrome.runtime.sendNativeMessage = async (host, message) => { testNative.push({ host, message }); return { ok: true }; };
     });
     let lookupRequests = 0;
@@ -81,7 +84,7 @@ const metadata = JSON.stringify({ included: [{ $type: 'com.linkedin.videocontent
         assert.equal(await button.getAttribute('data-state'), 'success', await button.getAttribute('title'));
         const sent = await worker.evaluate(() => testNative.at(-1));
         if (sent.message.url !== source) console.log(JSON.stringify({ scenario, lookupRequests, created: created.map(p => ({ url: p.url(), closed: p.isClosed() })), lookup: await worker.evaluate(() => testLookup) }));
-        assert.equal(sent.host, 'com.vifree');
+        assert.equal(sent.host, expectedHost);
         assert.equal(sent.message.url, source, 'native delivery receives only the exact selected progressive media');
         assert.equal(sent.message.type, 'open-link');
         assert.equal(page.isClosed(), false, 'the user video tab remains open');
@@ -92,6 +95,6 @@ const metadata = JSON.stringify({ included: [{ $type: 'com.linkedin.videocontent
         console.log(`PASS: packaged MV3 ${scenario}: exact media, outside button and temporary-tab lifecycle`);
       } finally { context.off('page', onPage); await page.close(); }
     }
-    fs.writeFileSync(path.join(root, 'build/linkedin-v136-mv3-results.json'), JSON.stringify({ version: '1.3.6', results }, null, 2));
+    fs.writeFileSync(path.join(root, 'build/linkedin-source-mv3-results.json'), JSON.stringify({ version: expectedVersion, results }, null, 2));
   } finally { await context.close(); console.log('Disposable test profile: ' + profile); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

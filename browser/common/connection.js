@@ -14,6 +14,7 @@ globalThis.ViFreeConnection = (() => {
       busy: `${name} is busy. Finish or cancel the current download, then try again.`,
       unavailable: `Open ${name} and enable Browser integration, then try again.`,
       failed: `Could not send this video to ${name}. Try again, or copy the video link into the app.`
+      ,unsupported: "Update Vydrop to use this action.", protected: "This player uses protected media, which Vydrop cannot download.", storage: "Vydrop could not save the queue. Check disk space and folder access."
     },
     ar: {
       invalid: "اختر رابط فيديو متاحًا للعامة.",
@@ -23,6 +24,7 @@ globalThis.ViFreeConnection = (() => {
       busy: `${name} مشغول. أنهِ التنزيل الحالي أو ألغِه، ثم حاول مجددًا.`,
       unavailable: `افتح ${name} وفعّل الربط بالمتصفح، ثم حاول مجددًا.`,
       failed: `تعذّر إرسال الفيديو إلى ${name}. حاول مجددًا أو انسخ رابط الفيديو إلى التطبيق.`
+      ,unsupported: "حدّث Vydrop لاستخدام هذا الإجراء.", protected: "يستخدم هذا المشغّل محتوى محميًا لا يستطيع Vydrop تنزيله.", storage: "تعذّر على Vydrop حفظ قائمة التنزيل. تحقق من المساحة المتاحة وأذونات المجلد."
     }
   };
   // Never display raw host/page errors: older hosts may omit a code entirely.
@@ -30,16 +32,64 @@ globalThis.ViFreeConnection = (() => {
     const table = arabic ? messages.ar : messages.en;
     return Object.hasOwn(table, error?.code) ? table[error.code] : table.failed;
   }
-  async function sendLink(value) {
+  let port, idle, sequence = 0;
+  const pending = new Map();
+  function closePort() {
+    clearTimeout(idle); const previous = port; port = null;
+    for (const job of pending.values()) { clearTimeout(job.timeout); job.reject(fail(messages.en.unavailable, "unavailable")); }
+    pending.clear(); previous?.disconnect();
+  }
+  function request2(type, fields = {}) {
+    return new Promise((resolve, reject) => {
+      if (!api.runtime.connectNative) { reject(fail(messages.en.unsupported, "unsupported")); return; }
+      if (!port) {
+        try { port = api.runtime.connectNative(host); }
+        catch { reject(fail(messages.en.unavailable, "unavailable")); return; }
+        const connectedPort = port;
+        port.onMessage.addListener(response => {
+          const id = response?.requestId ?? (pending.size === 1 ? pending.keys().next().value : "");
+          const job = pending.get(id); if (!job) return;
+          pending.delete(id); clearTimeout(job.timeout); job.resolve(response);
+        });
+        port.onDisconnect.addListener(() => {
+          void api.runtime.lastError; if (port !== connectedPort) return; port = null;
+          for (const job of pending.values()) { clearTimeout(job.timeout); job.reject(fail(messages.en.unavailable, "unavailable")); }
+          pending.clear();
+        });
+      }
+      const requestId = `${Date.now()}_${++sequence}`;
+      const timeout = setTimeout(() => { pending.delete(requestId); reject(fail(messages.en.unavailable, "unavailable")); closePort(); }, 18000);
+      pending.set(requestId, { resolve, reject, timeout });
+      try { port.postMessage({ version: 2, type, requestId, ...fields }); }
+      catch { pending.delete(requestId); clearTimeout(timeout); reject(fail(messages.en.unavailable, "unavailable")); closePort(); }
+      clearTimeout(idle); idle = setTimeout(closePort, 30000);
+    });
+  }
+  function validUrl(value) {
     if (typeof value !== "string" || value.length > 8192 || /[\u0000-\u001f\u007f]/u.test(value)) throw fail(messages.en.invalid, "invalid");
     let url;
     try { url = new URL(value); } catch { throw fail(messages.en.invalid, "invalid"); }
     if (!["https:", "http:"].includes(url.protocol) || url.username || url.password || url.port) throw fail(messages.en.invalid, "invalid");
+    return url;
+  }
+  async function sendLink(value, context = {}) {
+    const url = validUrl(value);
     let response;
-    try { response = await api.runtime.sendNativeMessage(host, { version: 1, type: "open-link", url: url.href }); }
+    if (api.runtime.connectNative) {
+      let health;
+      try { health = await request2("ping"); } catch { /* The legacy host may close after rejecting v2. */ }
+      if (health?.ok && health.protocol === 2) {
+        const fields = { url: url.href };
+        if (context.sourcePage) fields.sourcePage = validUrl(context.sourcePage).href;
+        const asset = context.mediaId || url.pathname.match(/^\/playlist\/vid\/v2\/([A-Za-z0-9_-]+)\/mp4-/u)?.[1];
+        if (/^[A-Za-z0-9_-]{1,128}$/u.test(asset ?? "")) fields.mediaId = asset;
+        response = await request2(context.enqueue ? "enqueue" : "open-link", fields);
+      }
+    }
+    try { response ??= await api.runtime.sendNativeMessage(host, { version: 1, type: "open-link", url: url.href }); }
     catch { throw fail(`Open ${name} and enable Browser integration, then try again.`, "unavailable"); }
     if (!response?.ok) throw fail("The native host rejected this link.", Object.hasOwn(messages.en, response?.code) ? response.code : "failed");
     return response;
   }
-  return { api, name, sendLink, errorMessage };
+  return { api, name, sendLink, errorMessage, testConnection: () => request2("ping") };
 })();

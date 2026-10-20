@@ -1,12 +1,12 @@
 #nullable enable
 namespace YouTubeDownloader;
 
-public enum QueueState { Pending, Preparing, Downloading, Completed, Failed, Cancelled }
+public enum QueueState { Pending, Preparing, Downloading, Completed, Failed, Cancelled, Paused, Interrupted, AwaitingSource }
 
 public sealed class QueueEntry
 {
-    private readonly DownloadOptions request;
-    public Guid Id { get; } = Guid.NewGuid();
+    private DownloadOptions request;
+    public Guid Id { get; internal set; } = Guid.NewGuid();
     public string Url => request.Url;
     public string Title { get; internal set; }
     public QueueState State { get; internal set; }
@@ -16,12 +16,13 @@ public sealed class QueueEntry
     public DownloadResult? Result { get; internal set; }
     internal long Generation { get; set; }
     public DownloadOptions Options => request.Snapshot();
+    internal void UpdateOptions(DownloadOptions value) => request = value.Snapshot();
     internal QueueEntry(DownloadOptions options, string? title)
         => (request, Title) = (options.Snapshot(), title ?? options.Url);
 }
 
-// Session-only state. A single dispatcher owns each job, including all retries.
-public sealed class DownloadQueue
+// A single dispatcher owns each job, including retries and durable state transitions.
+public sealed partial class DownloadQueue
 {
     public const int Capacity = 100;
     private readonly object gate = new();
@@ -41,16 +42,18 @@ public sealed class DownloadQueue
             if (entries.Any(e => e.State is QueueState.Pending or QueueState.Preparing or QueueState.Downloading && e.Url == options.Url && e.Options.Folder == options.Folder && OutputProfiles.Key(e.Options) == OutputProfiles.Key(options)))
                 throw new InvalidOperationException("This download is already in the queue.");
             entry = new(options, title);
+            entry.UpdateOptions(WithJobIdentity(entry.Options, entry.Id));
             entries.Add(entry);
+            try { Persist(); } catch { entries.Remove(entry); throw; }
         }
-        Changed?.Invoke();
+        Signal(false);
         return entry;
     }
     public bool Remove(Guid id)
     {
         bool removed;
         lock (gate) removed = entries.RemoveAll(e => e.Id == id && e.State is not (QueueState.Preparing or QueueState.Downloading)) > 0;
-        if (removed) Changed?.Invoke();
+        if (removed) Signal();
         return removed;
     }
     public bool Retry(Guid id)
@@ -58,7 +61,7 @@ public sealed class DownloadQueue
         lock (gate)
         {
             var entry = entries.FirstOrDefault(e => e.Id == id);
-            if (entry == null || entry.State is not (QueueState.Failed or QueueState.Cancelled)) return false;
+            if (entry == null || entry.State is not (QueueState.Failed or QueueState.Cancelled or QueueState.Paused or QueueState.Interrupted)) return false;
             entry.State = QueueState.Pending;
             entry.Error = null;
             entry.Percent = 0;
@@ -66,7 +69,7 @@ public sealed class DownloadQueue
             entry.Result = null;
             entry.Generation++;
         }
-        Changed?.Invoke();
+        Signal();
         return true;
     }
     public void Stop()
@@ -78,17 +81,22 @@ public sealed class DownloadQueue
         catch (ObjectDisposedException) { } // The run may have finished after the snapshot.
     }
 
-    public async Task RunAsync(Func<DownloadOptions, IProgress<DownloadProgress>, CancellationToken, Task<DownloadResult>> execute,
+    public Task RunAsync(Func<DownloadOptions, IProgress<DownloadProgress>, CancellationToken, Task<DownloadResult>> execute,
+        Func<TimeSpan, CancellationToken, Task>? wait = null, CancellationToken token = default) => RunJobAsync(null, execute, wait, token);
+    public async Task RunJobAsync(Guid? onlyJob, Func<DownloadOptions, IProgress<DownloadProgress>, CancellationToken, Task<DownloadResult>> execute,
         Func<TimeSpan, CancellationToken, Task>? wait = null, CancellationToken token = default)
     {
         CancellationTokenSource run;
+        HashSet<Guid> batch;
         lock (gate)
         {
             if (lifetime != null) throw new InvalidOperationException("The queue is already running.");
             run = lifetime = CancellationTokenSource.CreateLinkedTokenSource(token);
+            // A later browser handoff must wait for another explicit start action.
+            batch = entries.Where(e => e.State == QueueState.Pending && (!onlyJob.HasValue || e.Id == onlyJob)).Select(e => e.Id).ToHashSet();
         }
         wait ??= Task.Delay;
-        Changed?.Invoke();
+        Signal();
         try
         {
             while (!run.IsCancellationRequested)
@@ -96,13 +104,13 @@ public sealed class DownloadQueue
                 QueueEntry? entry;
                 lock (gate)
                 {
-                    entry = entries.FirstOrDefault(e => e.State == QueueState.Pending);
+                    entry = entries.FirstOrDefault(e => e.State == QueueState.Pending && batch.Contains(e.Id));
                     if (entry == null) break;
                     entry.State = QueueState.Preparing;
                 }
-                Changed?.Invoke();
+                Signal();
                 bool halt = false;
-                for (int attempt = 0; attempt < 2; attempt++)
+                for (int attempt = 0; attempt < Math.Clamp(entry.Options.MaximumAttempts, 1, 5); attempt++)
                 {
                     try
                     {
@@ -121,7 +129,7 @@ public sealed class DownloadQueue
                                 entry.Percent = Math.Clamp(p.Percent, 0, 100);
                                 if (!string.IsNullOrWhiteSpace(p.ItemTitle)) entry.Title = p.ItemTitle;
                             }
-                            Changed?.Invoke();
+                            Signal(false);
                         });
                         var result = await execute(entry.Options, progress, run.Token).ConfigureAwait(false);
                         lock (gate) entry.Result = result;
@@ -141,7 +149,7 @@ public sealed class DownloadQueue
                     {
                         lock (gate)
                         {
-                            entry.State = QueueState.Cancelled;
+                            entry.State = pauseRequested ? QueueState.Paused : QueueState.Cancelled;
                             entry.Error = null;
                         }
                         halt = true;
@@ -150,18 +158,18 @@ public sealed class DownloadQueue
                     catch (Exception ex)
                     {
                         string error = ex.Message ?? "Download failed.";
-                        if (attempt == 0 && !halt && ex is not MediaToolRecoveryException && !DownloadErrors.IsBlocked(error) && DownloadErrors.IsTransient(error))
+                        if (attempt + 1 < Math.Clamp(entry.Options.MaximumAttempts, 1, 5) && !halt && ex is not MediaToolRecoveryException && !DownloadErrors.IsBlocked(error) && DownloadErrors.IsTransient(error))
                         {
                             lock (gate)
                             {
                                 entry.Generation++;
                                 entry.Error = "Connection interrupted. Retrying…";
                             }
-                            Changed?.Invoke();
+                            Signal();
                             try { await wait(TimeSpan.FromSeconds(3), run.Token).ConfigureAwait(false); }
                             catch (OperationCanceledException)
                             {
-                                lock (gate) { entry.State = QueueState.Cancelled; entry.Error = null; }
+                                lock (gate) { entry.State = pauseRequested ? QueueState.Paused : QueueState.Cancelled; entry.Error = null; }
                                 halt = true;
                                 break;
                             }
@@ -176,19 +184,19 @@ public sealed class DownloadQueue
                         break;
                     }
                 }
-                Changed?.Invoke();
+                Signal();
                 if (halt) break;
                 // Pace separate jobs as well as items within a playlist.
-                if (Entries.Any(e => e.State == QueueState.Pending))
+                if (!onlyJob.HasValue && Entries.Any(e => e.State == QueueState.Pending && batch.Contains(e.Id)))
                     await wait(TimeSpan.FromSeconds(2), run.Token).ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException) { }
         finally
         {
-            lock (gate) { if (ReferenceEquals(lifetime, run)) lifetime = null; }
+            lock (gate) { if (ReferenceEquals(lifetime, run)) lifetime = null; pauseRequested = false; }
             run.Dispose();
-            Changed?.Invoke();
+            Signal();
         }
     }
     private sealed class QueueProgress(Action<DownloadProgress> report) : IProgress<DownloadProgress>

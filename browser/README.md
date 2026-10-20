@@ -1,5 +1,17 @@
 # Vydrop browser companion
 
+## Development companion 1.4.0
+
+The current development package adds **Test connection** (keep the app open for a full round trip), **Add to download queue**, and optional media-stream discovery in the popup. The stable release described below still includes 1.3.6. Version-1 link sending and existing extension/native-host identities are retained for compatibility.
+
+Discovery is disabled until you grant optional `webRequest` and HTTP(S) host access. It reads media response types/URLs, never cookies, account information, request bodies or media response bodies. Results are bounded per tab/frame, expire after 90 seconds and disappear on navigation or worker restart. Select a listed stream explicitly to send it for inspection; multiple players, ads, MSE, private content, unsupported formats and DRM can still prevent a usable download. Denying or removing the permission leaves normal page/player sending available.
+
+The app can save an explicitly sent link to its queue while busy. Jobs wait for review/start; sending never starts hidden downloads. New source context lets a waiting job request a fresh URL for the same video. Older hosts fall back to opening a normal review link and may still reject links while busy. Queue URLs and original pages are stored locally by the new app for recovery, including in its previous-state backup.
+
+To prepare unsigned store-root archives, use `scripts/package-browser.ps1 -StorePackages`. The generated `store-readiness.json` lists remaining publisher account, assigned ID, signing and installed-package tests. These files are **not published or signed add-ons**. Keep the existing unpacked identity; store-assigned Chromium/Edge IDs must be verified and added alongside it to both native origin validation and host manifests before publication.
+
+## Stable 1.3.6 setup and behavior
+
 Optional Chrome/Edge and Firefox companions are included in the app ZIP under `Browser`. Normal app downloads need no extension. Companion 1.3.6 displays a small **Download by Vydrop** tab near the playing video's top-right corner, outside its border, across websites including embedded HTML5 players. Clicking it copies that video's link and opens the app. You review the result, choose quality and click Download in Vydrop.
 
 **New to the extension? Follow the illustrated [Chrome](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome), [Edge](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) or [Firefox](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) guide**, with English and Arabic instructions. The regular **Vydrop** companion connects to the regular app. A separately built **Vydrop Preview** companion uses the preview channel.

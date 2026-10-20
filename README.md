@@ -147,6 +147,18 @@ Each web service differs. This compares workflows, not other products’ safety.
 
 ## Build from source
 
+### Download reliability preview on this branch
+
+The development branch adds a locally saved queue with Pause/Resume and restart recovery, queue reordering, one-time start/stop scheduling, per-job snapshots of retry/speed/concurrency settings, and a browser inbox that accepts explicitly sent links while another job is busy. Interrupted jobs wait for your action. Scheduled jobs require Vydrop to remain open. Download controls apply to newly added jobs; existing jobs retain their saved settings.
+
+Companion 1.4.0 adds **Test connection**, **Add to download queue** and optional media-stream discovery. Discovery requires a separate permission grant, reads response media types/URLs without cookies or account import, and keeps candidates briefly in memory. Sending a candidate still opens the app for review. Older companions and hosts retain version-1 link sending; capabilities requiring the new app are unavailable on an older host.
+
+HLS/DASH downloads can use 1, 2 or 4 parallel fragments with an optional speed limit. Opt-in direct-MP4 acceleration requires correct byte ranges and a strong ETag, validates ranges and media before promoting the completed file, and keeps partial chunks for safe resume. Unsupported files use the existing downloader. Expired browser sources with a recognized video identity can be refreshed from their original page. Unidentified sources must be added again. Changed URLs restart in a separate partial generation rather than appending to unverified bytes.
+
+Queued URLs (including any signed media query), source pages, output choices and completion paths are saved in `queue.json` and its previous-state backup inside the existing local app data directory. Preview builds use `ViFreePreview`; stable builds keep `YouTubeDownloader`. Removing a job updates the current queue; a previous-state backup may retain it until replaced. No queue data is sent to an analytics service.
+
+Use `scripts/package.ps1 -Preview -Version 4.3.0-preview.1` for a separate test build. `scripts/package-browser.ps1 -StorePackages` prepares unsigned store upload archives and a readiness report. Store publication, permanent Firefox signing and desktop Authenticode signing still need publisher accounts, assigned store IDs and a code-signing certificate. `scripts/sign-desktop.ps1` supports an explicitly selected certificate; it never creates trust certificates or exports private keys. Public 4.2.5 downloads remain the current stable release.
+
 On Windows, install the **.NET 10 SDK**. **Node.js 20+** is also required for browser-companion tests.
 
 ```powershell

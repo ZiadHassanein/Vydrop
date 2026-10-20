@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows;
 using System.Windows.Automation;
@@ -74,7 +73,6 @@ internal static partial class Program
         var oldEncoding = model.SelectedEncoding;
         var oldQuality = model.SelectedQuality;
         double oldWidth = window.Width, oldHeight = window.Height;
-        bool oldHitTesting = window.IsHitTestVisible;
         string fixtureFolder = System.IO.Path.GetFullPath(System.IO.Path.Combine(captures, "motion-fixtures"));
         System.IO.Directory.CreateDirectory(fixtureFolder);
         string fixtureFile = System.IO.Path.Combine(fixtureFolder, "Local UI fixture.mp4");
@@ -94,7 +92,6 @@ internal static partial class Program
         var logoScale = (ScaleTransform)((FrameworkElement)WpfTree.Find(header, "BrandInitial")).RenderTransform;
         var viewport = (ScrollViewer)WpfTree.Find(window, "Viewport");
         var transition = (ThemeTransitionView)WpfTree.Find(window, "ThemeTransition");
-        GetMotionCursor(out var originalCursor);
         async Task Until(Func<bool> predicate, string label)
         {
             for (int attempt = 0; attempt < 150 && !predicate(); attempt++) await Task.Delay(20);
@@ -274,25 +271,18 @@ internal static partial class Program
             window.UpdateLayout();
             var paste = (Button)WpfTree.Find(window, "PasteButton");
             paste.ApplyTemplate();
-            window.IsHitTestVisible = true;
-            window.Topmost = true;
-            window.Activate();
-            await Task.Delay(80);
-            window.Topmost = false;
-            window.IsHitTestVisible = oldHitTesting;
             var hover = (Border)paste.Template.FindName("HoverLayer", paste);
-            var point = paste.PointToScreen(new Point(paste.ActualWidth / 2, paste.ActualHeight / 2));
-            SetMotionCursor((int)window.Left, (int)window.Top);
+            // Exercise the real WPF hover handlers without touching the system cursor.
+            paste.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
             await Task.Delay(160);
             var pasteBounds = Bounds(paste);
-            bool moved = SetMotionCursor((int)point.X, (int)point.Y);
+            paste.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
             await Task.Delay(45);
+            Check(hover.Opacity is > 0 and < 1, "Simulated WPF hover interpolates the button wash without moving the cursor");
             Shot("hover-enter");
-            Check(paste.IsMouseOver && hover.Opacity is > 0 and < 1,
-                $"Native pointer hover interpolates the button wash (moved={moved}, over={paste.IsMouseOver}, opacity={hover.Opacity}, enabled={paste.IsEnabled}, loaded={hover.IsLoaded}, parent={hover.TemplatedParent}, active={window.IsActive}, target={point})");
             await Task.Delay(160);
             Check(hover.Opacity == 1 && Bounds(paste) == pasteBounds, "Hover settles without moving or resizing the button");
-            SetMotionCursor((int)window.Left, (int)window.Top);
+            paste.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
             await Task.Delay(160);
             Check(hover.Opacity == 0, "Pointer exit clears the hover wash");
 
@@ -359,15 +349,6 @@ internal static partial class Program
             if (model.IsDark != oldDark) model.ThemeCommand.Execute(null);
             window.Width = oldWidth;
             window.Height = oldHeight;
-            window.Topmost = false;
-            SetMotionCursor(originalCursor.X, originalCursor.Y);
         }
     }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct MotionPoint { internal int X, Y; }
-    [DllImport("user32.dll", EntryPoint = "SetCursorPos")]
-    private static extern bool SetMotionCursor(int x, int y);
-    [DllImport("user32.dll", EntryPoint = "GetCursorPos")]
-    private static extern bool GetMotionCursor(out MotionPoint point);
 }
