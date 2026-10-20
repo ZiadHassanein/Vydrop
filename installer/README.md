@@ -3,7 +3,7 @@
 Build from the repository root with PowerShell 7 and .NET 10:
 
 ```powershell
-./scripts/build-installer.ps1 -Version 4.3.0-preview.2 -Preview
+./scripts/build-installer.ps1 -Version 4.3.0-preview.4 -Preview
 # For a stable release candidate, omit -Preview and use a three-part version.
 ```
 

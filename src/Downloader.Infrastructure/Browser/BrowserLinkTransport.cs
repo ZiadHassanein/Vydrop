@@ -27,11 +27,15 @@ public static class BrowserLinkTransport
     public static async Task ListenAsync(Func<string, bool> received, CancellationToken token)
         => await ListenRequestsAsync(request => new(received(request.Url), "opened"), token).ConfigureAwait(false);
     internal static async Task<BrowserReceipt> TrySendRequestAsync(BrowserRequest request, int milliseconds, CancellationToken token)
+        => (await TrySendCompatibleRequestAsync(request, milliseconds, token).ConfigureAwait(false)).Receipt;
+    internal static async Task<(BrowserReceipt Receipt, bool Legacy)> TrySendCompatibleRequestAsync(BrowserRequest request, int milliseconds, CancellationToken token)
     {
+        bool connected = false;
         try
         {
             using var pipe = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
             await pipe.ConnectAsync(milliseconds, token).ConfigureAwait(false);
+            connected = true;
             var envelope = new Dictionary<string, object> { ["version"] = 2, ["type"] = request.Type, ["requestId"] = request.RequestId };
             if (request.Url != null) envelope["url"] = request.Url;
             if (request.SourcePage != null) envelope["sourcePage"] = request.SourcePage;
@@ -39,12 +43,14 @@ public static class BrowserLinkTransport
             await BrowserProtocol.WriteAsync(pipe, envelope, token).ConfigureAwait(false);
             using var reply = await BrowserProtocol.ReadAsync(pipe, token).ConfigureAwait(false);
             // Older apps reject v2 with an unversioned reply. Let the host retry the exact v1 envelope.
-            if (!reply.RootElement.TryGetProperty("protocol", out var protocol) || !protocol.TryGetInt32(out int version) || version != 2) return null;
-            return new(reply.RootElement.TryGetProperty("ok", out var ok) && ok.ValueKind == JsonValueKind.True,
-                reply.RootElement.TryGetProperty("code", out var code) ? code.GetString() : "busy");
+            if (!reply.RootElement.TryGetProperty("protocol", out var protocol) || !protocol.TryGetInt32(out int version) || version != 2) return (null, true);
+            return (new(reply.RootElement.TryGetProperty("ok", out var ok) && ok.ValueKind == JsonValueKind.True,
+                reply.RootElement.TryGetProperty("code", out var code) ? code.GetString() : "busy"), false);
         }
         catch (OperationCanceledException) { throw; }
-        catch (Exception ex) when (ex is IOException or TimeoutException or JsonException) { return null; }
+        // Old listeners can close an unsupported v2 frame without a reply. Only
+        // allow legacy delivery after reaching a listener, never on startup timeout.
+        catch (Exception ex) when (ex is IOException or TimeoutException or JsonException) { return (null, connected); }
     }
     public static async Task ListenRequestsAsync(Func<BrowserRequest, BrowserReceipt> received, CancellationToken token)
     {

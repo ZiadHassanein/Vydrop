@@ -110,6 +110,22 @@ internal static class DownloadImprovementChecks
         Check(launches == 1 && coldReceipt is { Accepted: true, Code: "queued" } && new DownloadQueue(new LocalQueueStorage(Path.Combine(root, "cold-start"))).Entries.Count == 1 && !coldQueue.IsRunning,
             "Cold-start delivery launches once, reaches the new listener and persists the job without starting a download");
         coldLifetime.Cancel(); await coldListener;
+        using var delayedLifetime = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        BrowserRequest delayedRequest = null;
+        var delayedListener = Task.Run(async () =>
+        {
+            // The listener appears just after the initial v2 connection timeout.
+            // Startup must retry v2 rather than handing a queue job to the v1 path.
+            await Task.Delay(350, delayedLifetime.Token);
+            await BrowserLinkTransport.ListenRequestsAsync(request => { delayedRequest = request; return new(true, "queued"); }, delayedLifetime.Token);
+        });
+        try
+        {
+            var delayedReceipt = await BrowserHost.DeliverRequestAsync(new(2, "enqueue", "https://example.com/delayed.mp4", "delayed-request", "https://example.com/post", "asset"), () => { }, delayedLifetime.Token);
+            Check(delayedReceipt is { Accepted: true, Code: "queued" } && delayedRequest is { Version: 2, Type: "enqueue", SourcePage: "https://example.com/post", MediaId: "asset" },
+                "A listener appearing after connection timeout retains the queue action and source context without a legacy downgrade");
+        }
+        finally { delayedLifetime.Cancel(); await delayedListener; }
         using var oldLifetime = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         var oldListener = Task.Run(async () =>
         {
@@ -125,6 +141,21 @@ internal static class DownloadImprovementChecks
         var oldReceipt = await BrowserHost.DeliverRequestAsync(new(2, "enqueue", "https://example.com/legacy.mp4", "old-request"), () => throw new Exception("An old running app must not be relaunched."), oldLifetime.Token);
         await oldListener;
         Check(oldReceipt is { Accepted: true, Code: "opened" }, "A v2 host falls back to an exact v1 link when an older running app returns an unversioned response");
+        using var closingLifetime = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var closingListener = Task.Run(async () =>
+        {
+            for (int index = 0; index < 2; index++)
+            {
+                using var pipe = new System.IO.Pipes.NamedPipeServerStream(BrowserLinkTransport.PipeName, System.IO.Pipes.PipeDirection.InOut, 1,
+                    System.IO.Pipes.PipeTransmissionMode.Byte, System.IO.Pipes.PipeOptions.Asynchronous | System.IO.Pipes.PipeOptions.CurrentUserOnly);
+                await pipe.WaitForConnectionAsync(closingLifetime.Token);
+                using var message = await BrowserProtocol.ReadAsync(pipe, closingLifetime.Token);
+                if (index == 1) await BrowserProtocol.WriteAsync(pipe, new { ok = message.RootElement.GetProperty("version").GetInt32() == 1 }, closingLifetime.Token);
+            }
+        });
+        var closingReceipt = await BrowserHost.DeliverRequestAsync(new(2, "enqueue", "https://example.com/old-closing.mp4", "closing-request"), () => throw new Exception("An older connected app must not be relaunched."), closingLifetime.Token);
+        await closingListener;
+        Check(closingReceipt is { Accepted: true, Code: "opened" }, "Legacy listeners that close an unsupported v2 frame still receive the exact v1 fallback");
         await DirectRangeChecks.Run(root);
         Console.WriteLine("Download improvement checks passed.");
     }

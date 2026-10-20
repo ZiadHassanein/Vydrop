@@ -67,12 +67,15 @@ public static class BrowserHost
     {
         for (int attempt = 0; attempt <= 20; attempt++)
         {
-            var receipt = await BrowserLinkTransport.TrySendRequestAsync(request, 250, token).ConfigureAwait(false);
+            var (receipt, legacyListener) = await BrowserLinkTransport.TrySendCompatibleRequestAsync(request, 250, token).ConfigureAwait(false);
             if (receipt != null) return receipt;
             // A newer native host may share a pipe with an already running older desktop build.
-            var legacy = await BrowserLinkTransport.TrySendAsync(request.Url, 250, token).ConfigureAwait(false);
-            if (legacy != BrowserDelivery.NoListener)
-                return new(legacy == BrowserDelivery.Accepted, legacy == BrowserDelivery.Accepted ? "opened" : "busy");
+            if (legacyListener)
+            {
+                var legacy = await BrowserLinkTransport.TrySendAsync(request.Url, 250, token).ConfigureAwait(false);
+                if (legacy != BrowserDelivery.NoListener)
+                    return new(legacy == BrowserDelivery.Accepted, legacy == BrowserDelivery.Accepted ? "opened" : "busy");
+            }
             if (attempt == 0) launch();
             await Task.Delay(200, token).ConfigureAwait(false);
         }

@@ -33,7 +33,7 @@ foreach($taskView in @([Microsoft.Win32.RegistryView]::Registry32,[Microsoft.Win
         foreach($taskPath in $taskPaths){$taskKey=$taskUser.OpenSubKey($taskPath);try {$taskSnapshots+=@{view=$taskView;path=$taskPath;exists=($null -ne $taskKey);value=$(if($taskKey){$taskKey.GetValue('')}else{$null});kind=$(if($taskKey -and $null -ne $taskKey.GetValue('')){$taskKey.GetValueKind('')}else{$null})}}finally{if($taskKey){$taskKey.Dispose()}}}
     } finally {$taskUser.Dispose()}
 }
-foreach($taskName in @('settings.json','settings.json.backup')){$taskFile=Join-Path $taskData $taskName;$taskSettings[$taskName]=if(Test-Path -LiteralPath $taskFile){[IO.File]::ReadAllBytes($taskFile)}else{$null}}
+foreach($taskName in @('settings.json','settings.json.backup','Browser/verified-connection.json')){$taskFile=Join-Path $taskData $taskName;$taskSettings[$taskName]=if(Test-Path -LiteralPath $taskFile){[IO.File]::ReadAllBytes($taskFile)}else{$null}}
 New-Item -ItemType Directory -Path $TestDirectory|Out-Null
 $taskExe=Join-Path $TestDirectory 'Vydrop.exe'; $taskUninstaller=Join-Path $TestDirectory 'unins000.exe'
 try {
@@ -59,7 +59,7 @@ try {
     $taskHost.StandardInput.BaseStream.Write([BitConverter]::GetBytes([uint32]$taskBytes.Length));$taskHost.StandardInput.BaseStream.Write($taskBytes);$taskHost.StandardInput.BaseStream.Flush()
     $taskDeadline=[Threading.CancellationTokenSource]::new([TimeSpan]::FromSeconds(20))
     try{$taskReply=Read-TaskFrame $taskHost.StandardOutput.BaseStream $taskDeadline.Token}finally{$taskDeadline.Dispose()}
-    Assert-Task ($taskReply.ok -and $taskReply.code -eq 'queued' -and $taskReply.requestId -eq $taskId) 'Installed native host cold-starts Vydrop and acknowledges the selected link'
+    Assert-Task ($taskReply.ok -and $taskReply.code -eq 'queued' -and $taskReply.requestId -eq $taskId) ('Installed native host cold-starts Vydrop and acknowledges the selected link: '+($taskReply|ConvertTo-Json -Compress))
     for($taskWait=0;$taskWait -lt 60 -and !$taskUi;$taskWait++){$taskUi=Get-Process -Name Vydrop -ErrorAction SilentlyContinue|Where-Object {$_.Id -ne $taskHost.Id -and $_.Path -eq $taskExe -and $_.MainWindowHandle -ne 0}|Select-Object -First 1;if(!$taskUi){Start-Sleep -Milliseconds 100}}
     Assert-Task ($null -ne $taskUi) 'Actual installed desktop window appears after cold start'
     $taskQueue=Get-Content -LiteralPath (Join-Path $taskData 'queue.json') -Raw|ConvertFrom-Json
