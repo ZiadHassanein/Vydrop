@@ -7,4 +7,6 @@ public sealed class DownloadProgress
     public bool Indeterminate;
     public int Item, Total;
     public string ItemTitle;
+    public long? DownloadedBytes, TotalBytes;
+    public double? BytesPerSecond, RemainingSeconds;
 }

@@ -48,7 +48,7 @@ internal static partial class Program
         var provider = new FakeProvider();
         var service = new DownloadService(provider, new EmptyStorage());
         var thumbnailLoader = new FixtureThumbnailLoader();
-        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader) { ShowActivated = !args.Contains("--motion") };
+        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader) { ShowActivated = !args.Contains("--motion") && !args.Contains("--manager") };
         window.ContentRendered += async (_, _) =>
         {
             try
@@ -63,10 +63,18 @@ internal static partial class Program
                 Check(MainViewModel.DescribeError(new InvalidOperationException("ERROR: [LinkedIn] 7517135049939525632: Unable to extract video")).Contains("Vydrop button") &&
                     MainViewModel.DescribeError(new System.Net.Http.HttpRequestException("Connection reset")).Contains("internet connection"),
                     "LinkedIn extraction failures explain the browser action while network failures retain connection guidance");
-                Check(window.Width == 740 && window.MinWidth == 660, "The compact workspace starts narrower and permits a smaller manual window");
-                Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
+                Check(window.Width <= 1280 && window.MinWidth == 760, "The manager workspace fits the monitor and permits compact windows");
+                Check(window.Height <= window.CurrentWorkArea().Height && window.ActualHeight < 900, $"Native window fits content within the work area (height={window.Height}, actual={window.ActualHeight}, area={window.CurrentWorkArea().Height})");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--", StringComparison.Ordinal)) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--manager") || !args.Any(arg => arg.StartsWith("--", StringComparison.Ordinal)))
+                {
+                    await CheckManager(window, model, provider, root, captures);
+                    Console.WriteLine(count + " WPF manager checks passed.");
+                    return;
+                }
+                model.NewDownloadCommand.Execute(null);
+                await Task.Delay(80);
                 if (args.Contains("--ui-refinement"))
                 {
                     await CheckUiRefinement(window, model, captures);

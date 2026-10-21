@@ -2,7 +2,8 @@ using System.Buffers.Binary;
 using System.Text.Json;
 
 namespace YouTubeDownloader;
-public sealed record BrowserRequest(int Version, string Type, string Url = null, string RequestId = null, string SourcePage = null, string MediaId = null);
+public sealed record BrowserRequest(int Version, string Type, string Url = null, string RequestId = null, string SourcePage = null, string MediaId = null, BrowserOutputChoice Output = null);
+public sealed record BrowserOutputChoice(string Kind, string Format, int Height = 0);
 public sealed record BrowserReceipt(bool Accepted, string Code, string Message = null);
 public static class BrowserProtocol
 {
@@ -41,11 +42,11 @@ public static class BrowserProtocol
         if (message.ValueKind != JsonValueKind.Object || message.EnumerateObject().Select(p => p.Name).Distinct(StringComparer.Ordinal).Count() != message.EnumerateObject().Count()) throw new InvalidDataException("The browser message is invalid.");
         if (!message.TryGetProperty("version", out var version) || !version.TryGetInt32(out int number)) throw new InvalidDataException("The browser message is not supported.");
         if (number == 1) return new(1, "open-link", ReadUrl(message));
-        if (number != 2 || message.EnumerateObject().Any(p => p.Name is not ("version" or "type" or "url" or "requestId" or "sourcePage" or "mediaId"))) throw new InvalidDataException("The browser message is not supported.");
-        if (message.EnumerateObject().Any(p => p.Name != "version" && p.Value.ValueKind != JsonValueKind.String)) throw new InvalidDataException("The browser fields must be strings.");
+        if (number != 2 || message.EnumerateObject().Any(p => p.Name is not ("version" or "type" or "url" or "requestId" or "sourcePage" or "mediaId" or "output"))) throw new InvalidDataException("The browser message is not supported.");
+        if (message.EnumerateObject().Any(p => p.Name is not ("version" or "output") && p.Value.ValueKind != JsonValueKind.String)) throw new InvalidDataException("The browser fields must be strings.");
         static string Text(JsonElement root, string key) => root.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
         string type = Text(message, "type"), id = Text(message, "requestId"), mediaId = Text(message, "mediaId");
-        if (type is not ("ping" or "open-link" or "enqueue") || id == null || !System.Text.RegularExpressions.Regex.IsMatch(id, @"^[A-Za-z0-9_-]{1,64}$") ||
+        if (type is not ("ping" or "open-link" or "enqueue" or "inspect") || id == null || !System.Text.RegularExpressions.Regex.IsMatch(id, @"^[A-Za-z0-9_-]{1,64}$") ||
             mediaId != null && !System.Text.RegularExpressions.Regex.IsMatch(mediaId, @"^[A-Za-z0-9_-]{1,128}$")) throw new InvalidDataException("The browser request is invalid.");
         if (type == "ping")
         {
@@ -55,6 +56,19 @@ public static class BrowserProtocol
         string url = MediaLink.PublicUrl(Text(message, "url"));
         string page = Text(message, "sourcePage");
         if (page != null) page = MediaLink.PublicUrl(page);
-        return new(2, type, url, id, page, mediaId);
+        BrowserOutputChoice choice = null;
+        if (message.TryGetProperty("output", out var output))
+        {
+            if (type == "inspect" || output.ValueKind != JsonValueKind.Object || output.EnumerateObject().Count() != 3 ||
+                output.EnumerateObject().Select(p => p.Name).Distinct(StringComparer.Ordinal).Count() != 3 ||
+                output.EnumerateObject().Any(p => p.Name is not ("kind" or "format" or "height")) ||
+                !output.TryGetProperty("height", out var height) || height.ValueKind != JsonValueKind.Number || !height.TryGetInt32(out int pixels) || pixels is < 0 or > 8640)
+                throw new InvalidDataException("The output choice is invalid.");
+            string kind = Text(output, "kind"), format = Text(output, "format");
+            if (kind == "video" ? format is not ("mp4" or "mkv" or "webm") : kind != "audio" || pixels != 0 || format is not ("mp3" or "m4a" or "opus" or "wav" or "flac"))
+                throw new InvalidDataException("The output choice is not supported.");
+            choice = new(kind, format, pixels);
+        }
+        return new(2, type, url, id, page, mediaId, choice);
     }
 }

@@ -14,6 +14,7 @@ public sealed class QueueEntry
     public int Attempts { get; internal set; }
     public string? Error { get; internal set; }
     public DownloadResult? Result { get; internal set; }
+    public DownloadProgress? Transfer { get; internal set; }
     internal long Generation { get; set; }
     public DownloadOptions Options => request.Snapshot();
     internal void UpdateOptions(DownloadOptions value) => request = value.Snapshot();
@@ -67,6 +68,7 @@ public sealed partial class DownloadQueue
             entry.Percent = 0;
             entry.Attempts = 0;
             entry.Result = null;
+            entry.Transfer = null;
             entry.Generation++;
         }
         Signal();
@@ -127,6 +129,7 @@ public sealed partial class DownloadQueue
                                 if (!ReferenceEquals(lifetime, run) || entry.Generation != generation || run.IsCancellationRequested || entry.State is QueueState.Cancelled or QueueState.Completed or QueueState.Failed) return;
                                 entry.State = p.Stage is "Preparing media tools" or "Checking video" or "Checking playlist" ? QueueState.Preparing : QueueState.Downloading;
                                 entry.Percent = Math.Clamp(p.Percent, 0, 100);
+                                entry.Transfer = p;
                                 if (!string.IsNullOrWhiteSpace(p.ItemTitle)) entry.Title = p.ItemTitle;
                             }
                             Signal(false);

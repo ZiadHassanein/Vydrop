@@ -40,7 +40,7 @@
    </Setter>
   </Style>
  </UserControl.Resources>
- <Border Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="24,16">
+ <Border x:Name="HeaderFrame" Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="24,16">
   <Grid>
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
    <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Click="LogoClicked" MouseEnter="LogoHovered" MouseLeave="LogoLeft" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="{Binding NewDownloadLabel}">

@@ -31,7 +31,14 @@ public static class BrowserHost
                     using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(3));
                     var health = await BrowserLinkTransport.TrySendRequestAsync(request, 500, deadline.Token).ConfigureAwait(false);
                     if (health?.Accepted == true) BrowserHealth.Record(Environment.ProcessPath);
-                    response = new { ok = true, code = "ready", protocol = 2, requestId, appRunning = health?.Accepted == true, capabilities = new[] { "ping", "enqueue", "source-context" } };
+                    response = new { ok = true, code = "ready", protocol = 2, requestId, appRunning = health?.Accepted == true, capabilities = new[] { "ping", "enqueue", "source-context", "formats", "output-selection" } };
+                }
+                else if (request.Type == "inspect")
+                {
+                    timeout.CancelAfter(TimeSpan.FromSeconds(75));
+                    using var service = new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage());
+                    var media = await service.InspectAsync(request.Url, null, timeout.Token).ConfigureAwait(false);
+                    response = new { ok = true, code = "formats", protocol = 2, requestId, media = BrowserMediaFormats.From(media, request.SourcePage ?? request.Url) };
                 }
                 else
                 {
@@ -71,6 +78,12 @@ public static class BrowserHost
             if (!useLegacy)
             {
                 var (receipt, legacyListener) = await BrowserLinkTransport.TrySendCompatibleRequestAsync(request, 250, token).ConfigureAwait(false);
+                if (request.Output != null && receipt is { Accepted: false, Code: "invalid" })
+                {
+                    // Early v2 desktops reject unknown fields but still support link delivery.
+                    var compatible = await BrowserLinkTransport.TrySendRequestAsync(request with { Output = null }, 250, token).ConfigureAwait(false);
+                    return compatible?.Accepted == true ? new(true, "opened-legacy") : compatible ?? receipt;
+                }
                 if (receipt != null) return receipt;
                 useLegacy = legacyListener;
             }
@@ -79,7 +92,7 @@ public static class BrowserHost
             {
                 var legacy = await BrowserLinkTransport.TrySendAsync(request.Url, 250, token).ConfigureAwait(false);
                 if (legacy != BrowserDelivery.NoListener)
-                    return new(legacy == BrowserDelivery.Accepted, legacy == BrowserDelivery.Accepted ? "opened" : "busy");
+                    return new(legacy == BrowserDelivery.Accepted, legacy == BrowserDelivery.Accepted ? request.Output != null ? "opened-legacy" : "opened" : "busy");
             }
             if (attempt == 0 && !useLegacy) launch();
             await Task.Delay(200, token).ConfigureAwait(false);

@@ -91,6 +91,7 @@ public sealed partial class MainViewModel : ObservableObject
         DismissNoticeCommand = new RelayCommand(() => NoticeVisible = false);
         UpdateCommand = new AsyncRelayCommand(UpdateAsync, () => IsIdle);
         InitializeWorkflows();
+        InitializeLibrary();
         downloads.Progress += p => actions.Dispatch(() =>
         {
             if (IsBusy && p.OperationId == downloads.Operations.CurrentId)
@@ -137,7 +138,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             if (!SetProperty(ref url, value ?? ""))
                 return;
-            incomingSourcePage = null; incomingMediaId = null;
+            incomingSourcePage = null; incomingMediaId = null; pendingBrowserOutput = null;
             if (IsIdle)
             {
                 lastFile = null;

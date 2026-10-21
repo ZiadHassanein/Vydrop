@@ -17,6 +17,8 @@ internal static class DownloadImprovementChecks
     }
     internal static async Task Run()
     {
+        BrowserFormatChecks.Run();
+        await BrowserFormatChecks.CheckLegacySelectionAsync();
         string root = Path.Combine(AppContext.BaseDirectory, "download-improvements-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(root);
         var storage = new LocalQueueStorage(root);
         var queue = new DownloadQueue(storage);

@@ -215,6 +215,21 @@
       try { found = await globalThis.ViFreeVideoDetection.inspectVideoPage(source, true, pendingVideo); }
       catch { throw Object.assign(new Error("Page inspection failed."), { code: "inspect" }); }
       if (!found?.url) throw Object.assign(new Error("No unambiguous video link."), { code: found?.reason === "ambiguous" ? "ambiguous" : "missing" });
+      if (globalThis.VydropQualityPicker) {
+        globalThis.VydropQualityPicker.open({ anchor: button, arabic,
+          inspect: async () => {
+            const response = await api.runtime.sendMessage({ version: 1, type: "vydrop-inspect-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage });
+            if (!response?.ok) throw Object.assign(new Error("inspect"), { code: response?.code || "inspect" });
+            return response.media;
+          },
+          send: async output => {
+            const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, output });
+            if (!response?.ok) throw Object.assign(new Error("open"), { code: response?.code || "failed" });
+            return response;
+          }
+        });
+        return;
+      }
       let copied = false;
       try { await navigator.clipboard.writeText(found.url); copied = true; } catch { /* Opening the app remains useful when clipboard access is unavailable. */ }
       label.textContent = text.opening;

@@ -86,7 +86,7 @@ public sealed partial class MainViewModel
     private void InitializePresentation()
     {
         SettingsCommand = new RelayCommand(() => SettingsVisible = !SettingsVisible);
-        NewDownloadCommand = new RelayCommand(() => SettingsVisible = false);
+        NewDownloadCommand = new RelayCommand(ShowAddDownload);
         SelectLanguageCommand = new RelayCommand<string>(SetLanguage, language => (language is "en" or "ar") && IsIdle);
     }
 
@@ -104,6 +104,7 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(StatusBrush));
         OnPropertyChanged(nameof(NoticeBrush));
         OnPropertyChanged(nameof(ActivityBrush));
+        RefreshLibrary();
     }
 
     private void RefreshMediaPresentation()

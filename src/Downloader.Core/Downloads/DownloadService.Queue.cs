@@ -20,6 +20,9 @@ public sealed partial class DownloadService
                 else
                 {
                     var metadata = await InspectAsync(options.Url, progress, token).ConfigureAwait(false);
+                    options.ThumbnailUrl = metadata.ThumbnailUrl;
+                    options.Uploader = metadata.Uploader;
+                    options.Duration = metadata.Duration;
                     options.FreshMetadata = metadata.Collection == null ? metadata : null;
                     if (string.IsNullOrWhiteSpace(options.StableOutputName)) options.StableOutputName = metadata.Title;
                     if (metadata.Live) throw new InvalidOperationException("This video is live right now. Try again once the stream has ended.");

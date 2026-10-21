@@ -168,6 +168,7 @@ public sealed partial class MainViewModel
             NotifyStatus();
             RefreshQualities();
             RefreshCaptions();
+            ApplyPendingBrowserOutput();
         }
         catch (OperationCanceledException)
         {
@@ -200,6 +201,7 @@ public sealed partial class MainViewModel
         lastFile = null;
         OnPropertyChanged(nameof(HasFile));
         SetDownloadAction(DownloadActionState.Downloading);
+        AddDownloadVisible = false;
         Progress = 0;
         try
         {
@@ -214,6 +216,8 @@ public sealed partial class MainViewModel
                 return queued.Folder == request.Folder && OutputProfiles.Key(queued) == OutputProfiles.Key(request) && SamePlaylist(queued, request);
             }) ?? Queue.Add(request, videoInfo?.Title ?? playlistInfo?.Title);
             request = job.Options;
+            SyncQueue();
+            SelectedLibraryItem = QueueItems.First(item => item.Id == job.Id);
             DownloadResult result = null;
             await Queue.RunJobAsync(job.Id, async (options, progress, token) =>
             {
@@ -374,6 +378,7 @@ public sealed partial class MainViewModel
 
     public async Task CloseAsync()
     {
+        libraryLifetime.Cancel();
         queueClock?.Stop();
         thumbnailCancellation?.Cancel();
         thumbnailCancellation?.Dispose();

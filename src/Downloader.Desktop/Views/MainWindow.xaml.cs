@@ -15,7 +15,9 @@ public partial class MainWindow : Window
     private readonly MainViewModel model;
     private bool closing, closed;
     private FlowDirection presentationDirection;
-    private readonly MediaPaneWindowState mediaFrame;
+    internal AppHeaderView HeaderContent => ManagerContent.Header;
+    internal Border FooterContent => ManagerContent.FooterContent;
+    private IInputElement editorReturnFocus;
     internal SystemThemeMonitor SystemTheme { get; }
     public MainWindow() : this(null, null)
     {
@@ -24,9 +26,10 @@ public partial class MainWindow : Window
     internal MainWindow(DownloadService service, SettingsRepository repository, IMediaThumbnailLoader thumbnailLoader = null)
     {
         InitializeComponent();
-        mediaFrame = new MediaPaneWindowState(this);
+
         Root.Children.Remove(Notice);
         DownloadForm.FolderNoticeHost.Children.Add(Notice);
+        DownloadForm.NewDownloadHeading.Visibility = Visibility.Collapsed;
         var actions = new DesktopActions(this);
         model = new MainViewModel(service ?? new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage()), repository ?? new SettingsRepository(), actions, thumbnailLoader);
         presentationDirection = model.ContentDirection;
@@ -48,8 +51,8 @@ public partial class MainWindow : Window
         InputBindings.Add(new KeyBinding(model.SettingsCommand, Key.OemComma, ModifierKeys.Control));
         SystemTheme = new SystemThemeMonitor(this, () => model.IsDark, model.RefreshThemeBindings);
         model.NoticeRequested += PlaceNotice;
-        SizeChanged += (_, _) => { mediaFrame.ObserveBounds(); ApplyResponsiveLayout(); };
-        LocationChanged += (_, _) => mediaFrame.ObserveBounds();
+        SizeChanged += (_, _) => ApplyResponsiveLayout();
+        PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape && EditorOverlay.IsVisible) { CloseEditor(); e.Handled = true; } };
         StateChanged += (_, _) => ConstrainToWorkArea();
         DpiChanged += (_, _) => ConstrainToWorkArea();
         model.PropertyChanged += (_, args) =>
@@ -63,10 +66,11 @@ public partial class MainWindow : Window
                     presentationDirection = model.ContentDirection;
                 }
                 ApplyTitleBar();
+                UpdateEditor();
             }
             if (args.PropertyName is nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HasMediaPreview) or nameof(MainViewModel.QueueRunning))
             {
-                mediaFrame.Update(model.HasMediaContext, CurrentWorkArea());
+                UpdateEditor();
                 ApplyResponsiveLayout();
                 if (args.PropertyName == nameof(MainViewModel.SettingsVisible))
                 {
@@ -80,6 +84,7 @@ public partial class MainWindow : Window
                     ViewMotion.Reveal(MediaPreview.PreviewContent);
                 }
             }
+            if (args.PropertyName == nameof(MainViewModel.AddDownloadVisible)) UpdateEditor();
             if (args.PropertyName == nameof(MainViewModel.HasFile) && model.HasFile && model.ShowInlineActivity)
                 Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => DownloadForm.InlineActivity.BringIntoView());
             if (((args.PropertyName == nameof(MainViewModel.StatusHeading) || args.PropertyName == nameof(MainViewModel.IsCheckingMedia) && model.IsCheckingMedia) && !model.SettingsVisible)
@@ -98,8 +103,9 @@ public partial class MainWindow : Window
         };
         ContentRendered += (_, _) =>
         {
+            ConstrainToWorkArea();
             ApplyResponsiveLayout();
-            DownloadForm.LinkInput.Focus();
+            ManagerContent.AddDownloadButton.Focus();
             AppUpdates.AcknowledgeStartup();
         };
         Closing += ClosingAsync;
@@ -107,12 +113,9 @@ public partial class MainWindow : Window
 
     private void ApplyResponsiveLayout()
     {
-        double chrome = Math.Max(0, ActualWidth - Root.ActualWidth);
-        bool enoughSpace = Root.ActualWidth >= MinWidth - chrome + MediaPaneWindowState.MinimumPaneWidth - 1;
-        bool split = (model.HasMediaContext || model.SettingsVisible) && enoughSpace;
-        double formWidth = mediaFrame.FormWindowWidth is { } original ? original - chrome : Root.ActualWidth * .55;
-        PageContent.ColumnDefinitions[0].Width = split ? new GridLength(Math.Min(formWidth, Root.ActualWidth - MediaPaneWindowState.MinimumPaneWidth)) : new GridLength(1, GridUnitType.Star);
-        PageContent.ColumnDefinitions[1].Width = split ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+        bool split = model.HasMediaContext && !model.SettingsVisible && EditorSurface.ActualWidth >= 990;
+        PageContent.ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
+        PageContent.ColumnDefinitions[1].Width = split ? new GridLength(390) : new GridLength(0);
         bool inline = model.HasMediaContext && !split && !model.SettingsVisible;
         var previewHost = inline ? (Panel)DownloadForm.InlinePreviewHost : ContextPane;
         if (MediaPreview.Parent is Panel parent && parent != previewHost)
@@ -128,6 +131,31 @@ public partial class MainWindow : Window
         ContextPane.MaxWidth = split ? double.PositiveInfinity : DownloadForm.MaxWidth;
         MediaPreview.SetCompact(inline);
         MediaPreview.Visibility = model.HasMediaContext && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void UpdateEditor()
+    {
+        bool visible = model.SettingsVisible || model.AddDownloadVisible;
+        bool opening = visible && !EditorOverlay.IsVisible;
+        if (opening) editorReturnFocus = Keyboard.FocusedElement;
+        EditorOverlay.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        ManagerContent.IsEnabled = !visible;
+        EditorHeading.Text = model.SettingsVisible ? model.SettingsLabel : model.AddDownloadLabel;
+        EditorHeading.FlowDirection = model.ContentDirection;
+        ApplyResponsiveLayout();
+        if (opening) Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
+        {
+            if (model.SettingsVisible) SettingsPane.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+            else { DownloadForm.LinkInput.Focus(); DownloadForm.LinkInput.SelectAll(); }
+        });
+        else if (!visible && editorReturnFocus != null) { Keyboard.Focus(editorReturnFocus); editorReturnFocus = null; }
+    }
+    private void CloseEditorClicked(object sender, RoutedEventArgs e) => CloseEditor();
+    private void CloseEditor()
+    {
+        model.SettingsVisible = false;
+        model.CloseAddDownloadCommand.Execute(null);
+        UpdateEditor();
     }
 
     private static void ResetDropDowns(DependencyObject parent)
@@ -185,10 +213,12 @@ public partial class MainWindow : Window
         if (kind == "options") return;
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
         {
-            model.SettingsVisible = kind != "folder";
-            var host = kind switch
+            if (kind == "folder") model.NewDownloadCommand.Execute(null);
+            else if (kind != "library") model.SettingsVisible = true;
+            Panel host = kind switch
             {
                 "folder" => DownloadForm.FolderNoticeHost,
+                "library" => LibraryNoticeHost,
                 "tools" => SettingsPane.ToolNoticeHost,
                 _ => SettingsPane.UpdateNoticeHost
             };

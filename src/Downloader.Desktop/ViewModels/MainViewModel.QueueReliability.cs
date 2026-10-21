@@ -108,12 +108,14 @@ public sealed partial class MainViewModel
                 {
                     var options = OutputRequest(); options.Url = link; options.Selection = null; options.QualityKey = null; options.StableOutputName = null;
                     options.SourcePage = request.SourcePage; options.MediaId = request.MediaId;
+                    options.ThumbnailUrl = options.Uploader = null; options.Duration = 0;
+                    ApplyBrowserOutput(options, request.Output);
                     Queue.Add(options, new Uri(link).Host);
                 }
-                ShowNotice("Added to queue", "Open the queue to review and start this download.", false, "folder");
+                ShowNotice("Added to queue", "Open the queue to review and start this download.", false, "library");
                 receipt = new(true, "queued");
             }
-            else { Url = link; incomingSourcePage = request.SourcePage; incomingMediaId = request.MediaId; receipt = new(true, "opened"); }
+            else { Url = link; pendingBrowserOutput = request.Output; incomingSourcePage = request.SourcePage; incomingMediaId = request.MediaId; ShowAddDownload(); if (checkedUrl == link) ApplyPendingBrowserOutput(); receipt = new(true, "opened"); }
             if (request.RequestId != null)
             {
                 if (browserReceipts.Count >= 128) browserReceipts.Remove(browserReceipts.Keys.First());
@@ -128,6 +130,37 @@ public sealed partial class MainViewModel
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
         { return new(false, "busy"); }
+    }
+    private BrowserOutputChoice pendingBrowserOutput;
+    private static void ApplyBrowserOutput(DownloadOptions options, BrowserOutputChoice choice)
+    {
+        if (choice == null) return;
+        options.Audio = choice.Kind == "audio";
+        options.AudioBitrate = 0;
+        options.Height = choice.Height;
+        if (options.Audio) options.AudioEncoding = Enum.Parse<AudioEncoding>(choice.Format, true);
+        else options.VideoContainer = Enum.Parse<VideoContainer>(choice.Format, true);
+    }
+    private void ApplyPendingBrowserOutput()
+    {
+        var choice = pendingBrowserOutput;
+        if (choice == null) return;
+        pendingBrowserOutput = null;
+        Audio = choice.Kind == "audio";
+        if (Audio) { state.AudioBitrate = 0; SelectedEncoding = Encodings.First(e => OutputProfiles.AudioExtension(e.Encoding) == choice.Format); }
+        else
+        {
+            var format = VideoFormats.FirstOrDefault(f => OutputProfiles.VideoExtension(f.Container) == choice.Format);
+            if (format != null) SelectedVideoFormat = format;
+            else { ShowNotice("Format changed", "The available formats changed. Review the quality before downloading.", false, "folder"); return; }
+        }
+        RefreshQualities();
+        if (!Audio && choice.Height > 0)
+        {
+            var quality = Qualities.FirstOrDefault(q => q.Height == choice.Height);
+            if (quality != null) SelectedQuality = quality;
+            else ShowNotice("Format changed", "The available formats changed. Review the quality before downloading.", false, "folder");
+        }
     }
     private string incomingSourcePage, incomingMediaId;
 }

@@ -18,7 +18,7 @@ public sealed partial class DownloadService : IDisposable
         {
             if (Operations.CurrentId != operationId || !Operations.IsBusy)
                 return;
-            report(new DownloadProgress { OperationId = operationId, Stage = p.Stage, Detail = p.Detail, Percent = p.Percent, Indeterminate = p.Indeterminate, Item = p.Item, Total = p.Total, ItemTitle = p.ItemTitle });
+            report(new DownloadProgress { OperationId = operationId, Stage = p.Stage, Detail = p.Detail, Percent = p.Percent, Indeterminate = p.Indeterminate, Item = p.Item, Total = p.Total, ItemTitle = p.ItemTitle, DownloadedBytes = p.DownloadedBytes, TotalBytes = p.TotalBytes, BytesPerSecond = p.BytesPerSecond, RemainingSeconds = p.RemainingSeconds });
         });
     }
 

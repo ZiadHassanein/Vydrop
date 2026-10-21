@@ -7,7 +7,7 @@ const text = arabic
   : { link: `Open link in ${name}`, video: `Open video in ${name}` };
 
 api.runtime.onMessage.addListener((message, sender, respond) => {
-  if (message?.type !== "vifree-open-video" || message.version !== 1) return false;
+  if (!["vifree-open-video", "vydrop-inspect-video"].includes(message?.type) || message.version !== 1) return false;
   let allowed = false;
   try {
     const page = new URL(sender.url);
@@ -16,7 +16,14 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
   } catch { /* Only this extension's web content scripts can forward an explicit video click. */ }
   if (!allowed) { respond({ ok: false, code: "invalid", message: "This video page cannot open Vydrop." }); return false; }
   globalThis.ViFreeVideoDetection.resolveSource({ url: message.url, linkedinAsset: message.linkedinAsset, sourcePage: message.sourcePage })
-    .then(async url => { const result = await sendLink(url, { sourcePage: message.sourcePage || (url === message.url ? sender.tab.url || sender.url : message.url) }); respond({ ok: true, url, code: result.code }); }, error => respond({ ok: false, code: error.code, message: error.message }))
+    .then(async url => {
+      if (message.type === "vydrop-inspect-video") {
+        const media = await globalThis.ViFreeConnection.inspectLink(url);
+        respond({ ok: true, media, url }); return;
+      }
+      const result = await sendLink(url, { sourcePage: message.sourcePage || (url === message.url ? sender.tab.url || sender.url : message.url), output: message.output });
+      respond({ ok: true, url, code: result.code });
+    }, error => respond({ ok: false, code: error.code, message: error.message }))
     .catch(error => respond({ ok: false, code: error.code, message: error.message }));
   return true;
 });

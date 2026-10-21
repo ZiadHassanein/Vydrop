@@ -7,7 +7,7 @@ public sealed record EncodingChoice(string Label, AudioEncoding Encoding)
 {
     public override string ToString() => Label;
 }
-public sealed class QueueItemView : ObservableObject
+public sealed partial class QueueItemView : ObservableObject
 {
     public QueueEntry Entry { get; }
     public Guid Id => Entry.Id;
@@ -42,6 +42,7 @@ public sealed class QueueItemView : ObservableObject
         Error = Entry.Error == null ? translate(Entry.Result?.Warning ?? "") : translate(MainViewModel.DescribeError(new InvalidOperationException(Entry.Error)));
         CanRetry = !running && Entry.State is QueueState.Failed or QueueState.Cancelled or QueueState.Paused or QueueState.Interrupted;
         RetryAction = translate(Entry.State is QueueState.Paused or QueueState.Interrupted ? "Resume" : "Retry");
+        RefreshMedia(translate);
         OnPropertyChanged(string.Empty);
     }
 }
@@ -206,6 +207,7 @@ public sealed partial class MainViewModel
             Captions = CurrentCaption(),
             Connections = DownloadConnections, BytesPerSecond = SpeedLimitKiB * 1024L, MaximumAttempts = QueueAttempts,
             DirectFileAcceleration = DirectFileAcceleration, StableOutputName = videoInfo?.Title,
+            ThumbnailUrl = videoInfo?.ThumbnailUrl ?? playlistInfo?.ThumbnailUrl, Uploader = videoInfo?.Uploader, Duration = videoInfo?.Duration ?? 0,
             SourcePage = incomingSourcePage, MediaId = incomingMediaId
         };
     internal void ClearQueueMessage()
@@ -236,6 +238,7 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(QueueRunning));
         QueuePauseCommand?.NotifyCanExecuteChanged(); MoveQueueUpCommand?.NotifyCanExecuteChanged(); MoveQueueDownCommand?.NotifyCanExecuteChanged();
         RefreshAvailability();
+        RefreshLibrary();
     }
     private async Task StartQueueAsync()
     {

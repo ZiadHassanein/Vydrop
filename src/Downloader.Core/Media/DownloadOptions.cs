@@ -18,6 +18,8 @@ public sealed class DownloadOptions
     public bool PlaylistItem;
     public Guid JobId;
     public string StableOutputName, SourcePage, MediaId;
+    public string ThumbnailUrl, Uploader;
+    public double Duration;
     public int PartialGeneration;
     public int Connections = 1;
     public long BytesPerSecond;
@@ -32,6 +34,7 @@ public sealed class DownloadOptions
         Height = Height, Captions = Captions, Selection = Selection, PlaylistItem = PlaylistItem,
         ResumeDirectory = ResumeDirectory,
         JobId = JobId, StableOutputName = StableOutputName, SourcePage = SourcePage, MediaId = MediaId, PartialGeneration = PartialGeneration,
+        ThumbnailUrl = ThumbnailUrl, Uploader = Uploader, Duration = Duration,
         Connections = Connections, BytesPerSecond = BytesPerSecond, MaximumAttempts = MaximumAttempts, DirectFileAcceleration = DirectFileAcceleration,
         Playlist = Playlist == null ? null : new PlaylistInfo
         {

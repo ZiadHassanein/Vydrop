@@ -261,7 +261,10 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
                     else
                     {
                         string detail = Size(bytes) + (total > 0 ? " of " + Size(total) : "") + (speed > 0 ? "  •  " + Size(speed) + "/s" : "") + (eta > 0 ? "  •  " + TimeSpan.FromSeconds(eta).ToString(@"m\:ss", System.Globalization.CultureInfo.InvariantCulture) + " remaining" : "");
-                        Emit(progress, "Downloading", detail, total > 0 ? Math.Min(100, 100 * bytes / total) : 0, total <= 0);
+                        progress?.Report(new DownloadProgress { Stage = "Downloading", Detail = detail,
+                            Percent = total > 0 ? Math.Min(100, 100 * bytes / total) : 0, Indeterminate = total <= 0,
+                            DownloadedBytes = bytes > 0 ? (long)bytes : null, TotalBytes = total > 0 ? (long)total : null,
+                            BytesPerSecond = speed > 0 ? speed : null, RemainingSeconds = eta > 0 ? eta : null });
                     }
                 }
                 else if (line.StartsWith("YTDL_POST:", StringComparison.Ordinal))

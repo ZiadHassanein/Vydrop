@@ -40,6 +40,7 @@ public static class BrowserLinkTransport
             if (request.Url != null) envelope["url"] = request.Url;
             if (request.SourcePage != null) envelope["sourcePage"] = request.SourcePage;
             if (request.MediaId != null) envelope["mediaId"] = request.MediaId;
+            if (request.Output != null) envelope["output"] = new { kind = request.Output.Kind, format = request.Output.Format, height = request.Output.Height };
             await BrowserProtocol.WriteAsync(pipe, envelope, token).ConfigureAwait(false);
             using var reply = await BrowserProtocol.ReadAsync(pipe, token).ConfigureAwait(false);
             // Older apps reject v2 with an unversioned reply. Let the host retry the exact v1 envelope.

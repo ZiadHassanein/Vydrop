@@ -23,6 +23,13 @@ button.addEventListener("click", async () => {
   try {
     const [tab] = await api.tabs.query({ active: true, currentWindow: true });
     const url = await globalThis.ViFreeVideoDetection.resolve(tab);
+    if (globalThis.VydropQualityPicker) {
+      globalThis.VydropQualityPicker.open({ anchor: button, arabic, embedded: true,
+        inspect: () => globalThis.ViFreeConnection.inspectLink(url),
+        send: output => sendLink(url, { sourcePage: tab?.url, output })
+      });
+      status.textContent = ""; return;
+    }
     status.textContent = text.opening;
     const response = await sendLink(url, { sourcePage: tab?.url });
     status.textContent = response.code === "queued" ? (arabic ? "أُضيف إلى قائمة التنزيل. راجعه في التطبيق قبل البدء." : "Added to the queue. Review it in the app before starting.") : text.opened;

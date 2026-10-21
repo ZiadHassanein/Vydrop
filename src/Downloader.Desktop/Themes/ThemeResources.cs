@@ -28,23 +28,28 @@ internal static class ThemeResources
 
     private static readonly Dictionary<string, (string Light, string Dark)> Palette = new()
     {
-        ["Page"] = ("#F8F7F8", "#181B20"),
-        ["Surface"] = ("#F1EDF0", "#20242A"),
-        ["Field"] = ("#FFFFFF", "#282B32"),
-        ["Ink"] = ("#272329", "#F6F2F4"),
-        ["Muted"] = ("#655963", "#BEB2BB"),
-        ["Accent"] = ("#A91F33", "#FF8393"),
-        ["Action"] = ("#BA263A", "#CB2D42"),
+        ["Page"] = ("#FCFAFC", "#1D1820"),
+        ["Surface"] = ("#F5EDF2", "#261E2A"),
+        ["Field"] = ("#FFFFFF", "#2B242F"),
+        ["Ink"] = ("#2A2029", "#FAF3F7"),
+        ["Muted"] = ("#715F6D", "#CCBAC7"),
+        ["Accent"] = ("#A91F3B", "#F17B96"),
+        ["Action"] = ("#C72D49", "#C72D49"),
         ["OnAccent"] = ("#FFFFFF", "#FFFFFF"),
         ["DownloadActionFill"] = ("#C13046", "#C13046"),
         ["DownloadActionInk"] = ("#FFFFFF", "#FFFFFF"),
         ["DownloadActionProgress"] = ("#651321", "#651321"),
         ["Border"] = ("#8E7D87", "#94828D"),
         ["Hover"] = ("#F3E9ED", "#353039"),
-        ["Selected"] = ("#F8E3E9", "#3E2933"),
+        ["Selected"] = ("#F8E8EE", "#442638"),
         ["Error"] = ("#A12232", "#FFB0B7"),
-        ["Divider"] = ("#DFD7DC", "#48414A"),
-        ["Success"] = ("#24643E", "#85D1A2")
+        ["Divider"] = ("#E5D9E1", "#443448"),
+        ["Success"] = ("#24643E", "#85D1A2"),
+        ["Navigation"] = ("#3B1B2C", "#351A2A"),
+        ["NavigationInk"] = ("#FFF4FA", "#FFF4FA"),
+        ["NavigationMuted"] = ("#DDC2D2", "#DDC2D2"),
+        ["NavigationSelected"] = ("#753149", "#642A43"),
+        ["NavigationSelectedInk"] = ("#FFFFFF", "#FFFFFF")
     };
 
     public static void Apply(bool dark, bool animate = false)
@@ -63,9 +68,10 @@ internal static class ThemeResources
             if (HighContrast)
                 brush = key switch
                 {
-                    "Ink" or "Muted" or "Error" or "Success" => contrast.Foreground,
+                    "Ink" or "Muted" or "Error" or "Success" or "NavigationInk" or "NavigationMuted" => contrast.Foreground,
                     "Accent" or "Action" or "Border" or "DownloadActionFill" => contrast.Highlight,
-                    "OnAccent" or "DownloadActionInk" or "DownloadActionProgress" => contrast.HighlightText,
+                    "OnAccent" or "DownloadActionInk" or "DownloadActionProgress" or "NavigationSelectedInk" => contrast.HighlightText,
+                    "NavigationSelected" => contrast.Highlight,
                     _ => contrast.Background
                 };
             if (brush.CanFreeze) brush.Freeze();

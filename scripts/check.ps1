@@ -27,6 +27,8 @@ if($env:VYDROP_PLAYWRIGHT) {
     if($LASTEXITCODE -ne 0) { throw 'Rendered browser overlay checks failed.' }
     & node (Join-Path $projectRoot 'tests/browser-popup-live.cjs')
     if($LASTEXITCODE -ne 0) { throw 'Rendered browser popup checks failed.' }
+    & node (Join-Path $projectRoot 'tests/browser-quality-live.cjs')
+    if($LASTEXITCODE -ne 0) { throw 'Rendered browser quality selection checks failed.' }
     if($env:VYDROP_EXTENSION) {
         & node (Join-Path $projectRoot 'tests/browser-discovery-live.cjs')
         if($LASTEXITCODE -ne 0) { throw 'Packaged MV3 media discovery checks failed.' }

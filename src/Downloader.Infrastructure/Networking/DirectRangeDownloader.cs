@@ -115,7 +115,7 @@ internal sealed class DirectRangeDownloader : IDisposable
                             await limiter.WaitAsync(count, lifetime.Token).ConfigureAwait(false);
                             await file.WriteAsync(buffer.AsMemory(0, count), lifetime.Token).ConfigureAwait(false);
                             long current = Interlocked.Add(ref downloaded, count);
-                            progress?.Report(new DownloadProgress { Stage = "Downloading", Percent = Math.Min(99, 100.0 * current / size), Detail = YtDlpProvider.Size(current) + " / " + YtDlpProvider.Size(size) });
+                            progress?.Report(new DownloadProgress { Stage = "Downloading", Percent = Math.Min(99, 100.0 * current / size), Detail = YtDlpProvider.Size(current) + " / " + YtDlpProvider.Size(size), DownloadedBytes = current, TotalBytes = size });
                         }
                         await file.FlushAsync(lifetime.Token).ConfigureAwait(false);
                         if (file.Length != last - first + 1) throw new HttpRequestException("The media connection was interrupted.");

@@ -76,3 +76,18 @@ test('sites and content scripts cannot enumerate observed URLs',async()=>{
   const reply=await new Promise(resolve=>f.receive({type:'vydrop-discovery-list',tabId:1},{id:'fixture',url:'chrome-extension://fixture/popup.html'},resolve));assert.equal(reply.candidates.length,1);
   const tabReply=await new Promise(resolve=>f.receive({type:'vydrop-discovery-list',tabId:1},{id:'fixture',url:'chrome-extension://fixture/popup.html',tab:{id:2}},resolve));assert.equal(tabReply.candidates.length,1);
 });
+
+test('format inspection and selected outputs preserve an explicit user choice', async()=>{
+  const f=connection(m=>({ok:true,protocol:2,requestId:m.requestId,capabilities:['formats','output-selection'],media:{title:'Fixture',videos:[{format:'webm',heights:[720]}],audio:[]},code:'opened'}));
+  assert.equal((await f.client.inspectLink('https://example.com/video')).title,'Fixture');
+  const output={kind:'video',format:'webm',height:720};
+  await f.client.sendLink('https://example.com/video',{output});
+  assert.deepEqual(JSON.parse(JSON.stringify(f.sent.at(-1).output)),output);
+  assert.equal(f.sent.filter(m=>m.type==='inspect').length,1);
+});
+test('an older host never receives unsupported format fields', async()=>{
+  const f=connection(m=>({ok:true,protocol:2,requestId:m.requestId,capabilities:['ping','enqueue'],code:'opened'}));
+  await assert.rejects(f.client.inspectLink('https://example.com/video'),e=>e.code==='unsupported');
+  await f.client.sendLink('https://example.com/video',{output:{kind:'video',format:'mp4',height:720}});
+  assert.equal(f.sent.at(-1).output,undefined);
+});
