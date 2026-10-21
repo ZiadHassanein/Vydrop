@@ -21,6 +21,8 @@ internal static partial class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--queue-restart-live") return CheckQueueRestartProcesses(args[1]);
+        if (args.Length == 4 && args[0] == "--queue-restart-child") return CheckQueueRestartChild(args[1], args[2], args[3]);
         // Apply DPI compatibility before process startup, so native popup threads use it too.
         // A thread-only override mixes coordinate systems in WPF's native context menus.
         if (args.Contains("--dpi-unaware") && !args.Contains("--dpi-child"))
