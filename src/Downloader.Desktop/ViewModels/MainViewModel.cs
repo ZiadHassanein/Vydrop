@@ -134,6 +134,12 @@ public sealed partial class MainViewModel : ObservableObject
             if (!SetProperty(ref url, value ?? ""))
                 return;
             incomingSourcePage = null; incomingMediaId = null; pendingBrowserOutput = null;
+            if (checkingMedia || !IsBusy)
+            {
+                checkingMedia = false;
+                statusHeading = statusDetail = ""; ShowProgress = false;
+                NotifyStatus();
+            }
             if (IsIdle)
             {
                 lastFile = null;

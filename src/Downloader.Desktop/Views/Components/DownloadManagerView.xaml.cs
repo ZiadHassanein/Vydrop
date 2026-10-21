@@ -34,7 +34,7 @@ public partial class DownloadManagerView : UserControl
     }
     private void WorkspaceChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName is nameof(MainViewModel.AddDownloadVisible) or nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HistoryVisible)) RefreshWorkspace();
+        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName is nameof(MainViewModel.AddDownloadVisible) or nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HistoryVisible) or nameof(MainViewModel.HasMediaPreview)) RefreshWorkspace();
     }
     internal void RefreshWorkspace()
     {
@@ -43,17 +43,19 @@ public partial class DownloadManagerView : UserControl
         LibraryContent.Visibility = !editor && !model.HistoryVisible ? Visibility.Visible : Visibility.Collapsed;
         HistoryContent.Visibility = !editor && model.HistoryVisible ? Visibility.Visible : Visibility.Collapsed;
         EditorHost.Visibility = editor ? Visibility.Visible : Visibility.Collapsed;
-        EditorDetailsHost.Visibility = model.AddDownloadVisible && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
+        EditorDetailsHost.Visibility = model.AddDownloadVisible && model.HasMediaPreview && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
         LibraryDetails.Visibility = editor ? Visibility.Collapsed : Visibility.Visible;
-        DetailsBorder.Visibility = model.HistoryVisible ? Visibility.Collapsed : Visibility.Visible;
+        DetailsBorder.Visibility = HasInspector ? Visibility.Visible : Visibility.Collapsed;
         LayoutManager();
     }
+    private bool HasInspector => DataContext is MainViewModel model && !model.SettingsVisible && !model.HistoryVisible && (!model.AddDownloadVisible || model.HasMediaPreview);
+
     private void LayoutManager()
     {
         double previousWidth = DetailsColumn.Width.Value;
         bool next = ActualWidth < 1080;
         NavigationColumn.Width = new GridLength(ActualWidth < 960 ? 176 : 224);
-        DetailsColumn.Width = new GridLength(next || (DataContext as MainViewModel)?.HistoryVisible == true ? 0 : ActualWidth > 1360 ? 350 : 320);
+        DetailsColumn.Width = new GridLength(next || !HasInspector ? 0 : ActualWidth > 1360 ? 350 : 320);
         LibraryContent.Margin = new Thickness(ActualWidth < 960 ? 14 : 24, 4, 18, 0);
         CompactDetailsButton.Visibility = next ? Visibility.Visible : Visibility.Collapsed;
         if (compact != next)

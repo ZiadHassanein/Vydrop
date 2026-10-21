@@ -69,6 +69,10 @@ internal static class DownloadImprovementChecks
         Check(!restored.TakeScheduledStart(now) && restored.TakeScheduledStart(now.AddMinutes(1)) && current.State == QueueState.Pending && restored.StartAt == null, "Scheduled starts are one-shot and resume waiting jobs only when due");
         restored.Schedule(now.AddMinutes(-2), now.AddMinutes(-1));
         Check(!restored.TakeScheduledStart(now) && restored.StartAt == null, "An expired start/stop window cannot trigger late downloads after restart");
+        restored.Schedule(now.AddMinutes(-2), now.AddMinutes(-1));
+        restored.CheckScheduledStop(now);
+        Check(!restored.TakeScheduledStart(now) && restored.StartAt == null && restored.StopAt == null && new DownloadQueue(storage).StartAt == null,
+            "Checking an elapsed stop consumes its start too, so the same timer tick cannot restart the queue");
         bool invalidWindow = false;
         try { restored.Schedule(now, now.AddSeconds(-1)); } catch (ArgumentException) { invalidWindow = true; }
         Check(invalidWindow, "Schedule rejects stop times before start times");

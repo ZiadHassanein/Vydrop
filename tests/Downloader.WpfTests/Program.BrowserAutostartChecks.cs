@@ -3,7 +3,7 @@ using YouTubeDownloader;
 
 internal static partial class Program
 {
-    private static async Task CheckBrowserAutostart(MainWindow window, MainViewModel model, FakeProvider provider, string root)
+    private static async Task CheckBrowserAutostart(MainWindow window, MainViewModel model, FakeProvider provider, string root, string captures)
     {
         model.SelectLanguageCommand.Execute("en"); model.Folder = root; model.Url = "";
         string file = Path.Combine(root, "browser-confirmed.mp4"); File.WriteAllBytes(file, new byte[128]);
@@ -35,6 +35,16 @@ internal static partial class Program
             Check(model.HistoryVisible && window.ManagerContent.HistoryContent.IsVisible && model.Queue.IsRunning && window.OwnedWindows.Count == 0, "History is a navigable center panel during an active transfer");
             model.NewDownloadCommand.Execute(null);
             Check(model.AddDownloadVisible && window.ManagerContent.EditorHost.IsVisible && model.Queue.IsRunning, "Add download remains inline while another transfer is active");
+            window.UpdateLayout();
+            Check(!model.HasMediaPreview && window.ManagerContent.DetailsColumn.Width.Value == 0 && model.ShowInlineActivity && window.DownloadForm.InlineActivity.IsVisible && model.CancelCommand.CanExecute(null),
+                "An empty Add editor keeps real queue activity and its stop control inline without a blank preview inspector");
+            model.DismissNoticeCommand.Execute(null);
+            var cancel = window.DownloadForm.InlineActivity.CancelDownload;
+            cancel.BringIntoView(); await Task.Delay(40); window.UpdateLayout();
+            var bounds = cancel.TransformToAncestor(window.Viewport).TransformBounds(new System.Windows.Rect(cancel.RenderSize));
+            Check(cancel.IsVisible && cancel.IsEnabled && bounds.Top >= -1 && bounds.Bottom <= window.Viewport.ViewportHeight + 1,
+                "Ordinary scrolling brings the enabled queue stop control fully inside the empty editor viewport");
+            if (stop == "pause") Capture(window, Path.Combine(captures, "add-empty-active-queue.png"));
             model.LibraryFilterCommand.Execute("all");
             before = provider.DownloadCalls;
             if (stop == "pause") model.QueuePauseCommand.Execute(null);

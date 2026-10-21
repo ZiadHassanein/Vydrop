@@ -115,7 +115,7 @@ public sealed partial class DownloadQueue
     public void CheckScheduledStop(DateTimeOffset now)
     {
         bool stop;
-        lock (gate) { stop = StopAt.HasValue && now >= StopAt; if (stop) StopAt = null; }
+        lock (gate) { stop = StopAt.HasValue && now >= StopAt; if (stop) { StartAt = null; StopAt = null; } }
         if (stop) { Pause(); Signal(); }
     }
     public void CapturePreparedOptions(DownloadOptions options)

@@ -13,4 +13,17 @@
     <Resource Include="../../assets/fonts/*.otf" Link="Assets/Fonts/%(Filename)%(Extension)"/><Resource Include="../../assets/fonts/*.ttf" Link="Assets/Fonts/%(Filename)%(Extension)"/>
 
   </ItemGroup>
+  <PropertyGroup>
+    <BundledBrowserDirectory>$(MSBuildProjectDirectory)\obj\browser-companion\$(Configuration)\$(ViFreePreview)\Browser</BundledBrowserDirectory>
+    <BundledBrowserArchive>$(BundledBrowserDirectory)\..\Vydrop-browser.zip</BundledBrowserArchive>
+    <BundledBrowserArchive Condition="'$(ViFreePreview)' == 'true'">$(BundledBrowserDirectory)\..\Vydrop-browser-preview.zip</BundledBrowserArchive>
+    <BundledBrowserPreviewArgument Condition="'$(ViFreePreview)' == 'true'">-Preview</BundledBrowserPreviewArgument>
+  </PropertyGroup>
+  <ItemGroup>
+    <BundledBrowserInput Include="../../browser/common/*;../../browser/README.md;../../browser/public-key.txt;../../scripts/package-browser.ps1;../../LICENSE;../../assets/brand-logo-dark.svg;../../assets/browser-icon-*.png"/>
+    <EmbeddedResource Include="$(BundledBrowserArchive)" LogicalName="YouTubeDownloader.BrowserCompanion"/>
+  </ItemGroup>
+  <Target Name="PrepareBundledBrowser" BeforeTargets="AssignTargetPaths" Inputs="@(BundledBrowserInput)" Outputs="$(BundledBrowserArchive)">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\..\scripts\package-browser.ps1&quot; -OutputDirectory &quot;$(BundledBrowserDirectory)&quot; $(BundledBrowserPreviewArgument)"/>
+  </Target>
 </Project>

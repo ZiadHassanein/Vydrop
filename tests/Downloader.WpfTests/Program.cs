@@ -21,6 +21,11 @@ internal static partial class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--companion-recovery")
+        {
+            try { CheckEmbeddedCompanion(args[1]); Console.WriteLine(count + " embedded companion checks passed."); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
         if (args.Length == 2 && args[0] == "--browser-cold-start") return CheckBrowserColdStart(args[1]).GetAwaiter().GetResult();
         if (args.Length == 3 && args[0] == "--browser-cold-child") return CheckBrowserColdChild(args[1], args[2]);
         if (args.Length == 2 && args[0] == "--queue-restart-live") return CheckQueueRestartProcesses(args[1]);
@@ -69,10 +74,16 @@ internal static partial class Program
                 Check(window.Height <= window.CurrentWorkArea().Height && window.ActualHeight < 900, $"Native window fits content within the work area (height={window.Height}, actual={window.ActualHeight}, area={window.CurrentWorkArea().Height})");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--", StringComparison.Ordinal)) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--setup-ui"))
+                {
+                    await CheckSetupWorkspaceUi(window, model, provider, root, captures);
+                    Console.WriteLine(count + " WPF setup/workspace UI checks passed.");
+                    return;
+                }
                 if (args.Contains("--workspace-flow"))
                 {
                     await CheckManager(window, model, provider, root, captures);
-                    await CheckBrowserAutostart(window, model, provider, root);
+                    await CheckBrowserAutostart(window, model, provider, root, captures);
                     await CheckRecentDownloads(window, model, captures);
                     Console.WriteLine(count + " WPF workspace-flow checks passed.");
                     return;

@@ -10,11 +10,12 @@ internal interface IBrowserSetupActions
 {
     bool IsConnected { get; }
     bool IsVerified => false;
-    bool IsInstalled => false;
     string StoreAddress(SetupBrowser browser) => "";
     void OpenStore(SetupBrowser browser) => throw new InvalidOperationException();
     string ExtensionPath(SetupBrowser browser);
     bool HasExtension(SetupBrowser browser);
+    bool CanPrepareExtension => false;
+    void PrepareExtension(SetupBrowser browser) => throw new InvalidOperationException();
     void Enable();
     void Disable();
     void Copy(string text);
@@ -27,7 +28,6 @@ internal sealed class BrowserSetupActions : IBrowserSetupActions
 {
     public bool IsConnected => BrowserRegistration.IsEnabled(Environment.ProcessPath);
     public bool IsVerified => IsConnected && BrowserHealth.IsRecentlyVerified(Environment.ProcessPath);
-    public bool IsInstalled => BrowserStores.IsInstalled(Environment.ProcessPath);
     public string StoreAddress(SetupBrowser browser) => BrowserStores.Current.Address(browser.ToString());
     public void OpenStore(SetupBrowser browser)
     {
@@ -35,12 +35,11 @@ internal sealed class BrowserSetupActions : IBrowserSetupActions
         if (address.Length == 0) throw new InvalidOperationException();
         OpenBrowser(browser, address);
     }
-    public string ExtensionPath(SetupBrowser browser)
-    {
-        string folder = Path.Combine(AppContext.BaseDirectory, "Browser", browser == SetupBrowser.Firefox ? "firefox" : "chromium");
-        return browser == SetupBrowser.Firefox ? Path.Combine(folder, "manifest.json") : folder;
-    }
-    public bool HasExtension(SetupBrowser browser) => File.Exists(browser == SetupBrowser.Firefox ? ExtensionPath(browser) : Path.Combine(ExtensionPath(browser), "manifest.json"));
+    private readonly BrowserCompanionFiles companion = new(AppContext.BaseDirectory, AppPaths.UserData);
+    public string ExtensionPath(SetupBrowser browser) => companion.ExtensionPath(browser);
+    public bool HasExtension(SetupBrowser browser) => companion.HasExtension(browser);
+    public bool CanPrepareExtension => companion.CanPrepare;
+    public void PrepareExtension(SetupBrowser browser) => companion.Prepare(browser);
     public void Enable() => BrowserRegistration.Enable(Environment.ProcessPath);
     public void Disable() => BrowserRegistration.Disable(Environment.ProcessPath);
     public void Copy(string text) => Clipboard.SetText(text);

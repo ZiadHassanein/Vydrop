@@ -25,7 +25,6 @@
      <ToggleButton IsChecked="False" Content="{Binding BrowserLabel}" Command="{Binding BrowserCommand}" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource GlobeIcon}"/>
      <ToggleButton IsChecked="{Binding SettingsVisible,Mode=OneWay}" Content="{Binding SettingsLabel}" Command="{Binding SettingsCommand}" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource SettingsGearIcon}"/>
      <Border x:Name="FooterContent" Margin="16,4,12,0"><local:AppFooterView x:Name="ContactLinks"/></Border>
-     <TextBlock Text="{Binding VersionLabel}" Foreground="{DynamicResource NavigationMuted}" Margin="24,12,0,0" FontSize="11" FlowDirection="LeftToRight"/>
     </StackPanel>
    </Grid>
   </Border>

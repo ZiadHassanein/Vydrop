@@ -8,21 +8,13 @@
    <TextBlock Text="{Binding ToolRefreshHint}" TextWrapping="Wrap" MaxWidth="300"/>
   </ToolTip>
  </UserControl.Resources>
- <Border Background="{DynamicResource Surface}" Padding="28,26" FlowDirection="{Binding ContentDirection}">
+ <Border Background="Transparent" Padding="0" FlowDirection="{Binding ContentDirection}">
   <StackPanel>
-   <Grid Margin="0,0,0,24">
-    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <TextBlock Text="{Binding SettingsLabel}" FontSize="23" LineHeight="32" FontWeight="SemiBold"/>
-    <Button Grid.Column="1" Command="{Binding SettingsCommand}" Style="{StaticResource ToolbarButton}" Padding="8" MinHeight="32" AutomationProperties.Name="{Binding CloseLabel}">
-     <Path Data="M1,1 L13,13 M13,1 L1,13" Style="{StaticResource LineIcon}" Width="14" Height="14"/>
-    </Button>
-   </Grid>
    <StackPanel Orientation="Horizontal" Margin="0,0,0,9"><Path Data="{StaticResource BrowserIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="18" Height="18" Margin="0,0,10,0"/><TextBlock Text="{Binding BrowserLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
    <TextBlock Text="{Binding BrowserSettingsHint}" Foreground="{DynamicResource Muted}" FontSize="13" Margin="0,0,0,12"/>
    <Button Content="{Binding BrowserLabel}" Command="{Binding BrowserCommand}" HorizontalAlignment="Left"/>
    <Border Height="1" Background="{DynamicResource Divider}" Margin="0,24"/>
    <StackPanel Orientation="Horizontal" Margin="0,0,0,9"><Path Data="{StaticResource RefreshIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="18" Height="18" Margin="0,0,10,0"/><TextBlock Text="{Binding UpdateSectionLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
-   <TextBlock Text="{Binding VersionLabel}" Foreground="{DynamicResource Muted}" FontFamily="{StaticResource LatinFont}" FlowDirection="LeftToRight" Margin="0,0,0,12"/>
    <Button x:Name="UpdateAnchor" Content="{Binding UpdateLabel}" Command="{Binding UpdateCommand}" HorizontalAlignment="Left"/>
    <StackPanel x:Name="UpdateNoticeHost" FlowDirection="LeftToRight"/>
    <Border Height="1" Background="{DynamicResource Divider}" Margin="0,24"/>

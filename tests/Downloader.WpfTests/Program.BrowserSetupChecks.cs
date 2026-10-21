@@ -11,7 +11,8 @@ internal static partial class Program
     {
         public bool IsConnected { get; private set; }
         internal bool FilesPresent = true;
-        public bool IsInstalled { get; set; }
+        public bool CanPrepareExtension { get; set; }
+        public void PrepareExtension(SetupBrowser browser) { Action("prepare"); FilesPresent = true; }
         internal BrowserStoreCatalog Catalog = new("", "", "");
         public string StoreAddress(SetupBrowser browser) => Catalog.Address(browser.ToString());
         public void OpenStore(SetupBrowser browser) { Action("store"); Opened = browser; }
@@ -90,9 +91,11 @@ internal static partial class Program
                             fixture.FilesPresent = false;
                             model.SelectedBrowser = SetupBrowser.Edge;
                             await Task.Delay(50);
-                            Check(!model.StartSetupCommand.CanExecute(null) && !model.CopyPathCommand.CanExecute(null) && !model.ShowFolderCommand.CanExecute(null), "Missing package files disable automatic setup and manual path actions");
-                            Check(!((Button)WpfTree.Find(dialog, "SetupCopyPath")).IsEnabled && Descendants<TextBlock>(dialog).Any(label => label.IsVisible && label.Text == model.MissingFilesHint),
-                                "Missing extension files visibly disable path actions and explain how to recover");
+                            Check(model.StartSetupCommand.CanExecute(null) && !model.CopyPathCommand.CanExecute(null) && !model.ShowFolderCommand.CanExecute(null), "Unavailable files keep the guide recovery action enabled while disabling nonexistent paths");
+                            fixture.Trace.Clear(); model.StartSetupCommand.Execute(null);
+                            Check(fixture.Trace.SequenceEqual(new[] { "guide" }), "Missing files open recovery without registration, clipboard or browser-setup writes");
+                            Check(!((Button)WpfTree.Find(dialog, "SetupCopyPath")).IsEnabled && !((FrameworkElement)WpfTree.Find(dialog, "SetupInstructions")).IsVisible && Descendants<TextBlock>(dialog).Any(label => label.IsVisible && label.Text == model.MissingFilesHint),
+                                "Missing extension files explain recovery without instructions to load nonexistent files");
                             if (!compact && !dark) Capture(dialog, System.IO.Path.Combine(captures, "setup-missing-files-" + variant + ".png"));
                             fixture.FilesPresent = true;
                             model.SelectedBrowser = SetupBrowser.Chrome;

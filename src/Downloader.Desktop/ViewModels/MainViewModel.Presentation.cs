@@ -62,7 +62,7 @@ public sealed partial class MainViewModel
     public string PreviewLabel => T("Video preview");
     public bool HasMediaPreview => videoInfo != null || playlistInfo != null;
     public bool IsCheckingMedia => checkingMedia && !QueueRunning && downloadActionState == DownloadActionState.Ready;
-    public bool ShowInlineActivity => HasStatus && !quietCompletion && !IsCheckingMedia && (!HasMediaContext || InlineMediaPreview) && !SettingsVisible;
+    public bool ShowInlineActivity => HasStatus && !(string.IsNullOrWhiteSpace(Url) && !QueueRunning && downloadActionState == DownloadActionState.Ready) && !quietCompletion && !IsCheckingMedia && (!HasMediaPreview || InlineMediaPreview) && !SettingsVisible;
     public bool ShowDownloadActivity => HasStatus && !IsRefreshingTools;
     public string FolderDisplay => string.IsNullOrWhiteSpace(Folder) ? T("Choose a folder") :
         Path.GetFileName(Path.TrimEndingDirectorySeparator(Folder)) is { Length: > 0 } name ? name : Folder;

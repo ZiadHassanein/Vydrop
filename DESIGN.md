@@ -121,6 +121,8 @@ This record describes the current built source: ThemeResources.cs, ManagerStyles
 
 The scoped correction review (.impeccable/review/workspace-flow-v3.json) records WF1–WF14 and the resolved source findings satisfied. Current native captures are under build/workspace-regression-captures/workspace-flow; browser captures are under build/manager-browser-captures. They use test media and isolated browser fixtures. Named final validation stages and their limits are recorded in .impeccable/review/workspace-validation-v3.json. The original mechanical build state remains open at spec with later gates pending; no original-comp fidelity, numeric comp-diff, font-ranking, bitmap-plate or complete mechanical pass is claimed.
 
+The later scoped Add download, Settings and browser-setup corrections use native captures under build/setup-ui-regression/setup-ui, browser-setup and workspace-flow. The independent review in .impeccable/review/setup-workspace-ui.json marks SW1–SW8 satisfied with a scoped ship disposition; .impeccable/review/setup-ui-validation.json records checks and package status. This correction scope preserves the existing identity, tokens and original mechanical gate limits.
+
 ## Colors
 
 Cherry, burgundy and warm plum define the palette; green is reserved for success. Frontmatter owns exact primitive values. Paired -light and -dark entries map to native semantic brushes. Sidecar tonal strips are synthesized OKLCH previews for documentation, not additional shipping palette tokens.
@@ -166,12 +168,14 @@ The browser uses the system UI sans-serif stack and tabular numerals. Panel body
 The manager uses navigation, a flexible library and a selected-media inspector. The native window opens at 1280 × 820 DIP, minimum 760 × 500. Library and inspector scroll independently; list containers are recycled and horizontal scrolling is suppressed.
 
 - Navigation is 224 DIP wide, reducing to 176 below manager width 960. Its brand row is 92 high.
-- Inspector width is 320 from manager width 1080 through 1360, then 350 above 1360.
+- The library inspector and inspected editor preview use width 320 from manager width 1080 through 1360, then 350 above 1360. Empty Add download, Settings and History collapse both the inspector and its reserved column/divider.
 - Below 1080, details move into a 340-wide overlay drawer with 20 outer margin. Details or a row double-click opens it; Escape or Close dismisses it. Background sections are disabled, keyboard navigation cycles within, and focus returns to the list.
 - Library margins settle at 24 leading, 4 top, 18 trailing, 0 bottom; below 960 the leading margin is 14. The heading/action group has 18 bottom space, search 8, and filters 10. Inspector content has 20 side insets and 20 bottom space. Section separators use 22 vertical space.
 - Row artwork is 144 × 84 in a 158-wide leading column, with rounded artwork corners and a bottom-trailing duration overlay. The identity, trailing actions and 4-high progress track share an 84-high content grid; the track occupies its final four units rather than adding a second row below the artwork. Row padding remains 12 horizontally and 14 vertically. Inspector artwork is 184 high. Missing images retain a drawn media-symbol fallback.
 - Row content separates identity, output metadata and a narrow trailing status/action group. This trailing group has minimum width 78 and maximum width 126; status text can ellipsize with a tooltip.
-- Add download and History occupy the center workspace while the sidebar and header remain available. The editor surface has zero outer margin and no maximum-width cap; its heading margin is 24 leading, 4 top, 20 trailing and 12 bottom, and its form remains capped at 620 with internal 30 horizontal and 24 vertical margins. A media preview moves to the existing 320/350-wide right inspector when that column is available (manager width at least 1080); below it the preview appears inline above the form controls. Compact preview artwork is 114 wide, with 12 trailing space and a two-line 16/22 title. History uses 24 horizontal and 20 vertical margins and hides the right inspector.
+- Add download, Settings and History occupy the center workspace while the sidebar and header remain available. The editor surface has zero outer margin and no maximum-width cap; its heading margin is 24 leading, 4 top, 20 trailing and 12 bottom, and its form remains capped at 620 with internal 30 horizontal and 24 vertical margins. An actual inspected media preview moves to the existing 320/350-wide right inspector when that column is available (manager width at least 1080); below it the preview appears inline above the form controls. Compact preview artwork is 114 wide, with 12 trailing space and a two-line 16/22 title. Active queue state alone does not create a preview or reserve the inspector. Settings section content is capped at 840 with 24 horizontal, 12 top and 24 bottom margins. History uses 24 horizontal and 20 vertical margins and hides the right inspector.
+
+The native browser-setup dialog opens at 680 × 700 DIP. Its content uses 24 horizontal and 20 vertical insets; the browser selector reserves 180 DIP beside its label. One primary next action and current app-connection status sit immediately below the selector. Optional recovery controls remain in a collapsed expander; the scrollable instruction area keeps a separate guide/Close footer accessible at shorter heights.
 
 The browser action is positioned inside the visible video's top-right corner with a 10px inset. Its host is at most 190px wide, bounded by video width minus 20px and viewport width minus 24px. Below 160px available width, the label hides and the button becomes a 36px icon target; its minimum height remains 34px. Scroll, playback and fullscreen-container changes reposition it against the visible video bounds. A native video fullscreen element, an unrelated modal or insufficient space suppresses the action.
 
@@ -179,7 +183,7 @@ The browser chooser is at most 416 CSS pixels wide and leaves 12px viewport clea
 
 ## Elevation & Depth
 
-The native manager uses tonal layering and dividers rather than drop shadows. Selection adds a blush/plum fill and accent outline. The inspector is a continuous surface; the selected-library compact drawer uses a half-black scrim. Add download and History are ordinary center surfaces with no modal scrim. Keep the library flat.
+The native manager uses tonal layering and dividers rather than drop shadows. Selection adds a blush/plum fill and accent outline. The inspector is a continuous surface; the selected-library compact drawer uses a half-black scrim. Add download, Settings and History are ordinary center surfaces with no modal scrim. Settings sections sit directly on the workspace without a nested panel shell. Keep the library flat.
 
 The floating browser chooser has one structural shadow (0 18px 48px #170d2040). Its burgundy header and tonal card boundaries carry hierarchy within the panel.
 
@@ -211,7 +215,7 @@ Search uses Field and Ink, one-unit Border, control radius and height 44 DIP. A 
 
 ### Navigation
 
-Navigation items use outlined 18 × 18 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Selected items use NavigationSelected and semibold NavigationSelectedInk within the chamfered face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Queue, Video and Audio display live 23-high count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download and History select their center workspace without disabling sidebar navigation.
+Navigation items use outlined 18 × 18 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Selected items use NavigationSelected and semibold NavigationSelectedInk within the chamfered face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Queue, Video and Audio display live 23-high count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download, Settings and History select their center workspace without disabling sidebar navigation. Sidebar and Settings contain no visible version or release-channel labels.
 
 ### Counted filter tabs
 
@@ -227,7 +231,13 @@ Row progress is 4 DIP high within the 84-high content area; inspector progress r
 
 ### Center workspaces
 
-Add download uses the existing form and download engine inside the center panel. Wide inspected previews use the right inspector; compact previews move inline. Escape or Close returns to the library and restores prior focus. History uses a scrolling local recent-file list, an honest empty state, struck missing titles and availability-dependent reveal actions. It preserves the existing five-file limit and uses normal Tab continuation into workspace navigation.
+Add download uses the existing form and download engine inside the center panel. An empty form uses the available center width without a blank inspector; wide inspected previews use the right inspector and compact previews move inline. Clearing or replacing a link removes obsolete inspection status and preview. Actual active-queue status and Cancel remain in the form's scrolling content even without a preview. Settings uses one workspace-owned title and Close control above flat browser, app-update and download-support sections; its update actions remain available. Escape or Close returns to the library and restores prior focus. History uses a scrolling local recent-file list, an honest empty state, struck missing titles and availability-dependent reveal actions. It preserves the existing five-file limit and uses normal Tab continuation into workspace navigation.
+
+### Native browser setup
+
+The setup dialog reuses Page, Ink, Muted, Accent and the existing native controls. Its title is 23 DIP with 30 line height; the primary action uses the rounded PrimaryButton treatment with a local 44 DIP minimum height and 12 × 6 padding. The first view pairs the browser selector with concise action copy and current app-registration status. Successful registration uses Success, while separate text reports whether the browser handshake has been tested. Registration alone never presents a verified browser connection.
+
+A published listing selects the store action; otherwise installed and portable apps both select local setup. The explicit local action prepares verified matching companion files if needed, connects the app, copies the real extension path and opens the selected browser's setup page. Missing or malformed embedded recovery content instead presents an active illustrated-guide action and hides file-loading instructions. Optional manual controls stay collapsed initially. Firefox's temporary-add-on limitation is stated alongside the loading instructions. Paths and browser addresses retain LTR containers within Arabic layout; messages and verification status use polite live announcements.
 
 ### Browser chooser
 

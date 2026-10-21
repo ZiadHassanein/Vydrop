@@ -42,20 +42,20 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public bool HasMessage => Message.Length > 0;
     public bool HasError { get => hasError; private set => SetProperty(ref hasError, value); }
     public bool IsFirefox => SelectedBrowser == SetupBrowser.Firefox;
-    public bool UseStoreSetup => actions.IsInstalled || HasStoreListing;
+    public bool UseStoreSetup => HasStoreListing;
     public bool HasStoreListing => actions.StoreAddress(SelectedBrowser).Length > 0;
     public bool ShowFirefoxTemporaryHint => IsFirefox && (!UseStoreSetup || localSetupStarted);
-    public bool ShowMissingFiles => !UseStoreSetup && !HasExtension;
+    public bool ShowMissingFiles => !UseStoreSetup && !HasExtension && !actions.CanPrepareExtension;
     public string ExtensionPath => actions.ExtensionPath(SelectedBrowser);
     public bool HasExtension => actions.HasExtension(SelectedBrowser);
     public string BrowserAddress => BrowserSetupActions.BrowserAddress(SelectedBrowser);
     public string Heading => t("Browser extension setup");
-    public string Intro => t("Send a video to Vydrop, then review it before downloading.");
+    public string Intro => t("Connect your browser to Vydrop.");
     public string BrowserLabel => t("Your browser");
     public string ConnectionStatus => t(IsConnected ? "Connected to this Vydrop app" : "App connection is not enabled");
     public bool IsVerified => actions.IsVerified;
     public string VerificationStatus => t(IsVerified ? "Browser connection verified" : "Browser connection not tested yet");
-    public string VerificationHint => t("Keep this app open. In the extension popup, choose Test connection to verify the complete browser-to-app link.");
+    public string VerificationHint => t("Choose Test connection in the extension popup.");
     internal void RefreshVerification() { OnPropertyChanged(nameof(IsVerified)); OnPropertyChanged(nameof(VerificationStatus)); }
     public string KeepFolderHint => t("Keep Vydrop in a permanent folder. Reconnect here if you move it.");
     public string EnableLabel => t(IsConnected ? "Reconnect app" : "Enable connection");
@@ -65,20 +65,17 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public string PathLabel => t(IsFirefox ? "File to select" : "Folder to select");
     public string CopyPathLabel => t(IsFirefox ? "Copy file path" : "Copy folder path");
     public string ShowFolderLabel => t("Show extension files");
-    public string MissingFilesHint => t("Companion files are missing. Extract the complete Vydrop ZIP and reopen the app.");
+    public string MissingFilesHint => t("Extension files are unavailable. Open the illustrated guide to restore them.");
     public string FirefoxHint => t("Firefox removes this temporary add-on when it restarts. Load it again next session.");
-    public string TestHeading => t("Try it on a video");
-    public string TestHint => t("Close setup, refresh a video page and play the video. Click its Vydrop button or the extension in your browser toolbar.");
-    public string ReviewHint => t("Nothing downloads until you choose Download in Vydrop.");
+    public string TestHint => t("Refresh a video page and click its Vydrop button. Choose the format and quality, then Download.");
     public string GuideLabel => t("View illustrated guide");
     public string CloseLabel => t("Close");
-    public string StartSetupLabel => UseStoreSetup ? string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Add to {0}"), SelectedBrowser) : string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Set up {0}"), SelectedBrowser);
-    public string StartSetupHint => t(UseStoreSetup
-        ? HasStoreListing ? "Vydrop is ready. Add the official extension and approve your browser's confirmation. The connection is automatic."
-            : "Vydrop is ready. The browser-store release is being prepared. Until it is published, use Manual setup and troubleshooting below."
-        : "Connects this app, copies the extension path and opens your browser's setup page.");
+    public string StartSetupLabel => ShowMissingFiles ? GuideLabel : UseStoreSetup ? string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Add to {0}"), SelectedBrowser) : string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Set up {0}"), SelectedBrowser);
+    public string StartSetupHint => ShowMissingFiles ? MissingFilesHint : t(UseStoreSetup
+        ? "Vydrop is ready. Add the official extension and approve your browser's confirmation. The connection is automatic."
+        : "Sets up the app connection and opens your browser. The extension folder is copied for the next step.");
     public string ManualStepsLabel => t("Finish in your browser");
-    public string BrowserSteps => UseStoreSetup ? t(HasStoreListing ? "Choose Add or Get on the official store page, approve the extension, then refresh your video page." : "The store button becomes available when the official listing is published. You can still download by pasting a video link into Vydrop.") : t(IsFirefox
+    public string BrowserSteps => UseStoreSetup ? t("Choose Add or Get on the official store page, approve the extension, then refresh your video page.") : t(IsFirefox
         ? "Choose This Firefox → Load Temporary Add-on…, paste the copied file path and choose Open."
         : "Turn on Developer mode → Load unpacked. Paste the copied folder path and choose Select Folder.");
     public string LocalSetupHint => t(IsFirefox
@@ -102,8 +99,8 @@ internal sealed class BrowserSetupViewModel : ObservableObject
         t = translate;
         this.actions = actions;
         IsConnected = actions.IsConnected;
-        StartSetupCommand = new RelayCommand(StartSetup, () => UseStoreSetup ? HasStoreListing : HasExtension);
-        LocalSetupCommand = new RelayCommand(StartLocalSetup, () => HasExtension);
+        StartSetupCommand = new RelayCommand(StartSetup);
+        LocalSetupCommand = new RelayCommand(StartLocalSetup, () => HasExtension || actions.CanPrepareExtension);
         EnableCommand = new RelayCommand(() => Run(() => SetConnection(true),
             "Browser connection enabled. Load the companion extension to send links.",
             "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again."));
@@ -123,6 +120,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
 
     private void StartSetup()
     {
+        if (ShowMissingFiles) { GuideCommand.Execute(null); return; }
         if (!UseStoreSetup) { StartLocalSetup(); return; }
         if (!Run(() => SetConnection(true), "", "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.")) return;
         Run(() => actions.OpenStore(SelectedBrowser), "Approve the extension in your browser, then choose Test connection in its popup.", "Could not open the store page. Open the illustrated guide for help.");
@@ -130,13 +128,19 @@ internal sealed class BrowserSetupViewModel : ObservableObject
 
     private void StartLocalSetup()
     {
+        if (!HasExtension)
+        {
+            if (!Run(() => actions.PrepareExtension(SelectedBrowser), "", "Could not prepare extension files. Check folder access and try again.")) return;
+            OnPropertyChanged(string.Empty);
+            CopyPathCommand.NotifyCanExecuteChanged(); ShowFolderCommand.NotifyCanExecuteChanged(); LocalSetupCommand.NotifyCanExecuteChanged();
+        }
         localSetupStarted = true;
         OnPropertyChanged(nameof(ShowFirefoxTemporaryHint));
         // Stop at the failed step; retain the manual actions for recovery.
         if (!Run(() => SetConnection(true), "", "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.")) return;
         if (!Run(() => actions.Copy(ExtensionPath), "", "Could not copy to the clipboard. Select the address or path and copy it manually.")) return;
         Run(() => actions.OpenExtensions(SelectedBrowser),
-            "App connected and extension path copied. Finish the loading step in your browser, then refresh your video page.",
+            "App connected and extension path copied. Finish setup in your browser.",
             "App connected and extension path copied, but the browser could not open. Copy its address from Manual setup and troubleshooting.");
     }
 

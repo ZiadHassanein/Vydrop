@@ -117,10 +117,10 @@ public partial class MainWindow : Window
 
     private void ApplyResponsiveLayout()
     {
-        bool split = model.HasMediaContext && !model.SettingsVisible && ManagerContent.DetailsColumn.Width.Value > 0;
+        bool split = model.HasMediaPreview && !model.SettingsVisible && ManagerContent.DetailsColumn.Width.Value > 0;
         PageContent.ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
         PageContent.ColumnDefinitions[1].Width = new GridLength(0);
-        bool inline = model.HasMediaContext && !split && !model.SettingsVisible;
+        bool inline = model.HasMediaPreview && !split && !model.SettingsVisible;
         var previewHost = inline ? (Panel)DownloadForm.InlinePreviewHost : ManagerContent.EditorDetailsHost;
         if (MediaPreview.Parent is Panel parent && parent != previewHost)
         {
@@ -132,9 +132,10 @@ public partial class MainWindow : Window
         ContextViewport.Visibility = model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
         ContextPane.Visibility = ContextViewport.Visibility;
         Viewport.Visibility = model.SettingsVisible && !split ? Visibility.Collapsed : Visibility.Visible;
-        ContextPane.MaxWidth = split ? double.PositiveInfinity : DownloadForm.MaxWidth;
+        ContextPane.MaxWidth = model.SettingsVisible ? 840 : DownloadForm.MaxWidth;
+        ContextPane.Margin = model.SettingsVisible ? new Thickness(24, 12, 24, 24) : new Thickness(0);
         MediaPreview.SetCompact(inline);
-        MediaPreview.Visibility = model.HasMediaContext && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
+        MediaPreview.Visibility = model.HasMediaPreview && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void UpdateEditor()

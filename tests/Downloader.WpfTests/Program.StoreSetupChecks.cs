@@ -15,7 +15,7 @@ internal static partial class Program
             if (main.IsDark != dark) main.ThemeCommand.Execute(null);
             owner.Width = 740; owner.Height = published ? 800 : 500;
             await Task.Delay(100);
-            var fixture = new SetupFixture { IsInstalled = true };
+            var fixture = new SetupFixture();
             if (published) fixture.Catalog = new(new string('a', 32), new string('b', 32), "https://addons.mozilla.org/firefox/addon/vydrop/");
             Exception failure = null;
             var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -28,12 +28,12 @@ internal static partial class Program
                     await Task.Delay(100);
                     var model = (BrowserSetupViewModel)dialog.DataContext;
                     var manual = (Expander)WpfTree.Find(dialog, "SetupManual");
-                    Check(model.UseStoreSetup && !manual.IsExpanded && fixture.Calls == 0, "Installed onboarding offers store setup without side effects");
+                    Check(model.UseStoreSetup == published && !manual.IsExpanded && fixture.Calls == 0, "Onboarding chooses only an available store and has no opening side effects");
                     foreach (var browser in Enum.GetValues<SetupBrowser>())
                     {
                         model.SelectedBrowser = browser;
                         fixture.Trace.Clear();
-                        Check(model.StartSetupCommand.CanExecute(null) == published && !model.ShowFirefoxTemporaryHint, "Store availability is honest and temporary Firefox instructions stay out of the normal flow");
+                        Check(model.StartSetupCommand.CanExecute(null) && model.ShowFirefoxTemporaryHint == (!published && browser == SetupBrowser.Firefox), "Store availability is honest and temporary Firefox instructions stay out of the normal flow");
                         if (published)
                         {
                             model.StartSetupCommand.Execute(null);
@@ -44,7 +44,11 @@ internal static partial class Program
                             fixture.Failure = null;
                             model.StartSetupCommand.Execute(null);
                         }
-                        else Check(model.StartSetupHint == Texts.For(arabic ? "ar" : "en", "Vydrop is ready. The browser-store release is being prepared. Until it is published, use Manual setup and troubleshooting below."), "Pending publication is explained in the selected language");
+                        else
+                        {
+                            model.StartSetupCommand.Execute(null);
+                            Check(fixture.Trace.SequenceEqual(new[] { "enable", "copy", "open" }) && !model.HasError, "An unpublished store falls back to working local setup instead of a disabled button");
+                        }
                     }
                     var viewport = (ScrollViewer)WpfTree.Find(dialog, "SetupViewport");
                     var footer = (FrameworkElement)WpfTree.Find(dialog, "SetupFooter");
@@ -57,10 +61,10 @@ internal static partial class Program
                     model.LocalSetupCommand.Execute(null);
                     await Task.Delay(50);
                     dialog.UpdateLayout();
-                    Check(fixture.Trace.SequenceEqual(new[] { "enable", "copy", "open" }) && model.ShowFirefoxTemporaryHint && ((Button)WpfTree.Find(dialog, "SetupLocal")).IsVisible, "Manual recovery retains local loading and explains Firefox temporary installation");
+                    Check(fixture.Trace.SequenceEqual(new[] { "enable", "copy", "open" }) && model.ShowFirefoxTemporaryHint && (((Button)WpfTree.Find(dialog, "SetupLocal")).IsVisible == published), "Manual recovery retains local loading and explains Firefox temporary installation");
                     fixture.FilesPresent = false;
                     model.SelectedBrowser = SetupBrowser.Chrome;
-                    Check(!model.LocalSetupCommand.CanExecute(null) && model.StartSetupCommand.CanExecute(null) == published, "Store installation works without local files while manual loading is disabled");
+                    Check(!model.LocalSetupCommand.CanExecute(null) && model.StartSetupCommand.CanExecute(null), "Store installation works without local files while manual loading is disabled");
                 }
                 catch (Exception error) { failure = error; }
                 finally { if (dialog?.IsVisible == true) dialog.Close(); done.TrySetResult(); }

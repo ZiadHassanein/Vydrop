@@ -16,9 +16,11 @@ Inspect public media, choose an available output format and quality, save downlo
 
 ## Operating Context
 
-The download manager is the default main screen, with persistent sidebar navigation and a searchable download list. Add download and History replace the center workspace; the inspected Add download preview appears in the right inspector at wide sizes and inline in compact layouts. History remains accessible during transfers. Zero sidebar and filter counts are hidden, and the status filters have deliberate separation.
+The download manager is the default main screen, with persistent sidebar navigation and a searchable download list. Add download, Settings and History replace the center workspace. Empty Add download and Settings use the available center width without reserving a blank inspector; an inspected Add download preview appears in the right inspector at wide sizes and inline in compact layouts. Settings has one workspace title and Close control, with flat section content. Sidebar and Settings show no version or release-channel labels. History remains accessible during transfers. Zero sidebar and filter counts are hidden, and the status filters have deliberate separation.
 
 The browser action sits inside the visible video's top-right corner. Its compact menu shows inspected format and quality choices, a selected-output summary and Download action. Confirming a choice uses the saved folder, persists the job in the local queue and starts it through the existing download path when idle; confirmed jobs wait when the app is busy. Older hosts retain a visible review-and-start-in-app fallback. The user requested visual mockups before implementation and then these operating-flow refinements.
+
+Browser setup presents a browser selector, one available next action and concise instructions. Both installed and portable apps offer local loading when no published store listing exists. A copied app can prepare its embedded, matching companion files in a local cache after the user starts setup; missing or unusable recovery content leads to the illustrated guide. Native app registration and a verified browser handshake are separate states.
 
 ## Capabilities and Constraints
 
@@ -30,6 +32,8 @@ The browser action sits inside the visible video's top-right corner. Its compact
 - Keep existing English/Arabic language support, RTL behavior, light/dark themes, keyboard access and Windows high-contrast support.
 - Queue-wide pause, cancel, scheduled stop, engine halt and app closure retain control over confirmed browser work. Reopening the app does not silently resume older pending or interrupted jobs.
 - Repeated and concurrent browser format checks reuse bounded inspection work. Dismissing the chooser clears its busy presentation and ignores late inspection results.
+- Clearing or replacing the editor link cancels stale inspection feedback and ignores late results. Actual active-queue feedback and Cancel remain available inline even without a media preview. A scheduled stop consumes the old start schedule as well, so a timer tick cannot restart that stopped work.
+- Opening browser setup performs no connection registration, browser launch, clipboard write or recovery write. Explicit local setup verifies matching companion files before copying a loadable path; cache repair preserves unrelated files. Saved settings, queue formats and browser/native-host protocols retain their existing compatibility.
 
 ## Brand Commitments
 
@@ -44,6 +48,7 @@ The user selected the right-hand details-panel layout (concept A), but rejected 
 - Queue restart tests demonstrate recovery after normal closure and process termination, byte resume and exact output integrity.
 - User supplied two reference images and confirmed the manager-first structure, browser quality menu and mockup-first workflow.
 - The final scoped review in `.impeccable/review/workspace-flow-v3.json` marks WF1–WF14 and the resolved source findings satisfied. Fresh native and browser fixture captures and named validation logs support that correction scope; `.impeccable/review/workspace-validation-v3.json` records the final stage results and limits.
+- The later empty-editor, Settings, version-label and browser-setup review in `.impeccable/review/setup-workspace-ui.json` marks SW1–SW8 satisfied with a scoped ship disposition. `.impeccable/review/setup-ui-validation.json` records current native captures, targeted checks, restart/resume evidence and package status for that scope.
 - The original comp-led mechanical workflow remains open at spec, with later gates pending. The scoped correction review does not certify original-comp fidelity or a complete mechanical build pass.
 
 ## Product Principles

@@ -16,38 +16,35 @@
  </Window.Resources>
  <Grid x:Name="SetupContent" Margin="24,20" KeyboardNavigation.TabNavigation="Cycle" TextBlock.LineHeight="20" TextBlock.LineStackingStrategy="BlockLineHeight">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-  <StackPanel Margin="0,0,0,18">
+  <StackPanel Margin="0,0,0,14">
    <TextBlock Text="{Binding Heading}" FontSize="23" LineHeight="30" FontWeight="SemiBold"/>
    <TextBlock Text="{Binding Intro}" Style="{StaticResource SetupHint}" Margin="0,5,0,0"/>
   </StackPanel>
   <ScrollViewer x:Name="SetupViewport" Grid.Row="1" Style="{StaticResource InsetScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
    <StackPanel>
-    <Grid Margin="0,0,0,16">
+    <Grid Margin="0,0,0,12">
      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
      <TextBlock Text="{Binding BrowserLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/>
      <ComboBox x:Name="SetupBrowserPicker" Grid.Column="1" ItemsSource="{Binding Browsers}" SelectedItem="{Binding SelectedBrowser}" AutomationProperties.Name="{Binding BrowserLabel}"/>
     </Grid>
     <TextBlock Text="{Binding StartSetupHint}" Style="{StaticResource SetupHint}" Margin="0,0,0,12"/>
-    <Button x:Name="SetupStart" Content="{Binding StartSetupLabel}" Command="{Binding StartSetupCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" MinWidth="160" Margin="0,0,0,10"/>
+    <Button x:Name="SetupStart" Content="{Binding StartSetupLabel}" Command="{Binding StartSetupCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" MinWidth="160" MinHeight="44" Padding="12,6" Margin="0,0,0,10"/>
      <TextBlock x:Name="SetupConnectionStatus" Text="{Binding ConnectionStatus}" VerticalAlignment="Center" FontWeight="SemiBold" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite">
       <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource Muted}"/><Style.Triggers>
        <DataTrigger Binding="{Binding IsConnected}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Success}"/></DataTrigger>
       </Style.Triggers></Style></TextBlock.Style>
      </TextBlock>
-    <TextBlock Text="{Binding VerificationStatus}" FontWeight="SemiBold" AutomationProperties.LiveSetting="Polite" Margin="0,6,0,0"/>
-    <TextBlock Text="{Binding VerificationHint}" Style="{StaticResource SetupHint}" Margin="0,4,0,12"/>
-    <TextBlock Text="{Binding ManualStepsLabel}" Style="{StaticResource SetupHeading}" Margin="0,22,0,8"/>
+    <StackPanel x:Name="SetupInstructions">
+     <StackPanel.Style><Style TargetType="StackPanel"><Style.Triggers>
+      <DataTrigger Binding="{Binding ShowMissingFiles}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+     </Style.Triggers></Style></StackPanel.Style>
+    <TextBlock Text="{Binding VerificationStatus}" FontWeight="SemiBold" AutomationProperties.LiveSetting="Polite" Margin="0,6,0,0" Visibility="{Binding IsConnected,Converter={StaticResource BoolVisibility}}"/>
+    <TextBlock Text="{Binding VerificationHint}" Style="{StaticResource SetupHint}" Margin="0,4,0,4" Visibility="{Binding IsConnected,Converter={StaticResource BoolVisibility}}"/>
+    <TextBlock Text="{Binding ManualStepsLabel}" Style="{StaticResource SetupHeading}" Margin="0,12,0,8"/>
     <TextBlock Text="{Binding BrowserSteps}" TextWrapping="Wrap"/>
     <TextBlock Text="{Binding FirefoxHint}" Style="{StaticResource SetupHint}" Margin="0,8,0,0" Visibility="{Binding ShowFirefoxTemporaryHint,Converter={StaticResource BoolVisibility}}"/>
-    <TextBlock Text="{Binding MissingFilesHint}" Foreground="{DynamicResource Error}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,8,0,0">
-     <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Visible"/><Style.Triggers>
-      <DataTrigger Binding="{Binding ShowMissingFiles}" Value="False"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
-     </Style.Triggers></Style></TextBlock.Style>
-    </TextBlock>
-    <TextBlock Text="{Binding TestHeading}" Style="{StaticResource SetupHeading}" Margin="0,22,0,8"/>
-    <TextBlock Text="{Binding TestHint}" TextWrapping="Wrap"/>
+    <TextBlock Text="{Binding TestHint}" TextWrapping="Wrap" Margin="0,12,0,0"/>
     <TextBlock Text="{Binding ClosedAppHint}" Style="{StaticResource SetupHint}" Margin="0,6,0,0"/>
-    <TextBlock Text="{Binding ReviewHint}" Style="{StaticResource SetupHint}" Margin="0,6,0,12"/>
     <Expander x:Name="SetupManual" Header="{Binding RecoveryLabel}" Foreground="{DynamicResource Ink}" Margin="0,8,0,0">
      <StackPanel Margin="0,12,0,0">
     <Button x:Name="SetupLocal" Content="{Binding LocalSetupLabel}" Command="{Binding LocalSetupCommand}" Style="{StaticResource SetupButton}" HorizontalAlignment="Left" Margin="0,0,0,12" Visibility="{Binding UseStoreSetup,Converter={StaticResource BoolVisibility}}"/>
@@ -81,6 +78,7 @@
       </WrapPanel>
      </StackPanel>
     </Expander>
+    </StackPanel>
    </StackPanel>
   </ScrollViewer>
   <Border Grid.Row="2" Background="{DynamicResource Surface}" CornerRadius="8" Padding="10" Margin="0,12,0,0" Visibility="{Binding HasMessage,Converter={StaticResource BoolVisibility}}">
