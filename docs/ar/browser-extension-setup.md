@@ -159,3 +159,5 @@ arabic: /ar/browser-extension-setup.html
 عند تحديث المجلد أعد تحميل الإضافة ثم صفحة الفيديو. إذا كان التطبيق مشغولًا، أنهِ التنزيل الحالي أو ألغِه ثم حاول مجددًا. عند فشل الربط افتح التطبيق وفعّله من الإعدادات. استخدم مجلد Browser من حزمة التطبيق المستقرة نفسها، وتجنّب خلطه مع Preview.
 
 لا تدعم الإضافة كل مشغّل، ولا تعني معرفة الرابط إمكان تنزيل فيديو خاص أو محمي أو يتطلب تسجيل دخول. قد تختلف مواضع الأزرار بحسب إصدار المتصفح. [تعليمات Edge الرسمية](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading) · [شرح التثبيت المؤقت في Firefox](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
+
+اقرأ [سياسة خصوصية إضافة المتصفح (بالإنجليزية)](../browser-extension-privacy.md) لمعرفة المعلومات المستخدمة، وما يُنقل إلى التطبيق المحلي، وكيف تُحفظ البيانات.

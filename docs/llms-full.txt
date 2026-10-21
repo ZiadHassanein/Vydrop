@@ -666,6 +666,8 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html
 
 لا تدعم الإضافة كل مشغّل، ولا تعني معرفة الرابط إمكان تنزيل فيديو خاص أو محمي أو يتطلب تسجيل دخول. قد تختلف مواضع الأزرار بحسب إصدار المتصفح. [تعليمات Edge الرسمية](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading) · [شرح التثبيت المؤقت في Firefox](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
 
+اقرأ [سياسة خصوصية إضافة المتصفح (بالإنجليزية)](https://ziadhassanein.github.io/Vydrop/browser-extension-privacy.html) لمعرفة المعلومات المستخدمة، وما يُنقل إلى التطبيق المحلي، وكيف تُحفظ البيانات.
+
 ---
 
 Source: https://ziadhassanein.github.io/Vydrop/ar/download-video-from-any-website-windows.html
@@ -1318,7 +1320,7 @@ To disconnect, choose **Disable connection** in the app and remove the browser c
 | The app opens Preview | Load the regular companion from the matching desktop package and enable the connection from that app. |
 | The icon or name looks old after an update | Reload the companion, then refresh the video page. The current Vydrop icon is the red V alone. |
 
-The companion locates visible players and sends a public link after your click. It does not import accounts or cookies. Read the [permissions and limitations](https://github.com/ZiadHassanein/Vydrop/blob/main/browser/README.md). These local packages are not Chrome, Edge or Firefox store listings.
+The companion locates visible players and sends a public link after your click. It does not import accounts or cookies. Read the [browser extension privacy policy](https://ziadhassanein.github.io/Vydrop/browser-extension-privacy.html) for the information used, local transfer and retention, and the [permissions and limitations](https://github.com/ZiadHassanein/Vydrop/blob/main/browser/README.md). These local packages are not Chrome, Edge or Firefox store listings.
 
 ## تفعيل الإضافة بالعربية
 

@@ -10,11 +10,16 @@ const htmlFiles = walk(site).filter(file => file.endsWith('.html'));
 const locales = JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/_data/locales.json'),'utf8'));
 const entities = text => text.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#39;', "'");
 const canonicals = new Set();
+const pageLinks = new Map();
 for (const file of htmlFiles) {
   const text = fs.readFileSync(file, 'utf8');
   const route = '/' + path.relative(site, file).replaceAll('\\', '/').replace(/index\.html$/u, '');
   const canonical = `${origin}${base}${route}`;
   canonicals.add(canonical);
+  pageLinks.set(canonical, [...text.matchAll(/<a\b[^>]*\bhref="([^"]+)"/gu)].map(match => {
+    const url = new URL(entities(match[1]), canonical);
+    return url.origin + url.pathname.replace(/index\.html$/u, '');
+  }));
   const title = text.match(/<title>([^<]+)<\/title>/u)?.[1];
   assert.ok(title && entities(title).length <= 60, `${route}: title ${title}`);
   const desc = text.match(/<meta name="description" content="([^"]*)"/u)?.[1];
@@ -111,6 +116,15 @@ const sitemap = sitemapUrls(fs.readFileSync(path.join(site, 'sitemap.xml'), 'utf
 assert.deepEqual([...sitemap].sort(), [...canonicals].sort(), 'Sitemap lists exactly the canonical HTML pages, including every localized guide');
 const textSitemap = fs.readFileSync(path.join(site, 'sitemap.txt'), 'utf8').trim().split(/\r?\n/u);
 assert.deepEqual(textSitemap.sort(), [...canonicals].sort(), 'Google text sitemap matches every canonical HTML page, without extra content');
+const reachable = new Set();
+const pending = [`${origin}${base}/`];
+while (pending.length) {
+  const url = pending.pop();
+  if (reachable.has(url)) continue;
+  reachable.add(url);
+  for (const link of pageLinks.get(url) || []) if (canonicals.has(link)) pending.push(link);
+}
+assert.deepEqual([...reachable].sort(), [...canonicals].sort(), 'Every canonical page must be discoverable through ordinary links from the homepage');
 assert.ok(fs.readFileSync(path.join(site, 'robots.txt'), 'utf8').includes(`${origin}${base}/sitemap.xml`));
 assert.ok(fs.readFileSync(path.join(site, 'llms-full.txt'), 'utf8').includes('Source: https://github.com/ZiadHassanein/Vydrop/blob/main/README.md'));
 console.log(`PASS: ${htmlFiles.length} rendered pages: metadata, links, alternates, JSON-LD, RTL, assets and sitemap.`);

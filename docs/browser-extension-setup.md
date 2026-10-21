@@ -180,7 +180,7 @@ To disconnect, choose **Disable connection** in the app and remove the browser c
 
 </div>
 
-The companion locates visible players and sends a public link after your click. It does not import accounts or cookies. Read the [permissions and limitations](https://github.com/ZiadHassanein/Vydrop/blob/main/browser/README.md). These local packages are not Chrome, Edge or Firefox store listings.
+The companion locates visible players and sends a public link after your click. It does not import accounts or cookies. Read the [browser extension privacy policy](browser-extension-privacy.md) for the information used, local transfer and retention, and the [permissions and limitations](https://github.com/ZiadHassanein/Vydrop/blob/main/browser/README.md). These local packages are not Chrome, Edge or Firefox store listings.
 
 <a id="arabic"></a>
 
