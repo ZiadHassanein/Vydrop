@@ -1,12 +1,14 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.ComponentModel;
 
 namespace YouTubeDownloader;
 
 public partial class DownloadManagerView : UserControl
 {
     private bool compact;
+    internal event Action WorkspaceLayoutChanged;
     public DownloadManagerView()
     {
         InitializeComponent();
@@ -22,20 +24,46 @@ public partial class DownloadManagerView : UserControl
         ContactLinks.ContactButton.HorizontalAlignment = HorizontalAlignment.Left;
         ContactLinks.ContactButton.SetResourceReference(Control.ForegroundProperty, "NavigationMuted");
         SizeChanged += (_, _) => LayoutManager();
+        DataContextChanged += (_, e) =>
+        {
+            if (e.OldValue is MainViewModel previous) previous.PropertyChanged -= WorkspaceChanged;
+            if (e.NewValue is MainViewModel next) next.PropertyChanged += WorkspaceChanged;
+            RefreshWorkspace();
+        };
         PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape && DetailOverlay.IsVisible) { HideDetails(); e.Handled = true; } };
+    }
+    private void WorkspaceChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName is nameof(MainViewModel.AddDownloadVisible) or nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HistoryVisible)) RefreshWorkspace();
+    }
+    internal void RefreshWorkspace()
+    {
+        if (DataContext is not MainViewModel model) return;
+        bool editor = model.AddDownloadVisible || model.SettingsVisible;
+        LibraryContent.Visibility = !editor && !model.HistoryVisible ? Visibility.Visible : Visibility.Collapsed;
+        HistoryContent.Visibility = !editor && model.HistoryVisible ? Visibility.Visible : Visibility.Collapsed;
+        EditorHost.Visibility = editor ? Visibility.Visible : Visibility.Collapsed;
+        EditorDetailsHost.Visibility = model.AddDownloadVisible && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
+        LibraryDetails.Visibility = editor ? Visibility.Collapsed : Visibility.Visible;
+        DetailsBorder.Visibility = model.HistoryVisible ? Visibility.Collapsed : Visibility.Visible;
+        LayoutManager();
     }
     private void LayoutManager()
     {
+        double previousWidth = DetailsColumn.Width.Value;
         bool next = ActualWidth < 1080;
         NavigationColumn.Width = new GridLength(ActualWidth < 960 ? 176 : 224);
-        DetailsColumn.Width = new GridLength(next ? 0 : ActualWidth > 1360 ? 350 : 320);
+        DetailsColumn.Width = new GridLength(next || (DataContext as MainViewModel)?.HistoryVisible == true ? 0 : ActualWidth > 1360 ? 350 : 320);
         LibraryContent.Margin = new Thickness(ActualWidth < 960 ? 14 : 24, 4, 18, 0);
         CompactDetailsButton.Visibility = next ? Visibility.Visible : Visibility.Collapsed;
-        if (compact == next) return;
-        compact = next;
-        if (DetailsBorder.Parent is Panel parent) parent.Children.Remove(DetailsBorder);
-        if (compact) { Grid.SetColumn(DetailsBorder, 0); Grid.SetRow(DetailsBorder, 0); CompactDetailsHost.Children.Add(DetailsBorder); }
-        else { Grid.SetColumn(DetailsBorder, 2); Grid.SetRow(DetailsBorder, 1); ManagerRoot.Children.Add(DetailsBorder); HideDetails(); }
+        if (compact != next)
+        {
+            compact = next;
+            if (DetailsBorder.Parent is Panel parent) parent.Children.Remove(DetailsBorder);
+            if (compact) { Grid.SetColumn(DetailsBorder, 0); Grid.SetRow(DetailsBorder, 0); CompactDetailsHost.Children.Add(DetailsBorder); }
+            else { Grid.SetColumn(DetailsBorder, 2); Grid.SetRow(DetailsBorder, 1); ManagerRoot.Children.Add(DetailsBorder); HideDetails(); }
+        }
+        if (previousWidth != DetailsColumn.Width.Value) WorkspaceLayoutChanged?.Invoke();
     }
     private void ShowDetailsClicked(object sender, RoutedEventArgs e)
     {
@@ -48,13 +76,20 @@ public partial class DownloadManagerView : UserControl
     {
         if (sender is not Button { DataContext: QueueItemView row } button || DataContext is not MainViewModel model) return;
         model.SelectedLibraryItem = row;
-        var menu = new ContextMenu { PlacementTarget = button, FlowDirection = model.ContentDirection, FontFamily = model.ContentFont };
-        void Add(string header, System.Windows.Input.ICommand command, bool enabled = true) => menu.Items.Add(new MenuItem { Header = header, Command = command, CommandParameter = row.Id, IsEnabled = enabled });
-        Add(row.PrimaryAction, model.LibraryActionCommand);
-        if (row.IsActive) Add(model.CancelLabel, model.LibraryCancelCommand);
-        Add(model.OpenSaveFolderLabel, model.OpenQueueFolderCommand, row.CanOpenFolder);
-        if (row.CanRefresh) Add(model.RefreshSourceLabel, model.RefreshQueueSourceCommand);
-        Add(model.RemoveLabel, model.RemoveQueueCommand, row.CanRemove);
+        var menu = new ContextMenu { PlacementTarget = button, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom, FlowDirection = model.ContentDirection, FontFamily = model.ContentFont, Style = (Style)FindResource("ManagerMenu") };
+        void Add(string header, System.Windows.Input.ICommand command, string icon, bool enabled = true, bool destructive = false)
+        {
+            var item = new MenuItem { Header = header, Command = command, CommandParameter = row.Id, IsEnabled = enabled, Tag = FindResource(icon), Style = (Style)FindResource("ManagerMenuItem") };
+            if (destructive) item.SetResourceReference(ForegroundProperty, "Error");
+            menu.Items.Add(item);
+        }
+        Add(row.PrimaryAction, model.LibraryActionCommand, row.IsActive ? "ManagerPauseIcon" : "ManagerPlayIcon");
+        if (row.IsActive) Add(model.CancelLabel, model.LibraryCancelCommand, "CloseIcon");
+        menu.Items.Add(new Separator());
+        Add(model.OpenSaveFolderLabel, model.OpenQueueFolderCommand, "OpenFolderIcon", row.CanOpenFolder);
+        if (row.CanRefresh) Add(model.RefreshSourceLabel, model.RefreshQueueSourceCommand, "RefreshIcon");
+        menu.Items.Add(new Separator());
+        Add(model.RemoveLabel, model.RemoveQueueCommand, "CloseIcon", row.CanRemove, destructive: true);
         menu.Closed += (_, _) => { button.ContextMenu = null; button.Focus(); };
         button.ContextMenu = menu;
         menu.IsOpen = true;

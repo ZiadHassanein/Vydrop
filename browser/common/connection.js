@@ -39,7 +39,14 @@ globalThis.ViFreeConnection = (() => {
     for (const job of pending.values()) { clearTimeout(job.timeout); job.reject(fail(messages.en.unavailable, "unavailable")); }
     pending.clear(); previous?.disconnect();
   }
+  // The native host handles requests sequentially. Start each deadline only when it can be served.
+  let requests = Promise.resolve();
   function request2(type, fields = {}) {
+    const next = requests.then(() => requestNow(type, fields));
+    requests = next.catch(() => {});
+    return next;
+  }
+  function requestNow(type, fields) {
     return new Promise((resolve, reject) => {
       if (!api.runtime.connectNative) { reject(fail(messages.en.unsupported, "unsupported")); return; }
       if (!port) {
@@ -74,7 +81,7 @@ globalThis.ViFreeConnection = (() => {
   }
   async function sendLink(value, context = {}) {
     const url = validUrl(value);
-    let response, choiceSupported = false;
+    let response, choiceSupported = false, startSupported = false;
     if (api.runtime.connectNative) {
       let health;
       try { health = await request2("ping"); } catch { /* The legacy host may close after rejecting v2. */ }
@@ -84,21 +91,32 @@ globalThis.ViFreeConnection = (() => {
         const asset = context.mediaId || url.pathname.match(/^\/playlist\/vid\/v2\/([A-Za-z0-9_-]+)\/mp4-/u)?.[1];
         if (/^[A-Za-z0-9_-]{1,128}$/u.test(asset ?? "")) fields.mediaId = asset;
         if (context.output && health.capabilities?.includes("output-selection")) { fields.output = context.output; choiceSupported = true; }
-        response = await request2(context.enqueue ? "enqueue" : "open-link", fields);
+        startSupported = Boolean(context.startDownload && context.output && health.capabilities?.includes("start-download"));
+        response = await request2(startSupported ? "download" : context.enqueue ? "enqueue" : "open-link", fields);
       }
     }
     try { response ??= await api.runtime.sendNativeMessage(host, { version: 1, type: "open-link", url: url.href }); }
     catch { throw fail(`Open ${name} and enable Browser integration, then try again.`, "unavailable"); }
     if (!response?.ok) throw fail("The native host rejected this link.", Object.hasOwn(messages.en, response?.code) ? response.code : "failed");
-    return context.output && !choiceSupported ? { ...response, code: "opened-legacy" } : response;
+    return context.output && (!choiceSupported || context.startDownload && !startSupported) ? { ...response, code: "opened-legacy" } : response;
   }
+  const inspectionCache = new Map();
   async function inspectLink(value) {
     const url = validUrl(value);
-    const health = await request2("ping");
-    if (!health?.ok || !health.capabilities?.includes("formats")) throw fail(messages.en.unsupported, "unsupported");
-    const result = await request2("inspect", { url: url.href });
-    if (!result?.ok || !result.media) throw fail(messages.en.failed, result?.code || "inspect");
-    return result.media;
+    const now = Date.now(), cached = inspectionCache.get(url.href);
+    if (cached && (cached.pending || now - cached.time < 60000)) return cached.promise;
+    if (inspectionCache.size >= 8) inspectionCache.delete(inspectionCache.keys().next().value);
+    const entry = { pending: true, time: now };
+    entry.promise = (async () => {
+      const health = await request2("ping");
+      if (!health?.ok || !health.capabilities?.includes("formats")) throw fail(messages.en.unsupported, "unsupported");
+      const result = await request2("inspect", { url: url.href });
+      if (!result?.ok || !result.media) throw fail(messages.en.failed, result?.code || "inspect");
+      return result.media;
+    })();
+    inspectionCache.set(url.href, entry);
+    try { const media = await entry.promise; entry.pending = false; entry.time = Date.now(); return media; }
+    catch (error) { if (inspectionCache.get(url.href) === entry) inspectionCache.delete(url.href); throw error; }
   }
   return { api, name, sendLink, inspectLink, errorMessage, testConnection: () => request2("ping") };
 })();

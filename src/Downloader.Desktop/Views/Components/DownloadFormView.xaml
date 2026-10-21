@@ -67,14 +67,14 @@
    <Button Grid.Column="4" Command="{Binding OpenFolderCommand}" AutomationProperties.Name="{Binding OpenFolderLabel}" ToolTip="{Binding OpenFolderLabel}" Padding="10"><Path Data="{StaticResource OpenFolderIcon}" Style="{StaticResource LineIcon}"/></Button>
   </Grid>
   <StackPanel x:Name="FolderNoticeHost" FlowDirection="LeftToRight"/>
-  <Grid Margin="0,16,0,12">
+  <Grid Margin="0,22,0,8">
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <Button Command="{Binding AddQueueCommand}" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Padding="0,6" MinHeight="36" AutomationProperties.Name="{Binding AddQueueLabel}">
+   <Button Command="{Binding AddQueueCommand}" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Padding="0,6" MinHeight="44" AutomationProperties.Name="{Binding AddQueueLabel}">
     <StackPanel Orientation="Horizontal"><local:QueueFeedbackView x:Name="QueueFeedback" Revision="{Binding QueueAdditionVersion}" Margin="0,0,10,0"/><TextBlock Text="{Binding AddQueueLabel}" Foreground="{DynamicResource Ink}"/></StackPanel>
    </Button>
-   <Button Grid.Column="1" Content="{Binding QueueLabel}" Command="{Binding QueueCommand}" Style="{StaticResource QuietButton}" FontSize="12" Padding="8,6" MinHeight="36" ToolTip="{Binding QueueShortcutHint}" AutomationProperties.AcceleratorKey="Ctrl+Shift+Q"/>
+   <local:DownloadActionView x:Name="DownloadAction" Grid.Column="1" Margin="12,0,0,0"/>
   </Grid>
-  <local:DownloadActionView x:Name="DownloadAction" HorizontalAlignment="Center"/>
+  <Button Content="{Binding QueueLabel}" Command="{Binding QueueCommand}" Style="{StaticResource QuietButton}" HorizontalAlignment="Right" FontSize="12" Padding="8,4" MinHeight="30" ToolTip="{Binding QueueShortcutHint}" AutomationProperties.AcceleratorKey="Ctrl+Shift+Q"/>
   <local:DownloadActivityView x:Name="InlineActivity" Visibility="{Binding ShowInlineActivity,Converter={StaticResource BoolVisibility}}" Margin="0,20,0,0"/>
  </StackPanel>
 </UserControl>

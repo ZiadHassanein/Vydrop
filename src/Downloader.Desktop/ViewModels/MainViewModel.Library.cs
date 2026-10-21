@@ -9,6 +9,19 @@ public sealed partial class MainViewModel
     private string librarySearch = "", libraryFilter = "all";
     private QueueItemView selectedLibraryItem;
     private bool addDownloadVisible;
+    private bool historyVisible;
+    private RecentDownloadsViewModel history;
+    public RecentDownloadsViewModel History { get => history; private set => SetProperty(ref history, value); }
+    public bool HistoryVisible { get => historyVisible; private set { if (SetProperty(ref historyVisible, value)) RefreshLibrary(); } }
+    public bool IsAddDownloadPage => AddDownloadVisible && !SettingsVisible;
+    public bool LibraryVisible => !AddDownloadVisible && !SettingsVisible && !HistoryVisible;
+    private void ShowHistory()
+    {
+        AddDownloadVisible = false; SettingsVisible = false;
+        RefreshHistory(); HistoryVisible = true;
+        state.UnseenDownloads = 0; RefreshRecentBadge(); Save();
+    }
+    private void RefreshHistory() => History = new RecentDownloadsViewModel(state.Recent, T, path => actions.OpenMedia(path, true));
     private readonly CancellationTokenSource libraryLifetime = new();
     private readonly SemaphoreSlim artworkSlots = new(3);
     public ICollectionView LibraryItems { get; private set; }
@@ -17,14 +30,14 @@ public sealed partial class MainViewModel
     public bool LibraryEmpty => LibraryItems?.IsEmpty != false;
     public bool HasLibrarySearch => !string.IsNullOrWhiteSpace(LibrarySearch);
     public string LibrarySearch { get => librarySearch; set { if (SetProperty(ref librarySearch, value ?? "")) RefreshLibrary(); } }
-    public bool AddDownloadVisible { get => addDownloadVisible; private set => SetProperty(ref addDownloadVisible, value); }
-    public bool IsLibraryAll => libraryFilter == "all";
-    public bool IsLibraryQueue => libraryFilter == "queue";
+    public bool AddDownloadVisible { get => addDownloadVisible; private set { if (SetProperty(ref addDownloadVisible, value)) RefreshLibrary(); } }
+    public bool IsLibraryAll => libraryFilter == "all" && LibraryVisible;
+    public bool IsLibraryQueue => libraryFilter == "queue" && LibraryVisible;
     public bool IsLibraryActive => libraryFilter == "active";
     public bool IsLibraryPaused => libraryFilter == "paused";
     public bool IsLibraryComplete => libraryFilter == "complete";
-    public bool IsLibraryVideo => libraryFilter == "video";
-    public bool IsLibraryAudio => libraryFilter == "audio";
+    public bool IsLibraryVideo => libraryFilter == "video" && LibraryVisible;
+    public bool IsLibraryAudio => libraryFilter == "audio" && LibraryVisible;
     public int LibraryCount => QueueItems.Count;
     public int WaitingCount => QueueItems.Count(e => !e.IsComplete);
     public int ActiveCount => QueueItems.Count(e => e.IsActive);
@@ -55,7 +68,15 @@ public sealed partial class MainViewModel
     public string TransferSpeedLabel => T("Speed");
     public string TimeRemainingLabel => T("Time left");
     public string ManageQueueLabel => T("Manage queue");
-    public string LibraryFooterLabel => F("{0} downloading · {1} waiting", ActiveCount, QueueItems.Count(e => e.Entry.State == QueueState.Pending));
+    public string LibraryFooterLabel
+    {
+        get
+        {
+            int waiting = QueueItems.Count(e => e.Entry.State == QueueState.Pending);
+            return ActiveCount > 0 && waiting > 0 ? F("{0} downloading · {1} waiting", ActiveCount, waiting) :
+                ActiveCount > 0 ? F("{0} downloading", ActiveCount) : waiting > 0 ? F("{0} waiting", waiting) : "";
+        }
+    }
     public IRelayCommand<string> LibraryFilterCommand { get; private set; }
     public IRelayCommand CloseAddDownloadCommand { get; private set; }
     public IAsyncRelayCommand<Guid> LibraryActionCommand { get; private set; }
@@ -69,6 +90,7 @@ public sealed partial class MainViewModel
         LibraryItems.Filter = item => item is QueueItemView row && LibraryMatches(row);
         LibraryFilterCommand = new RelayCommand<string>(filter =>
         {
+            AddDownloadVisible = false; SettingsVisible = false; HistoryVisible = false;
             libraryFilter = filter is "queue" or "active" or "paused" or "complete" or "video" or "audio" ? filter : "all";
             RefreshLibrary();
         });
@@ -78,7 +100,7 @@ public sealed partial class MainViewModel
             var row = QueueItems.FirstOrDefault(item => item.Id == id);
             if (row == null) return;
             SelectedLibraryItem = row;
-            if (row.IsActive) { Queue.Pause(); return; }
+            if (row.IsActive) { automaticBrowserJobs.Clear(); Queue.Pause(); return; }
             if (row.IsComplete)
             {
                 try { actions.OpenMedia(row.OutputFile, false); }
@@ -123,7 +145,7 @@ public sealed partial class MainViewModel
         LibraryItems.Refresh();
         foreach (var row in QueueItems) { row.Refresh(T, Queue.IsRunning); EnsureLibraryArtwork(row); }
         if (SelectedLibraryItem == null || !QueueItems.Contains(SelectedLibraryItem)) SelectedLibraryItem = LibraryItems.Cast<QueueItemView>().FirstOrDefault();
-        foreach (string name in new[] { nameof(LibraryItems), nameof(LibraryEmpty), nameof(HasLibrarySearch), nameof(IsLibraryAll), nameof(IsLibraryQueue), nameof(IsLibraryActive), nameof(IsLibraryPaused), nameof(IsLibraryComplete), nameof(IsLibraryVideo), nameof(IsLibraryAudio), nameof(LibraryCount), nameof(WaitingCount), nameof(ActiveCount), nameof(PausedCount), nameof(CompletedCount), nameof(VideoCount), nameof(AudioCount), nameof(AllFilterLabel), nameof(ActiveFilterLabel), nameof(PausedFilterLabel), nameof(CompletedFilterLabel), nameof(QueueNavigationLabel), nameof(EmptyLibraryHeading), nameof(EmptyLibraryDetail), nameof(LibraryFooterLabel) }) OnPropertyChanged(name);
+        foreach (string name in new[] { nameof(IsAddDownloadPage), nameof(LibraryItems), nameof(LibraryEmpty), nameof(HasLibrarySearch), nameof(IsLibraryAll), nameof(IsLibraryQueue), nameof(IsLibraryActive), nameof(IsLibraryPaused), nameof(IsLibraryComplete), nameof(IsLibraryVideo), nameof(IsLibraryAudio), nameof(LibraryCount), nameof(WaitingCount), nameof(ActiveCount), nameof(PausedCount), nameof(CompletedCount), nameof(VideoCount), nameof(AudioCount), nameof(AllFilterLabel), nameof(ActiveFilterLabel), nameof(PausedFilterLabel), nameof(CompletedFilterLabel), nameof(QueueNavigationLabel), nameof(EmptyLibraryHeading), nameof(EmptyLibraryDetail), nameof(LibraryFooterLabel) }) OnPropertyChanged(name);
         LibraryActionCommand?.NotifyCanExecuteChanged(); LibraryCancelCommand?.NotifyCanExecuteChanged(); OpenLibraryFolderCommand?.NotifyCanExecuteChanged();
     }
     private void EnsureLibraryArtwork(QueueItemView row)
@@ -147,8 +169,7 @@ public sealed partial class MainViewModel
     }
     private void ShowAddDownload()
     {
-        SettingsVisible = false;
-        if (IsBusy && !IsCheckingMedia) { actions.ShowQueue(this); return; }
+        SettingsVisible = false; HistoryVisible = false;
         AddDownloadVisible = true;
     }
 }

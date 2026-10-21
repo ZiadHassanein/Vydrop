@@ -57,9 +57,9 @@ typography:
   duration: {"fontFamily":"Inter","fontSize":"10px"}
   arabic-body: {"fontFamily":"Noto Sans Arabic","fontSize":"14px","lineHeight":"22px"}
   browser-body: {"fontFamily":"system-ui, sans-serif","fontSize":"14px","fontWeight":400,"lineHeight":1.5}
-  browser-title: {"fontFamily":"system-ui, sans-serif","fontSize":"18px","fontWeight":650,"lineHeight":1.4}
-  browser-caption: {"fontFamily":"system-ui, sans-serif","fontSize":"12px"}
-  browser-title-narrow: {"fontFamily":"system-ui, sans-serif","fontSize":"17px","fontWeight":650,"lineHeight":1.4}
+  browser-title: {"fontFamily":"system-ui, sans-serif","fontSize":"16px","fontWeight":650,"lineHeight":1.35}
+  browser-caption: {"fontFamily":"system-ui, sans-serif","fontSize":"11px"}
+  browser-title-narrow: {"fontFamily":"system-ui, sans-serif","fontSize":"16px","fontWeight":650,"lineHeight":1.35}
 rounded:
   row: "4px"
   browser-control: "5px"
@@ -93,10 +93,10 @@ components:
   library-filter: {"backgroundColor":"transparent","textColor":"{colors.muted-light}","padding":"9px 8px","height":"46px"}
   library-count: {"backgroundColor":"{colors.surface-light}","textColor":"{colors.ink-light}","padding":"1px 6px","height":"23px","rounded":"{rounded.count}"}
   library-row-selected: {"backgroundColor":"{colors.selected-light}","textColor":"{colors.ink-light}","padding":"14px 12px","rounded":"{rounded.row}"}
-  browser-segment-selected: {"backgroundColor":"{colors.selected-light}","textColor":"{colors.accent-light}","padding":"7px","height":"39px","rounded":"{rounded.segment-option}"}
-  browser-format-selected: {"backgroundColor":"{colors.selected-light}","textColor":"{colors.accent-light}","padding":"12px","height":"49px","rounded":"{rounded.browser-control}"}
-  browser-choice-selected: {"backgroundColor":"{colors.selected-light}","textColor":"{colors.accent-light}","padding":"12px","height":"53px","rounded":"{rounded.browser-control}"}
-  browser-launch: {"backgroundColor":"{colors.action}","textColor":"{colors.on-accent}","padding":"9px 12px","height":"48px","rounded":"{rounded.browser-control}"}
+  browser-segment-selected: {"backgroundColor":"{colors.selected-light}","textColor":"{colors.accent-light}","padding":"5px","height":"33px","rounded":"{rounded.segment-option}"}
+  browser-format-selected: {"backgroundColor":"{colors.selected-light}","textColor":"{colors.accent-light}","padding":"6px","height":"35px","rounded":"{rounded.browser-control}"}
+  browser-choice-selected: {"backgroundColor":"{colors.selected-light}","textColor":"{colors.accent-light}","padding":"6px","height":"35px","rounded":"{rounded.browser-control}"}
+  browser-launch: {"backgroundColor":"{colors.action}","textColor":"{colors.on-accent}","padding":"9px 12px","height":"42px","rounded":"{rounded.browser-control}"}
 ---
 
 # Design System: Vydrop
@@ -114,10 +114,12 @@ The native Windows interface uses tonal separation, fine borders, restrained cor
 - Burgundy navigation with cherry primary actions.
 - Paper-white light surfaces and layered plum dark surfaces.
 - Inter and Noto Sans Arabic in the native app; browser-native system typography in the companion.
-- Large media thumbnails, counted filters, compact drawn status controls and a selected-media inspector.
+- Large media thumbnails, separated filters with nonzero counts, compact drawn status controls and a selected-media inspector.
 - Logical RTL layout, visible focus and system high-contrast colors.
 
-This record describes the current built source: ThemeResources.cs, ManagerStyles.xaml, Controls.xaml, MainWindow.xaml, DownloadManagerView.xaml and its code-behind, QueueItemView.Media.cs, MainViewModel.Library.cs and browser/common/quality-picker.js. The approved light, dark and browser v2 comps remain visual references; the source supplies the measurements below. Native measurements are WPF device-independent pixels (DIP), expressed as px in the portable frontmatter. Browser measurements are CSS pixels. Component heights describe minimum heights where source uses MinHeight or min-height. Existing captures corroborate the composition and themes; their local media is test data. No numeric web comp-diff, font ranking or bitmap-plate gate pass is claimed for WPF. Native gate limitations are recorded in .impeccable/review/native-validation.json.
+This record describes the current built source: ThemeResources.cs, ManagerStyles.xaml, Controls.xaml, MainWindow.xaml and its code-behind, DownloadManagerView.xaml and its code-behind, HistoryView.xaml, MediaPreviewView, QueueItemView.Media.cs, MainViewModel.Library.cs, MainViewModel.BrowserDownloads.cs, MainViewModel.QueueReliability.cs and browser/common/quality-picker.js, video-overlay.js, connection.js and background.js. The approved light, dark and browser v2 comps remain visual references; the source supplies the measurements below. Native measurements are WPF device-independent pixels (DIP), expressed as px in the portable frontmatter. Browser measurements are CSS pixels. Component heights describe minimum heights where source uses MinHeight or min-height. The browser values below reflect the later effective compact CSS rules.
+
+The scoped correction review (.impeccable/review/workspace-flow-v3.json) records WF1–WF14 and the resolved source findings satisfied. Current native captures are under build/workspace-regression-captures/workspace-flow; browser captures are under build/manager-browser-captures. They use test media and isolated browser fixtures. Named final validation stages and their limits are recorded in .impeccable/review/workspace-validation-v3.json. The original mechanical build state remains open at spec with later gates pending; no original-comp fidelity, numeric comp-diff, font-ranking, bitmap-plate or complete mechanical pass is claimed.
 
 ## Colors
 
@@ -147,13 +149,15 @@ Cherry, burgundy and warm plum define the palette; green is reserved for success
 
 High contrast maps Ink, Muted, Error, Success and navigation text to WindowText; Accent, Action, Border, DownloadActionFill and selected navigation to Highlight; OnAccent, DownloadActionInk, DownloadActionProgress and selected-navigation ink to HighlightText; other surfaces to Window. Source marks override their brand fills with Accent and their symbol stroke/fill with OnAccent. Selected/focused row border thickness increases from one to three. Browser forced colors use Canvas, CanvasText, ButtonText, Highlight and HighlightText. The launch button alone sets forced-color-adjust:none within the forced-colors query to suppress Chromium text backplates while explicitly retaining system Highlight and HighlightText.
 
+The existing browser detector record (.impeccable/review/workspace-browser-detector.json) reports five advisory literal-color findings in video-overlay.js, covering #282b32, #FF8393 and #E63D4D. These pre-existing overlay values remain documented drift; this flow refinement neither promotes them to system tokens nor changes their styling.
+
 ## Typography
 
 The native app bundles **Inter** and **Noto Sans Arabic** through LatinFont and ArabicFont. ContentFont selects by interface language, and Arabic media titles also select the Arabic face inside English UI. The title bar remains native; the approved vector wordmark supplies the brand lettering.
 
 The library headline is semibold (34 DIP, 44 line height). Row titles are semibold (16 DIP), source domains regular (13 DIP), output metadata (12 DIP), and compact row status (11 DIP). Inspector and empty-state titles use the title role (23 DIP, 32 line height). Body text is regular (14 DIP, 22 line height); dialog titles use the dialog-title role. Filter count copy uses caption size; navigation counts use label size. Duration overlays use the duration role. Row titles are single-line ellipsized with a tooltip; inspector titles wrap to two lines. There is no single mathematical scale ratio in source.
 
-The browser uses the system UI sans-serif stack and tabular numerals. Body copy is 14px with 1.5 line height. The media title is 18px, weight 650, line height 1.4 and capped at two lines; at viewports up to 420px it becomes 17px. Media-type segments and launch action use weight 650; format and quality cards use 600. Supporting text is 12px and quality badges are 10px.
+The browser uses the system UI sans-serif stack and tabular numerals. Panel body copy is 14px with 1.5 line height. The effective media title is 16px, weight 650, line height 1.35 and capped at two lines at all supported widths. Media-type segments and the selected summary are 13px; labels and status are 12px; source, header status and supporting text are 11px. Media-type segments and launch action use weight 650; 13px format and quality cards use 600. Compact rules hide the HD/4K/8K badge elements; height labels remain visible and named.
 
 **The Language Shape Rule.** Mirror the logical interface for Arabic while keeping technical strings such as source domains, file paths, versions and applicable output details readable in their explicit LTR containers.
 
@@ -165,15 +169,17 @@ The manager uses navigation, a flexible library and a selected-media inspector. 
 - Inspector width is 320 from manager width 1080 through 1360, then 350 above 1360.
 - Below 1080, details move into a 340-wide overlay drawer with 20 outer margin. Details or a row double-click opens it; Escape or Close dismisses it. Background sections are disabled, keyboard navigation cycles within, and focus returns to the list.
 - Library margins settle at 24 leading, 4 top, 18 trailing, 0 bottom; below 960 the leading margin is 14. The heading/action group has 18 bottom space, search 8, and filters 10. Inspector content has 20 side insets and 20 bottom space. Section separators use 22 vertical space.
-- Row artwork is 132 × 78 in a 146-wide leading column, with rounded artwork corners and a bottom-trailing duration overlay. Row padding is 12 horizontally and 14 vertically. Inspector artwork is 184 high. Missing images retain a drawn media-symbol fallback.
+- Row artwork is 144 × 84 in a 158-wide leading column, with rounded artwork corners and a bottom-trailing duration overlay. The identity, trailing actions and 4-high progress track share an 84-high content grid; the track occupies its final four units rather than adding a second row below the artwork. Row padding remains 12 horizontally and 14 vertically. Inspector artwork is 184 high. Missing images retain a drawn media-symbol fallback.
 - Row content separates identity, output metadata and a narrow trailing status/action group. This trailing group has minimum width 78 and maximum width 126; status text can ellipsize with a tooltip.
-- The Add download editor has 28 outer margin, maximum width 1120 and dialog radius. Its form is capped at 620. A 390-wide context column appears only with media context, settings closed and editor width at least 990; otherwise content stacks.
+- Add download and History occupy the center workspace while the sidebar and header remain available. The editor surface has zero outer margin and no maximum-width cap; its heading margin is 24 leading, 4 top, 20 trailing and 12 bottom, and its form remains capped at 620 with internal 30 horizontal and 24 vertical margins. A media preview moves to the existing 320/350-wide right inspector when that column is available (manager width at least 1080); below it the preview appears inline above the form controls. Compact preview artwork is 114 wide, with 12 trailing space and a two-line 16/22 title. History uses 24 horizontal and 20 vertical margins and hides the right inspector.
 
-The browser chooser is at most 416 CSS pixels wide and leaves 12px viewport clearance. Width and maximum height are bounded by viewport size minus 24px, with scrolling within the panel. The anchor gap is 8px. The header is at least 64px high with 13 × 20px padding; body padding is 22px. The wordmark is 128 × 34px. Identity uses a 116px-wide image at 16:10 (72.5px high) beside text with a 16px gap. Missing artwork removes the image column. Format and quality cards use two columns with 9px gaps. At viewports up to 420px, body padding is 18px, header padding 12 × 18px, identity artwork becomes 100 × 62.5px with a 12px gap, and card padding becomes 11px. Embedded popups reserve 650px body height while open and restore the previous height when dismissed.
+The browser action is positioned inside the visible video's top-right corner with a 10px inset. Its host is at most 190px wide, bounded by video width minus 20px and viewport width minus 24px. Below 160px available width, the label hides and the button becomes a 36px icon target; its minimum height remains 34px. Scroll, playback and fullscreen-container changes reposition it against the visible video bounds. A native video fullscreen element, an unrelated modal or insufficient space suppresses the action.
+
+The browser chooser is at most 416 CSS pixels wide and leaves 12px viewport clearance. Width and maximum height are bounded by viewport size minus 24px, with overflow scrolling retained for smaller viewports. The anchor gap is 8px. The effective header is at least 50px high with 9px vertical and 16px horizontal padding; body padding is 14px vertical and 16px horizontal. The wordmark is 112 × 30px. Identity uses an 88 × 54px image beside text with a 12px gap and 12px bottom space. Missing artwork removes the image column. Media segments use 2px frame padding, 3px gaps and 33px minimum targets. Format cards use three columns, adapting to one or two when only those counts exist. Quality cards use auto-fit columns with a 60px minimum; audio uses one column. Both groups have 6px gaps and 13px bottom space, and their cards have 35px minimum height and 6px padding. The summary has 10px top padding; the 42px minimum Download action has 12px top space, followed by a hint with 7px top space. The ordinary three-format/five-height fixture fits with summary and Download visible without internal scrolling at 600/640px viewport heights. Embedded popups reserve 520px body minimum height while open and restore the previous value on dismissal.
 
 ## Elevation & Depth
 
-The native manager uses tonal layering and dividers rather than drop shadows. Selection adds a blush/plum fill and accent outline. The inspector is a continuous surface; the compact drawer uses a half-black scrim and the editor a dark plum scrim. Keep the library flat.
+The native manager uses tonal layering and dividers rather than drop shadows. Selection adds a blush/plum fill and accent outline. The inspector is a continuous surface; the selected-library compact drawer uses a half-black scrim. Add download and History are ordinary center surfaces with no modal scrim. Keep the library flat.
 
 The floating browser chooser has one structural shadow (0 18px 48px #170d2040). Its burgundy header and tonal card boundaries carry hierarchy within the panel.
 
@@ -205,27 +211,35 @@ Search uses Field and Ink, one-unit Border, control radius and height 44 DIP. A 
 
 ### Navigation
 
-Navigation items use outlined 18 × 18 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Selected items use NavigationSelected and semibold NavigationSelectedInk within the chamfered face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Queue, Video and Audio display live 23-high count badges. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation.
+Navigation items use outlined 18 × 18 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Selected items use NavigationSelected and semibold NavigationSelectedInk within the chamfered face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Queue, Video and Audio display live 23-high count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download and History select their center workspace without disabling sidebar navigation.
 
 ### Counted filter tabs
 
-Library filters are text tabs with a two-unit underline and 23-high count badges. Selection uses Ink, semibold weight and Action underline; hover uses Accent text. Focus adds an Accent boundary while retaining the thicker bottom edge. All, Downloading, Paused and Completed show queue-derived counts. Paused includes interrupted work; these counts come from the full queue rather than the search-filtered result set. A drawn compact control beside the tabs opens queue management.
+Library filters are text tabs with a two-unit underline, 14 DIP trailing separation, minimum height 46 and 8 horizontal by 9 vertical padding. They wrap as needed. Their 23-high count badges collapse completely at zero. Selection uses Ink, semibold weight and Action underline; hover uses Accent text. Focus adds an Accent boundary while retaining the thicker bottom edge. All, Downloading, Paused and Completed show nonzero queue-derived counts. Paused includes interrupted work; these counts come from the full queue rather than the search-filtered result set. A drawn compact control beside the tabs opens queue management.
 
 ### Library rows and selected-media details
 
 Flat rows carry large thumbnail, title, a drawn source mark and domain, output metadata, explicit status and contextual controls. Source marks are 18 × 16 DIP. Selection uses Selected fill and Accent border; focus stays visible and high contrast thickens the border. Hover changes the boundary to Divider. Missing files strike their title and show a text status with an alert symbol.
 
-The trailing group combines a drawn 12 × 12 status symbol with 11 DIP status text. Active non-preparing, paused and interrupted rows append the real current percentage. A drawn 18 × 18 action sits in a minimum 34 × 34 target; completed rows open their save folder, active rows pause and other rows expose their available primary action. The 28-minimum More target uses three drawn dots and a native context menu. Closing that menu restores trigger focus.
+The trailing group combines a drawn 12 × 12 status symbol with 11 DIP status text. Active non-preparing, paused and interrupted rows append the real current percentage. A drawn 18 × 18 action sits in a minimum 34 × 34 target; completed rows open their save folder, active rows pause and other rows expose their available primary action. The 28-minimum More target uses three drawn dots and opens a row-specific themed context menu. Its Surface face has a one-unit Border stroke, 8 radius and 6 padding, with width bounded from 220 to 320. Menu items have 38 minimum height, 10 horizontal by 8 vertical padding, 16 × 16 drawn icons in a 20-wide column and a 10-unit label gap. Selected/highlighted items use Selected and Accent; disabled actions use .45 opacity and destructive removal uses Error. Closing restores trigger focus.
 
-Row and inspector progress are both 5 DIP high with a slanted fill edge and their real Percent binding. Preparing uses the IsIndeterminate state. The inspector repeats media identity at larger scale, then actual output, state and active percentage. Transfer amount, speed and remaining time are compact inline text; active values appear only when available and otherwise use explicit unavailable values. A single-line ellipsized LTR save path has a full-path tooltip and a separate drawn folder action. The inspector ends with subtitle options and saved-locally feedback when applicable.
+Row progress is 4 DIP high within the 84-high content area; inspector progress retains the shared style's 5 DIP height. Both use a slanted fill edge and their real Percent binding. Preparing uses the IsIndeterminate state. The inspector repeats media identity at larger scale, then actual output, state and active percentage. Transfer amount, speed and remaining time are compact inline text; active values appear only when available and otherwise use explicit unavailable values. A single-line ellipsized LTR save path has a full-path tooltip and a separate drawn folder action. The inspector ends with subtitle options and saved-locally feedback when applicable.
+
+### Center workspaces
+
+Add download uses the existing form and download engine inside the center panel. Wide inspected previews use the right inspector; compact previews move inline. Escape or Close returns to the library and restores prior focus. History uses a scrolling local recent-file list, an honest empty state, struck missing titles and availability-dependent reveal actions. It preserves the existing five-file limit and uses normal Tab continuation into workspace navigation.
 
 ### Browser chooser
 
-The isolated dialog contains a burgundy wordmark header with readiness copy and a drawn Close control, a thumbnail/title/source identity block, segmented Video/Audio controls, format and quality radio-card groups, a selection summary and a full-width launch action. Media-type segments include drawn video/audio symbols and use an inset selected fill. They are not underlined tabs. Formats are visible cards rather than a select menu. Each format and quality card has a circular radio mark; quality may show an inspected HD/4K/8K label. Format cards are at least 49px high and quality cards 53px. The 48px launch action includes a drawn download glyph.
+The isolated dialog contains a burgundy wordmark header with readiness copy and a drawn Close control, a thumbnail/title/source identity block, segmented Video/Audio controls, compact format and quality radio-card groups, a selection summary and a full-width Download action with a drawn glyph. Media-type segments use an inset selected fill. Formats remain visible choices. Each format and quality card has a 14px circular radio mark; selection uses a 4px Accent ring. Compact rules hide the visual HD/4K/8K badges. Effective card and action dimensions are recorded in Layout and the frontmatter.
 
 Available formats and heights come from inspection. The summary repeats the selected format and height, or automatic source quality for audio, and states that file size is unavailable before downloading. Radio groups expose role, checked state and a roving Tab stop. Home and End move to the first and last choices; vertical arrows wrap, and horizontal arrows follow interface direction for Arabic. Video/Audio unavailable states disable the corresponding segment.
 
-Browser focus uses a two-pixel Accent outline offset by three pixels. Escape and outside pointer dismiss the chooser, Tab stays among available controls, and closing restores anchor focus. Loading, retry, unavailable, successful handoff and legacy-app handoff states are visible text. CSS variables carry light, dark and forced-color themes; selection, scrollbars and numeric alignment use the same palette and typography.
+Browser focus uses a two-pixel Accent outline offset by three pixels. Escape and outside pointer dismiss the chooser, Tab stays among available controls, and closing restores anchor focus. Dismissal restores the overlay label and clears its pending/finding presentation; disposed picker callbacks ignore late inspection or send results. Loading, retry, unavailable, successful handoff and legacy-app handoff states use visible text. CSS variables carry light, dark and forced-color themes; selection, scrollbars and numeric alignment use the same palette and typography.
+
+A trusted Download confirmation carries the selected media kind, container and height through the start-download capability. The native app saves that choice with its existing saved folder in the durable queue before accepting it, starts when idle and queues confirmed work while busy. Queue-wide pause, cancel, scheduled stop, engine halt and close clear automatic continuation intent; old persisted work stays stopped after restart. Hosts without confirmed-start support show the explicit older-app review/start fallback.
+
+Inspection reuse is bounded to eight source URLs: pending requests are shared and successful format results last 60 seconds; failures are evicted for retry. Background source resolution separately holds up to eight tab/frame/source-context entries for 30 seconds. Native port requests serialize and begin their deadlines when sent, with 80 seconds for inspection and 18 seconds for other requests. The host reuses its inspector and avoids automatic tool maintenance on each format check. These are current implementation bounds, not download-speed promises.
 
 ## Do's and Don'ts
 

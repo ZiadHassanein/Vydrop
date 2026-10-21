@@ -6,13 +6,13 @@ const vm = require('node:vm');
 const read = file => fs.readFileSync(path.join(__dirname, '../browser/common', file), 'utf8');
 const timers = {setTimeout: (fn,ms) => {const t=setTimeout(fn,ms); t.unref(); return t;},clearTimeout};
 
-function connection(host) {
+function connection(host, clock = Date) {
   const sent=[], legacy=[];
   const api = {runtime:{getManifest:()=>({name:'Vydrop'}),connectNative:()=>{
     let listener;
-    return {onMessage:{addListener:fn=>{listener=fn;}},onDisconnect:{addListener:()=>{}},disconnect:()=>{},postMessage:message=>{sent.push(message);queueMicrotask(()=>listener(host(message)));}};
+    return {onMessage:{addListener:fn=>{listener=fn;}},onDisconnect:{addListener:()=>{}},disconnect:()=>{},postMessage:message=>{sent.push(message);Promise.resolve().then(()=>host(message)).then(response=>listener(response));}};
   },sendNativeMessage:async(name,message)=>{legacy.push({name,message});return {ok:true,code:'opened'};}}};
-  const context=vm.createContext({browser:api,URL,Date,...timers}); vm.runInContext(read('connection.js'),context);
+  const context=vm.createContext({browser:api,URL,Date:clock,...timers}); vm.runInContext(read('connection.js'),context);
   return {client:context.ViFreeConnection,sent,legacy};
 }
 test('v2 health and queued delivery use one port and preserve explicit source context',async()=>{
@@ -90,4 +90,52 @@ test('an older host never receives unsupported format fields', async()=>{
   await assert.rejects(f.client.inspectLink('https://example.com/video'),e=>e.code==='unsupported');
   await f.client.sendLink('https://example.com/video',{output:{kind:'video',format:'mp4',height:720}});
   assert.equal(f.sent.at(-1).output,undefined);
+});
+const choice={kind:'video',format:'webm',height:720};
+test('a confirmed choice requests immediate download only from a capable host',async()=>{
+  const f=connection(m=>({ok:true,protocol:2,requestId:m.requestId,capabilities:['formats','output-selection','start-download'],code:m.type==='download'?'started':'ready'}));
+  assert.equal((await f.client.sendLink('https://example.com/confirmed',{output:choice,startDownload:true})).code,'started');
+  assert.equal(f.sent.at(-1).type,'download');assert.deepEqual(JSON.parse(JSON.stringify(f.sent.at(-1).output)),choice);
+});
+test('an older selection-capable host opens for manual start and keeps the exact choice',async()=>{
+  const f=connection(m=>({ok:true,protocol:2,requestId:m.requestId,capabilities:['output-selection'],code:'opened'}));
+  assert.equal((await f.client.sendLink('https://example.com/confirmed',{output:choice,startDownload:true})).code,'opened-legacy');
+  assert.equal(f.sent.at(-1).type,'open-link');assert.deepEqual(JSON.parse(JSON.stringify(f.sent.at(-1).output)),choice);
+});
+test('concurrent and repeated explicit inspections share one real metadata request',async()=>{
+  const f=connection(m=>({ok:true,protocol:2,requestId:m.requestId,capabilities:['formats'],media:{title:m.url,videos:[],audio:[]}}));
+  const results=await Promise.all([f.client.inspectLink('https://example.com/a'),f.client.inspectLink('https://example.com/a')]);
+  assert.equal(results[0],results[1]);await f.client.inspectLink('https://example.com/a');
+  assert.equal(f.sent.filter(m=>m.type==='inspect').length,1);
+  await f.client.inspectLink('https://example.com/b');assert.equal(f.sent.filter(m=>m.type==='inspect').length,2);
+});
+test('failed inspections are evicted and can retry immediately',async()=>{
+  let fail=true;const f=connection(m=>({ok:m.type!=='inspect'||!fail,protocol:2,requestId:m.requestId,capabilities:['formats'],media:fail?null:{title:'Recovered',videos:[],audio:[]},code:'unavailable'}));
+  await assert.rejects(f.client.inspectLink('https://example.com/a'));fail=false;
+  assert.equal((await f.client.inspectLink('https://example.com/a')).title,'Recovered');
+  assert.equal(f.sent.filter(m=>m.type==='inspect').length,2);
+});
+test('inspection cache evicts older videos at its eight-source limit',async()=>{
+  const f=connection(m=>({ok:true,protocol:2,requestId:m.requestId,capabilities:['formats'],media:{title:'Fixture',videos:[],audio:[]}}));
+  for(let i=0;i<9;i++) await f.client.inspectLink('https://example.com/'+i);
+  await f.client.inspectLink('https://example.com/0');assert.equal(f.sent.filter(m=>m.type==='inspect').length,10);
+});
+
+test('a different-video request waits behind inspection without starting a premature deadline',async()=>{
+  let release;
+  const f=connection(m=>m.type==='inspect'&&m.url.endsWith('/a')?new Promise(resolve=>{release=()=>resolve({ok:true,protocol:2,requestId:m.requestId,media:{title:'A',videos:[],audio:[]}});}):({ok:true,protocol:2,requestId:m.requestId,capabilities:['formats'],media:{title:'B',videos:[],audio:[]}}));
+  const first=f.client.inspectLink('https://example.com/a');
+  await new Promise(resolve=>setImmediate(resolve));assert.equal(typeof release,'function');
+  const second=f.client.inspectLink('https://example.com/b');
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(f.sent.length,2,'only the first ping and inspection are posted while the host is occupied');
+  release();assert.equal((await first).title,'A');assert.equal((await second).title,'B');
+});
+test('cached inspection expires after sixty seconds and signed source changes do not share entries',async()=>{
+  let now=1000;class Clock extends Date {static now(){return now;}}
+  const f=connection(m=>({ok:true,protocol:2,requestId:m.requestId,capabilities:['formats'],media:{title:'Fixture',videos:[],audio:[]}}),Clock);
+  await f.client.inspectLink('https://example.com/a?token=1');now+=59000;
+  await f.client.inspectLink('https://example.com/a?token=1');assert.equal(f.sent.filter(m=>m.type==='inspect').length,1);
+  now+=1001;await f.client.inspectLink('https://example.com/a?token=1');
+  await f.client.inspectLink('https://example.com/a?token=2');assert.equal(f.sent.filter(m=>m.type==='inspect').length,3);
 });

@@ -56,6 +56,12 @@ internal static partial class Program
                         await closed.Task.WaitAsync(TimeSpan.FromSeconds(8));
                     }
                     else await model.DownloadCommand.ExecutionTask;
+                    if (scenario.StartsWith("close-", StringComparison.Ordinal))
+                    {
+                        int calls = provider.DownloadCalls;
+                        var receipt = model.ReceiveBrowserRequest(new(2, "download", single, "closing_start", Output: new("video", "mp4", 720)));
+                        Check(!receipt.Accepted && receipt.Code == "busy" && provider.DownloadCalls == calls, "A closing desktop rejects new browser starts without creating a job");
+                    }
                     bool cancelled = scenario == "close-cancel";
                     Check(model.HasFile == !cancelled && model.RecentDownloadCount == (cancelled ? 0 : 1), "Completion/cancellation retains exactly the expected output history in " + language + " " + scenario);
                     Check(model.DownloadActionState == (cancelled ? DownloadActionState.Ready : DownloadActionState.Complete), "Closing never turns a successful result into a failed download");

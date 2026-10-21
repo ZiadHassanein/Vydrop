@@ -110,25 +110,6 @@ public sealed partial class DesktopActions
         dialog.SetResourceReference(Control.ForegroundProperty, "Ink");
         return dialog;
     }
-    public void ShowHistory(IEnumerable<string> history, Func<string, string> t)
-    {
-        var model = new RecentDownloadsViewModel(history, t, path => OpenMedia(path, true));
-        var workArea = owner is MainWindow main ? main.CurrentWorkArea() : SystemParameters.WorkArea;
-        var dialog = new RecentDownloadsWindow
-        {
-            Owner = owner,
-            DataContext = model,
-            Icon = owner.Icon,
-            FontFamily = (owner.DataContext as MainViewModel)?.ContentFont ?? (FontFamily)Application.Current.Resources["LatinFont"],
-            FlowDirection = (owner.DataContext as MainViewModel)?.ContentDirection ?? FlowDirection.LeftToRight,
-            Width = Math.Min(600, Math.Min(owner.ActualWidth - 48, workArea.Width - 48)),
-            SizeToContent = SizeToContent.Height,
-            MaxHeight = Math.Min(owner.ActualHeight - 48, workArea.Height - 48)
-        };
-        var previousFocus = System.Windows.Input.Keyboard.FocusedElement as UIElement;
-        dialog.ShowDialog();
-        if (previousFocus is { IsEnabled: true, IsVisible: true }) previousFocus.Focus();
-    }
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
     private static extern int SHParseDisplayName(string path, IntPtr bindContext, out IntPtr item, uint attributes, out uint returnedAttributes);
     [DllImport("shell32.dll")]

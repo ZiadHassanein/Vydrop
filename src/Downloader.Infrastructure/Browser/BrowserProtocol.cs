@@ -46,7 +46,7 @@ public static class BrowserProtocol
         if (message.EnumerateObject().Any(p => p.Name is not ("version" or "output") && p.Value.ValueKind != JsonValueKind.String)) throw new InvalidDataException("The browser fields must be strings.");
         static string Text(JsonElement root, string key) => root.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
         string type = Text(message, "type"), id = Text(message, "requestId"), mediaId = Text(message, "mediaId");
-        if (type is not ("ping" or "open-link" or "enqueue" or "inspect") || id == null || !System.Text.RegularExpressions.Regex.IsMatch(id, @"^[A-Za-z0-9_-]{1,64}$") ||
+        if (type is not ("ping" or "open-link" or "enqueue" or "inspect" or "download") || id == null || !System.Text.RegularExpressions.Regex.IsMatch(id, @"^[A-Za-z0-9_-]{1,64}$") ||
             mediaId != null && !System.Text.RegularExpressions.Regex.IsMatch(mediaId, @"^[A-Za-z0-9_-]{1,128}$")) throw new InvalidDataException("The browser request is invalid.");
         if (type == "ping")
         {
@@ -69,6 +69,7 @@ public static class BrowserProtocol
                 throw new InvalidDataException("The output choice is not supported.");
             choice = new(kind, format, pixels);
         }
+        if (type == "download" && choice == null) throw new InvalidDataException("The output choice is invalid.");
         return new(2, type, url, id, page, mediaId, choice);
     }
 }

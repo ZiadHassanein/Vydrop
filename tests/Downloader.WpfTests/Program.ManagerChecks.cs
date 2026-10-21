@@ -8,9 +8,14 @@ internal static partial class Program
     private static async Task CheckManager(MainWindow window, MainViewModel model, FakeProvider provider, string root, string captures)
     {
         Check(!window.EditorOverlay.IsVisible && window.ManagerContent.IsEnabled && model.LibraryEmpty, "The manager opens as the primary screen with an honest empty library");
+        Check(Descendants<System.Windows.Controls.Border>(window.ManagerContent).Where(b => b.Tag is int n && n == 0).All(b => b.Visibility == System.Windows.Visibility.Collapsed), "Zero counts are hidden across sidebar and status filters");
+        Capture(window, Path.Combine(captures, "manager-empty-no-counts.png"));
         model.NewDownloadCommand.Execute(null); await Task.Delay(100);
-        Check(window.EditorOverlay.IsVisible && window.DownloadForm.LinkInput.IsVisible && !window.ManagerContent.IsEnabled, "Add download opens the existing real form and blocks the library underneath");
-        model.CloseAddDownloadCommand.Execute(null); await Task.Delay(80);
+        Check(window.EditorOverlay.IsVisible && window.DownloadForm.LinkInput.IsVisible && window.ManagerContent.IsEnabled && !window.ManagerContent.LibraryContent.IsVisible, "Add download occupies the center panel and keeps navigation enabled");
+        Capture(window, Path.Combine(captures, "manager-add-empty.png"));
+        var escape = new System.Windows.Input.KeyEventArgs(System.Windows.Input.Keyboard.PrimaryDevice, System.Windows.PresentationSource.FromVisual(window), 0, System.Windows.Input.Key.Escape) { RoutedEvent = System.Windows.Input.Keyboard.PreviewKeyDownEvent };
+        window.DownloadForm.LinkInput.RaiseEvent(escape); await Task.Delay(80);
+        Check(!model.AddDownloadVisible && escape.Handled, "Escape leaves the inline editor and restores the library");
         Check(!window.EditorOverlay.IsVisible && window.ManagerContent.IsEnabled, "Closing the editor restores the library");
         model.SettingsCommand.Execute(null); await Task.Delay(80);
         Check(window.SettingsPane.IsVisible && window.EditorOverlay.IsVisible, "Settings remain accessible from the manager");
@@ -61,6 +66,12 @@ internal static partial class Program
         await Task.Delay(800);
         Check(receipt.Accepted && model.AddDownloadVisible && model.SelectedVideoFormat.Container == VideoContainer.WebM && model.SelectedQuality.Height == 720, "A browser output choice opens the real editor with the requested supported format and height");
         Capture(window, Path.Combine(captures, "manager-add-download.png"));
+        model.SelectLanguageCommand.Execute("ar"); await Task.Delay(80);
+        Capture(window, Path.Combine(captures, "manager-add-ar-wide.png"));
+        window.Width = 800; await Task.Delay(80); window.UpdateLayout();
+        Check(window.DownloadForm.LinkInput.IsVisible && window.MediaPreview.IsVisible && window.ManagerContent.DetailsColumn.Width.Value == 0, "The compact Arabic editor keeps the preview and form inline");
+        Capture(window, Path.Combine(captures, "manager-add-ar-compact.png"));
+        model.SelectLanguageCommand.Execute("en"); window.Width = 1280;
         model.CloseAddDownloadCommand.Execute(null); model.Url = "";
         provider.DownloadHandler = (_, token, progress) =>
         {
@@ -76,7 +87,13 @@ internal static partial class Program
         var more = Descendants<System.Windows.Controls.Button>(window.ManagerContent.DownloadsList).Single(button => System.Windows.Automation.AutomationProperties.GetName(button) == model.MoreActionsLabel && button.DataContext is QueueItemView row && row.Id == waiting.Id);
         ((IInvokeProvider)new ButtonAutomationPeer(more).GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(60);
         Check(more.ContextMenu.IsOpen && more.ContextMenu.Items.OfType<System.Windows.Controls.MenuItem>().All(item => Equals(item.CommandParameter, waiting.Id)), "The accessible More menu targets exactly the selected row");
+        CaptureVisual(more.ContextMenu, Path.Combine(captures, "manager-active-menu.png"));
         more.ContextMenu.IsOpen = false;
+        var rowProgress = Descendants<System.Windows.Controls.ProgressBar>(window.ManagerContent.DownloadsList).Single(bar => bar.DataContext is QueueItemView item && item.Id == waiting.Id);
+        var rowArt = Descendants<System.Windows.Controls.Image>(window.ManagerContent.DownloadsList).Single(image => image.DataContext is QueueItemView item && item.Id == waiting.Id);
+        double progressBottom = rowProgress.TransformToAncestor(window).Transform(new System.Windows.Point(0, rowProgress.ActualHeight)).Y;
+        double artBottom = rowArt.TransformToAncestor(window).Transform(new System.Windows.Point(0, rowArt.ActualHeight)).Y;
+        Check(Math.Abs(progressBottom - artBottom) <= 1, "The row progress ends at the same height as its thumbnail");
         Capture(window, Path.Combine(captures, "manager-active.png"));
         model.LibraryActionCommand.Execute(waiting.Id); await running; await Task.Delay(80);
         Check(model.Queue.Entries.First(e => e.Id == waiting.Id).State == QueueState.Paused && model.LibraryActionCommand.CanExecute(waiting.Id), "The selected transfer can pause and exposes Resume without losing its job");

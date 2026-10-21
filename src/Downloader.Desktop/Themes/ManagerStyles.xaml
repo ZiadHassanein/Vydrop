@@ -5,6 +5,7 @@
  <Geometry x:Key="ManagerSearchIcon">M16,10 A6,6 0 1 1 4,10 A6,6 0 1 1 16,10 M15,15 L21,21</Geometry>
  <Style x:Key="ManagerCount" TargetType="Border">
   <Setter Property="Background" Value="{DynamicResource Surface}"/><Setter Property="CornerRadius" Value="20"/><Setter Property="MinWidth" Value="23"/><Setter Property="Height" Value="23"/><Setter Property="Padding" Value="6,1"/><Setter Property="Margin" Value="7,0,0,0"/><Setter Property="VerticalAlignment" Value="Center"/>
+  <Style.Triggers><DataTrigger Binding="{Binding Tag,RelativeSource={RelativeSource Self}}" Value="0"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers>
  </Style>
  <Style x:Key="NavigationCount" TargetType="Border" BasedOn="{StaticResource ManagerCount}"><Setter Property="Background" Value="{DynamicResource NavigationSelected}"/></Style>
  <Style x:Key="ManagerProgress" TargetType="ProgressBar">
@@ -29,6 +30,14 @@
   </DataTemplate.Triggers>
  </DataTemplate>
  <GeometryGroup x:Key="MoreIcon"><EllipseGeometry Center="2,2" RadiusX="1.1" RadiusY="1.1"/><EllipseGeometry Center="8,2" RadiusX="1.1" RadiusY="1.1"/><EllipseGeometry Center="14,2" RadiusX="1.1" RadiusY="1.1"/></GeometryGroup>
+ <Style x:Key="ManagerMenu" TargetType="ContextMenu">
+  <Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="MinWidth" Value="220"/><Setter Property="MaxWidth" Value="320"/>
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContextMenu"><Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="6"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle"/></Border></ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="ManagerMenuItem" TargetType="MenuItem">
+  <Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="Padding" Value="10,8"/><Setter Property="MinHeight" Value="38"/><Setter Property="FontSize" Value="14"/>
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="MenuItem"><Border x:Name="Face" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="5" Padding="{TemplateBinding Padding}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Path Data="{TemplateBinding Tag}" Style="{StaticResource LineIcon}" Stroke="{TemplateBinding Foreground}" Width="16" Height="16"/><ContentPresenter Grid.Column="1" ContentSource="Header" Margin="10,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True"/></Grid></Border><ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}"/><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value=".45"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+ </Style>
  <Style x:Key="VydropPrimary" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
   <Setter Property="MinHeight" Value="44"/><Setter Property="Padding" Value="18,10"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
@@ -63,6 +72,7 @@
   </ControlTemplate></Setter.Value></Setter>
  </Style>
  <Style x:Key="LibraryFilter" TargetType="ToggleButton">
+  <Setter Property="Margin" Value="0,0,14,0"/>
   <Setter Property="Foreground" Value="{DynamicResource Muted}"/><Setter Property="MinHeight" Value="46"/><Setter Property="Padding" Value="8,9"/><Setter Property="Cursor" Value="Hand"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
    <Border x:Name="Underline" BorderBrush="Transparent" BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}"><ContentPresenter VerticalAlignment="Center"/></Border>

@@ -48,6 +48,7 @@ public sealed partial class MainViewModel : ObservableObject
         DownloadCommand = new AsyncRelayCommand(DownloadAsync, () => CanDownload);
         CancelCommand = new RelayCommand(() =>
         {
+            automaticBrowserJobs.Clear();
             Queue.Stop();
             downloads.Cancel();
             OnPropertyChanged(nameof(CancelLabel));
@@ -70,13 +71,7 @@ public sealed partial class MainViewModel : ObservableObject
         OpenFileCommand = new RelayCommand(() => OpenMedia(false), () => HasFile && IsIdle);
         RevealCommand = new RelayCommand(() => OpenMedia(true), () => HasFile && IsIdle);
         InitializeDownloadAction();
-        HistoryCommand = new RelayCommand(() =>
-        {
-            state.UnseenDownloads = 0;
-            RefreshRecentBadge();
-            Save();
-            actions.ShowHistory(state.Recent, T);
-        }, () => IsIdle);
+        HistoryCommand = new RelayCommand(ShowHistory);
         SocialCommand = new RelayCommand<string>(kind =>
         {
             try
@@ -327,10 +322,12 @@ public sealed partial class MainViewModel : ObservableObject
         UpdateCommand?.NotifyCanExecuteChanged();
         RefreshWorkflowAvailability();
         RefreshMediaPresentation();
+        TryStartBrowserDownloads();
     }
 
     private void NotifyPresentation()
     {
+        if (HistoryVisible) RefreshHistory();
         RefreshQueueLinkLabels();
         RefreshCaptions();
         SyncQueue();

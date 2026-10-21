@@ -5,6 +5,16 @@ const arabic = /^ar\b/iu.test(api.i18n?.getUILanguage?.() ?? "");
 const text = arabic
   ? { link: `فتح الرابط في ${name}`, video: `فتح الفيديو في ${name}` }
   : { link: `Open link in ${name}`, video: `Open video in ${name}` };
+const resolvedSources = new Map();
+async function resolveOnce(message, sender) {
+  const key = `${sender.tab.id}:${sender.frameId}:${message.url}:${message.linkedinAsset || ""}:${message.sourcePage || ""}`;
+  const cached = resolvedSources.get(key);
+  if (cached && Date.now() - cached.time < 30000) return cached.promise;
+  if (resolvedSources.size >= 8) resolvedSources.delete(resolvedSources.keys().next().value);
+  const entry = { time: Date.now(), promise: globalThis.ViFreeVideoDetection.resolveSource({ url: message.url, linkedinAsset: message.linkedinAsset, sourcePage: message.sourcePage }) };
+  resolvedSources.set(key, entry);
+  try { return await entry.promise; } catch (error) { resolvedSources.delete(key); throw error; }
+}
 
 api.runtime.onMessage.addListener((message, sender, respond) => {
   if (!["vifree-open-video", "vydrop-inspect-video"].includes(message?.type) || message.version !== 1) return false;
@@ -15,13 +25,13 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
       Number.isInteger(sender.frameId) && sender.frameId >= 0 && /^https?:$/u.test(page.protocol) && !page.username && !page.password;
   } catch { /* Only this extension's web content scripts can forward an explicit video click. */ }
   if (!allowed) { respond({ ok: false, code: "invalid", message: "This video page cannot open Vydrop." }); return false; }
-  globalThis.ViFreeVideoDetection.resolveSource({ url: message.url, linkedinAsset: message.linkedinAsset, sourcePage: message.sourcePage })
+  resolveOnce(message, sender)
     .then(async url => {
       if (message.type === "vydrop-inspect-video") {
         const media = await globalThis.ViFreeConnection.inspectLink(url);
         respond({ ok: true, media, url }); return;
       }
-      const result = await sendLink(url, { sourcePage: message.sourcePage || (url === message.url ? sender.tab.url || sender.url : message.url), output: message.output });
+      const result = await sendLink(url, { sourcePage: message.sourcePage || (url === message.url ? sender.tab.url || sender.url : message.url), output: message.output, startDownload: Boolean(message.output) });
       respond({ ok: true, url, code: result.code });
     }, error => respond({ ok: false, code: error.code, message: error.message }))
     .catch(error => respond({ ok: false, code: error.code, message: error.message }));

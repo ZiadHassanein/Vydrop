@@ -12,9 +12,11 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
     private readonly Dictionary<string, MediaSelection> choices = new();
     private readonly object gate = new object ();
     private volatile bool cancelled;
-    public YtDlpProvider(DependencyManager dependencies, MediaLinkRouter links = null)
+    private readonly bool checkAutomaticUpdates = true;
+    public YtDlpProvider(DependencyManager dependencies, MediaLinkRouter links = null, bool checkAutomaticUpdates = true)
     {
         this.dependencies = dependencies;
+        this.checkAutomaticUpdates = checkAutomaticUpdates;
         automaticUpdates = new AutomaticToolUpdates(dependencies.CacheDirectory) { FindBaseline = dependencies.DiscoverBaseline };
         this.links = links ?? MediaLink.DefaultRouter;
     }
@@ -56,7 +58,7 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
     {
         if (!IsReady)
             tools = await dependencies.EnsureAsync(progress, token).ConfigureAwait(false);
-        if (automaticUpdates != null)
+        if (checkAutomaticUpdates && automaticUpdates != null)
             tools = await automaticUpdates.CheckDailyAsync(tools, progress, token).ConfigureAwait(false);
     }
 

@@ -26,7 +26,7 @@ button.addEventListener("click", async () => {
     if (globalThis.VydropQualityPicker) {
       globalThis.VydropQualityPicker.open({ anchor: button, arabic, embedded: true,
         inspect: () => globalThis.ViFreeConnection.inspectLink(url),
-        send: output => sendLink(url, { sourcePage: tab?.url, output })
+        send: output => sendLink(url, { sourcePage: tab?.url, output, startDownload: Boolean(output) })
       });
       status.textContent = ""; return;
     }

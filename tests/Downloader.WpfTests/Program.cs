@@ -21,6 +21,8 @@ internal static partial class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--browser-cold-start") return CheckBrowserColdStart(args[1]).GetAwaiter().GetResult();
+        if (args.Length == 3 && args[0] == "--browser-cold-child") return CheckBrowserColdChild(args[1], args[2]);
         if (args.Length == 2 && args[0] == "--queue-restart-live") return CheckQueueRestartProcesses(args[1]);
         if (args.Length == 4 && args[0] == "--queue-restart-child") return CheckQueueRestartChild(args[1], args[2], args[3]);
         // Apply DPI compatibility before process startup, so native popup threads use it too.
@@ -48,7 +50,7 @@ internal static partial class Program
         var provider = new FakeProvider();
         var service = new DownloadService(provider, new EmptyStorage());
         var thumbnailLoader = new FixtureThumbnailLoader();
-        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader) { ShowActivated = !args.Contains("--motion") && !args.Contains("--manager") };
+        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader) { ShowActivated = !args.Contains("--motion") && !args.Contains("--manager") && !args.Contains("--workspace-flow") };
         window.ContentRendered += async (_, _) =>
         {
             try
@@ -67,6 +69,14 @@ internal static partial class Program
                 Check(window.Height <= window.CurrentWorkArea().Height && window.ActualHeight < 900, $"Native window fits content within the work area (height={window.Height}, actual={window.ActualHeight}, area={window.CurrentWorkArea().Height})");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--", StringComparison.Ordinal)) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--workspace-flow"))
+                {
+                    await CheckManager(window, model, provider, root, captures);
+                    await CheckBrowserAutostart(window, model, provider, root);
+                    await CheckRecentDownloads(window, model, captures);
+                    Console.WriteLine(count + " WPF workspace-flow checks passed.");
+                    return;
+                }
                 if (args.Contains("--manager") || !args.Any(arg => arg.StartsWith("--", StringComparison.Ordinal)))
                 {
                     await CheckManager(window, model, provider, root, captures);

@@ -16,6 +16,8 @@ public static class BrowserHost
     public static async Task RunAsync(string[] args)
     {
         var input = Console.OpenStandardInput(); var output = Console.OpenStandardOutput();
+        // Reuse verified tools between explicit format checks. Daily maintenance remains on the download path.
+        using var inspector = new DownloadService(new YtDlpProvider(new DependencyManager(), checkAutomaticUpdates: false), new LocalPlaylistStorage());
         // Short-lived ports support several explicit actions; idle hosts exit without starting the desktop UI.
         for (int count = 0; count < 100; count++)
         {
@@ -31,13 +33,12 @@ public static class BrowserHost
                     using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(3));
                     var health = await BrowserLinkTransport.TrySendRequestAsync(request, 500, deadline.Token).ConfigureAwait(false);
                     if (health?.Accepted == true) BrowserHealth.Record(Environment.ProcessPath);
-                    response = new { ok = true, code = "ready", protocol = 2, requestId, appRunning = health?.Accepted == true, capabilities = new[] { "ping", "enqueue", "source-context", "formats", "output-selection" } };
+                    response = new { ok = true, code = "ready", protocol = 2, requestId, appRunning = health?.Accepted == true, capabilities = new[] { "ping", "enqueue", "source-context", "formats", "output-selection", "start-download" } };
                 }
                 else if (request.Type == "inspect")
                 {
                     timeout.CancelAfter(TimeSpan.FromSeconds(75));
-                    using var service = new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage());
-                    var media = await service.InspectAsync(request.Url, null, timeout.Token).ConfigureAwait(false);
+                    var media = await inspector.InspectAsync(request.Url, null, timeout.Token).ConfigureAwait(false);
                     response = new { ok = true, code = "formats", protocol = 2, requestId, media = BrowserMediaFormats.From(media, request.SourcePage ?? request.Url) };
                 }
                 else
@@ -50,7 +51,7 @@ public static class BrowserHost
                         receipt = new(legacy == BrowserDelivery.Accepted, legacy == BrowserDelivery.Accepted ? "opened" : "busy");
                     }
                     else receipt = await DeliverRequestAsync(request, Launch, timeout.Token).ConfigureAwait(false);
-                    response = new { ok = receipt.Accepted, code = receipt.Code, protocol = 2, requestId, message = receipt.Accepted ? "Link accepted in Vydrop. Review it before downloading." : "Could not accept the link. Check the app connection and queue." };
+                    response = new { ok = receipt.Accepted, code = receipt.Code, protocol = 2, requestId, message = receipt.Accepted ? receipt.Code is "started" or "queued" ? "Download accepted in the Vydrop queue." : "Link opened in Vydrop. Review and start it there." : "Could not accept the link. Check the app connection and queue." };
                 }
             }
             catch (EndOfStreamException) { return; }
@@ -78,10 +79,13 @@ public static class BrowserHost
             if (!useLegacy)
             {
                 var (receipt, legacyListener) = await BrowserLinkTransport.TrySendCompatibleRequestAsync(request, 250, token).ConfigureAwait(false);
-                if (request.Output != null && receipt is { Accepted: false, Code: "invalid" })
+                if ((request.Output != null || request.Type == "download") && receipt is { Accepted: false, Code: "invalid" })
                 {
                     // Early v2 desktops reject unknown fields but still support link delivery.
-                    var compatible = await BrowserLinkTransport.TrySendRequestAsync(request with { Output = null }, 250, token).ConfigureAwait(false);
+                    var fallback = request.Type == "download" ? request with { Type = "open-link" } : request with { Output = null };
+                    var compatible = await BrowserLinkTransport.TrySendRequestAsync(fallback, 250, token).ConfigureAwait(false);
+                    if (compatible is { Accepted: false, Code: "invalid" } && fallback.Output != null)
+                        compatible = await BrowserLinkTransport.TrySendRequestAsync(fallback with { Output = null }, 250, token).ConfigureAwait(false);
                     return compatible?.Accepted == true ? new(true, "opened-legacy") : compatible ?? receipt;
                 }
                 if (receipt != null) return receipt;

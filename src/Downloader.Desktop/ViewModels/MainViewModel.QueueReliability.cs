@@ -40,7 +40,7 @@ public sealed partial class MainViewModel
     public string ClearScheduleLabel => T("Clear schedule");
     private void InitializeQueueReliability()
     {
-        QueuePauseCommand = new RelayCommand(Queue.Pause, () => Queue.IsRunning);
+        QueuePauseCommand = new RelayCommand(() => { automaticBrowserJobs.Clear(); Queue.Pause(); }, () => Queue.IsRunning);
         MoveQueueUpCommand = new RelayCommand<Guid>(id => Queue.Move(id, -1), _ => !Queue.IsRunning);
         MoveQueueDownCommand = new RelayCommand<Guid>(id => Queue.Move(id, 1), _ => !Queue.IsRunning);
         RefreshQueueSourceCommand = new RelayCommand<Guid>(id =>
@@ -95,12 +95,14 @@ public sealed partial class MainViewModel
     public BrowserReceipt ReceiveBrowserRequest(BrowserRequest request)
     {
         if (request.Type == "ping") return new(true, "connected");
+        if (browserClosing) return new(false, "busy");
         if (request.RequestId != null && browserReceipts.TryGetValue(request.RequestId, out var previous)) return previous.Request == request ? previous.Receipt : new(false, "invalid");
         try
         {
             string link = downloads.Normalize(request.Url, false);
             BrowserReceipt receipt;
-            if (request.SourcePage != null && Queue.RefreshSource(request.SourcePage, link, request.MediaId)) receipt = new(true, "refreshed");
+            if (request.Type == "download") receipt = AcceptBrowserDownload(request, link);
+            else if (request.SourcePage != null && Queue.RefreshSource(request.SourcePage, link, request.MediaId)) receipt = new(true, "refreshed");
             else if (!IsIdle || request.Type == "enqueue")
             {
                 var existing = Queue.Entries.FirstOrDefault(e => e.Url == link && e.State is QueueState.Pending or QueueState.Paused or QueueState.Interrupted);

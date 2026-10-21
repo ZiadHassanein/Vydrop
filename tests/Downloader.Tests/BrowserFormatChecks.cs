@@ -26,6 +26,28 @@ internal static class BrowserFormatChecks
             await server;
             if (!result.Accepted || result.Code != "opened-legacy") throw new Exception("An older v2 desktop lost basic link delivery.");
             Console.WriteLine("PASS: An older v2 desktop receives a compatible link and an explicit selection-not-applied receipt");
+            foreach (bool supportsChoice in new[] { true, false })
+            {
+                var fallbackServer = Task.Run(async () =>
+                {
+                    for (int index = 0; index < (supportsChoice ? 2 : 3); index++)
+                    {
+                        using var pipe = new System.IO.Pipes.NamedPipeServerStream(BrowserLinkTransport.PipeName, System.IO.Pipes.PipeDirection.InOut, 1, System.IO.Pipes.PipeTransmissionMode.Byte, System.IO.Pipes.PipeOptions.Asynchronous | System.IO.Pipes.PipeOptions.CurrentUserOnly);
+                        await pipe.WaitForConnectionAsync(deadline.Token);
+                        using var message = await BrowserProtocol.ReadAsync(pipe, deadline.Token);
+                        string type = message.RootElement.GetProperty("type").GetString();
+                        bool output = message.RootElement.TryGetProperty("output", out _);
+                        if (type != (index == 0 ? "download" : "open-link") || output != (index < 2)) throw new Exception("The fallback changed its expected output envelope.");
+                        bool accepted = supportsChoice ? index == 1 : index == 2;
+                        await BrowserProtocol.WriteAsync(pipe, new { ok = accepted, code = accepted ? "opened" : "invalid", protocol = 2 }, deadline.Token);
+                    }
+                }, deadline.Token);
+                var fallback = await BrowserHost.DeliverRequestAsync(new(2, "download", "https://example.com/video.mp4", "old_start", Output: new("video", "webm", 720)), () => { }, deadline.Token);
+                await fallbackServer;
+                if (!fallback.Accepted || fallback.Code != "opened-legacy") throw new Exception("An older desktop falsely reported automatic downloading.");
+                Console.WriteLine("PASS: Confirmed download falls back to manual open for an older desktop; selection support=" + supportsChoice);
+            }
+
         }
         finally { BrowserLinkTransport.PipeNameOverride = previous; }
     }
@@ -46,6 +68,11 @@ internal static class BrowserFormatChecks
             bool rejected = false; try { BrowserProtocol.ReadRequest(bad.RootElement); } catch (InvalidDataException) { rejected = true; }
             Check(rejected, "Untrusted output choices cannot introduce unsupported formats, extra arguments or invalid dimensions");
         }
+        using var confirmed = JsonDocument.Parse("""{"version":2,"type":"download","requestId":"start_1","url":"https://example.com/video.mp4","output":{"kind":"video","format":"webm","height":720}}""");
+        Check(BrowserProtocol.ReadRequest(confirmed.RootElement).Type == "download", "Confirmed v2 output choices support immediate downloading");
+        using var missingChoice = JsonDocument.Parse("""{"version":2,"type":"download","requestId":"start_2","url":"https://example.com/video.mp4"}""");
+        bool missingRejected = false; try { BrowserProtocol.ReadRequest(missingChoice.RootElement); } catch (InvalidDataException) { missingRejected = true; }
+        Check(missingRejected, "Immediate downloading requires an explicit validated output choice");
         var media = new VideoInfo { Title = new string('x', 900), HasAudio = true, Qualities = new() { new() { Resolution = 720, SelectionKey = "private-selector" }, new() { Resolution = 720 }, new() { Resolution = -1 } } };
         string json = JsonSerializer.Serialize(BrowserMediaFormats.From(media));
         using var formats = JsonDocument.Parse(json);

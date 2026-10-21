@@ -14,7 +14,7 @@ internal static class NativeHostChecks
         bool accepting = true;
         string responseCode = null;
         BrowserRequest lastRequest = null;
-        var listener = BrowserLinkTransport.ListenRequestsAsync(request => { lastRequest = request; Interlocked.Increment(ref links); return new(accepting, request.Type == "enqueue" ? "queued" : "opened"); }, lifetime.Token);
+        var listener = BrowserLinkTransport.ListenRequestsAsync(request => { lastRequest = request; Interlocked.Increment(ref links); return new(accepting, request.Type == "download" ? "started" : request.Type == "enqueue" ? "queued" : "opened"); }, lifetime.Token);
         async Task<bool> Request(string origin)
         {
             using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(15));
@@ -49,6 +49,12 @@ internal static class NativeHostChecks
                     if (!response.RootElement.GetProperty("ok").GetBoolean() || response.RootElement.GetProperty("requestId").GetString() != id || response.RootElement.GetProperty("code").GetString() != "queued" || lastRequest is not { SourcePage: "https://example.com/post", MediaId: "asset" })
                         throw new Exception("Packaged native host lost a v2 request identity or source context.");
                 }
+                await BrowserProtocol.WriteAsync(process.StandardInput.BaseStream, new { version = 2, type = "ping", requestId = "framed_health" }, deadline.Token);
+                using (var health = await BrowserProtocol.ReadAsync(process.StandardOutput.BaseStream, deadline.Token))
+                    if (!health.RootElement.GetProperty("capabilities").EnumerateArray().Any(v => v.GetString() == "start-download")) throw new Exception("The packaged host does not advertise confirmed starts.");
+                await BrowserProtocol.WriteAsync(process.StandardInput.BaseStream, new { version = 2, type = "download", requestId = "framed_download", url = "https://example.com/public-native-fixture", output = new { kind = "video", format = "webm", height = 720 } }, deadline.Token);
+                using (var started = await BrowserProtocol.ReadAsync(process.StandardOutput.BaseStream, deadline.Token))
+                    if (started.RootElement.GetProperty("code").GetString() != "started" || lastRequest.Type != "download" || lastRequest.Output != new BrowserOutputChoice("video", "webm", 720)) throw new Exception("The packaged host lost the confirmed start/output choice.");
                 process.StandardInput.Close();
                 await process.WaitForExitAsync(deadline.Token);
             }
@@ -64,9 +70,10 @@ internal static class NativeHostChecks
             if (await Request("chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/") || links != 2) throw new Exception("Packaged native host accepted an unapproved origin.");
             accepting = true;
             await ModernRequests();
-            if (links != 4) throw new Exception("Packaged native host lost a persistent-port request.");
+            if (links != 6) throw new Exception("Packaged native host lost a persistent-port request.");
             Console.WriteLine("PASS: Packaged GUI EXE handles native stdin/stdout framing, current-user delivery and origin rejection without a visible window or download.");
             Console.WriteLine("PASS: Packaged GUI EXE serves multiple v2 queue messages on one port with request identities and source context.");
+            Console.WriteLine("PASS: Packaged host advertises confirmed starts and carries exact output choices over real native frames.");
             return 0;
         }
         finally { lifetime.Cancel(); await listener; }

@@ -8,11 +8,11 @@
  <Grid x:Name="Root" Background="{DynamicResource Page}">
   <local:DownloadManagerView x:Name="ManagerContent"/>
   <Grid x:Name="LibraryNoticeHost" VerticalAlignment="Bottom" HorizontalAlignment="Center" MaxWidth="660" Margin="24" Panel.ZIndex="30"/>
-  <Grid x:Name="EditorOverlay" Background="#900E080D" Visibility="Collapsed" Panel.ZIndex="40" KeyboardNavigation.TabNavigation="Cycle">
-   <Border x:Name="EditorSurface" Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="1" CornerRadius="10" Margin="28" MaxWidth="1120" AutomationProperties.IsDialog="True">
+  <Grid x:Name="EditorOverlay" Background="{DynamicResource Page}" Visibility="Collapsed" Panel.ZIndex="40">
+   <Border x:Name="EditorSurface" Background="{DynamicResource Page}" Margin="0">
     <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-     <Grid Margin="24,16,16,8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-      <TextBlock x:Name="EditorHeading" Text="{Binding AddDownloadLabel}" FontFamily="{Binding ContentFont}" FlowDirection="{Binding ContentDirection}" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center"/>
+     <Grid Margin="24,4,20,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <TextBlock x:Name="EditorHeading" Text="{Binding AddDownloadLabel}" FontFamily="{Binding ContentFont}" FlowDirection="{Binding ContentDirection}" FontSize="34" LineHeight="44" FontWeight="SemiBold" VerticalAlignment="Center"/>
       <Button x:Name="EditorCloseButton" Grid.Column="1" Click="CloseEditorClicked" Style="{StaticResource QuietButton}" AutomationProperties.Name="{Binding CloseLabel}" Padding="10" MinHeight="36"><Path Data="{StaticResource CloseIcon}" Style="{StaticResource LineIcon}" Width="16" Height="16"/></Button>
      </Grid>
    <Grid x:Name="PageContent" Grid.Row="1" FlowDirection="LeftToRight">

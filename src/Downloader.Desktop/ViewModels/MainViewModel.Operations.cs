@@ -378,6 +378,7 @@ public sealed partial class MainViewModel
 
     public async Task CloseAsync()
     {
+        browserClosing = true; automaticBrowserJobs.Clear();
         libraryLifetime.Cancel();
         queueClock?.Stop();
         thumbnailCancellation?.Cancel();
@@ -389,6 +390,7 @@ public sealed partial class MainViewModel
         downloads.Cancel();
         await inspection;
         await downloads.Operations.WaitForIdleAsync();
+        await browserDownloadTask;
         if (DownloadCommand.ExecutionTask != null)
             await DownloadCommand.ExecutionTask;
         if (UpdateCommand.ExecutionTask != null)

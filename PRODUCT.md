@@ -16,7 +16,9 @@ Inspect public media, choose an available output format and quality, save downlo
 
 ## Operating Context
 
-The user approved making a download manager the default main screen, with sidebar navigation, a searchable download list and an Add download dialog. The browser video menu should show available format and quality choices before sending the selection to Vydrop. The user requested visual mockups before implementation.
+The download manager is the default main screen, with persistent sidebar navigation and a searchable download list. Add download and History replace the center workspace; the inspected Add download preview appears in the right inspector at wide sizes and inline in compact layouts. History remains accessible during transfers. Zero sidebar and filter counts are hidden, and the status filters have deliberate separation.
+
+The browser action sits inside the visible video's top-right corner. Its compact menu shows inspected format and quality choices, a selected-output summary and Download action. Confirming a choice uses the saved folder, persists the job in the local queue and starts it through the existing download path when idle; confirmed jobs wait when the app is busy. Older hosts retain a visible review-and-start-in-app fallback. The user requested visual mockups before implementation and then these operating-flow refinements.
 
 ## Capabilities and Constraints
 
@@ -26,6 +28,8 @@ The user approved making a download manager the default main screen, with sideba
 - Display actual source metadata and measured transfer information. Do not invent file sizes, speed, time remaining, resume guarantees or connection counts.
 - Do not extend this redesign into general document/program downloading, DRM access, account extraction or a new download engine.
 - Keep existing English/Arabic language support, RTL behavior, light/dark themes, keyboard access and Windows high-contrast support.
+- Queue-wide pause, cancel, scheduled stop, engine halt and app closure retain control over confirmed browser work. Reopening the app does not silently resume older pending or interrupted jobs.
+- Repeated and concurrent browser format checks reuse bounded inspection work. Dismissing the chooser clears its busy presentation and ignores late inspection results.
 
 ## Brand Commitments
 
@@ -39,6 +43,8 @@ The user selected the right-hand details-panel layout (concept A), but rejected 
 - Existing companion: `browser/common/`.
 - Queue restart tests demonstrate recovery after normal closure and process termination, byte resume and exact output integrity.
 - User supplied two reference images and confirmed the manager-first structure, browser quality menu and mockup-first workflow.
+- The final scoped review in `.impeccable/review/workspace-flow-v3.json` marks WF1–WF14 and the resolved source findings satisfied. Fresh native and browser fixture captures and named validation logs support that correction scope; `.impeccable/review/workspace-validation-v3.json` records the final stage results and limits.
+- The original comp-led mechanical workflow remains open at spec, with later gates pending. The scoped correction review does not certify original-comp fidelity or a complete mechanical build pass.
 
 ## Product Principles
 

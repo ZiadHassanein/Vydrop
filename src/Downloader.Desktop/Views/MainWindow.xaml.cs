@@ -27,6 +27,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        Root.Children.Remove(EditorOverlay);
+        ManagerContent.EditorHost.Children.Add(EditorOverlay);
         Root.Children.Remove(Notice);
         DownloadForm.FolderNoticeHost.Children.Add(Notice);
         DownloadForm.NewDownloadHeading.Visibility = Visibility.Collapsed;
@@ -34,6 +36,7 @@ public partial class MainWindow : Window
         model = new MainViewModel(service ?? new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage()), repository ?? new SettingsRepository(), actions, thumbnailLoader);
         presentationDirection = model.ContentDirection;
         DataContext = model;
+        ManagerContent.WorkspaceLayoutChanged += ApplyResponsiveLayout;
         CommandBindings.Add(new CommandBinding(FocusLinkCommand, (_, e) =>
         {
             model.NewDownloadCommand.Execute(null);
@@ -84,7 +87,7 @@ public partial class MainWindow : Window
                     ViewMotion.Reveal(MediaPreview.PreviewContent);
                 }
             }
-            if (args.PropertyName == nameof(MainViewModel.AddDownloadVisible)) UpdateEditor();
+            if (args.PropertyName is nameof(MainViewModel.AddDownloadVisible) or nameof(MainViewModel.HistoryVisible)) UpdateEditor();
             if (args.PropertyName == nameof(MainViewModel.HasFile) && model.HasFile && model.ShowInlineActivity)
                 Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => DownloadForm.InlineActivity.BringIntoView());
             if (((args.PropertyName == nameof(MainViewModel.StatusHeading) || args.PropertyName == nameof(MainViewModel.IsCheckingMedia) && model.IsCheckingMedia) && !model.SettingsVisible)
@@ -109,23 +112,24 @@ public partial class MainWindow : Window
             AppUpdates.AcknowledgeStartup();
         };
         Closing += ClosingAsync;
+        Activated += (_, _) => { if (model.HistoryVisible) model.History?.RefreshFiles(); };
     }
 
     private void ApplyResponsiveLayout()
     {
-        bool split = model.HasMediaContext && !model.SettingsVisible && EditorSurface.ActualWidth >= 990;
+        bool split = model.HasMediaContext && !model.SettingsVisible && ManagerContent.DetailsColumn.Width.Value > 0;
         PageContent.ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
-        PageContent.ColumnDefinitions[1].Width = split ? new GridLength(390) : new GridLength(0);
+        PageContent.ColumnDefinitions[1].Width = new GridLength(0);
         bool inline = model.HasMediaContext && !split && !model.SettingsVisible;
-        var previewHost = inline ? (Panel)DownloadForm.InlinePreviewHost : ContextPane;
+        var previewHost = inline ? (Panel)DownloadForm.InlinePreviewHost : ManagerContent.EditorDetailsHost;
         if (MediaPreview.Parent is Panel parent && parent != previewHost)
         {
             parent.Children.Remove(MediaPreview);
             previewHost.Children.Add(MediaPreview);
         }
         model.InlineMediaPreview = inline;
-        Grid.SetColumn(ContextViewport, split ? 1 : 0);
-        ContextViewport.Visibility = model.SettingsVisible || (model.HasMediaContext && split) ? Visibility.Visible : Visibility.Collapsed;
+        Grid.SetColumn(ContextViewport, 0);
+        ContextViewport.Visibility = model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
         ContextPane.Visibility = ContextViewport.Visibility;
         Viewport.Visibility = model.SettingsVisible && !split ? Visibility.Collapsed : Visibility.Visible;
         ContextPane.MaxWidth = split ? double.PositiveInfinity : DownloadForm.MaxWidth;
@@ -139,7 +143,7 @@ public partial class MainWindow : Window
         bool opening = visible && !EditorOverlay.IsVisible;
         if (opening) editorReturnFocus = Keyboard.FocusedElement;
         EditorOverlay.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
-        ManagerContent.IsEnabled = !visible;
+        ManagerContent.RefreshWorkspace();
         EditorHeading.Text = model.SettingsVisible ? model.SettingsLabel : model.AddDownloadLabel;
         EditorHeading.FlowDirection = model.ContentDirection;
         ApplyResponsiveLayout();

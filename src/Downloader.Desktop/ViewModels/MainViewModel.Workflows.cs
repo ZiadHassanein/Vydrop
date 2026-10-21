@@ -72,7 +72,7 @@ public sealed partial class MainViewModel
     public bool CanGetCaptionLanguages => IsIdle && playlistInfo != null;
     public bool HasQueue => QueueItems.Count > 0;
     public bool QueueRunning => Queue.IsRunning;
-    public string QueueLabel => F("Queue ({0})", QueueItems.Count);
+    public string QueueLabel => QueueItems.Count > 0 ? F("Queue ({0})", QueueItems.Count) : T("Queue");
     public string PlaylistSelectionLabel => playlistInfo == null ? T("Choose videos") : F("Choose videos ({0}/{1})", selectedPlaylistIds?.Count ?? playlistInfo.Entries.Count, playlistInfo.Entries.Count);
     public string OptionsLabel => T("Subtitles");
     public string DoneLabel => T("Done");
@@ -266,6 +266,7 @@ public sealed partial class MainViewModel
         state.Recent = state.Recent.Take(5).ToList();
         state.UnseenDownloads = Math.Min(9999, state.UnseenDownloads + Math.Max(0, files.Length - result.Skipped));
         RefreshRecentBadge();
+        if (HistoryVisible) RefreshHistory();
         lastFile = result.FilePath ?? lastFile;
         OnPropertyChanged(nameof(HasFile));
         Save();

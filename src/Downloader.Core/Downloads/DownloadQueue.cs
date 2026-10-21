@@ -30,6 +30,8 @@ public sealed partial class DownloadQueue
     private readonly List<QueueEntry> entries = new();
     private CancellationTokenSource? lifetime;
     public event Action? Changed;
+    private long stopGeneration;
+    public long StopGeneration { get { lock (gate) return stopGeneration; } }
     public bool IsRunning { get { lock (gate) return lifetime != null; } }
     public IReadOnlyList<QueueEntry> Entries { get { lock (gate) return entries.ToArray(); } }
 
@@ -77,7 +79,7 @@ public sealed partial class DownloadQueue
     public void Stop()
     {
         CancellationTokenSource? run;
-        lock (gate) run = lifetime;
+        lock (gate) { stopGeneration++; run = lifetime; }
         // Cancellation can invoke provider callbacks; never hold the mutation gate here.
         try { run?.Cancel(); }
         catch (ObjectDisposedException) { } // The run may have finished after the snapshot.
@@ -94,9 +96,10 @@ public sealed partial class DownloadQueue
         {
             if (lifetime != null) throw new InvalidOperationException("The queue is already running.");
             run = lifetime = CancellationTokenSource.CreateLinkedTokenSource(token);
-            // A later browser handoff must wait for another explicit start action.
+            // Each run owns a fixed batch; later explicit browser starts are coordinated by the desktop.
             batch = entries.Where(e => e.State == QueueState.Pending && (!onlyJob.HasValue || e.Id == onlyJob)).Select(e => e.Id).ToHashSet();
         }
+        bool halted = false;
         wait ??= Task.Delay;
         Signal();
         try
@@ -188,16 +191,21 @@ public sealed partial class DownloadQueue
                     }
                 }
                 Signal();
-                if (halt) break;
+                if (halt) { halted = true; break; }
                 // Pace separate jobs as well as items within a playlist.
                 if (!onlyJob.HasValue && Entries.Any(e => e.State == QueueState.Pending && batch.Contains(e.Id)))
                     await wait(TimeSpan.FromSeconds(2), run.Token).ConfigureAwait(false);
             }
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException) { halted = true; }
         finally
         {
-            lock (gate) { if (ReferenceEquals(lifetime, run)) lifetime = null; pauseRequested = false; }
+            lock (gate)
+            {
+                if (halted || run.IsCancellationRequested) stopGeneration++;
+                if (ReferenceEquals(lifetime, run)) lifetime = null;
+                pauseRequested = false;
+            }
             run.Dispose();
             Signal();
         }

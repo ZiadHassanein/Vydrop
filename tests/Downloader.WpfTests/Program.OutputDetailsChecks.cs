@@ -6,7 +6,6 @@ using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
-using System.Windows.Threading;
 using YouTubeDownloader;
 
 internal static partial class Program
@@ -25,23 +24,12 @@ internal static partial class Program
         async Task Input() { model.Url = ""; model.Url = "https://youtu.be/jNQXAC9IVRw"; await Task.Delay(900); await Settle(); }
         async Task History(string variant)
         {
-            var completion = new TaskCompletionSource<Exception>();
-            _ = window.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(async () =>
-            {
-                RecentDownloadsWindow dialog = null; Exception failure = null;
-                try
-                {
-                    dialog = window.OwnedWindows.OfType<RecentDownloadsWindow>().Single(); await Settle();
-                    Check(model.RecentDownloadCount == 0 && !badge.IsVisible, "Opening recent downloads acknowledges its completion count");
-                    var history = (RecentDownloadsViewModel)dialog.DataContext;
-                    Check(history.Files.Any(row => row.FilePath == file && !row.IsAudio), "MKV is a video in recent history and retains its actual path");
-                    Capture(dialog, Path.Combine(captures, "output-history-" + variant + ".png"));
-                }
-                catch (Exception error) { failure = error; }
-                finally { dialog?.Close(); completion.TrySetResult(failure); }
-            }));
-            model.HistoryCommand.Execute(null);
-            if (await completion.Task is { } error) throw error;
+            model.HistoryCommand.Execute(null); await Settle();
+            Check(model.HistoryVisible && window.ManagerContent.HistoryContent.IsVisible && window.OwnedWindows.Count == 0, "History opens in the main center workspace");
+            Check(model.RecentDownloadCount == 0 && !badge.IsVisible, "Opening history acknowledges its completion count");
+            Check(model.History.Files.Any(row => row.FilePath == file && !row.IsAudio), "MKV history retains its actual media path");
+            Capture(window, Path.Combine(captures, "output-history-" + variant + ".png"));
+            model.NewDownloadCommand.Execute(null); await Settle();
         }
         try
         {

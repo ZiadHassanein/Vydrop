@@ -43,27 +43,12 @@ const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:751722773
       await page.evaluate(() => { testReady = 4; document.querySelector('video').dispatchEvent(new Event('playing', { bubbles: false })); });
       await button.waitFor({ state: 'visible' });
       const box = await button.boundingBox(), videoBox = await page.locator('video').boundingBox();
-      assert.ok(box.y + box.height <= videoBox.y || box.x >= videoBox.x + videoBox.width, 'button stays outside the picture');
-      if (site === 'linkedin' && width > 600) {
-        const sidebarControl = await page.locator('aside button').boundingBox();
-        assert.ok(box.y >= sidebarControl.y + sidebarControl.height, 'the action finds a gap below the sidebar control');
-        assert.ok(box.y <= videoBox.y + 120, 'the fallback stays near the upper-right corner');
-      }
-      const search = await page.locator('input').boundingBox();
-      if (width > 600) assert.ok(box.x >= search.x + search.width || box.x + box.width <= search.x || box.y >= search.y + search.height || box.y + box.height <= search.y, 'button avoids the search control');
-      if (crowdedHeader) {
-        assert.equal(box.width, 36, 'a compact V fits the gap when the full label cannot');
-        assert.equal(await button.getAttribute('aria-label'), lang === 'ar' ? 'تنزيل بواسطة Vydrop' : 'Download by Vydrop');
-        for (const controls of ['.header-mic', '.header-create', '.header-notifications']) {
-          const control = await page.locator(controls).boundingBox();
-          assert.ok(box.x + box.width <= control.x || box.x >= control.x + control.width || box.y + box.height <= control.y || box.y >= control.y + control.height, 'the V never covers a host control');
-        }
-        await button.focus();
-        assert.equal(await button.evaluate(b => b.matches(':focus-visible')), true);
-        if (process.env.VYDROP_OVERLAY_CAPTURES) {
-          fs.mkdirSync(process.env.VYDROP_OVERLAY_CAPTURES, { recursive: true });
-          await page.screenshot({ path: path.join(process.env.VYDROP_OVERLAY_CAPTURES, `youtube-compact-${lang}.png`) });
-        }
+      assert.ok(box.x >= videoBox.x && box.y >= videoBox.y && box.x + box.width <= videoBox.x + videoBox.width && box.y + box.height <= videoBox.y + videoBox.height, 'button stays inside the video');
+      assert.ok(Math.abs(box.x + box.width - videoBox.x - videoBox.width + 10) < 2 && Math.abs(box.y - videoBox.y - 10) < 2, 'button anchors to the video top-right inset');
+      assert.equal(await button.getAttribute('aria-label'), lang === 'ar' ? 'تنزيل بواسطة Vydrop' : 'Download by Vydrop');
+      if (process.env.VYDROP_OVERLAY_CAPTURES) {
+        fs.mkdirSync(process.env.VYDROP_OVERLAY_CAPTURES, { recursive: true });
+        await page.screenshot({ path: path.join(process.env.VYDROP_OVERLAY_CAPTURES, `inside-${site}-${lang}-${width}-${Boolean(theater)}-${Boolean(crowdedHeader)}.png`) });
       }
       assert.equal(await page.evaluate(() => testSent.length), 0);
       await button.click();
@@ -151,7 +136,7 @@ const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:751722773
         samples.sort((a, b) => a - b);
         console.log(`MEASURE: 100-player overlay, ${samples.length} callbacks: p95=${samples[Math.floor(samples.length * .95)].toFixed(2)}ms, max=${samples.at(-1).toFixed(2)}ms`);
       }
-      console.log(`PASS: ${site}/${lang}/${width}${theater ? '/theater' : ''}${crowdedHeader ? '/crowded-header' : ''}: delayed playback, outside placement, exact-player click and pause`); passed++;
+      console.log(`PASS: ${site}/${lang}/${width}${theater ? '/theater' : ''}${crowdedHeader ? '/crowded-header' : ''}: delayed playback, inside top-right placement, exact-player click and pause`); passed++;
       await context.close();
     }
     console.log(`${passed} headless overlay scenarios passed; native delivery was simulated.`);

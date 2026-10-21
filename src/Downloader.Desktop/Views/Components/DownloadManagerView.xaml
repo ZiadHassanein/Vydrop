@@ -10,13 +10,14 @@
     <StackPanel x:Name="BrandHost" Margin="22,24,14,12" VerticalAlignment="Center" FlowDirection="LeftToRight"/>
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Style="{StaticResource InsetScrollFrame}">
      <StackPanel>
+      <ToggleButton Content="{Binding AddDownloadLabel}" IsChecked="{Binding IsAddDownloadPage,Mode=OneWay}" Command="{Binding NewDownloadCommand}" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource PlusIcon}"/>
       <ToggleButton Content="{Binding LibraryLabel}" IsChecked="{Binding IsLibraryAll,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="all" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource LibraryIcon}"/>
-      <ToggleButton IsChecked="{Binding IsLibraryQueue,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="queue" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource QueueListIcon}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding QueueNavigationLabel}" VerticalAlignment="Center"/><Border Grid.Column="1" Style="{StaticResource NavigationCount}"><TextBlock Text="{Binding WaitingCount}" Foreground="{DynamicResource NavigationSelectedInk}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></Grid></ToggleButton>
-      <ToggleButton IsChecked="False" Content="{Binding HistoryNavigationLabel}" Command="{Binding HistoryCommand}" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource HistoryIcon}"/>
+      <ToggleButton IsChecked="{Binding IsLibraryQueue,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="queue" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource QueueListIcon}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding QueueNavigationLabel}" VerticalAlignment="Center"/><Border Grid.Column="1" Style="{StaticResource NavigationCount}" Tag="{Binding WaitingCount}"><TextBlock Text="{Binding WaitingCount}" Foreground="{DynamicResource NavigationSelectedInk}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></Grid></ToggleButton>
+      <ToggleButton IsChecked="{Binding HistoryVisible,Mode=OneWay}" Content="{Binding HistoryNavigationLabel}" Command="{Binding HistoryCommand}" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource HistoryIcon}"/>
       <Border Height="1" Background="{DynamicResource NavigationSelected}" Margin="18,20"/>
       <TextBlock Text="{Binding MediaLabel}" Foreground="{DynamicResource NavigationMuted}" FontSize="12" Margin="24,0,0,10"/>
-      <ToggleButton IsChecked="{Binding IsLibraryVideo,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="video" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource VideoIcon}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding VideosLabel}" VerticalAlignment="Center"/><Border Grid.Column="1" Style="{StaticResource NavigationCount}"><TextBlock Text="{Binding VideoCount}" Foreground="{DynamicResource NavigationSelectedInk}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></Grid></ToggleButton>
-      <ToggleButton IsChecked="{Binding IsLibraryAudio,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="audio" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource AudioIcon}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding AudioLibraryLabel}" VerticalAlignment="Center"/><Border Grid.Column="1" Style="{StaticResource NavigationCount}"><TextBlock Text="{Binding AudioCount}" Foreground="{DynamicResource NavigationSelectedInk}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></Grid></ToggleButton>
+      <ToggleButton IsChecked="{Binding IsLibraryVideo,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="video" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource VideoIcon}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding VideosLabel}" VerticalAlignment="Center"/><Border Grid.Column="1" Style="{StaticResource NavigationCount}" Tag="{Binding VideoCount}"><TextBlock Text="{Binding VideoCount}" Foreground="{DynamicResource NavigationSelectedInk}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></Grid></ToggleButton>
+      <ToggleButton IsChecked="{Binding IsLibraryAudio,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="audio" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource AudioIcon}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding AudioLibraryLabel}" VerticalAlignment="Center"/><Border Grid.Column="1" Style="{StaticResource NavigationCount}" Tag="{Binding AudioCount}"><TextBlock Text="{Binding AudioCount}" Foreground="{DynamicResource NavigationSelectedInk}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></Grid></ToggleButton>
      </StackPanel>
     </ScrollViewer>
     <StackPanel Grid.Row="2" Margin="0,16,0,14">
@@ -29,6 +30,8 @@
    </Grid>
   </Border>
   <local:AppHeaderView x:Name="Header" Grid.Column="1" Grid.ColumnSpan="2" FlowDirection="LeftToRight"/>
+  <Grid x:Name="EditorHost" Grid.Column="1" Grid.Row="1" Visibility="Collapsed"/>
+  <local:HistoryView x:Name="HistoryContent" Grid.Column="1" Grid.Row="1" DataContext="{Binding History}" Visibility="Collapsed"/>
   <Grid x:Name="LibraryContent" Grid.Column="1" Grid.Row="1" Margin="24,4,20,0">
    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
    <Grid Margin="0,0,0,18"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -42,10 +45,10 @@
    </Grid>
    <Grid Grid.Row="2" Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
     <WrapPanel>
-     <ToggleButton IsChecked="{Binding IsLibraryAll,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="all" Style="{StaticResource LibraryFilter}"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding AllFilterLabel}" VerticalAlignment="Center"/><Border Style="{StaticResource ManagerCount}"><TextBlock Text="{Binding LibraryCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></StackPanel></ToggleButton>
-     <ToggleButton IsChecked="{Binding IsLibraryActive,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="active" Style="{StaticResource LibraryFilter}"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding ActiveFilterLabel}" VerticalAlignment="Center"/><Border Style="{StaticResource ManagerCount}"><TextBlock Text="{Binding ActiveCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></StackPanel></ToggleButton>
-     <ToggleButton IsChecked="{Binding IsLibraryPaused,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="paused" Style="{StaticResource LibraryFilter}"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding PausedFilterLabel}" VerticalAlignment="Center"/><Border Style="{StaticResource ManagerCount}"><TextBlock Text="{Binding PausedCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></StackPanel></ToggleButton>
-     <ToggleButton IsChecked="{Binding IsLibraryComplete,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="complete" Style="{StaticResource LibraryFilter}"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding CompletedFilterLabel}" VerticalAlignment="Center"/><Border Style="{StaticResource ManagerCount}"><TextBlock Text="{Binding CompletedCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></StackPanel></ToggleButton>
+     <ToggleButton IsChecked="{Binding IsLibraryAll,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="all" Style="{StaticResource LibraryFilter}"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding AllFilterLabel}" VerticalAlignment="Center"/><Border Style="{StaticResource ManagerCount}" Tag="{Binding LibraryCount}"><TextBlock Text="{Binding LibraryCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></StackPanel></ToggleButton>
+     <ToggleButton IsChecked="{Binding IsLibraryActive,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="active" Style="{StaticResource LibraryFilter}"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding ActiveFilterLabel}" VerticalAlignment="Center"/><Border Style="{StaticResource ManagerCount}" Tag="{Binding ActiveCount}"><TextBlock Text="{Binding ActiveCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></StackPanel></ToggleButton>
+     <ToggleButton IsChecked="{Binding IsLibraryPaused,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="paused" Style="{StaticResource LibraryFilter}"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding PausedFilterLabel}" VerticalAlignment="Center"/><Border Style="{StaticResource ManagerCount}" Tag="{Binding PausedCount}"><TextBlock Text="{Binding PausedCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></StackPanel></ToggleButton>
+     <ToggleButton IsChecked="{Binding IsLibraryComplete,Mode=OneWay}" Command="{Binding LibraryFilterCommand}" CommandParameter="complete" Style="{StaticResource LibraryFilter}"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding CompletedFilterLabel}" VerticalAlignment="Center"/><Border Style="{StaticResource ManagerCount}" Tag="{Binding CompletedCount}"><TextBlock Text="{Binding CompletedCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></StackPanel></ToggleButton>
     </WrapPanel>
     <Button Grid.Column="1" Command="{Binding QueueCommand}" Style="{StaticResource QuietButton}" Padding="7" MinHeight="32" ToolTip="{Binding ManageQueueLabel}" AutomationProperties.Name="{Binding ManageQueueLabel}"><Path Data="M2,5 H20 M2,11 H20 M2,17 H20 M6,2 V8 M15,8 V14 M8,14 V20" Style="{StaticResource LineIcon}" Width="18" Height="18"/></Button>
    </Grid>
@@ -53,14 +56,14 @@
     <ListBox.Template><ControlTemplate TargetType="ListBox"><ScrollViewer Focusable="False" CanContentScroll="True" Background="Transparent" Style="{StaticResource InsetScrollFrame}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"><ItemsPresenter/></ScrollViewer></ControlTemplate></ListBox.Template>
     <ListBox.ItemTemplate><DataTemplate>
      <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="0,0,0,0">
-      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="146"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-       <Border Background="{DynamicResource Surface}" CornerRadius="6" Width="132" Height="78" ClipToBounds="True" VerticalAlignment="Top">
+      <Grid Height="84"><Grid.ColumnDefinitions><ColumnDefinition Width="158"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="4"/></Grid.RowDefinitions>
+       <Border Background="{DynamicResource Surface}" CornerRadius="6" Width="144" Height="84" Grid.RowSpan="2" HorizontalAlignment="Left" ClipToBounds="True" VerticalAlignment="Top">
         <Grid><Path Data="{Binding MediaIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="25" Height="25"/><Image Source="{Binding Artwork}" Stretch="UniformToFill"/><TextBlock Text="{Binding Duration}" Background="#B0000000" Foreground="White" FontSize="10" Padding="3,1" HorizontalAlignment="Right" VerticalAlignment="Bottom"/></Grid>
        </Border>
        <StackPanel Grid.Column="1" Margin="0,0,10,0">
         <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" ToolTip="{Binding Title}"><TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding HasArabicTitle}" Value="True"><Setter Property="FontFamily" Value="{StaticResource ArabicFont}"/></DataTrigger><DataTrigger Binding="{Binding MissingFile}" Value="True"><Setter Property="TextDecorations" Value="Strikethrough"/><Setter Property="Foreground" Value="{DynamicResource Muted}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
-        <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ManagerSource}" Margin="0,7,0,0" HorizontalContentAlignment="Stretch"/>
-        <TextBlock Text="{Binding RowDescription}" Foreground="{DynamicResource Muted}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,6,0,0" FlowDirection="LeftToRight"/>
+        <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ManagerSource}" Margin="0,3,0,0" HorizontalContentAlignment="Stretch"/>
+        <TextBlock Text="{Binding RowDescription}" Foreground="{DynamicResource Muted}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" LineHeight="18" FlowDirection="LeftToRight"/>
        </StackPanel>
        <StackPanel Grid.Column="2" VerticalAlignment="Center" MaxWidth="126" MinWidth="78">
         <DockPanel FlowDirection="LeftToRight" HorizontalAlignment="Right"><Path Data="{Binding StatusIcon}" Style="{StaticResource LineIcon}" Stroke="{Binding StateBrush}" Width="12" Height="12" Margin="0,0,5,0"/><TextBlock Text="{Binding RowStatus}" Foreground="{Binding StateBrush}" FontSize="11" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" ToolTip="{Binding RowStatus}"/></DockPanel>
@@ -69,7 +72,7 @@
          <Button Click="RowMoreClicked" Style="{StaticResource QuietButton}" Padding="6,0" MinHeight="28" MinWidth="28" AutomationProperties.Name="{Binding DataContext.MoreActionsLabel,RelativeSource={RelativeSource AncestorType=UserControl}}"><Path Data="{StaticResource MoreIcon}" Fill="{DynamicResource Accent}" Stretch="Uniform" Width="16" Height="4"/></Button>
         </StackPanel>
        </StackPanel>
-       <ProgressBar Style="{StaticResource ManagerProgress}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Value="{Binding Percent,Mode=OneWay}" IsIndeterminate="{Binding IsPreparing}" Margin="0,9,0,0" Visibility="{Binding HasTransferProgress,Converter={StaticResource BoolVisibility}}"/>
+       <ProgressBar Style="{StaticResource ManagerProgress}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Value="{Binding Percent,Mode=OneWay}" IsIndeterminate="{Binding IsPreparing}" Margin="0" Height="4" Visibility="{Binding HasTransferProgress,Converter={StaticResource BoolVisibility}}"/>
       </Grid>
      </Border>
     </DataTemplate></ListBox.ItemTemplate>
@@ -84,6 +87,8 @@
   </Grid>
   <Border x:Name="DetailsBorder" Grid.Column="2" Grid.Row="1" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Divider}" BorderThickness="1,0,0,0">
    <Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Style="{StaticResource InsetScrollFrame}"><Grid x:Name="EditorDetailsHost" Visibility="Collapsed"/></ScrollViewer>
+    <Grid x:Name="LibraryDetails">
     <TextBlock Text="{Binding SelectDownloadLabel}" Foreground="{DynamicResource Muted}" TextAlignment="Center" VerticalAlignment="Center" Margin="24"><TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding HasLibrarySelection}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
     <ScrollViewer Style="{StaticResource InsetScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="{Binding HasLibrarySelection,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource Surface}">
      <StackPanel x:Name="SelectedDetails" DataContext="{Binding SelectedLibraryItem}" Margin="20,0,20,20">
@@ -107,6 +112,7 @@
       <TextBlock Visibility="{Binding HasLocalFile,Converter={StaticResource BoolVisibility}}" Text="{Binding DataContext.SavedLocallyLabel,RelativeSource={RelativeSource AncestorType=UserControl}}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,28,0,0"/>
      </StackPanel>
     </ScrollViewer>
+    </Grid>
    </Grid>
   </Border>
   <Grid x:Name="DetailOverlay" Grid.RowSpan="2" Grid.ColumnSpan="3" Background="#80000000" Visibility="Collapsed" Panel.ZIndex="20" KeyboardNavigation.TabNavigation="Cycle">

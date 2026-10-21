@@ -1,15 +1,15 @@
 (() => {
   let active;
   globalThis.VydropQualityPicker = {
-    open({ anchor, arabic = false, inspect, send, embedded = false }) {
+    open({ anchor, arabic = false, inspect, send, embedded = false, onClose, onResult, preview }) {
       active?.();
       const t = arabic ? {
-        heading: "تنزيل بواسطة Vydrop", loading: "جارٍ فحص الصيغ المتاحة…", video: "فيديو", audio: "صوت", format: "الصيغة", quality: "الجودة", open: "فتح في Vydrop", close: "إغلاق", automatic: "تلقائي · بجودة المصدر", size: "الحجم غير متاح قبل التنزيل", ready: "الصيغ جاهزة", hint: "اختر مجلد الحفظ وابدأ التنزيل داخل التطبيق.", legacy: "تم الفتح. اختر الجودة داخل إصدار Vydrop الأقدم.", success: "تم الفتح في Vydrop. راجع التنزيل داخل التطبيق.", fallback: "يمكنك اختيار الجودة داخل التطبيق.", unavailable: "تعذّر جلب الصيغ. افتح الفيديو داخل Vydrop أو حاول مجددًا.", retry: "حاول مجددًا"
+        heading: "تنزيل بواسطة Vydrop", loading: "جارٍ فحص الصيغ المتاحة…", video: "فيديو", audio: "صوت", format: "الصيغة", quality: "الجودة", download: "تنزيل", queued: "أُضيف إلى قائمة تنزيل Vydrop.", open: "فتح في Vydrop", close: "إغلاق", automatic: "تلقائي · بجودة المصدر", size: "الحجم غير متاح قبل التنزيل", ready: "الصيغ جاهزة", hint: "يستخدم مجلد التنزيل المحفوظ في Vydrop.", legacy: "تم الفتح في إصدار Vydrop الأقدم. راجع التنزيل وابدأه هناك.", success: "أُرسل التنزيل إلى Vydrop.", fallback: "يمكنك اختيار الجودة داخل التطبيق.", unavailable: "تعذّر جلب الصيغ. افتح الفيديو داخل Vydrop أو حاول مجددًا.", retry: "حاول مجددًا"
       } : {
-        heading: "Download by Vydrop", loading: "Checking available formats…", video: "Video", audio: "Audio", format: "Format", quality: "Quality", open: "Open in Vydrop", close: "Close", automatic: "Automatic · source quality", size: "Size unavailable before downloading", ready: "Formats ready", hint: "Choose a save folder and start the download in the app.", legacy: "Opened. Choose the quality in your older Vydrop app.", success: "Opened in Vydrop. Review the download in the app.", fallback: "You can choose the quality inside the app.", unavailable: "Could not load formats. Open this video in Vydrop or try again.", retry: "Try again"
+        heading: "Download by Vydrop", loading: "Checking available formats…", video: "Video", audio: "Audio", format: "Format", quality: "Quality", download: "Download", queued: "Added to the Vydrop queue.", open: "Open in Vydrop", close: "Close", automatic: "Automatic · source quality", size: "Size unavailable before downloading", ready: "Formats ready", hint: "Uses your saved Vydrop download folder.", legacy: "Opened in older Vydrop. Review and start it there.", success: "Download sent to Vydrop.", fallback: "You can choose the quality inside the app.", unavailable: "Could not load formats. Open this video in Vydrop or try again.", retry: "Try again"
       };
       const previousHeight = document.body.style.minHeight;
-      if (embedded) document.body.style.minHeight = "650px";
+      if (embedded) document.body.style.minHeight = "520px";
       const host = document.createElement("div"); host.id = "vydrop-quality-picker";
       host.style.cssText = "all:initial!important;position:fixed!important;inset:0!important;z-index:2147483647!important;pointer-events:none!important";
       const shadow = host.attachShadow({ mode: "open" });
@@ -26,6 +26,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
 .summary{border-top:1px solid var(--divider);padding-top:15px;margin-top:2px}.selection{font-size:14px;font-weight:650}.muted{color:var(--muted);font-size:12px;margin:4px 0 0}.launch{background:#c72d49;color:#fff;border-color:#c72d49;width:100%;font-weight:650;clip-path:polygon(12px 0,100% 0,100% 100%,0 100%,0 12px);min-height:48px;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px}.launch:focus-visible{clip-path:none}.hint{text-align:center;margin-top:11px}.status{margin:0 0 14px;overflow-wrap:anywhere;font-size:13px}.status:empty{display:none}.status[data-error=true]{color:var(--accent)}.retry{margin-bottom:14px}.hidden{display:none!important}svg{flex:none}
 @media(max-width:420px){.body{padding:18px}.top{padding:12px 18px}.identity{grid-template-columns:100px minmax(0,1fr);gap:12px}.identity img{width:100px}.title{font-size:17px}.formats button,.choices button{padding:11px}.top-status{font-size:11px}}
 @media(prefers-color-scheme:dark){.panel{--page:#261e2a;--ink:#faf3f7;--muted:#ccbac7;--field:#2b242f;--border:#795c70;--divider:#443448;--accent:#f17b96;--selected:#442638}}
+.top{padding:9px 16px;min-height:50px}.wordmark{width:112px;height:30px}.body{padding:14px 16px}.identity{grid-template-columns:88px minmax(0,1fr);gap:12px;margin-bottom:12px}.identity img{width:88px;height:54px;aspect-ratio:auto}.title{font-size:16px;line-height:1.35}.source{font-size:11px;margin-top:4px}.tabs{margin-bottom:13px;padding:2px}.tabs button{min-height:33px;padding:5px;font-size:13px}.formats,.choices{gap:6px;margin-bottom:13px}.formats{grid-template-columns:repeat(3,minmax(0,1fr))}.formats[data-count="1"]{grid-template-columns:1fr}.formats[data-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}.choices{grid-template-columns:repeat(auto-fit,minmax(60px,1fr))}.choices.audio{grid-template-columns:1fr}.formats button,.choices button{min-height:35px;padding:6px;gap:6px;font-size:13px;justify-content:center}.formats button::before,.choices button::before{width:14px;height:14px}.formats button[aria-checked=true]::before,.choices button[aria-checked=true]::before{border-width:4px}.choices small{display:none}label{font-size:12px;margin-bottom:6px}.summary{padding-top:10px}.selection{font-size:13px}.muted{font-size:11px}.launch{min-height:42px;margin-top:12px}.hint{margin-top:7px}.status{font-size:12px;margin-bottom:10px}.top-status{font-size:11px}
 @media(forced-colors:active){.panel{--page:Canvas;--ink:CanvasText;--muted:CanvasText;--field:Canvas;--border:ButtonText;--divider:ButtonText;--accent:Highlight;--selected:Canvas;border:1px solid ButtonText}.top{background:Canvas;color:CanvasText}.top-status{color:CanvasText}.launch{forced-color-adjust:none;background:Highlight;color:HighlightText;clip-path:none}.formats button[aria-checked=true],.choices button[aria-checked=true]{outline:2px solid Highlight}.wordmark{background:#3b1b2c}}
       `;
       shadow.append(style);
@@ -47,7 +48,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
       format.id = "vydrop-format"; radioGroup(format, t.format); radioGroup(choices, t.quality);
       const video = button(t.video, "", () => chooseKind("video")), audio = button(t.audio, "", () => chooseKind("audio")); video.prepend(icon("M3 5H16V19H3ZM16 9L22 6V18L16 15")); audio.prepend(icon("M3 10V14M7 6V18M12 3V21M17 7V17M21 10V14")); tabs.append(video, audio);
       const summary = el("div", "summary"), selection = el("div", "selection"); summary.append(selection, el("p", "muted", t.size)); options.append(tabs, formatLabel, format, qualityLabel, choices, summary);
-      const retry = button(t.retry, "retry hidden", load), launch = button(t.open, "launch", openApp); launch.prepend(icon("M12 3V15M7 10L12 15L17 10M3 15V21H21V15")); launch.disabled = true;
+      const retry = button(t.retry, "retry hidden", load), launch = button(t.open, "launch", event => { if (event.isTrusted) void openApp(); }); launch.prepend(icon("M12 3V15M7 10L12 15L17 10M3 15V21H21V15")); launch.disabled = true;
       const identity = el("div", "identity no-image"), thumbnail = el("img"), mediaText = el("div"), source = el("div", "source");
       thumbnail.alt = ""; thumbnail.referrerPolicy = "no-referrer"; thumbnail.crossOrigin = "anonymous"; thumbnail.hidden = true;
       thumbnail.addEventListener("error", () => { thumbnail.hidden = true; identity.classList.add("no-image"); });
@@ -56,7 +57,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
       const parent = document.fullscreenElement || document.documentElement; parent.append(host);
       let media, kind = "video", selectedHeight = 0, disposed = false, loading = false;
       function position() { const rect = anchor?.getBoundingClientRect(); const x = rect ? Math.min(innerWidth - panel.offsetWidth - 12, Math.max(12, rect.right - panel.offsetWidth)) : 12; panel.style.left = `${x}px`; panel.style.top = `${rect ? Math.min(Math.max(12, rect.bottom + 8), Math.max(12, innerHeight - panel.offsetHeight - 12)) : 12}px`; }
-      function close() { if (embedded) document.body.style.minHeight = previousHeight; disposed = true; host.remove(); document.removeEventListener("pointerdown", outside, true); document.removeEventListener("keydown", keys, true); removeEventListener("resize", position); removeEventListener("scroll", position, true); anchor?.focus(); if (active === close) active = null; }
+      function close() { if (embedded) document.body.style.minHeight = previousHeight; disposed = true; host.remove(); document.removeEventListener("pointerdown", outside, true); document.removeEventListener("keydown", keys, true); removeEventListener("resize", position); removeEventListener("scroll", position, true); anchor?.focus(); if (active === close) active = null; onClose?.(); }
       function outside(event) { if (!event.composedPath().includes(host) && !event.composedPath().includes(anchor)) close(); }
       function keys(event) { if (event.key === "Escape") { close(); event.stopPropagation(); event.preventDefault(); } if (event.key === "Tab") { const all = [...shadow.querySelectorAll('button:not(:disabled):not([tabindex="-1"])')].filter(n => n.getClientRects().length); const current = shadow.activeElement; if (event.shiftKey && current === all[0]) { all.at(-1).focus(); event.preventDefault(); } else if (!event.shiftKey && current === all.at(-1)) { all[0].focus(); event.preventDefault(); } } }
       document.addEventListener("pointerdown", outside, true); document.addEventListener("keydown", keys, true); addEventListener("resize", position); addEventListener("scroll", position, true); active = close;
@@ -65,7 +66,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
       function renderFormats() {
         video.disabled = !media.videos.length; audio.disabled = !media.audio.length;
         video.setAttribute("aria-pressed", String(kind === "video")); audio.setAttribute("aria-pressed", String(kind === "audio"));
-        const available = kind === "video" ? media.videos.map(v => v.format) : media.audio; format.value = available[0] || "";
+        const available = kind === "video" ? media.videos.map(v => v.format) : media.audio; format.value = available[0] || ""; format.dataset.count = String(available.length); choices.classList.toggle("audio", kind === "audio");
         format.replaceChildren(); for (const value of available) { const option = button(value.toUpperCase(), "", () => { format.value = value; selectRadio(format, option); renderQualities(); }); option.setAttribute("role", "radio"); format.append(option); } selectRadio(format, format.firstChild);
         renderQualities();
       }
@@ -73,7 +74,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
         choices.replaceChildren(); const heights = kind === "video" ? media.videos.find(v => v.format === format.value)?.heights || [] : [0];
         selectedHeight = heights.find(h => h <= 1080) ?? heights[0] ?? 0;
         for (const height of heights) { const label = height ? `${height}p` : t.automatic; const choice = button(label, "", () => { selectedHeight = height; selectRadio(choices, choice); updateSummary(); }); choice.setAttribute("role", "radio"); choice.setAttribute("aria-label", label); choice.setAttribute("aria-checked", String(height === selectedHeight)); choice.tabIndex = height === selectedHeight ? 0 : -1; if (height >= 720) choice.append(el("small", "", height >= 4320 ? "8K" : height >= 2160 ? "4K" : "HD")); choices.append(choice); }
-        launch.disabled = !format.value || !heights.length; updateSummary(); position();
+        launch.disabled = !format.value || !heights.length; launch.lastChild.textContent = t.download; updateSummary(); position();
       }
       async function load() {
         if (loading) return; loading = true; launch.disabled = true; options.classList.add("hidden"); retry.classList.add("hidden"); status.textContent = t.loading; status.dataset.error = "false"; topStatus.textContent = ""; media = null;
@@ -91,9 +92,14 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
       }
       async function openApp() {
         launch.disabled = true;
-        try { const result = await send(media ? { kind, format: format.value, height: kind === "video" ? selectedHeight : 0 } : undefined); if (disposed) return; status.dataset.error = "false"; status.textContent = result?.code === "opened-legacy" ? t.legacy : t.success; }
+        try { const result = await send(media ? { kind, format: format.value, height: kind === "video" ? selectedHeight : 0 } : undefined); if (disposed) return; status.dataset.error = "false"; status.textContent = result?.code === "opened-legacy" ? t.legacy : result?.code === "queued" ? t.queued : t.success; onResult?.(result); if (media && result?.code !== "opened-legacy") close(); }
         catch (error) { if (!disposed) { status.dataset.error = "true"; status.textContent = globalThis.ViFreeConnection.errorMessage(error, arabic); } }
         finally { if (!disposed) { launch.disabled = false; position(); } }
+      }
+      if (preview) {
+        title.textContent = typeof preview.title === "string" ? preview.title.slice(0, 600) : "";
+        source.textContent = typeof preview.source === "string" ? preview.source.slice(0, 200) : "";
+        try { const image = new URL(preview.thumbnail); if (image.protocol === "https:" && !image.username && !image.password && !image.port && !/^(localhost|127\.|0\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[)/iu.test(image.hostname)) { thumbnail.src = image.href; thumbnail.hidden = false; identity.classList.remove("no-image"); } } catch { /* Page artwork is optional. */ }
       }
       position(); top.lastChild.focus(); void load(); return { close };
     }

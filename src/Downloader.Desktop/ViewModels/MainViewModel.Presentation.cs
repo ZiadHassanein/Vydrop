@@ -33,7 +33,11 @@ public sealed partial class MainViewModel
         set
         {
             if (SetProperty(ref settingsVisible, value))
+            {
+                if (value) HistoryVisible = false;
+                RefreshLibrary();
                 OnPropertyChanged(nameof(ShowInlineActivity));
+            }
         }
     }
     public IRelayCommand SettingsCommand { get; private set; }
