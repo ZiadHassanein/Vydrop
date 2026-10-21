@@ -22,6 +22,8 @@ The browser action sits inside the visible video's top-right corner. Its compact
 
 Browser setup presents a browser selector, one available next action and concise instructions. Both installed and portable apps offer local loading when no published store listing exists. A copied app can prepare its embedded, matching companion files in a local cache after the user starts setup; missing or unusable recovery content leads to the illustrated guide. Native app registration and a verified browser handshake are separate states.
 
+Download preferences apply to new downloads; queued jobs retain their captured settings. Download parts offers 1 part by default, 2 parts or 4 parts of the same file when supported. An explicit speed-limit checkbox shows Unlimited when off and a positive KiB/s cap when on, with the explanation 1024 KiB/s = 1 MiB/s; invalid input preserves the last valid cap. Automatic retries describes zero through four extra tries after temporary network errors, with Retry once as the default. The direct-MP4 option explains its 2-or-4-parts prerequisite and normal-method fallback without promising faster transfers.
+
 ## Capabilities and Constraints
 
 - Existing supported outputs, playlists, available subtitles, media inspection, queue pause/resume, scheduling and browser integration remain available.
@@ -49,6 +51,7 @@ The user selected the right-hand details-panel layout (concept A), but rejected 
 - User supplied two reference images and confirmed the manager-first structure, browser quality menu and mockup-first workflow.
 - The final scoped review in `.impeccable/review/workspace-flow-v3.json` marks WF1–WF14 and the resolved source findings satisfied. Fresh native and browser fixture captures and named validation logs support that correction scope; `.impeccable/review/workspace-validation-v3.json` records the final stage results and limits.
 - The later empty-editor, Settings, version-label and browser-setup review in `.impeccable/review/setup-workspace-ui.json` marks SW1–SW8 satisfied with a scoped ship disposition. `.impeccable/review/setup-ui-validation.json` records current native captures, targeted checks, restart/resume evidence and package status for that scope.
+- The Download preferences clarification scope and its current disposition are recorded in `.impeccable/review/download-settings-clarity.json`; `.impeccable/review/download-settings-validation.json` records the focused native checks, correctly sized English/Arabic fixtures and preview status.
 - The original comp-led mechanical workflow remains open at spec, with later gates pending. The scoped correction review does not certify original-comp fidelity or a complete mechanical build pass.
 
 ## Product Principles

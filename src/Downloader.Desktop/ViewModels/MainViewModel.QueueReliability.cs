@@ -13,9 +13,28 @@ public sealed partial class MainViewModel
     public IRelayCommand<Guid> RefreshQueueSourceCommand { get; private set; }
     public IRelayCommand ScheduleQueueCommand { get; private set; }
     public IRelayCommand ClearScheduleCommand { get; private set; }
-    public IReadOnlyList<int> ConnectionChoices { get; } = new[] { 1, 2, 4 };
+    public IReadOnlyList<KeyValuePair<int, string>> ConnectionOptions => new KeyValuePair<int, string>[] { new(1, T("1 part (default)")), new(2, T("2 parts")), new(4, T("4 parts")) };
+    public IReadOnlyList<KeyValuePair<int, string>> RetryOptions => new KeyValuePair<int, string>[] { new(1, T("No retries")), new(2, T("Retry once")), new(3, T("Retry twice")), new(4, T("Retry 3 times")), new(5, T("Retry 4 times")) };
     public int DownloadConnections { get => state.Connections is 2 or 4 ? state.Connections : 1; set { if (value is not (1 or 2 or 4)) return; state.Connections = value; Save(); OnPropertyChanged(); } }
-    public int SpeedLimitKiB { get => state.SpeedLimitKiB; set { state.SpeedLimitKiB = Math.Clamp(value, 0, 1024 * 1024); Save(); OnPropertyChanged(); } }
+    private int lastSpeedLimitKiB = 1024;
+    public int SpeedLimitKiB
+    {
+        get => state.SpeedLimitKiB;
+        set
+        {
+            int next = Math.Clamp(value, 0, 1024 * 1024);
+            if (next == state.SpeedLimitKiB) return;
+            if (state.SpeedLimitKiB > 0) lastSpeedLimitKiB = state.SpeedLimitKiB;
+            state.SpeedLimitKiB = next; if (next > 0) lastSpeedLimitKiB = next;
+            Save(); OnPropertyChanged(); OnPropertyChanged(nameof(IsSpeedLimited)); OnPropertyChanged(nameof(LimitedSpeedKiB)); OnPropertyChanged(nameof(SpeedLimitHint));
+        }
+    }
+    public bool IsSpeedLimited { get => SpeedLimitKiB > 0; set { if (value != IsSpeedLimited) SpeedLimitKiB = value ? lastSpeedLimitKiB : 0; } }
+    public int LimitedSpeedKiB
+    {
+        get => IsSpeedLimited ? SpeedLimitKiB : lastSpeedLimitKiB;
+        set { ArgumentOutOfRangeException.ThrowIfLessThan(value, 1); ArgumentOutOfRangeException.ThrowIfGreaterThan(value, 1024 * 1024); SpeedLimitKiB = value; }
+    }
     public int QueueAttempts { get => state.QueueAttempts; set { state.QueueAttempts = Math.Clamp(value, 1, 5); Save(); OnPropertyChanged(); } }
     public bool DirectFileAcceleration { get => state.DirectFileAcceleration; set { state.DirectFileAcceleration = value; Save(); OnPropertyChanged(); } }
     public DateTime? ScheduledDate { get; set; } = DateTime.Today;
@@ -26,13 +45,19 @@ public sealed partial class MainViewModel
     public string MoveUpLabel => T("Move up");
     public string MoveDownLabel => T("Move down");
     public string RefreshSourceLabel => T("Refresh source");
-    public string DownloadLimitsLabel => T("Download controls");
-    public string WholeNumberHint => T("Enter a whole number.");
-    public string DownloadLimitsHint => T("These defaults apply when adding a download. Queued jobs keep the settings they were added with.");
-    public string ConnectionsLabel => T("Parallel fragments (1, 2 or 4)");
-    public string SpeedLimitLabel => T("Speed limit in KiB/s (0 = unlimited)");
-    public string AttemptsLabel => T("Queue attempts (1–5)");
-    public string RangeAccelerationLabel => T("Accelerate compatible direct MP4 files");
+    public string DownloadLimitsLabel => T("Download preferences");
+    public string SpeedLimitValidationHint => T("Enter a whole number from 1 to 1,048,576.");
+    public string DownloadLimitsHint => T("Used for new downloads. Downloads already in your queue keep their current settings.");
+    public string ConnectionsLabel => T("Download parts");
+    public string ConnectionsHint => T("Fetch parts of the same file at the same time, when supported.");
+    public string SpeedLimitLabel => T("Limit download speed");
+    public string SpeedValueLabel => T("Maximum speed");
+    public string UnlimitedSpeedLabel => T("Unlimited");
+    public string SpeedLimitHint => T(IsSpeedLimited ? "1024 KiB/s = 1 MiB/s. This cap applies to each new download." : "Off: use your available bandwidth without a speed cap.");
+    public string AttemptsLabel => T("Automatic retries");
+    public string AttemptsHint => T("Retry a download if a temporary network error causes it to fail.");
+    public string RangeAccelerationLabel => T("Use multiple parts for direct MP4 links");
+    public string RangeAccelerationHint => T("Choose 2 or 4 parts above. Supported direct .mp4 file links use those parts; other downloads use their normal method.");
     public string ScheduleLabel => T("Schedule queue");
     public string ScheduleDateLabel => T("Start date");
     public string ScheduleStartLabel => T("Start time (HH:mm)");

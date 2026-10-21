@@ -1,29 +1,47 @@
 <UserControl x:Class="YouTubeDownloader.DownloadLimitsView"
- xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Foreground="{DynamicResource Ink}" FontFamily="{Binding ContentFont}">
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Background="{DynamicResource Page}" Foreground="{DynamicResource Ink}" FontFamily="{Binding ContentFont}">
  <UserControl.Resources>
   <Style x:Key="NumericInput" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
    <Setter Property="TextAlignment" Value="Center"/><Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
    <Style.Triggers><Trigger Property="Validation.HasError" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource Error}"/><Setter Property="BorderThickness" Value="2"/></Trigger></Style.Triggers>
   </Style>
+  <Style x:Key="PreferenceHint" TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource Muted}"/><Setter Property="FontSize" Value="13"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="Margin" Value="0,5,0,0"/></Style>
+  <DataTemplate x:Key="PreferenceChoice"><TextBlock Text="{Binding Value}" TextWrapping="Wrap"/></DataTemplate>
  </UserControl.Resources>
  <StackPanel Margin="0,8,0,8">
-  <TextBlock Text="{Binding DownloadLimitsHint}" Foreground="{DynamicResource Muted}" Margin="0,0,0,10"/>
+  <TextBlock Text="{Binding DownloadLimitsHint}" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,18"/>
   <Grid>
-   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="130"/></Grid.ColumnDefinitions>
+   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-   <TextBlock Text="{Binding ConnectionsLabel}" VerticalAlignment="Center"/>
-   <ComboBox Grid.Column="2" ItemsSource="{Binding ConnectionChoices}" SelectedItem="{Binding DownloadConnections}" AutomationProperties.Name="{Binding ConnectionsLabel}" FlowDirection="LeftToRight"/>
-   <TextBlock Grid.Row="1" Text="{Binding SpeedLimitLabel}" VerticalAlignment="Center" Margin="0,12,0,0"/>
-   <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,12,0,0">
-    <TextBox x:Name="SpeedLimitInput" Style="{StaticResource NumericInput}" Text="{Binding SpeedLimitKiB,UpdateSourceTrigger=LostFocus,ValidatesOnExceptions=True}" FlowDirection="LeftToRight" MaxLength="7" AutomationProperties.Name="{Binding SpeedLimitLabel}" AutomationProperties.HelpText="{Binding WholeNumberHint}"/>
-    <TextBlock Text="{Binding WholeNumberHint}" Foreground="{DynamicResource Error}" FontSize="12" Margin="0,5,0,0" Visibility="{Binding (Validation.HasError),ElementName=SpeedLimitInput,Converter={StaticResource BoolVisibility}}" AutomationProperties.LiveSetting="Polite"/>
+   <StackPanel>
+    <TextBlock Text="{Binding ConnectionsLabel}" FontWeight="SemiBold"/>
+    <TextBlock Text="{Binding ConnectionsHint}" Style="{StaticResource PreferenceHint}"/>
    </StackPanel>
-   <TextBlock Grid.Row="2" Text="{Binding AttemptsLabel}" VerticalAlignment="Center" Margin="0,12,0,0"/>
-   <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,12,0,0">
-    <TextBox x:Name="AttemptsInput" Style="{StaticResource NumericInput}" Text="{Binding QueueAttempts,UpdateSourceTrigger=LostFocus,ValidatesOnExceptions=True}" FlowDirection="LeftToRight" MaxLength="1" AutomationProperties.Name="{Binding AttemptsLabel}" AutomationProperties.HelpText="{Binding WholeNumberHint}"/>
-    <TextBlock Text="{Binding WholeNumberHint}" Foreground="{DynamicResource Error}" FontSize="12" Margin="0,5,0,0" Visibility="{Binding (Validation.HasError),ElementName=AttemptsInput,Converter={StaticResource BoolVisibility}}" AutomationProperties.LiveSetting="Polite"/>
+   <ComboBox x:Name="ConnectionsInput" Grid.Column="2" ItemsSource="{Binding ConnectionOptions}" ItemTemplate="{StaticResource PreferenceChoice}" SelectedValuePath="Key" SelectedValue="{Binding DownloadConnections}" AutomationProperties.Name="{Binding ConnectionsLabel}" AutomationProperties.HelpText="{Binding ConnectionsHint}" VerticalAlignment="Top"/>
+   <StackPanel Grid.Row="1" Margin="0,20,0,0">
+    <CheckBox x:Name="SpeedLimitToggle" IsChecked="{Binding IsSpeedLimited}" AutomationProperties.Name="{Binding SpeedLimitLabel}" AutomationProperties.HelpText="{Binding SpeedLimitHint}"><TextBlock Text="{Binding SpeedLimitLabel}" TextWrapping="Wrap" FontWeight="SemiBold"/></CheckBox>
+    <TextBlock Text="{Binding SpeedLimitHint}" Style="{StaticResource PreferenceHint}"/>
    </StackPanel>
+   <Grid Grid.Row="1" Grid.Column="2" Margin="0,20,0,0" VerticalAlignment="Top" MinHeight="44">
+    <TextBlock Text="{Binding UnlimitedSpeedLabel}" Foreground="{DynamicResource Muted}" VerticalAlignment="Center">
+     <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding IsSpeedLimited}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+    </TextBlock>
+    <StackPanel x:Name="SpeedLimitEditor" Visibility="{Binding IsSpeedLimited,Converter={StaticResource BoolVisibility}}">
+     <Grid FlowDirection="LeftToRight">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <TextBox x:Name="SpeedLimitInput" Style="{StaticResource NumericInput}" Text="{Binding LimitedSpeedKiB,UpdateSourceTrigger=LostFocus,ValidatesOnExceptions=True}" FlowDirection="LeftToRight" MaxLength="7" AutomationProperties.Name="{Binding SpeedValueLabel}" AutomationProperties.HelpText="{Binding SpeedLimitValidationHint}"/>
+      <TextBlock Grid.Column="1" Text="KiB/s" Foreground="{DynamicResource Muted}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+     </Grid>
+     <TextBlock Text="{Binding SpeedLimitValidationHint}" Foreground="{DynamicResource Error}" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,0" Visibility="{Binding (Validation.HasError),ElementName=SpeedLimitInput,Converter={StaticResource BoolVisibility}}" AutomationProperties.LiveSetting="Polite"/>
+    </StackPanel>
+   </Grid>
+   <StackPanel Grid.Row="2" Margin="0,20,0,0">
+    <TextBlock Text="{Binding AttemptsLabel}" FontWeight="SemiBold"/>
+    <TextBlock Text="{Binding AttemptsHint}" Style="{StaticResource PreferenceHint}"/>
+   </StackPanel>
+   <ComboBox x:Name="RetriesInput" Grid.Row="2" Grid.Column="2" Margin="0,20,0,0" ItemsSource="{Binding RetryOptions}" ItemTemplate="{StaticResource PreferenceChoice}" SelectedValuePath="Key" SelectedValue="{Binding QueueAttempts}" AutomationProperties.Name="{Binding AttemptsLabel}" AutomationProperties.HelpText="{Binding AttemptsHint}" VerticalAlignment="Top"/>
   </Grid>
-  <CheckBox IsChecked="{Binding DirectFileAcceleration}" Margin="0,14,0,0" AutomationProperties.Name="{Binding RangeAccelerationLabel}"><TextBlock Text="{Binding RangeAccelerationLabel}" TextWrapping="Wrap"/></CheckBox>
+  <CheckBox x:Name="RangeAccelerationToggle" IsChecked="{Binding DirectFileAcceleration}" Margin="0,22,0,0" AutomationProperties.Name="{Binding RangeAccelerationLabel}" AutomationProperties.HelpText="{Binding RangeAccelerationHint}"><TextBlock Text="{Binding RangeAccelerationLabel}" TextWrapping="Wrap" FontWeight="SemiBold"/></CheckBox>
+  <TextBlock Text="{Binding RangeAccelerationHint}" Style="{StaticResource PreferenceHint}" Margin="26,5,0,0"/>
  </StackPanel>
 </UserControl>

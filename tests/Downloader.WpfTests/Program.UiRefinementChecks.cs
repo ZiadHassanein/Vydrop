@@ -55,17 +55,18 @@ internal static partial class Program
                 await Task.Delay(80); dialog.UpdateLayout();
                 Check(limits.IsExpanded, "The themed advanced header retains native toggle accessibility");
                 var speed = (TextBox)WpfTree.Find(dialog, "SpeedLimitInput");
+                model.IsSpeedLimited = true;
                 int previousSpeed = model.SpeedLimitKiB;
                 speed.SetCurrentValue(TextBox.TextProperty, "oops"); speed.GetBindingExpression(TextBox.TextProperty).UpdateSource();
                 Check(Validation.GetHasError(speed) && model.SpeedLimitKiB == previousSpeed,
                     "Invalid numeric input preserves the saved setting and shows an error");
                 viewport.ScrollToVerticalOffset(limits.TransformToAncestor(viewport).Transform(new Point()).Y + viewport.VerticalOffset);
                 await Task.Delay(80); dialog.UpdateLayout();
-                Check(Descendants<TextBlock>(limits).Any(t => t.IsVisible && t.Text == model.WholeNumberHint), "Numeric recovery guidance is visible and localized");
+                Check(Descendants<TextBlock>(limits).Any(t => t.IsVisible && t.Text == model.SpeedLimitValidationHint), "Numeric recovery guidance is visible and localized");
                 Capture(dialog, System.IO.Path.Combine(captures, "refined-validation-" + language + (dark ? "-dark" : "-light") + ".png"));
                 speed.SetCurrentValue(TextBox.TextProperty, "1024"); speed.GetBindingExpression(TextBox.TextProperty).UpdateSource();
                 Check(!Validation.GetHasError(speed) && model.SpeedLimitKiB == 1024, "Valid input clears the error and saves the setting");
-                var check = Descendants<CheckBox>(limits).Single();
+                var check = (CheckBox)WpfTree.Find(dialog, "RangeAccelerationToggle");
                 bool previous = model.DirectFileAcceleration;
                 ((IToggleProvider)new CheckBoxAutomationPeer(check).GetPattern(PatternInterface.Toggle)).Toggle();
                 Check(model.DirectFileAcceleration != previous, "The themed checkbox retains accessible toggle behavior");
