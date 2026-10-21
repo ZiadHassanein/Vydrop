@@ -41,11 +41,11 @@ public sealed partial class MainViewModel
     public string AudioLibraryLabel => T("Audio");
     public string AddDownloadLabel => T("Add download");
     public string LibrarySearchLabel => T("Search by title or source");
-    public string AllFilterLabel => F("All {0}", LibraryCount);
-    public string ActiveFilterLabel => F("Downloading {0}", ActiveCount);
-    public string PausedFilterLabel => F("Paused {0}", PausedCount);
-    public string CompletedFilterLabel => F("Completed {0}", CompletedCount);
-    public string QueueNavigationLabel => F("Queue {0}", WaitingCount);
+    public string AllFilterLabel => T("All");
+    public string ActiveFilterLabel => T("Downloading");
+    public string PausedFilterLabel => T("Paused");
+    public string CompletedFilterLabel => T("Completed");
+    public string QueueNavigationLabel => T("Queue");
     public string EmptyLibraryHeading => T(HasLibrarySearch ? "No matching downloads" : libraryFilter == "all" ? "Make room for your next favorite" : "Nothing here yet");
     public string EmptyLibraryDetail => T(HasLibrarySearch ? "Try a different title or website." : "Add a video, audio track or playlist. Your downloads stay saved here.");
     public string SelectDownloadLabel => T("Select a download to see its details.");

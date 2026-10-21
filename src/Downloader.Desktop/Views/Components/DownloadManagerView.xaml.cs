@@ -27,8 +27,8 @@ public partial class DownloadManagerView : UserControl
     private void LayoutManager()
     {
         bool next = ActualWidth < 1080;
-        NavigationColumn.Width = new GridLength(ActualWidth < 960 ? 176 : 190);
-        DetailsColumn.Width = new GridLength(next ? 0 : ActualWidth > 1360 ? 370 : 330);
+        NavigationColumn.Width = new GridLength(ActualWidth < 960 ? 176 : 224);
+        DetailsColumn.Width = new GridLength(next ? 0 : ActualWidth > 1360 ? 350 : 320);
         LibraryContent.Margin = new Thickness(ActualWidth < 960 ? 14 : 24, 4, 18, 0);
         CompactDetailsButton.Visibility = next ? Visibility.Visible : Visibility.Collapsed;
         if (compact == next) return;

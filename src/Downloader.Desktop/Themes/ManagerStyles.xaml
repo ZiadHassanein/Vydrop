@@ -2,12 +2,38 @@
  <Geometry x:Key="LibraryIcon">M2,2 H20 V18 H2 Z M7,2 V18 M2,7 H20</Geometry>
  <Geometry x:Key="QueueListIcon">M6,4 H21 M6,11 H21 M6,18 H21 M1,4 H2 M1,11 H2 M1,18 H2</Geometry>
  <Geometry x:Key="SettingsGearIcon">M8,1 H14 L15,5 19,7 22,11 19,15 15,17 14,21 H8 L7,17 3,15 0,11 3,7 7,5 Z M15,11 A4,4 0 1 1 7,11 A4,4 0 1 1 15,11</Geometry>
+ <Geometry x:Key="ManagerSearchIcon">M16,10 A6,6 0 1 1 4,10 A6,6 0 1 1 16,10 M15,15 L21,21</Geometry>
+ <Style x:Key="ManagerCount" TargetType="Border">
+  <Setter Property="Background" Value="{DynamicResource Surface}"/><Setter Property="CornerRadius" Value="20"/><Setter Property="MinWidth" Value="23"/><Setter Property="Height" Value="23"/><Setter Property="Padding" Value="6,1"/><Setter Property="Margin" Value="7,0,0,0"/><Setter Property="VerticalAlignment" Value="Center"/>
+ </Style>
+ <Style x:Key="NavigationCount" TargetType="Border" BasedOn="{StaticResource ManagerCount}"><Setter Property="Background" Value="{DynamicResource NavigationSelected}"/></Style>
+ <Style x:Key="ManagerProgress" TargetType="ProgressBar">
+  <Setter Property="Height" Value="5"/><Setter Property="Foreground" Value="{DynamicResource Accent}"/><Setter Property="Background" Value="{DynamicResource Divider}"/>
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ProgressBar"><Grid ClipToBounds="True"><Border x:Name="PART_Track" Background="{TemplateBinding Background}"/><Grid x:Name="PART_Indicator" HorizontalAlignment="Left"><Path Data="M0,0 H100 L94,6 H0 Z" Stretch="Fill" Fill="{TemplateBinding Foreground}"/></Grid></Grid></ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <DataTemplate x:Key="ManagerSource">
+  <DockPanel LastChildFill="True" FlowDirection="LeftToRight">
+   <Border x:Name="Mark" Width="18" Height="16" CornerRadius="3" Background="{DynamicResource Accent}" Margin="0,0,6,0" VerticalAlignment="Center">
+    <Path x:Name="Symbol" Data="{StaticResource GlobeIcon}" Stroke="White" StrokeThickness="1.7" Stretch="Uniform" Width="12" Height="12"/>
+   </Border>
+   <TextBlock Text="{Binding SourceName}" Foreground="{DynamicResource Muted}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+  </DockPanel>
+  <DataTemplate.Triggers>
+   <DataTrigger Binding="{Binding SourceKind}" Value="youtube"><Setter TargetName="Mark" Property="Background" Value="#CB2535"/><Setter TargetName="Symbol" Property="Data" Value="M5,3 L15,9 5,15 Z"/><Setter TargetName="Symbol" Property="Fill" Value="White"/><Setter TargetName="Symbol" Property="Width" Value="8"/><Setter TargetName="Symbol" Property="Height" Value="8"/></DataTrigger>
+   <DataTrigger Binding="{Binding SourceKind}" Value="vimeo"><Setter TargetName="Mark" Property="Background" Value="#197AA6"/><Setter TargetName="Symbol" Property="Data" Value="M2,6 Q7,1 8,8 L10,15 Q12,18 18,5 M15,5 L18,5"/><Setter TargetName="Symbol" Property="StrokeThickness" Value="2.6"/></DataTrigger>
+   <DataTrigger Binding="{Binding SourceKind}" Value="soundcloud"><Setter TargetName="Mark" Property="Background" Value="#B94F0A"/><Setter TargetName="Symbol" Property="Data" Value="M2,9 V14 M5,6 V15 M8,4 V15 M11,7 Q17,3 18,10 Q23,9 23,13 Q23,16 18,16 H11"/></DataTrigger>
+   <DataTrigger Binding="{Binding SourceKind}" Value="linkedin"><Setter TargetName="Mark" Property="Background" Value="#0A66C2"/><Setter TargetName="Symbol" Property="Data" Value="M3,3 V4 M3,8 V19 M9,19 V8 M9,12 Q18,4 18,13 V19"/><Setter TargetName="Symbol" Property="StrokeThickness" Value="3"/></DataTrigger>
+   <DataTrigger Binding="{Binding SourceKind}" Value="facebook"><Setter TargetName="Mark" Property="Background" Value="#2164CE"/><Setter TargetName="Symbol" Property="Data" Value="M15,3 H12 Q8,3 8,8 V21 M4,10 H14"/><Setter TargetName="Symbol" Property="StrokeThickness" Value="3"/></DataTrigger>
+   <DataTrigger Binding="{Binding IsHighContrast}" Value="True"><Setter TargetName="Mark" Property="Background" Value="{DynamicResource Accent}"/><Setter TargetName="Symbol" Property="Stroke" Value="{DynamicResource OnAccent}"/></DataTrigger>
+   <MultiDataTrigger><MultiDataTrigger.Conditions><Condition Binding="{Binding IsHighContrast}" Value="True"/><Condition Binding="{Binding SourceKind}" Value="youtube"/></MultiDataTrigger.Conditions><Setter TargetName="Symbol" Property="Fill" Value="{DynamicResource OnAccent}"/></MultiDataTrigger>
+  </DataTemplate.Triggers>
+ </DataTemplate>
  <GeometryGroup x:Key="MoreIcon"><EllipseGeometry Center="2,2" RadiusX="1.1" RadiusY="1.1"/><EllipseGeometry Center="8,2" RadiusX="1.1" RadiusY="1.1"/><EllipseGeometry Center="14,2" RadiusX="1.1" RadiusY="1.1"/></GeometryGroup>
  <Style x:Key="VydropPrimary" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
   <Setter Property="MinHeight" Value="44"/><Setter Property="Padding" Value="18,10"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
    <Grid>
-    <Path x:Name="Face" Data="M12,0 H240 V48 H0 V12 Z" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}"/>
+    <Canvas IsHitTestVisible="False"><Path x:Name="Face" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=Grid}}" Height="{Binding ActualHeight,RelativeSource={RelativeSource AncestorType=Grid}}" Data="M12,0 H240 V48 H0 V12 Z" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}"/></Canvas>
     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
    </Grid>
    <ControlTemplate.Triggers>
@@ -19,24 +45,25 @@
  </Style>
  <Style x:Key="LibraryNavigation" TargetType="ToggleButton">
   <Setter Property="Foreground" Value="{DynamicResource NavigationInk}"/><Setter Property="Background" Value="Transparent"/>
-  <Setter Property="FontSize" Value="14"/><Setter Property="MinHeight" Value="46"/><Setter Property="Padding" Value="12,10"/><Setter Property="Margin" Value="8,2"/>
+  <Setter Property="FontSize" Value="14"/><Setter Property="MinHeight" Value="48"/><Setter Property="Padding" Value="14,10"/><Setter Property="Margin" Value="10,3"/>
   <Setter Property="Cursor" Value="Hand"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
-   <Border x:Name="Face" Background="{TemplateBinding Background}" CornerRadius="5" BorderBrush="Transparent" BorderThickness="1">
+   <Grid>
+    <Path x:Name="Face" Data="M0,0 H240 V35 L227,48 H0 Z" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="Transparent" StrokeThickness="1"/>
     <Grid Margin="{TemplateBinding Padding}"><Grid.ColumnDefinitions><ColumnDefinition Width="22"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
      <Path Data="{TemplateBinding Tag}" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.65" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stretch="Uniform" Width="18" Height="18"/>
      <ContentPresenter Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"/>
     </Grid>
-   </Border>
+   </Grid>
    <ControlTemplate.Triggers>
     <Trigger Property="IsChecked" Value="True"><Setter Property="Background" Value="{DynamicResource NavigationSelected}"/><Setter Property="Foreground" Value="{DynamicResource NavigationSelectedInk}"/><Setter Property="FontWeight" Value="SemiBold"/></Trigger>
-    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource NavigationMuted}"/></Trigger>
-    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource NavigationInk}"/><Setter TargetName="Face" Property="BorderThickness" Value="2"/></Trigger>
+    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Face" Property="Stroke" Value="{DynamicResource NavigationMuted}"/></Trigger>
+    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Face" Property="Stroke" Value="{DynamicResource NavigationInk}"/><Setter TargetName="Face" Property="StrokeThickness" Value="2"/></Trigger>
    </ControlTemplate.Triggers>
   </ControlTemplate></Setter.Value></Setter>
  </Style>
  <Style x:Key="LibraryFilter" TargetType="ToggleButton">
-  <Setter Property="Foreground" Value="{DynamicResource Muted}"/><Setter Property="MinHeight" Value="38"/><Setter Property="Padding" Value="10,7"/><Setter Property="Cursor" Value="Hand"/>
+  <Setter Property="Foreground" Value="{DynamicResource Muted}"/><Setter Property="MinHeight" Value="46"/><Setter Property="Padding" Value="8,9"/><Setter Property="Cursor" Value="Hand"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
    <Border x:Name="Underline" BorderBrush="Transparent" BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}"><ContentPresenter VerticalAlignment="Center"/></Border>
    <ControlTemplate.Triggers>
@@ -47,7 +74,7 @@
   </ControlTemplate></Setter.Value></Setter>
  </Style>
  <Style x:Key="LibraryRow" TargetType="ListBoxItem">
-  <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="10"/><Setter Property="BorderThickness" Value="1"/><Setter Property="BorderBrush" Value="Transparent"/>
+  <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="12,14"/><Setter Property="BorderThickness" Value="1"/><Setter Property="BorderBrush" Value="Transparent"/>
   <Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
    <Border x:Name="Face" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">

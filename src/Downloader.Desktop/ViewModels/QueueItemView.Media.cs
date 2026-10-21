@@ -9,6 +9,7 @@ public sealed partial class QueueItemView
     internal string ArtworkAddress { get; set; }
     public ImageSource Artwork { get => artwork; internal set => SetProperty(ref artwork, value); }
     public bool HasArtwork => Artwork != null;
+    public bool IsHighContrast => ThemeResources.HighContrast;
     public string SourceName { get { try { return new Uri(Entry.Options.SourcePage ?? Url).Host.Replace("www.", "", StringComparison.Ordinal); } catch (UriFormatException) { return ""; } } }
     public bool IsAudio => Entry.Options.Audio;
     public bool IsComplete => Entry.State == QueueState.Completed;
@@ -23,6 +24,21 @@ public sealed partial class QueueItemView
     public string MediaStatus { get; private set; }
     public string PrimaryAction { get; private set; }
     public string CaptionSummary { get; private set; }
+    public string RowDescription { get; private set; }
+    public string RowStatus => IsActive && !IsPreparing || Entry.State is QueueState.Paused or QueueState.Interrupted
+        ? MediaStatus + " · " + Percent.ToString("0", CultureInfo.CurrentCulture) + "%" : MediaStatus;
+    public bool HasTransferProgress => IsActive || Entry.State is QueueState.Paused or QueueState.Interrupted;
+    public Geometry ActionIcon => (Geometry)System.Windows.Application.Current.Resources[IsComplete ? "OpenFolderIcon" : IsActive ? "ManagerPauseIcon" : "ManagerPlayIcon"];
+    public Geometry StatusIcon => (Geometry)System.Windows.Application.Current.Resources[MissingFile || Entry.State == QueueState.Failed ? "AlertIcon" : IsComplete ? "CheckIcon" : IsActive ? "DownloadIcon" : Entry.State is QueueState.Paused or QueueState.Interrupted ? "ManagerPauseIcon" : "ManagerClockIcon"];
+    public string SourceKind => SourceName switch
+    {
+        "youtube.com" or "youtu.be" or "m.youtube.com" => "youtube",
+        "vimeo.com" or "player.vimeo.com" => "vimeo",
+        "soundcloud.com" => "soundcloud",
+        "linkedin.com" => "linkedin",
+        "facebook.com" or "fb.watch" or "m.facebook.com" => "facebook",
+        _ => "web"
+    };
     public string Duration => Entry.Options.Duration is > 0 and < 8640000 ? TimeSpan.FromSeconds(Entry.Options.Duration).ToString(Entry.Options.Duration >= 3600 ? @"h\:mm\:ss" : @"m\:ss", CultureInfo.InvariantCulture) : "";
     public Brush StateBrush => (Brush)System.Windows.Application.Current.Resources[MissingFile || Entry.State == QueueState.Failed ? "Error" : IsComplete ? "Success" : IsActive || Entry.State is QueueState.Paused or QueueState.Interrupted ? "Accent" : "Muted"];
     public Geometry MediaIcon => (Geometry)System.Windows.Application.Current.Resources[IsAudio ? "AudioIcon" : "VideoIcon"];
@@ -37,6 +53,7 @@ public sealed partial class QueueItemView
             try { size = new FileInfo(OutputFile).Length; } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
         TransferSummary = Entry.Transfer?.DownloadedBytes is { } received && size is { } total && total > 0
             ? FileSize(received) + " / " + FileSize(total) : size.HasValue ? FileSize(size.Value) : t("Size unavailable");
+        RowDescription = OutputDescription + (size is > 0 ? " · " + FileSize(size.Value) : "");
         Speed = IsActive && Entry.Transfer?.BytesPerSecond is > 0 ? FileSize((long)Entry.Transfer.BytesPerSecond.Value) + "/s" : "—";
         Remaining = IsActive && Entry.Transfer?.RemainingSeconds is > 0 and < 8640000
             ? TimeSpan.FromSeconds(Entry.Transfer.RemainingSeconds.Value).ToString(@"h\:mm\:ss", CultureInfo.InvariantCulture) : "—";

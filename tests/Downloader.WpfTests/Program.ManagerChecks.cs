@@ -43,6 +43,8 @@ internal static partial class Program
             model.SelectLanguageCommand.Execute(language); if (model.IsDark != dark) model.ThemeCommand.Execute(null);
             window.Width = 1280; await Task.Delay(300); window.UpdateLayout();
             Check(window.ManagerContent.DetailsBorder.IsVisible && window.ManagerContent.DetailsColumn.Width.Value > 0, "The selected-media inspector is visible at desktop width: " + language + "/" + dark);
+            Check(window.ManagerContent.AddDownloadButton.ActualWidth < 215 && window.ManagerContent.SelectedFolderPath.ActualHeight < 30,
+                "The Add action stays content-sized and long save paths stay on one line: " + language + "/" + dark);
             Capture(window, Path.Combine(captures, "manager-" + language + (dark ? "-dark" : "-light") + ".png"));
         }
         model.SelectLanguageCommand.Execute("en");
@@ -69,6 +71,7 @@ internal static partial class Program
         for (int wait = 0; wait < 100 && model.QueueItems.First(q => q.Id == waiting.Id).Speed == "—"; wait++) await Task.Delay(25);
         model.SelectedLibraryItem = model.QueueItems.First(q => q.Id == waiting.Id);
         Check(model.SelectedLibraryItem.IsActive && model.SelectedLibraryItem.Speed != "—" && model.SelectedLibraryItem.TransferSummary.Contains('/'), "Starting through the manager displays engine progress and measured transfer data");
+        Check(model.SelectedLibraryItem.RowStatus.Contains("42%", StringComparison.Ordinal) && model.SelectedLibraryItem.RowDescription.Contains("MB", StringComparison.Ordinal), "The active row exposes measured percentage and known size beside its compact controls");
         Check(model.LibraryActionCommand.CanExecute(waiting.Id) && window.ManagerContent.ManagerCancelButton.IsVisible && window.ManagerContent.ManagerCancelButton.IsEnabled, "A manager-started transfer retains enabled Pause and Cancel actions while the command is executing");
         var more = Descendants<System.Windows.Controls.Button>(window.ManagerContent.DownloadsList).Single(button => System.Windows.Automation.AutomationProperties.GetName(button) == model.MoreActionsLabel && button.DataContext is QueueItemView row && row.Id == waiting.Id);
         ((IInvokeProvider)new ButtonAutomationPeer(more).GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(60);
