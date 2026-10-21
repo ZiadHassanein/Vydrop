@@ -17,7 +17,7 @@ internal static partial class Program
         model.Url = "";
         model.Folder = System.IO.Path.GetTempPath();
         foreach (var entry in model.Queue.Entries) model.RemoveQueueCommand.Execute(entry.Id);
-        var trigger = (Button)WpfTree.Find(owner, "RecentDownloadsButton");
+        var trigger = (System.Windows.Controls.Primitives.ButtonBase)WpfTree.Find(owner, "HistoryButton");
         foreach (bool arabic in new[] { false, true })
             foreach (bool dark in new[] { false, true })
                 foreach (bool shortWindow in new[] { false, true })
@@ -155,7 +155,7 @@ internal static partial class Program
                     statusBounds.Top >= 0 && statusBounds.Bottom <= viewport.ActualHeight,
                     "Cancelling restores the idle footer and makes the full cancelled status and item retry reachable");
                 Capture(dialog, System.IO.Path.Combine(captures, "queue-cancelled-ar-dark.png"));
-                var retry = Descendants<Button>(dialog).Single(button => Equals(button.Content, model.RetryLabel));
+                var retry = Descendants<Button>(dialog).Single(button => Equals(button.Content, model.QueueItems.Single().RetryAction));
                 retry.Command.Execute(retry.CommandParameter);
                 Check(model.QueueItems.Single().Entry.State == QueueState.Pending && ((Button)WpfTree.Find(dialog, "QueueStartButton")).IsEnabled,
                     "The visible Retry action resets the cancelled job and enables Start");

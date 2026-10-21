@@ -19,7 +19,7 @@ public sealed partial class MainViewModel
     {
         AddDownloadVisible = false; SettingsVisible = false;
         RefreshHistory(); HistoryVisible = true;
-        state.UnseenDownloads = 0; RefreshRecentBadge(); Save();
+        state.UnseenDownloads = 0; RefreshRecentState(); Save();
     }
     private void RefreshHistory() => History = new RecentDownloadsViewModel(state.Recent, T, path => actions.OpenMedia(path, true));
     private readonly CancellationTokenSource libraryLifetime = new();

@@ -40,7 +40,7 @@
    </Setter>
   </Style>
  </UserControl.Resources>
- <Border x:Name="HeaderFrame" Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="24,16">
+ <Border x:Name="HeaderFrame" Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="0" Padding="14,7,18,7">
   <Grid>
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
    <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Click="LogoClicked" MouseEnter="LogoHovered" MouseLeave="LogoLeft" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="{Binding NewDownloadLabel}">
@@ -51,7 +51,7 @@
         <Path.RenderTransform><ScaleTransform x:Name="LogoScale" CenterX="125.5" CenterY="134.5"/></Path.RenderTransform>
        </Path>
        <Path Data="{StaticResource BrandArrowGeometry}" Fill="White" RenderTransform="{Binding RenderTransform,ElementName=BrandInitial}" IsHitTestVisible="False"/>
-       <Path x:Name="BrandLetters" Data="{StaticResource BrandLettersGeometry}" Fill="{DynamicResource Ink}"/>
+       <Path x:Name="BrandLetters" Data="{StaticResource BrandLettersGeometry}" Fill="{DynamicResource NavigationInk}"/>
        <Path x:Name="LogoLight" IsHitTestVisible="False" Opacity="0" Fill="{StaticResource ShineBrush}">
        <Path.Data><GeometryGroup><GeometryGroup.Children><GeometryCollection>
         <GeometryGroup Transform="{Binding RenderTransform,ElementName=BrandInitial}"><GeometryGroup.Children><GeometryCollection><StaticResource ResourceKey="BrandInitialGeometry"/><StaticResource ResourceKey="BrandArrowGeometry"/></GeometryCollection></GeometryGroup.Children></GeometryGroup>
@@ -63,16 +63,6 @@
     </Grid>
    </Button>
    <StackPanel x:Name="HeaderActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-    <Button x:Name="RecentDownloadsButton" Command="{Binding HistoryCommand}" Style="{StaticResource ToolbarButton}" Padding="10,6" AutomationProperties.Name="{Binding HistoryAccessibleName}" ToolTip="{Binding HistoryShortcutHint}" AutomationProperties.AcceleratorKey="Ctrl+J">
-     <StackPanel Orientation="Horizontal" FlowDirection="{Binding ContentDirection}">
-      <Path Data="{StaticResource HistoryIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="20" Height="20" Margin="0,0,10,0"/>
-      <TextBlock Text="{Binding HistoryLabel}" VerticalAlignment="Center" FontSize="13"/>
-      <Border x:Name="RecentDownloadsBadge" Background="{DynamicResource Selected}" CornerRadius="10" MinWidth="20" Height="20" Padding="5,0" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasRecentDownloadsBadge,Converter={StaticResource BoolVisibility}}">
-       <local:BadgeNumber Focusable="False" IsTabStop="False" Text="{Binding RecentDownloadsBadge}" Foreground="{DynamicResource Accent}" FontSize="11" FontFamily="{StaticResource LatinFont}" FontWeight="SemiBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FlowDirection="LeftToRight" AutomationProperties.LiveSetting="Polite" AutomationProperties.Name="{Binding HistoryAccessibleName}"/>
-      </Border>
-     </StackPanel>
-    </Button>
-    <Border Width="1" Height="28" Background="{DynamicResource Divider}" Margin="12,0"/>
     <Button x:Name="LanguageButton" Click="LanguageClicked" PreviewKeyDown="LanguageKeyDown" ContextMenuOpening="LanguageMenuOpening" ContextMenuService.Placement="Custom" IsEnabled="{Binding IsIdle}" Style="{StaticResource ToolbarButton}" Padding="4,6" AutomationProperties.Name="{Binding LanguageLabel}" AutomationProperties.HelpText="{Binding CurrentLanguageLabel}" ToolTip="{Binding LanguageLabel}">
      <Button.ContextMenu>
       <ContextMenu DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14" Width="160" StaysOpen="False" Placement="Custom">

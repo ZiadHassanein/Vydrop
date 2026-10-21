@@ -11,7 +11,7 @@ internal static partial class Program
         model.SettingsVisible = false;
         model.Url = "";
         var contact = (Button)WpfTree.Find(window, "ContactButton");
-        var settings = (Button)WpfTree.Find(window, "SettingsButton");
+        var settings = (System.Windows.Controls.Primitives.ButtonBase)WpfTree.Find(window, "SettingsButton");
         var footer = (FrameworkElement)WpfTree.Find(window, "FooterContent");
         var root = (FrameworkElement)WpfTree.Find(window, "Root");
         window.Activate();

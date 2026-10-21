@@ -19,14 +19,14 @@ internal static partial class Program
         var quality = (ComboBox)WpfTree.Find(window, "QualityInput");
         var inline = (FrameworkElement)WpfTree.Find(window, "InlineActivity");
         var context = (ScrollViewer)WpfTree.Find(window, "ContextViewport");
-        var badge = (FrameworkElement)WpfTree.Find(window, "RecentDownloadsBadge");
+        var history = (FrameworkElement)WpfTree.Find(window, "HistoryButton");
         async Task Settle() { await Task.Delay(260); window.UpdateLayout(); }
         async Task Input() { model.Url = ""; model.Url = "https://youtu.be/jNQXAC9IVRw"; await Task.Delay(900); await Settle(); }
         async Task History(string variant)
         {
             model.HistoryCommand.Execute(null); await Settle();
             Check(model.HistoryVisible && window.ManagerContent.HistoryContent.IsVisible && window.OwnedWindows.Count == 0, "History opens in the main center workspace");
-            Check(model.RecentDownloadCount == 0 && !badge.IsVisible, "Opening history acknowledges its completion count");
+            Check(model.RecentDownloadCount == 0 && history.IsVisible && AutomationProperties.GetName(history) == model.HistoryLabel, "Opening history acknowledges its completion count on the visible navigation action");
             Check(model.History.Files.Any(row => row.FilePath == file && !row.IsAudio), "MKV history retains its actual media path");
             Capture(window, Path.Combine(captures, "output-history-" + variant + ".png"));
             model.NewDownloadCommand.Execute(null); await Settle();
@@ -81,14 +81,10 @@ internal static partial class Program
                     await model.DownloadCommand.ExecuteAsync(null); await Settle();
                     Check(provider.LastRequest.VideoContainer == VideoContainer.Mkv && provider.LastRequest.Captions is { Language: "en", Format: CaptionFormat.Vtt },
                         "The download receives the chosen container and selected subtitles");
-                    Check(model.RecentDownloadCount == before + 1 && badge.IsVisible && !inline.IsVisible && model.Url == "" && window.Width == 740,
-                        "Success collapses media context and increments the recent badge without a completion block");
-                    var numeral = (FrameworkElement)((Border)badge).Child;
-                    var center = numeral.TranslatePoint(new Point(numeral.ActualWidth / 2, numeral.ActualHeight / 2), badge);
-                    Check(Math.Abs(center.X - badge.ActualWidth / 2) < 0.6 && Math.Abs(center.Y - badge.ActualHeight / 2) < 0.6,
-                        "The recent count is centered horizontally and vertically inside its badge");
-                    Check(AutomationProperties.GetName((Button)WpfTree.Find(window, "RecentDownloadsButton")) == model.HistoryAccessibleName,
-                        "The completion count is included in the recent button's accessible name");
+                    Check(model.RecentDownloadCount == before + 1 && history.IsVisible && !inline.IsVisible && model.Url == "" && window.Width == 740,
+                        "Success collapses media context and increments the recent count without a completion block");
+                    Check(AutomationProperties.GetName(history) == model.HistoryAccessibleName,
+                        "The completion count is included in the visible History action's accessible name");
                     window.Width = window.MinWidth; await Settle();
                     var brand = (FrameworkElement)WpfTree.Find(window, "BrandWordmark");
                     var actions = (FrameworkElement)WpfTree.Find(window, "HeaderActions");
@@ -116,7 +112,7 @@ internal static partial class Program
                     "An active queue's subtitle summary comes from its snapshot, even if the form selection changed");
             }
             finally { finish.Set(); await queued; }
-            Check(model.HasRecentDownloadsBadge && !inline.IsVisible, "A successful queue updates the recent count without a redundant footer block");
+            Check((model.RecentDownloadCount > 0) && !inline.IsVisible, "A successful queue updates the recent count without a redundant footer block");
         }
         finally
         {

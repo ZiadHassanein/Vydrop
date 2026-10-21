@@ -80,7 +80,7 @@ internal static partial class Program
         {
             await model.DownloadCommand.ExecuteAsync(null);
             await Task.Delay(100);
-            Check(model.Url == "" && !pane.IsVisible && !inline.IsVisible && model.HasFile && model.HasRecentDownloadsBadge &&
+            Check(model.Url == "" && !pane.IsVisible && !inline.IsVisible && model.HasFile && (model.RecentDownloadCount > 0) &&
                 ((ProgressBar)WpfTree.Find(inline, "JobProgress")).Value == 100,
                 "Successful downloads close the preview and signal completion through the recent badge");
             await Task.Delay(250);
@@ -93,7 +93,7 @@ internal static partial class Program
             Capture(window, System.IO.Path.Combine(captures, "preview-inline-complete.png"));
             model.SettingsVisible = true;
             await Task.Delay(100);
-            Check(WpfTree.Find(WpfTree.Find(window, "SettingsPane") as DependencyObject, "StatusHeading") == null && !inline.IsVisible && model.HasRecentDownloadsBadge,
+            Check(WpfTree.Find(WpfTree.Find(window, "SettingsPane") as DependencyObject, "StatusHeading") == null && !inline.IsVisible && (model.RecentDownloadCount > 0),
                 "Settings excludes completed media results and retains the recent-download badge");
             model.SettingsVisible = false;
         }

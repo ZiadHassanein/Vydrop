@@ -15,7 +15,6 @@ public sealed partial class MainViewModel
     private bool inlineMediaPreview;
     private bool quietCompletion;
     private bool checkingMedia;
-    public bool HasMediaContext => HasMediaPreview || QueueRunning;
     public bool InlineMediaPreview
     {
         get => inlineMediaPreview;
@@ -63,7 +62,6 @@ public sealed partial class MainViewModel
     public bool HasMediaPreview => videoInfo != null || playlistInfo != null;
     public bool IsCheckingMedia => checkingMedia && !QueueRunning && downloadActionState == DownloadActionState.Ready;
     public bool ShowInlineActivity => HasStatus && !(string.IsNullOrWhiteSpace(Url) && !QueueRunning && downloadActionState == DownloadActionState.Ready) && !quietCompletion && !IsCheckingMedia && (!HasMediaPreview || InlineMediaPreview) && !SettingsVisible;
-    public bool ShowDownloadActivity => HasStatus && !IsRefreshingTools;
     public string FolderDisplay => string.IsNullOrWhiteSpace(Folder) ? T("Choose a folder") :
         Path.GetFileName(Path.TrimEndingDirectorySeparator(Folder)) is { Length: > 0 } name ? name : Folder;
     public string FolderAccessibleName => T("Save to") + ": " + Folder;
@@ -120,10 +118,10 @@ public sealed partial class MainViewModel
         }
         foreach (string property in new[]
         {
-            nameof(HasMediaContext), nameof(PlaylistLabel), nameof(PreviewImage), nameof(HasPreviewCaptions), nameof(PreviewCaptions), nameof(AudioSourceHint), nameof(PreviewIsAudio),
+            nameof(PlaylistLabel), nameof(PreviewImage), nameof(HasPreviewCaptions), nameof(PreviewCaptions), nameof(AudioSourceHint), nameof(PreviewIsAudio),
             nameof(PreviewTitle), nameof(PreviewSubtitle), nameof(PreviewTitleDirection),
             nameof(PreviewDuration), nameof(HasPreviewDuration), nameof(PreviewOutput),
-            nameof(PreviewStatus), nameof(ActivityIcon), nameof(ActivityBrush), nameof(HasActivityActions), nameof(IsCheckingMedia), nameof(DownloadActionLabel), nameof(ShowInlineActivity), nameof(ShowDownloadActivity)
+            nameof(PreviewStatus), nameof(ActivityIcon), nameof(ActivityBrush), nameof(HasActivityActions), nameof(IsCheckingMedia), nameof(DownloadActionLabel), nameof(ShowInlineActivity)
         }) OnPropertyChanged(property);
         string address = videoInfo?.ThumbnailUrl ?? playlistInfo?.ThumbnailUrl;
         if (thumbnailAddress == address) return;

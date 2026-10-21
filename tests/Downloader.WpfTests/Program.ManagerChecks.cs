@@ -100,6 +100,12 @@ internal static partial class Program
         provider.DownloadHandler = (options, _, _) => new DownloadResult { FilePath = firstFile };
         await model.LibraryActionCommand.ExecuteAsync(waiting.Id);
         Check(model.Queue.Entries.First(e => e.Id == waiting.Id).State == QueueState.Completed && provider.LastRequest.JobId == waiting.Id, "Resuming from the manager uses the existing durable job and download service");
+        Check(model.RecentDownloadCount > 0 && window.ManagerContent.HistoryButton.IsVisible && System.Windows.Automation.AutomationProperties.GetName(window.ManagerContent.HistoryButton) == model.HistoryAccessibleName,
+            "The visible History navigation announces new completions using the preserved unseen-download count");
+        model.HistoryCommand.Execute(null); await Task.Delay(60);
+        Check(model.RecentDownloadCount == 0 && window.ManagerContent.HistoryButton.IsVisible && System.Windows.Automation.AutomationProperties.GetName(window.ManagerContent.HistoryButton) == model.HistoryLabel,
+            "Opening History acknowledges new completions without hiding its navigation action");
+        model.LibraryFilterCommand.Execute("all");
         var sentinel = model.Queue.Add(Options("jNQXAC9IVR1"), "Keep waiting · Cancel regression");
         provider.DownloadHandler = (_, token, _) => { token.WaitHandle.WaitOne(); token.ThrowIfCancellationRequested(); return new DownloadResult(); };
         var cancelled = model.LibraryActionCommand.ExecuteAsync(audio.Id);

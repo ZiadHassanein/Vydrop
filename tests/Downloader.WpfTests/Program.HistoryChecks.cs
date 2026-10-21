@@ -32,10 +32,11 @@ internal static partial class Program
                 Check(reveals.Length == Math.Min(entries, 5) && reveals.All(button => button.IsEnabled == ((RecentDownloadView)button.DataContext).Available), "History reveal actions follow actual file availability");
                 if (entries == 5)
                 {
-                    reveals.Last().Focus();
+                    owner.Activate(); await Task.Delay(60);
+                    Check(reveals.Last(button => button.IsEnabled).Focus(), "The keyboard traversal fixture starts on the final available History action");
                     for (int tab = 0; tab < 12 && System.Windows.Input.Keyboard.FocusedElement is DependencyObject focused && view.IsAncestorOf(focused); tab++)
                         ((UIElement)System.Windows.Input.Keyboard.FocusedElement).MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
-                    Check(System.Windows.Input.Keyboard.FocusedElement is DependencyObject next && !view.IsAncestorOf(next), "Tab can leave History for workspace navigation");
+                    Check(System.Windows.Input.Keyboard.FocusedElement is DependencyObject next && !view.IsAncestorOf(next), "Tab can leave History for workspace navigation (focused: " + System.Windows.Input.Keyboard.FocusedElement + ")");
                 }
                 if (entries == 1)
                 {

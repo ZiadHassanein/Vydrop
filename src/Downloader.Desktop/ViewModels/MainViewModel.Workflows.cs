@@ -85,7 +85,6 @@ public sealed partial class MainViewModel
     public string CaptionLanguagesLabel => T("Get subtitle languages");
     public string AddQueueLabel => T("Add to queue");
     public string StartQueueLabel => T("Start download");
-    public string RetryLabel => T("Retry");
     public string RemoveLabel => T("Remove");
     public string QueueHeading => T("Download queue");
     public string QueueSettingsHint => T("Choose the format and quality in the main window before adding links.");
@@ -265,7 +264,7 @@ public sealed partial class MainViewModel
         foreach (string file in files) { state.Recent.RemoveAll(p => string.Equals(p, file, StringComparison.OrdinalIgnoreCase)); state.Recent.Insert(0, file); }
         state.Recent = state.Recent.Take(5).ToList();
         state.UnseenDownloads = Math.Min(9999, state.UnseenDownloads + Math.Max(0, files.Length - result.Skipped));
-        RefreshRecentBadge();
+        RefreshRecentState();
         if (HistoryVisible) RefreshHistory();
         lastFile = result.FilePath ?? lastFile;
         OnPropertyChanged(nameof(HasFile));
@@ -290,9 +289,5 @@ public sealed partial class MainViewModel
         CaptionLanguagesCommand?.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(CanSelectPlaylist));
         OnPropertyChanged(nameof(CanGetCaptionLanguages));
-    }
-    public bool ReceiveBrowserLink(string link)
-    {
-        return ReceiveBrowserRequest(new BrowserRequest(1, "open-link", link)).Accepted;
     }
 }

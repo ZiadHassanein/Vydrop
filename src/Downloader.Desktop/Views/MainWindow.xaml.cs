@@ -16,7 +16,6 @@ public partial class MainWindow : Window
     private bool closing, closed;
     private FlowDirection presentationDirection;
     internal AppHeaderView HeaderContent => ManagerContent.Header;
-    internal Border FooterContent => ManagerContent.FooterContent;
     private IInputElement editorReturnFocus;
     internal SystemThemeMonitor SystemTheme { get; }
     public MainWindow() : this(null, null)
@@ -31,7 +30,6 @@ public partial class MainWindow : Window
         ManagerContent.EditorHost.Children.Add(EditorOverlay);
         Root.Children.Remove(Notice);
         DownloadForm.FolderNoticeHost.Children.Add(Notice);
-        DownloadForm.NewDownloadHeading.Visibility = Visibility.Collapsed;
         var actions = new DesktopActions(this);
         model = new MainViewModel(service ?? new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage()), repository ?? new SettingsRepository(), actions, thumbnailLoader);
         presentationDirection = model.ContentDirection;
@@ -95,7 +93,7 @@ public partial class MainWindow : Window
             {
                 FrameworkElement element = args.PropertyName == nameof(MainViewModel.NoticeHeading) ? NoticeHeading :
                     model.IsCheckingMedia ? DownloadForm.DownloadAction.DownloadButton :
-                    model.HasMediaContext && !model.InlineMediaPreview ? MediaPreview.Activity.StatusHeading : DownloadForm.InlineActivity.StatusHeading;
+                    MediaPreview.IsVisible ? MediaPreview.Activity.StatusHeading : DownloadForm.InlineActivity.StatusHeading;
                 (UIElementAutomationPeer.FromElement(element) ?? UIElementAutomationPeer.CreatePeerForElement(element))?.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
             }
         };
@@ -118,8 +116,6 @@ public partial class MainWindow : Window
     private void ApplyResponsiveLayout()
     {
         bool split = model.HasMediaPreview && !model.SettingsVisible && ManagerContent.DetailsColumn.Width.Value > 0;
-        PageContent.ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
-        PageContent.ColumnDefinitions[1].Width = new GridLength(0);
         bool inline = model.HasMediaPreview && !split && !model.SettingsVisible;
         var previewHost = inline ? (Panel)DownloadForm.InlinePreviewHost : ManagerContent.EditorDetailsHost;
         if (MediaPreview.Parent is Panel parent && parent != previewHost)
@@ -128,12 +124,9 @@ public partial class MainWindow : Window
             previewHost.Children.Add(MediaPreview);
         }
         model.InlineMediaPreview = inline;
-        Grid.SetColumn(ContextViewport, 0);
         ContextViewport.Visibility = model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
         ContextPane.Visibility = ContextViewport.Visibility;
-        Viewport.Visibility = model.SettingsVisible && !split ? Visibility.Collapsed : Visibility.Visible;
-        ContextPane.MaxWidth = model.SettingsVisible ? 840 : DownloadForm.MaxWidth;
-        ContextPane.Margin = model.SettingsVisible ? new Thickness(24, 12, 24, 24) : new Thickness(0);
+        Viewport.Visibility = model.SettingsVisible ? Visibility.Collapsed : Visibility.Visible;
         MediaPreview.SetCompact(inline);
         MediaPreview.Visibility = model.HasMediaPreview && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
     }

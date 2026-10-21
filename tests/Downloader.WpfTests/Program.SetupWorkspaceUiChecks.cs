@@ -7,6 +7,7 @@ internal static partial class Program
 {
     private static async Task CheckSetupWorkspaceUi(MainWindow window, MainViewModel model, FakeProvider provider, string root, string captures)
     {
+        string versionText = "v" + AppUpdates.Current.ToString(3) + (ReleaseChannel.IsPreview ? " · Preview" : "");
         model.Url = "";
         foreach (string language in new[] { "en", "ar" }) foreach (bool dark in new[] { false, true }) foreach (double width in new[] { 1280d, 760d })
         {
@@ -15,12 +16,12 @@ internal static partial class Program
             model.NewDownloadCommand.Execute(null); await Task.Delay(100); window.UpdateLayout();
             Check(window.ManagerContent.DetailsColumn.Width.Value == 0 && !window.ManagerContent.DetailsBorder.IsVisible && window.DownloadForm.LinkInput.IsVisible, "Empty Add download has no reserved inspector column: " + language + "/" + dark + "/" + width);
             Check(!window.DownloadForm.InlineActivity.IsVisible && !model.IsCheckingMedia, "An empty link does not show stale checking or transfer feedback");
-            Check(!Descendants<TextBlock>(window).Any(text => text.IsVisible && text.Text == model.VersionLabel), "The version is absent from the visible workspace");
+            Check(!Descendants<TextBlock>(window).Any(text => text.IsVisible && text.Text == versionText), "The version is absent from the visible workspace");
             Capture(window, Path.Combine(captures, $"add-empty-{language}-{dark}-{width}.png"));
             model.SettingsVisible = true; await Task.Delay(100); window.UpdateLayout();
             Check(window.ManagerContent.DetailsColumn.Width.Value == 0 && !window.ManagerContent.DetailsBorder.IsVisible, "Settings uses the available center width without an empty inspector");
             Check(Descendants<TextBlock>(window.EditorOverlay).Count(text => text.IsVisible && text.Text == model.SettingsLabel) == 1 && Descendants<Button>(window.EditorOverlay).Count(button => button.IsVisible && System.Windows.Automation.AutomationProperties.GetName(button) == model.CloseLabel) == 1, "Settings has one workspace title and one Close action");
-            Check(!Descendants<TextBlock>(window).Any(text => text.IsVisible && text.Text == model.VersionLabel), "Settings also omits the version label");
+            Check(!Descendants<TextBlock>(window).Any(text => text.IsVisible && text.Text == versionText), "Settings also omits the version label");
             Capture(window, Path.Combine(captures, $"settings-{language}-{dark}-{width}.png"));
             model.SettingsVisible = false;
         }

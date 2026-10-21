@@ -24,7 +24,6 @@ public sealed partial class MainViewModel
         }
     }
     public string VideoFormatLabel => T("Video format");
-    public bool HasAudioSource => videoInfo?.AudioSource != null;
     public string AudioSourceHint
     {
         get

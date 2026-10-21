@@ -12,11 +12,11 @@ internal static partial class Program
 {
     private static async Task CheckHeader(Window window, MainViewModel model, string captures)
     {
-        var header = (FrameworkElement)WpfTree.Find(window, "HeaderContent");
+        var header = ((MainWindow)window).HeaderContent;
         var brand = (FrameworkElement)WpfTree.Find(window, "BrandWordmark");
         var actions = (FrameworkElement)WpfTree.Find(window, "HeaderActions");
         var language = (Button)WpfTree.Find(window, "LanguageButton");
-        var settings = (Button)WpfTree.Find(window, "SettingsButton");
+        var settings = (System.Windows.Controls.Primitives.ButtonBase)WpfTree.Find(window, "SettingsButton");
         double startupWidth = window.Width;
         model.Url = "https://youtu.be/jNQXAC9IVRw";
         await Task.Delay(850);
@@ -32,7 +32,7 @@ internal static partial class Program
                     await Task.Delay(150);
                     window.UpdateLayout();
                     Rect Bounds(FrameworkElement element) => element.TransformToAncestor(window).TransformBounds(new Rect(element.RenderSize));
-                    var heading = (FrameworkElement)WpfTree.Find(window, "NewDownloadHeading");
+                    var heading = (FrameworkElement)WpfTree.Find(window, "EditorHeading");
                     double headerHeight = header.ActualHeight, headingTop = Bounds(heading).Top;
                     ((Button)WpfTree.Find(window, "BrandButton")).Focus();
                     await Task.Delay(60);
@@ -65,7 +65,7 @@ internal static partial class Program
                     Check(brandBounds.Left < 100 && brandBounds.Right < actionBounds.Left && actionBounds.Right <= window.ActualWidth &&
                         Bounds(settings).Top > Bounds(header).Bottom,
                         "Header remains unclipped with fixed-left branding, right actions and reachable footer Settings");
-                    Check(brand is Viewbox && Equals(((System.Windows.Shapes.Path)WpfTree.Find(window, "BrandLetters")).Fill, Application.Current.Resources["Ink"]) && Equals(((System.Windows.Shapes.Path)WpfTree.Find(window, "BrandInitial")).Fill, Application.Current.Resources["BrandFill"]) && brand.FlowDirection == FlowDirection.LeftToRight,
+                    Check(brand is Viewbox && Equals(((System.Windows.Shapes.Path)WpfTree.Find(window, "BrandLetters")).Fill, Application.Current.Resources["NavigationInk"]) && Equals(((System.Windows.Shapes.Path)WpfTree.Find(window, "BrandInitial")).Fill, Application.Current.Resources["BrandFill"]) && brand.FlowDirection == FlowDirection.LeftToRight,
                         "The compact vector wordmark keeps a red V, themed remaining letters and fixed direction across themes");
                     string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + (width == startupWidth ? "-default" : width < 1000 ? "-compact" : "-wide");
                     CaptureVisual(header, System.IO.Path.Combine(captures, "header-" + variant + ".png"));
@@ -171,26 +171,15 @@ internal static partial class Program
             "Footer Settings keeps app updates, browser integration and maintenance accessible");
         ((Button)WpfTree.Find(window, "BrandButton")).Command.Execute(null);
         Check(!model.SettingsVisible, "The brand returns from Settings to the download form");
-        Exception dialogFailure = null;
-        _ = window.Dispatcher.BeginInvoke(new Action(() =>
-        {
-            Window history = null;
-            try
-            {
-                history = window.OwnedWindows.Cast<Window>().Single();
-                Check(history.Title == model.HistoryLabel && history.IsVisible && history.Owner == window,
-                    "The new header action opens the existing recent-downloads dialog");
-            }
-            catch (Exception ex) { dialogFailure = ex; }
-            finally { history?.Close(); }
-        }));
-        ((Button)WpfTree.Find(window, "RecentDownloadsButton")).Command.Execute(null);
-        if (dialogFailure != null) throw dialogFailure;
+        ((System.Windows.Controls.Primitives.ButtonBase)WpfTree.Find(window, "HistoryButton")).Command.Execute(null);
+        await Task.Delay(80);
+        Check(model.HistoryVisible && ((MainWindow)window).ManagerContent.HistoryContent.IsVisible && window.OwnedWindows.Count == 0,
+            "The History navigation action opens the center workspace");
         using var iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/Vydrop;component/Assets/app.ico")).Stream;
         var frames = new IconBitmapDecoder(iconStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames;
         Check(frames.Select(frame => frame.PixelWidth).SequenceEqual(new[] { 16, 24, 32, 48, 64, 128, 256 }),
             "The app icon contains seven native sizes instead of a stretched small bitmap");
-        using var logoStream = Application.GetResourceStream(new Uri("pack://application:,,,/Vydrop;component/Assets/header-logo.png")).Stream;
+        using var logoStream = typeof(Program).Assembly.GetManifestResourceStream("Vydrop.Tests.HeaderLogo");
         var logo = new FormatConvertedBitmap(BitmapFrame.Create(logoStream), PixelFormats.Bgra32, null, 0);
         byte[] pixels = new byte[logo.PixelWidth * logo.PixelHeight * 4];
         logo.CopyPixels(pixels, logo.PixelWidth * 4, 0);

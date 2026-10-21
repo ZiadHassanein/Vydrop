@@ -57,7 +57,7 @@ public sealed partial class MainViewModel
         SelectedQuality = Audio ? Qualities.FirstOrDefault(q => q.Bitrate == state.AudioBitrate) ?? Qualities[0] :
             Qualities.FirstOrDefault(q => previous != null && q.Key == previous.Key && q.Height == previous.Height) ??
             (WholePlaylist && playlistInfo != null ? Qualities.First(q => q.Height == 1080) : Qualities.FirstOrDefault(q => q.Height is > 0 and <= 1080) ?? Qualities[0]);
-        foreach (string property in new[] { nameof(VideoLabel), nameof(VideoFormats), nameof(SelectedVideoFormat), nameof(QualityLabel), nameof(AvailableAudioBitrates), nameof(AudioSourceHint), nameof(HasAudioSource) }) OnPropertyChanged(property);
+        foreach (string property in new[] { nameof(VideoLabel), nameof(VideoFormats), nameof(SelectedVideoFormat), nameof(QualityLabel), nameof(AvailableAudioBitrates), nameof(AudioSourceHint) }) OnPropertyChanged(property);
         RefreshAvailability();
     }
 

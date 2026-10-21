@@ -14,15 +14,6 @@ public partial class DownloadManagerView : UserControl
         InitializeComponent();
         ((Panel)Header.BrandButton.Parent).Children.Remove(Header.BrandButton);
         BrandHost.Children.Add(Header.BrandButton);
-        Header.BrandLetters.SetResourceReference(System.Windows.Shapes.Path.FillProperty, "NavigationInk");
-        Header.HeaderFrame.BorderThickness = new Thickness(0);
-        Header.HeaderFrame.Padding = new Thickness(14, 7, 18, 7);
-        Header.RecentDownloadsButton.Visibility = Visibility.Collapsed;
-        Header.HeaderActions.Children.OfType<Border>().First().Visibility = Visibility.Collapsed;
-        ContactLinks.SettingsButton.Visibility = Visibility.Collapsed;
-        Grid.SetColumn(ContactLinks.ContactButton, 0);
-        ContactLinks.ContactButton.HorizontalAlignment = HorizontalAlignment.Left;
-        ContactLinks.ContactButton.SetResourceReference(Control.ForegroundProperty, "NavigationMuted");
         SizeChanged += (_, _) => LayoutManager();
         DataContextChanged += (_, e) =>
         {

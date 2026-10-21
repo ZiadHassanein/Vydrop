@@ -13,7 +13,7 @@ internal static partial class Program
         var context = (ScrollViewer)WpfTree.Find(window, "ContextViewport");
         var form = (FrameworkElement)WpfTree.Find(window, "DownloadForm");
         var preview = (FrameworkElement)WpfTree.Find(window, "MediaPreview");
-        var heading = (FrameworkElement)WpfTree.Find(form, "NewDownloadHeading");
+        var heading = (FrameworkElement)WpfTree.Find(window, "EditorHeading");
         var inline = (FrameworkElement)WpfTree.Find(form, "InlineActivity");
         string folder = Path.GetFullPath(Path.Combine(captures, "media-fixtures"));
         Directory.CreateDirectory(folder);
@@ -25,7 +25,7 @@ internal static partial class Program
         void HeadingFirst(string state)
         {
             viewport.ScrollToTop(); window.UpdateLayout();
-            Check(((StackPanel)((UserControl)form).Content).Children[0] == heading && Bounds(heading).Top < Bounds((FrameworkElement)WpfTree.Find(form, "LinkInput")).Top,
+            Check(heading.IsVisible && Bounds(heading).Top < Bounds((FrameworkElement)WpfTree.Find(form, "LinkInput")).Top,
                 "New download is the first form content with no title or status banner above it: " + state);
         }
         try
@@ -84,7 +84,7 @@ internal static partial class Program
                 "Cancellation keeps the link and context available for retry");
             provider.DownloadHandler = (_, _, _) => new DownloadResult { FilePath = file, Files = new() { file }, Total = 1, Completed = 1 };
             await model.DownloadCommand.ExecuteAsync(null); await Settle();
-            Check(model.Url == "" && Math.Abs(window.Width - 740) <= 1 && !context.IsVisible && !inline.IsVisible && model.HasFile && model.HasRecentDownloadsBadge,
+            Check(model.Url == "" && Math.Abs(window.Width - 740) <= 1 && !context.IsVisible && !inline.IsVisible && model.HasFile && (model.RecentDownloadCount > 0),
                 "Successful download collapses the pane and signals completion in recent downloads");
             HeadingFirst("completed");
             Check(!inline.IsVisible, "Routine completion does not add a block below the main action");

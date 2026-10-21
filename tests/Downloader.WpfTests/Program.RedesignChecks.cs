@@ -40,7 +40,7 @@ internal static partial class Program
                 var pasteBounds = paste.TransformToAncestor(root).TransformBounds(new Rect(paste.RenderSize));
                 Check(arabic ? pasteBounds.Right <= linkBounds.Left + 1 : linkBounds.Right <= pasteBounds.Left + 1,
                     $"The link row mirrors its controls correctly (Arabic={arabic}, link={linkBounds}, paste={pasteBounds})");
-                var heading = (TextBlock)WpfTree.Find(window, "NewDownloadHeading");
+                var heading = (TextBlock)WpfTree.Find(window, "EditorHeading");
                 var headingBounds = heading.TransformToAncestor(root).TransformBounds(new Rect(heading.RenderSize));
                 var characterBounds = heading.TransformToAncestor(root).TransformBounds(heading.ContentStart.GetCharacterRect(System.Windows.Documents.LogicalDirection.Forward));
                 Check(arabic ? Math.Abs(characterBounds.Right - headingBounds.Right) < 4 : Math.Abs(characterBounds.Left - headingBounds.Left) < 4,

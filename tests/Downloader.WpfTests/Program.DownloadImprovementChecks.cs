@@ -18,7 +18,7 @@ internal static partial class Program
         var running = model.QueueStartCommand.ExecuteAsync(null);
         for (int wait = 0; wait < 100 && !(model.QueueRunning && model.IsBusy); wait++) await Task.Delay(25);
         Check(model.QueueRunning && model.IsBusy, "Queue started for browser handoff fixture");
-        Check(model.ReceiveBrowserLink(secondUrl) && model.QueueItems.Count == 2 && model.QueueRunning, "Legacy extension links can be queued while downloading without cancelling the active job");
+        Check(model.ReceiveBrowserRequest(new BrowserRequest(1, "open-link", secondUrl)).Accepted && model.QueueItems.Count == 2 && model.QueueRunning, "Legacy extension links can be queued while downloading without cancelling the active job");
         Check(model.ReceiveBrowserRequest(new(2, "ping", RequestId: "health")).Code == "connected" && model.QueueItems.Count == 2, "Connection tests do not change links or create downloads");
         model.QueuePauseCommand.Execute(null); await running;
         var first = model.Queue.Entries[0];

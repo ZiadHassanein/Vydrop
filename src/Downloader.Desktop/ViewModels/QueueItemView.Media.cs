@@ -8,7 +8,6 @@ public sealed partial class QueueItemView
     private ImageSource artwork;
     internal string ArtworkAddress { get; set; }
     public ImageSource Artwork { get => artwork; internal set => SetProperty(ref artwork, value); }
-    public bool HasArtwork => Artwork != null;
     public bool IsHighContrast => ThemeResources.HighContrast;
     public string SourceName { get { try { return new Uri(Entry.Options.SourcePage ?? Url).Host.Replace("www.", "", StringComparison.Ordinal); } catch (UriFormatException) { return ""; } } }
     public bool IsAudio => Entry.Options.Audio;
