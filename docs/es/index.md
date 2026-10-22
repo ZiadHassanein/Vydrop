@@ -50,7 +50,7 @@ En Vydrop, abre **Settings → Browser integration → Manual setup and troubles
 - **Edge:** abre edge://extensions, activa el modo de desarrollador y carga la misma carpeta.
 - **Firefox:** abre about:debugging#/runtime/this-firefox y carga **Browser/firefox/manifest.json** como complemento temporal. Debes volver a cargarlo después de reiniciar Firefox.
 
-Permite el acceso a los sitios que utilices y actualiza las pestañas de vídeo abiertas. **Download by Vydrop** aparece junto al reproductor detectado y envía el enlace al programa para revisarlo. La descarga se inicia después, cuando tú la confirmas en Vydrop.
+Permite el acceso a los sitios que utilices y actualiza las pestañas de vídeo. **Download by Vydrop** aparece dentro de la esquina superior derecha del vídeo. Elige vídeo o audio, formato y calidad, y confirma **Download**. La descarga comienza en la carpeta guardada, aunque Vydrop estuviera cerrado. Las versiones anteriores abren la pantalla de revisión.
 
 La [guía ilustrada de la extensión](../browser-extension-setup.md) y los [límites de sitios compatibles](../supported-sites.md) están en inglés. Descarga únicamente medios que tengas permiso para guardar. No se eluden inicios de sesión ni protecciones DRM.
 

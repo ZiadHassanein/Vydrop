@@ -121,7 +121,7 @@ Yes, when the public video is supported by yt-dlp and available without signing 
 
 ### Can I download a video playing in my browser?
 
-Use the optional Chrome, Edge or Firefox companion. Enable Browser integration in Vydrop, then click Download by Vydrop beside a playing video. It copies the resolved link and opens the app for review. You choose Download in the app; detection is not guaranteed on every website.
+Use the optional Chrome, Edge or Firefox companion. Click Download by Vydrop inside the playing video, choose Video or Audio, format and quality, then confirm Download. Vydrop starts that output in your saved folder, even if the app was closed. Older app versions open a review screen. Detection varies by website.
 
 ### How do I save a YouTube playlist as MP3 on Windows?
 
@@ -198,7 +198,7 @@ The check command includes core, infrastructure, WPF, checking-feedback, isolate
 
 ### هل يمكن تنزيل الفيديو الذي أشاهده في المتصفح؟
 
-استخدم إضافة Chrome أوEdge أوFirefox الاختيارية. فعّل الربط بالمتصفح داخل Vydrop، ثم اضغط «تنزيل بواسطة Vydrop» بجانب الفيديو الجاري تشغيله. تنسخ الإضافة الرابط وتفتح التطبيق لمراجعته، ثم تختار التنزيل. لا يُضمن اكتشاف الفيديو في كل موقع.
+استخدم إضافة Chrome أو Edge أو Firefox الاختيارية. اضغط «تنزيل بواسطة Vydrop» داخل الفيديو الجاري تشغيله، واختر فيديو أو صوتًا والصيغة والجودة، ثم أكّد التنزيل. يبدأ الاختيار في مجلد الحفظ حتى إذا كان التطبيق مغلقًا. تفتح الإصدارات الأقدم شاشة المراجعة، وقد يختلف الاكتشاف بحسب الموقع.
 
 ### كيف أحفظ قائمة تشغيل يوتيوب بصيغة MP3 على ويندوز؟
 

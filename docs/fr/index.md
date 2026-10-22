@@ -50,7 +50,7 @@ Dans Vydrop, ouvrez **Settings → Browser integration → Manual setup and trou
 - **Edge :** ouvrez edge://extensions et chargez le même dossier après avoir activé le mode développeur.
 - **Firefox :** ouvrez about:debugging#/runtime/this-firefox et chargez **Browser/firefox/manifest.json** comme module temporaire. Recommencez après un redémarrage de Firefox.
 
-Autorisez l’accès aux sites souhaités et actualisez les onglets vidéo. Le bouton **Download by Vydrop**, placé à côté du lecteur détecté, envoie le lien à l’application pour vérification. Il ne lance pas automatiquement le téléchargement.
+Autorisez l’accès aux sites souhaités et actualisez les onglets vidéo. **Download by Vydrop** apparaît dans l’angle supérieur droit du lecteur. Choisissez vidéo ou audio, le format et la qualité, puis confirmez **Download**. Le téléchargement démarre dans le dossier enregistré, même si Vydrop était fermé. Les anciennes versions ouvrent un écran de vérification.
 
 Le [guide illustré de l’extension](../browser-extension-setup.md) et la [liste des limites de prise en charge](../supported-sites.md) sont en anglais. Enregistrez uniquement les médias que vous avez le droit de télécharger. Vydrop ne contourne pas l’authentification ni les DRM.
 

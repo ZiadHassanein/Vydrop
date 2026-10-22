@@ -17,7 +17,7 @@ Use Vydrop to download public video from any site supported by yt-dlp. It is a W
 3. Choose **Video**, then MP4, MKV or WebM from the format menu. Only compatible inspected streams are offered.
 4. Choose an available quality and save folder, then **Download**.
 
-For a video already playing in Chrome, Edge or Firefox, follow the [illustrated companion setup](browser-extension-setup.md). Its tab sits outside the video's top-right border where space permits. Use the toolbar popup when placement is unavailable.
+For a video already playing in Chrome, Edge or Firefox, follow the [illustrated companion setup](browser-extension-setup.md). Its button sits inside the video's top-right corner and opens the format and quality menu. Use the toolbar popup when placement is unavailable.
 
 ## If inspection fails
 

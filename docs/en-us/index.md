@@ -50,7 +50,7 @@ In Vydrop, open **Settings → Browser integration → Manual setup and troubles
 - **Edge:** open edge://extensions, enable Developer mode, then load **Browser/chromium**.
 - **Firefox:** open about:debugging#/runtime/this-firefox, choose Load Temporary Add-on and select **Browser/firefox/manifest.json**. This temporary installation must be loaded again after Firefox restarts.
 
-Allow access to the websites you use and refresh existing video tabs. **Download by Vydrop** appears beside a detected playing video, outside its border. Clicking sends the resolved link to the app for review; you start the download in Vydrop. Placement and download support depend on the player and site.
+Allow access to the websites you use and refresh existing video tabs. **Download by Vydrop** appears inside the playing video’s top-right corner. Choose Video or Audio, format and quality, then confirm Download to start the output in the saved folder, including when the app is closed. Older app versions open the review workflow.
 
 See the [illustrated browser guide](../browser-extension-setup.md), [supported sites](../supported-sites.md) and [security details](https://github.com/ZiadHassanein/Vydrop/blob/main/SECURITY.md). Only save media you have permission to download. Private, sign-in-only and DRM-protected media are unsupported.
 
@@ -70,7 +70,7 @@ Yes, when the public video is supported by yt-dlp and available without signing 
 
 ### Can I download a video playing in my browser?
 
-Use the optional Chrome, Edge or Firefox companion. Enable Browser integration in Vydrop, then click Download by Vydrop beside a playing video. It copies the resolved link and opens the app for review. You choose Download in the app; detection is not guaranteed on every website.
+Use the optional Chrome, Edge or Firefox companion. Click Download by Vydrop inside the playing video, choose Video or Audio, format and quality, then confirm Download. Vydrop starts that output in your saved folder, even if the app was closed. Older app versions open a review screen. Detection varies by website.
 
 ### How do I save a YouTube playlist as MP3 on Windows?
 

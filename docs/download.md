@@ -44,7 +44,7 @@ GitHub's **Code → Download ZIP** downloads the source code. Choose the named W
 3. Paste a public video's own link. Wait for its title and available quality, choose Video or Audio, then choose **Download**.
 4. For browser handoff, follow the [illustrated extension guide](browser-extension-setup.md).
 
-The browser companion opens the link for review; it does not start a download automatically. Vydrop does not import browser cookies or unlock private or DRM-protected media. See [supported sites and limitations](supported-sites.md).
+The companion opens a format and quality menu. Confirm Download to start the chosen output in your saved folder; older app versions open a review screen. Vydrop does not import browser cookies or unlock private or DRM-protected media. See [supported sites and limitations](supported-sites.md).
 
 ## Check the publisher and package
 

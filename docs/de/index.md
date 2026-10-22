@@ -50,7 +50,7 @@ Eine höhere Bitrate erzeugt keine zusätzlichen Quelldetails. Bei unbekannten A
 - **Edge:** Öffnen Sie edge://extensions und laden Sie nach Aktivierung des Entwicklermodus denselben Ordner.
 - **Firefox:** Öffnen Sie about:debugging#/runtime/this-firefox und laden Sie **Browser/firefox/manifest.json** als temporäres Add-on. Nach einem Firefox-Neustart muss es erneut geladen werden.
 
-Erlauben Sie den Zugriff auf die gewünschten Websites und laden Sie vorhandene Video-Tabs neu. **Download by Vydrop** erscheint neben einem erkannten laufenden Video und übergibt dessen Link an die App. Den Download starten Sie anschließend selbst in Vydrop.
+Erlauben Sie den Zugriff auf die gewünschten Websites und laden Sie Video-Tabs neu. **Download by Vydrop** erscheint oben rechts im Video. Wählen Sie Video oder Audio, Format und Qualität und bestätigen Sie **Download**. Die Ausgabe startet im gespeicherten Ordner, auch wenn Vydrop geschlossen war. Ältere App-Versionen öffnen die Vorschau.
 
 Die [bebilderte Browser-Anleitung](../browser-extension-setup.md) und die [Hinweise zu unterstützten Websites](../supported-sites.md) sind auf Englisch. Laden Sie nur Medien herunter, für deren Speicherung Sie die nötigen Rechte haben.
 

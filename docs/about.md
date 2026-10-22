@@ -18,7 +18,7 @@ last_reviewed: 2026-10-19
 - You use **Windows 10/11 x64** and prefer a desktop interface to command-line options.
 - You want **English or Arabic** controls, playlists, a multi-link queue and visible download progress.
 - You need video containers **MP4, MKV or WebM**, audio outputs **MP3, M4A, Opus, WAV or FLAC**, or available **SRT/VTT subtitles**.
-- You want an optional **Chrome, Edge or Firefox** action that sends a playing video to the app for review.
+- You want an optional **Chrome, Edge or Firefox** menu that lets you choose a playing video’s format and quality before confirming its download.
 - You prefer free, inspectable source code with no Vydrop account, subscription or app telemetry.
 
 For scripting or operating systems outside this Windows release, the [yt-dlp command-line project](https://github.com/yt-dlp/yt-dlp) may suit a different workflow. Vydrop's desktop interface is not a replacement for every upstream command-line option.

@@ -144,7 +144,7 @@ Yes, when the public video is supported by yt-dlp and available without signing 
 
 ### Can I download a video playing in my browser?
 
-Use the optional Chrome, Edge or Firefox companion. Enable Browser integration in Vydrop, then click Download by Vydrop beside a playing video. It copies the resolved link and opens the app for review. You choose Download in the app; detection is not guaranteed on every website.
+Use the optional Chrome, Edge or Firefox companion. Click Download by Vydrop inside the playing video, choose Video or Audio, format and quality, then confirm Download. Vydrop starts that output in your saved folder, even if the app was closed. Older app versions open a review screen. Detection varies by website.
 
 ### How do I save a YouTube playlist as MP3 on Windows?
 
@@ -218,7 +218,7 @@ The check command includes core, infrastructure, WPF, checking-feedback, isolate
 
 ### هل يمكن تنزيل الفيديو الذي أشاهده في المتصفح؟
 
-استخدم إضافة Chrome أوEdge أوFirefox الاختيارية. فعّل الربط بالمتصفح داخل Vydrop، ثم اضغط «تنزيل بواسطة Vydrop» بجانب الفيديو الجاري تشغيله. تنسخ الإضافة الرابط وتفتح التطبيق لمراجعته، ثم تختار التنزيل. لا يُضمن اكتشاف الفيديو في كل موقع.
+استخدم إضافة Chrome أو Edge أو Firefox الاختيارية. اضغط «تنزيل بواسطة Vydrop» داخل الفيديو الجاري تشغيله، واختر فيديو أو صوتًا والصيغة والجودة، ثم أكّد التنزيل. يبدأ الاختيار في مجلد الحفظ حتى إذا كان التطبيق مغلقًا. تفتح الإصدارات الأقدم شاشة المراجعة، وقد يختلف الاكتشاف بحسب الموقع.
 
 ### كيف أحفظ قائمة تشغيل يوتيوب بصيغة MP3 على ويندوز؟
 
@@ -287,7 +287,7 @@ Source: https://ziadhassanein.github.io/Vydrop/about.html
 - You use **Windows 10/11 x64** and prefer a desktop interface to command-line options.
 - You want **English or Arabic** controls, playlists, a multi-link queue and visible download progress.
 - You need video containers **MP4, MKV or WebM**, audio outputs **MP3, M4A, Opus, WAV or FLAC**, or available **SRT/VTT subtitles**.
-- You want an optional **Chrome, Edge or Firefox** action that sends a playing video to the app for review.
+- You want an optional **Chrome, Edge or Firefox** menu that lets you choose a playing video’s format and quality before confirming its download.
 - You prefer free, inspectable source code with no Vydrop account, subscription or app telemetry.
 
 For scripting or operating systems outside this Windows release, the [yt-dlp command-line project](https://github.com/yt-dlp/yt-dlp) may suit a different workflow. Vydrop's desktop interface is not a replacement for every upstream command-line option.
@@ -858,7 +858,7 @@ Source: https://ziadhassanein.github.io/Vydrop/ar/
 
 ### هل يمكن تنزيل الفيديو الذي أشاهده في المتصفح؟
 
-استخدم إضافة Chrome أوEdge أوFirefox الاختيارية. فعّل الربط بالمتصفح داخل Vydrop، ثم اضغط «تنزيل بواسطة Vydrop» بجانب الفيديو الجاري تشغيله. تنسخ الإضافة الرابط وتفتح التطبيق لمراجعته، ثم تختار التنزيل. لا يُضمن اكتشاف الفيديو في كل موقع.
+استخدم إضافة Chrome أو Edge أو Firefox الاختيارية. اضغط «تنزيل بواسطة Vydrop» داخل الفيديو الجاري تشغيله، واختر فيديو أو صوتًا والصيغة والجودة، ثم أكّد التنزيل. يبدأ الاختيار في مجلد الحفظ حتى إذا كان التطبيق مغلقًا. تفتح الإصدارات الأقدم شاشة المراجعة، وقد يختلف الاكتشاف بحسب الموقع.
 
 ### كيف أحفظ قائمة تشغيل يوتيوب بصيغة MP3 على ويندوز؟
 
@@ -1331,7 +1331,7 @@ The companion locates visible players and sends a public link after your click. 
 4. **Edge:** افتح `edge://extensions` وفعّل **Developer mode**، ثم اختر **Load unpacked** وحدد **Browser\chromium** نفسه. [صورة Edge](https://ziadhassanein.github.io/Vydrop/images/extension/04-edge-setup.svg).
 5. **Firefox:** افتح `about:debugging#/runtime/this-firefox`، واختر **Load Temporary Add-on**، ثم ملف **Browser\firefox\manifest.json**. [صورة Firefox](https://ziadhassanein.github.io/Vydrop/images/extension/05-firefox-setup.svg). هذه إضافة مؤقتة وتحتاج إلى تحميلها مجددًا بعد إعادة تشغيل Firefox؛ الحزمة الحالية ليست إضافة موقعة للتثبيت الدائم.
 6. **السماح للمواقع:** فعّل الإضافة واسمح لها بالعمل على المواقع المطلوبة، ثم حدّث صفحات الفيديو المفتوحة.
-7. **شغّل ثم راجع:** اضغط **تنزيل بواسطة Vydrop** خارج إطار الفيديو، أو استخدم زر الإضافة من شريط المتصفح. راجع الرابط والصيغة والجودة ومجلد الحفظ داخل البرنامج، ثم اضغط **تنزيل**.
+7. **اختر ثم نزّل:** اضغط **تنزيل بواسطة Vydrop** داخل الزاوية العلوية اليمنى للفيديو، أو افتح الإضافة من شريط المتصفح. اختر فيديو أو صوتًا والصيغة والجودة، ثم أكّد **تنزيل** لبدء الاختيار في مجلد الحفظ.
 
 إذا نقلت مجلد البرنامج، فعّل الاتصال مجددًا. عند تحديث الإضافة، أعد تحميلها وحدّث صفحة الفيديو. تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو؛ لا تستورد الإضافة حساباتك أو ملفات تعريف الارتباط.
 
@@ -1377,7 +1377,7 @@ Eine höhere Bitrate erzeugt keine zusätzlichen Quelldetails. Bei unbekannten A
 - **Edge:** Öffnen Sie edge://extensions und laden Sie nach Aktivierung des Entwicklermodus denselben Ordner.
 - **Firefox:** Öffnen Sie about:debugging#/runtime/this-firefox und laden Sie **Browser/firefox/manifest.json** als temporäres Add-on. Nach einem Firefox-Neustart muss es erneut geladen werden.
 
-Erlauben Sie den Zugriff auf die gewünschten Websites und laden Sie vorhandene Video-Tabs neu. **Download by Vydrop** erscheint neben einem erkannten laufenden Video und übergibt dessen Link an die App. Den Download starten Sie anschließend selbst in Vydrop.
+Erlauben Sie den Zugriff auf die gewünschten Websites und laden Sie Video-Tabs neu. **Download by Vydrop** erscheint oben rechts im Video. Wählen Sie Video oder Audio, Format und Qualität und bestätigen Sie **Download**. Die Ausgabe startet im gespeicherten Ordner, auch wenn Vydrop geschlossen war. Ältere App-Versionen öffnen die Vorschau.
 
 Die [bebilderte Browser-Anleitung](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html) und die [Hinweise zu unterstützten Websites](https://ziadhassanein.github.io/Vydrop/supported-sites.html) sind auf Englisch. Laden Sie nur Medien herunter, für deren Speicherung Sie die nötigen Rechte haben.
 
@@ -1412,7 +1412,7 @@ Use Vydrop to download public video from any site supported by yt-dlp. It is a W
 3. Choose **Video**, then MP4, MKV or WebM from the format menu. Only compatible inspected streams are offered.
 4. Choose an available quality and save folder, then **Download**.
 
-For a video already playing in Chrome, Edge or Firefox, follow the [illustrated companion setup](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html). Its tab sits outside the video's top-right border where space permits. Use the toolbar popup when placement is unavailable.
+For a video already playing in Chrome, Edge or Firefox, follow the [illustrated companion setup](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html). Its button sits inside the video's top-right corner and opens the format and quality menu. Use the toolbar popup when placement is unavailable.
 
 ## If inspection fails
 
@@ -1484,7 +1484,7 @@ GitHub's **Code → Download ZIP** downloads the source code. Choose the named W
 3. Paste a public video's own link. Wait for its title and available quality, choose Video or Audio, then choose **Download**.
 4. For browser handoff, follow the [illustrated extension guide](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html).
 
-The browser companion opens the link for review; it does not start a download automatically. Vydrop does not import browser cookies or unlock private or DRM-protected media. See [supported sites and limitations](https://ziadhassanein.github.io/Vydrop/supported-sites.html).
+The companion opens a format and quality menu. Confirm Download to start the chosen output in your saved folder; older app versions open a review screen. Vydrop does not import browser cookies or unlock private or DRM-protected media. See [supported sites and limitations](https://ziadhassanein.github.io/Vydrop/supported-sites.html).
 
 ## Check the publisher and package
 
@@ -1547,7 +1547,7 @@ In Vydrop, open **Settings → Browser integration → Manual setup and troubles
 - **Edge:** open edge://extensions, enable Developer mode, then load **Browser/chromium**.
 - **Firefox:** open about:debugging#/runtime/this-firefox, choose Load Temporary Add-on and select **Browser/firefox/manifest.json**. This temporary installation must be loaded again after Firefox restarts.
 
-Allow access to the websites you use and refresh existing video tabs. **Download by Vydrop** appears beside a detected playing video, outside its border. Clicking sends the resolved link to the app for review; you start the download in Vydrop. Placement and download support depend on the player and site.
+Allow access to the websites you use and refresh existing video tabs. **Download by Vydrop** appears inside the playing video’s top-right corner. Choose Video or Audio, format and quality, then confirm Download to start the output in the saved folder, including when the app is closed. Older app versions open the review workflow.
 
 See the [illustrated browser guide](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html), [supported sites](https://ziadhassanein.github.io/Vydrop/supported-sites.html) and [security details](https://github.com/ZiadHassanein/Vydrop/blob/main/SECURITY.md). Only save media you have permission to download. Private, sign-in-only and DRM-protected media are unsupported.
 
@@ -1567,7 +1567,7 @@ Yes, when the public video is supported by yt-dlp and available without signing 
 
 ### Can I download a video playing in my browser?
 
-Use the optional Chrome, Edge or Firefox companion. Enable Browser integration in Vydrop, then click Download by Vydrop beside a playing video. It copies the resolved link and opens the app for review. You choose Download in the app; detection is not guaranteed on every website.
+Use the optional Chrome, Edge or Firefox companion. Click Download by Vydrop inside the playing video, choose Video or Audio, format and quality, then confirm Download. Vydrop starts that output in your saved folder, even if the app was closed. Older app versions open a review screen. Detection varies by website.
 
 ### How do I save a YouTube playlist as MP3 on Windows?
 
@@ -1623,7 +1623,7 @@ En Vydrop, abre **Settings → Browser integration → Manual setup and troubles
 - **Edge:** abre edge://extensions, activa el modo de desarrollador y carga la misma carpeta.
 - **Firefox:** abre about:debugging#/runtime/this-firefox y carga **Browser/firefox/manifest.json** como complemento temporal. Debes volver a cargarlo después de reiniciar Firefox.
 
-Permite el acceso a los sitios que utilices y actualiza las pestañas de vídeo abiertas. **Download by Vydrop** aparece junto al reproductor detectado y envía el enlace al programa para revisarlo. La descarga se inicia después, cuando tú la confirmas en Vydrop.
+Permite el acceso a los sitios que utilices y actualiza las pestañas de vídeo. **Download by Vydrop** aparece dentro de la esquina superior derecha del vídeo. Elige vídeo o audio, formato y calidad, y confirma **Download**. La descarga comienza en la carpeta guardada, aunque Vydrop estuviera cerrado. Las versiones anteriores abren la pantalla de revisión.
 
 La [guía ilustrada de la extensión](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html) y los [límites de sitios compatibles](https://ziadhassanein.github.io/Vydrop/supported-sites.html) están en inglés. Descarga únicamente medios que tengas permiso para guardar. No se eluden inicios de sesión ni protecciones DRM.
 
@@ -1687,7 +1687,7 @@ Dans Vydrop, ouvrez **Settings → Browser integration → Manual setup and trou
 - **Edge :** ouvrez edge://extensions et chargez le même dossier après avoir activé le mode développeur.
 - **Firefox :** ouvrez about:debugging#/runtime/this-firefox et chargez **Browser/firefox/manifest.json** comme module temporaire. Recommencez après un redémarrage de Firefox.
 
-Autorisez l’accès aux sites souhaités et actualisez les onglets vidéo. Le bouton **Download by Vydrop**, placé à côté du lecteur détecté, envoie le lien à l’application pour vérification. Il ne lance pas automatiquement le téléchargement.
+Autorisez l’accès aux sites souhaités et actualisez les onglets vidéo. **Download by Vydrop** apparaît dans l’angle supérieur droit du lecteur. Choisissez vidéo ou audio, le format et la qualité, puis confirmez **Download**. Le téléchargement démarre dans le dossier enregistré, même si Vydrop était fermé. Les anciennes versions ouvrent un écran de vérification.
 
 Le [guide illustré de l’extension](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html) et la [liste des limites de prise en charge](https://ziadhassanein.github.io/Vydrop/supported-sites.html) sont en anglais. Enregistrez uniquement les médias que vous avez le droit de télécharger. Vydrop ne contourne pas l’authentification ni les DRM.
 
@@ -1791,7 +1791,7 @@ Yes, when the public video is supported by yt-dlp and available without signing 
 
 ### Can I download a video playing in my browser?
 
-Use the optional Chrome, Edge or Firefox companion. Enable Browser integration in Vydrop, then click Download by Vydrop beside a playing video. It copies the resolved link and opens the app for review. You choose Download in the app; detection is not guaranteed on every website.
+Use the optional Chrome, Edge or Firefox companion. Click Download by Vydrop inside the playing video, choose Video or Audio, format and quality, then confirm Download. Vydrop starts that output in your saved folder, even if the app was closed. Older app versions open a review screen. Detection varies by website.
 
 ### How do I save a YouTube playlist as MP3 on Windows?
 
