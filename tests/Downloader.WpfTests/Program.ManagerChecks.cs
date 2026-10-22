@@ -50,7 +50,10 @@ internal static partial class Program
         {
             model.SelectLanguageCommand.Execute(language); if (model.IsDark != dark) model.ThemeCommand.Execute(null);
             window.Width = 1280; await Task.Delay(300); window.UpdateLayout();
-            Check(window.ManagerContent.DetailsBorder.IsVisible && window.ManagerContent.DetailsColumn.Width.Value > 0, "The selected-media inspector is visible at desktop width: " + language + "/" + dark);
+            bool wide = window.ManagerContent.ActualWidth >= 1080;
+            for (int settle = 0; settle < 50 && (wide ? !window.ManagerContent.DetailsBorder.IsVisible : window.ManagerContent.DetailsColumn.Width.Value != 0); settle++) { await Task.Delay(20); window.UpdateLayout(); }
+            Check(wide ? window.ManagerContent.DetailsBorder.IsVisible && window.ManagerContent.DetailsColumn.Width.Value > 0 : window.ManagerContent.DetailsColumn.Width.Value == 0 && window.ManagerContent.CompactDetailsButton.IsVisible,
+                $"The inspector follows the actual viewport: {language}/{dark}, width={window.ManagerContent.ActualWidth}, window={window.ActualWidth}, column={window.ManagerContent.DetailsColumn.Width.Value}, visible={window.ManagerContent.DetailsBorder.IsVisible}, parent={window.ManagerContent.DetailsBorder.Parent}, add={model.AddDownloadVisible}, settings={model.SettingsVisible}, history={model.HistoryVisible}");
             Check(window.ManagerContent.AddDownloadButton.ActualWidth < 215 && window.ManagerContent.SelectedFolderPath.ActualHeight < 30,
                 "The Add action stays content-sized and long save paths stay on one line: " + language + "/" + dark);
             Capture(window, Path.Combine(captures, "manager-" + language + (dark ? "-dark" : "-light") + ".png"));

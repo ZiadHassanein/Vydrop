@@ -22,6 +22,14 @@ jobs:
       - name: Test core, native processes, recovery and WPF
         shell: pwsh
         run: ./scripts/test.ps1
+      - name: Save native UI diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-ui-failure
+          path: build/ui-captures/**/*.png
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Package and verify portable app
         shell: pwsh
         run: |
