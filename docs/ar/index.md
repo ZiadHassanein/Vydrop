@@ -7,7 +7,7 @@ alternate: true
 english: /
 arabic: /ar/
 home: true
-last_reviewed: 2026-10-21
+last_reviewed: 2026-10-22
 ---
 
 # Vydrop: برنامج مجاني لتنزيل الفيديو والصوت لويندوز
@@ -17,9 +17,9 @@ last_reviewed: 2026-10-21
 نزّل من YouTube وTikTok وFacebook وVimeo وأكثر من ١٠٠٠ موقع عبر yt-dlp، بواجهة عربية وإنجليزية.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.3.0/VydropSetup-v4.3.0-win-x64.exe">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.0/VydropSetup-v4.4.0-win-x64.exe">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.3.0 · Setup</bdi></span></span>
+    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.4.0 · Setup</bdi></span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="إجمالي تنزيلات إصدارات GitHub" height="20"></a>
 </div>
@@ -28,7 +28,9 @@ last_reviewed: 2026-10-21
 
 {% include facts-ar.md %}
 
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="../images/screenshots/vydrop-dark-ar-download.png"><img src="../images/screenshots/vydrop-light-ar-download.png" width="724" height="761" alt="واجهة Vydrop العربية الأصلية في ويندوز مع رابط الفيديو والصيغة وجودة الصوت والترجمة وزر تنزيل في المنتصف"></picture><figcaption>عرض أصلي لنافذة واجهة الإصدار 4.3.0 بمقياس ١٠٠٪، دون مؤشر الفأرة.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="../images/screenshots/vydrop-dark-ar-manager.png"><img src="../images/screenshots/vydrop-light-ar-manager.png" width="1280" height="761" alt="مدير تنزيلات Vydrop 4.4 في ويندوز مع البحث ومرشحات الحالة وأزرار التحكم وتفاصيل الملف المحدد"></picture><figcaption>لقطة أصلية من تطبيق Vydrop 4.4.0 في ويندوز بمقياس ١٠٠٪، مع أمثلة للتنزيلات ودون مؤشر الفأرة.</figcaption></figure>
+
+ابحث في المكتبة، وصفِّ الفيديو والصوت، وأوقف التنزيلات مؤقتًا واستأنفها، وشاهد تفاصيل الملف المحدد بجوار القائمة. تفتح **إضافة تنزيل** والإعدادات والسجل داخل مساحة العمل نفسها.
 
 ## إرشادات بلغتك
 

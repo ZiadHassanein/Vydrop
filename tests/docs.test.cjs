@@ -77,10 +77,21 @@ test('Site has no remote scripts, tracking or unsupported review ratings', () =>
 });
 
 test('Native screenshot set is complete, optimized and actually PNG', () => {
-  for (const language of ['en', 'ar']) for (const theme of ['dark', 'light']) {
-    const bytes = fs.readFileSync(path.join(root, `docs/images/screenshots/vydrop-${theme}-${language}-download.png`));
+  for (const language of ['en', 'ar']) for (const theme of ['dark', 'light']) for (const view of ['manager', 'download']) {
+    const bytes = fs.readFileSync(path.join(root, `docs/images/screenshots/vydrop-${theme}-${language}-${view}.png`));
     assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
     assert.ok(bytes.length < 300 * 1024);
-    assert.equal(bytes.readUInt32BE(16), 724);
+    assert.equal(bytes.readUInt32BE(16), 1280);
+    assert.equal(bytes.readUInt32BE(20), 761);
   }
+});
+
+test('Localized setup images exist with accurate intrinsic dimensions', () => {
+  const shots = JSON.parse(read('docs/_data/extension_shots.json'));
+  for (const shot of Object.values(shots)) for (const [language, image] of Object.entries(shot.localized_paths || {})) {
+    const bytes = fs.readFileSync(path.join(root, 'docs', image));
+    assert.equal(bytes.readUInt32BE(16), shot.width);
+    assert.equal(bytes.readUInt32BE(20), shot.localized_heights?.[language] || shot.height);
+  }
+  assert.ok(read('docs/_includes/setup-shot.html').includes('shot.localized_paths[shot_lang]'));
 });

@@ -108,6 +108,10 @@ internal static partial class Program
             model.CloseAddDownloadCommand.Execute(null);
             model.ThemeCommand.Execute(null);
             await Until(() => !transition.IsTransitioning, "A theme transition settles and releases its snapshot");
+            ((FrameworkElement)window.Content).InvalidateMeasure();
+            model.ThemeCommand.Execute(null);
+            Check(!transition.IsTransitioning, "A pending layout applies the palette without forcing virtualized row generation into a snapshot");
+            await Task.Delay(80);
             MotionPreferences.SetTestOverride(false);
             brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
             await Task.Delay(80);

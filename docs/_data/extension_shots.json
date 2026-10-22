@@ -132,59 +132,66 @@
     }
   },
   "player": {
-    "zones": [
-      {
-        "style": "left:49.3741%;top:0.3846%;width:28.3727%;height:17.6923%"
-      }
-    ],
-    "width": 1899,
-    "height": 736,
-    "path": "/images/extension/screenshots/07-send-playing-video.png",
-    "native_width": 719,
-    "style": "--shot-native-width:719px;aspect-ratio:719/260;--shot-width:264.1168%;--shot-left:-164.1168%;--shot-top:-27.3077%",
+    "zones": [],
+    "width": 416,
+    "height": 481,
+    "path": "/images/screenshots/browser-quality-en.png",
+    "native_width": 416,
+    "style": "--shot-native-width:416px;aspect-ratio:416/481;--shot-width:100%;--shot-left:0%;--shot-top:0%",
     "alt": {
-      "en": "Download by Vydrop button beside a playing YouTube video",
-      "ar": "زر Download by Vydrop بجوار فيديو يعمل على YouTube"
+      "en": "Vydrop browser menu with Video and Audio tabs, format choices, quality choices and Download",
+      "ar": "قائمة Vydrop في المتصفح وبها فيديو وصوت وخيارات الصيغة والجودة وزر تنزيل"
     },
     "caption": {
-      "en": "Refresh the video page, play the video, then click Download by Vydrop. This sends the link to the app for review.",
-      "ar": "حدّث صفحة الفيديو وشغّله، ثم اضغط Download by Vydrop لإرسال الرابط إلى التطبيق ومراجعته."
+      "en": "The actual browser quality menu after choosing Download by Vydrop. Select a format and quality, then explicitly press Download. The media is a local demonstration fixture.",
+      "ar": "قائمة الجودة الفعلية بعد الضغط على Download by Vydrop. اختر الصيغة والجودة، ثم اضغط تنزيل للتأكيد. الوسائط مثال محلي للعرض."
+    },
+    "localized_paths": {
+      "ar": "/images/screenshots/browser-quality-ar.png"
+    },
+    "localized_heights": {
+      "ar": 471
+    },
+    "localized_styles": {
+      "ar": "--shot-native-width:416px;aspect-ratio:416/471;--shot-width:100%;--shot-left:0%;--shot-top:0%"
     }
   },
   "opening": {
     "zones": [],
-    "width": 1030,
-    "height": 1001,
-    "path": "/images/extension/screenshots/08-app-opening.png",
-    "native_width": 905,
-    "style": "--shot-native-width:905px;aspect-ratio:905/995;--shot-width:113.8122%;--shot-left:0%;--shot-top:0%",
+    "width": 1280,
+    "height": 761,
+    "path": "/images/screenshots/vydrop-light-en-manager.png",
+    "native_width": 1280,
+    "style": "--shot-native-width:1280px;aspect-ratio:1280/761;--shot-width:100%;--shot-left:0%;--shot-top:0%",
     "alt": {
-      "en": "Vydrop opening before the video link and quality finish loading",
-      "ar": "فتح Vydrop قبل اكتمال وصول الرابط وفحص الجودة"
+      "en": "Vydrop 4.4 download manager with sample completed, paused and pending jobs",
+      "ar": "مدير تنزيلات Vydrop 4.4 مع أمثلة للملفات المكتملة والمتوقفة مؤقتًا والمنتظرة"
     },
     "caption": {
-      "en": "Vydrop opens first. Wait for the link and media check to finish; the Download button can remain disabled during this step.",
-      "ar": "يفتح Vydrop أولًا. انتظر وصول الرابط وانتهاء فحص الفيديو؛ قد يظل زر التنزيل غير متاح أثناء هذه الخطوة."
+      "en": "After confirming Download, Vydrop shows the transfer in the manager. This native capture uses example jobs. Unrelated queued jobs retain their state.",
+      "ar": "بعد تأكيد التنزيل يظهر الملف في مدير التنزيلات. تستخدم هذه اللقطة الأصلية أمثلة للتنزيلات، وتحتفظ بقية الملفات في القائمة بحالتها."
+    },
+    "localized_paths": {
+      "ar": "/images/screenshots/vydrop-light-ar-manager.png"
     }
   },
   "review": {
-    "zones": [
-      {
-        "style": "left:19.0042%;top:75.3535%;width:24.9649%;height:7.2727%"
-      }
-    ],
-    "width": 1426,
-    "height": 990,
-    "path": "/images/extension/screenshots/09-review-and-download.png",
-    "native_width": 1426,
-    "style": "--shot-native-width:1426px;aspect-ratio:1426/990;--shot-width:100%;--shot-left:0%;--shot-top:0%",
+    "zones": [],
+    "width": 1280,
+    "height": 761,
+    "path": "/images/screenshots/vydrop-light-en-download.png",
+    "native_width": 1280,
+    "style": "--shot-native-width:1280px;aspect-ratio:1280/761;--shot-width:100%;--shot-left:0%;--shot-top:0%",
     "alt": {
-      "en": "Vydrop with the video link, preview, quality and enabled Download button",
-      "ar": "Vydrop بعد وصول الرابط وظهور معاينة الفيديو والجودة وزر التنزيل"
+      "en": "The native Add download workspace with media details and output choices",
+      "ar": "مساحة إضافة تنزيل الأصلية مع تفاصيل الوسائط وخيارات الحفظ"
     },
     "caption": {
-      "en": "Review the detected video, choose Video or Audio, quality and save folder, then choose Download. The extension does not start saving automatically.",
-      "ar": "راجع الفيديو واختر فيديو أو صوتًا، ثم الجودة ومجلد الحفظ واضغط تنزيل. الإضافة لا تبدأ حفظ الملف تلقائيًا."
+      "en": "Add download lets you inspect a link and choose output, subtitles and a save folder in the main window. Example media is shown.",
+      "ar": "تتيح إضافة تنزيل فحص الرابط واختيار الصيغة والترجمة ومجلد الحفظ داخل النافذة الرئيسية. الوسائط المعروضة أمثلة."
+    },
+    "localized_paths": {
+      "ar": "/images/screenshots/vydrop-light-ar-download.png"
     }
   }
 }

@@ -8,7 +8,7 @@ const { chromium } = require(process.env.VYDROP_PLAYWRIGHT || 'playwright');
 const root = path.resolve(__dirname, '..');
 const extension = path.resolve(process.env.VYDROP_EXTENSION || path.join(root, 'dist/Vydrop-browser/chromium'));
 const media = process.env.VYDROP_FIXTURE_MEDIA;
-const expectedVersion = process.env.VYDROP_EXPECTED_COMPANION || '1.4.1';
+const expectedVersion = process.env.VYDROP_EXPECTED_COMPANION || '1.5.0';
 const asset = 'D4D05AQTestSelectedVideo';
 const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:7517135049939525632/';
 const group = 'https://www.linkedin.com/groups/2066905/?q=highlightedFeedForGroups&highlightedUpdateUrn=urn%3Ali%3Aactivity%3A7517135049939525632';

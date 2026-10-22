@@ -1,26 +1,26 @@
 # Vydrop browser companion
 
-## Companion 1.4.1
+## Companion 1.5.0
 
 The Windows installer registers the native connection automatically for the current user. When official store listings are configured, **Settings → Browser integration → Add to Chrome/Edge/Firefox** opens the selected store; approve the browser confirmation and use **Test connection**. Developer mode and folder selection are only needed for the local development companion. Store listings are not published yet. Preview builds retain a separate connection and use the local preview companion.
 
 Firefox 140+ displays built-in consent for browsing activity and website content: selected page/media URLs are transferred to the local desktop app. No analytics or cloud collection is added. Optional stream discovery remains off until its separate permissions are granted.
 
-Companion 1.4.1 adds **Test connection** (keep the app open for a full round trip), **Add to download queue**, and optional media-stream discovery in the popup. Version-1 link sending and existing extension/native-host identities are retained for compatibility.
+Companion 1.5.0 adds **Test connection** (keep the app open for a full round trip), **Add to download queue**, and optional media-stream discovery in the popup. Version-1 link sending and existing extension/native-host identities are retained for compatibility.
 
 Discovery is disabled until you grant optional `webRequest` and HTTP(S) host access. It reads media response types/URLs, never cookies, account information, request bodies or media response bodies. Results are bounded per tab/frame, expire after 90 seconds and disappear on navigation or worker restart. Select a listed stream explicitly to send it for inspection; multiple players, ads, MSE, private content, unsupported formats and DRM can still prevent a usable download. Denying or removing the permission leaves normal page/player sending available.
 
-The app can save an explicitly sent link to its queue while busy. Jobs wait for review/start; sending never starts hidden downloads. New source context lets a waiting job request a fresh URL for the same video. Older hosts fall back to opening a normal review link and may still reject links while busy. Queue URLs and original pages are stored locally by the new app for recovery, including in its previous-state backup.
+The app can save a link to its queue while busy. Opening a link alone keeps it ready for review; choosing a format and quality and pressing Download explicitly starts that output. A closed app can launch to handle it. Older hosts fall back to the review workflow and retain version-1 sending. Source context lets a waiting job request a fresh URL for the same video. Queue URLs and original pages stay locally for recovery, including in the backup.
 
 To prepare unsigned store-root archives, use `scripts/package-browser.ps1 -StorePackages`. The generated `store-readiness.json` lists remaining publisher account, assigned ID, signing and installed-package tests. These files are **not published or signed add-ons**. Keep the existing unpacked identity; store-assigned Chromium/Edge IDs must be verified and added alongside it to both native origin validation and host manifests before publication.
 
 ## Local setup and player behavior
 
-Optional Chrome/Edge and Firefox companions are included in the app ZIP under `Browser`. Normal app downloads need no extension. Companion 1.4.1 displays a small **Download by Vydrop** tab near the playing video's top-right corner, outside its border, across websites including embedded HTML5 players. Clicking it copies that video's link and opens the app. You review the result, choose quality and click Download in Vydrop.
+Optional Chrome/Edge and Firefox companions are included in the app ZIP under `Browser`. Normal app downloads need no extension. Companion 1.5.0 places **Download by Vydrop** inside the playing video's top-right corner. Choose Video or Audio, format and quality, then explicitly press Download to start it in the saved app folder. The toolbar popup provides the same choices.
 
 **New to the extension? Follow the illustrated [Chrome](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome), [Edge](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) or [Firefox](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) guide**, with English and Arabic instructions. The regular **Vydrop** companion connects to the regular app. A separately built **Vydrop Preview** companion uses the preview channel.
 
-In builds with the simplified guided setup, choose your browser in **Settings → Browser integration** and click **Set up Chrome**, **Set up Edge** or **Set up Firefox**. This verifies the app connection, copies the exact extension path and opens that browser's loading page. Complete the loading step there. **Manual setup and troubleshooting** retains the individual page, path, folder and connection actions. If the browser cannot be opened, copy its displayed address manually. A connected status confirms the desktop app registration, not that the browser has installed the extension. Missing package files disable automatic setup and path actions, with recovery guidance. Browser confirmation is still required.
+In builds with the simplified guided setup, choose your browser in **Settings → Browser integration** and click **Set up Chrome**, **Set up Edge** or **Set up Firefox**. This verifies the app connection, copies the exact extension path and opens that browser's loading page. Complete the loading step there. **Manual setup and troubleshooting** retains the individual page, path, folder and connection actions. If the browser cannot be opened, copy its displayed address manually. A connected status confirms the desktop app registration, not that the browser has installed the extension. If companion files are missing, setup can restore the bundled copy; manual recovery guidance remains available. Browser confirmation is still required.
 
 1. Extract the app ZIP into a permanent folder and open `Vydrop.exe`.
 2. Choose **Settings → Browser integration → Enable connection** in the app. This registers the connection for your Windows account only.

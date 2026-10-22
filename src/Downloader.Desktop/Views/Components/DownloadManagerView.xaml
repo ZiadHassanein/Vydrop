@@ -52,6 +52,7 @@
     <Button Grid.Column="1" Command="{Binding QueueCommand}" Style="{StaticResource QuietButton}" Padding="7" MinHeight="32" ToolTip="{Binding ManageQueueLabel}" AutomationProperties.Name="{Binding ManageQueueLabel}"><Path Data="M2,5 H20 M2,11 H20 M2,17 H20 M6,2 V8 M15,8 V14 M8,14 V20" Style="{StaticResource LineIcon}" Width="18" Height="18"/></Button>
    </Grid>
    <ListBox x:Name="DownloadsList" Grid.Row="3" ItemsSource="{Binding LibraryItems}" SelectedItem="{Binding SelectedLibraryItem}" Background="Transparent" BorderThickness="0" Padding="0" ItemContainerStyle="{StaticResource LibraryRow}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" SelectionMode="Single" MouseDoubleClick="DownloadDoubleClicked" AutomationProperties.Name="{Binding LibraryHeading}">
+    <ListBox.ItemsPanel><ItemsPanelTemplate><local:StableVirtualizingStackPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
     <ListBox.Template><ControlTemplate TargetType="ListBox"><ScrollViewer Focusable="False" CanContentScroll="True" Background="Transparent" Style="{StaticResource InsetScrollFrame}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"><ItemsPresenter/></ScrollViewer></ControlTemplate></ListBox.Template>
     <ListBox.ItemTemplate><DataTemplate>
      <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="0,0,0,0">

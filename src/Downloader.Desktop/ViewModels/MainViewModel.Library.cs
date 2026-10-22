@@ -142,10 +142,12 @@ public sealed partial class MainViewModel
     private void RefreshLibrary()
     {
         if (LibraryItems == null) return;
-        LibraryItems.Refresh();
+        // Progress, language and palette updates do not replace the list's membership.
+        // Avoid resetting a virtualized ItemsControl while it is generating its rows.
+        if (!LibraryItems.Cast<QueueItemView>().SequenceEqual(QueueItems.Where(LibraryMatches))) LibraryItems.Refresh();
         foreach (var row in QueueItems) { row.Refresh(T, Queue.IsRunning); EnsureLibraryArtwork(row); }
         if (SelectedLibraryItem == null || !QueueItems.Contains(SelectedLibraryItem)) SelectedLibraryItem = LibraryItems.Cast<QueueItemView>().FirstOrDefault();
-        foreach (string name in new[] { nameof(IsAddDownloadPage), nameof(LibraryItems), nameof(LibraryEmpty), nameof(HasLibrarySearch), nameof(IsLibraryAll), nameof(IsLibraryQueue), nameof(IsLibraryActive), nameof(IsLibraryPaused), nameof(IsLibraryComplete), nameof(IsLibraryVideo), nameof(IsLibraryAudio), nameof(LibraryCount), nameof(WaitingCount), nameof(ActiveCount), nameof(PausedCount), nameof(CompletedCount), nameof(VideoCount), nameof(AudioCount), nameof(AllFilterLabel), nameof(ActiveFilterLabel), nameof(PausedFilterLabel), nameof(CompletedFilterLabel), nameof(QueueNavigationLabel), nameof(EmptyLibraryHeading), nameof(EmptyLibraryDetail), nameof(LibraryFooterLabel) }) OnPropertyChanged(name);
+        foreach (string name in new[] { nameof(IsAddDownloadPage), nameof(LibraryEmpty), nameof(HasLibrarySearch), nameof(IsLibraryAll), nameof(IsLibraryQueue), nameof(IsLibraryActive), nameof(IsLibraryPaused), nameof(IsLibraryComplete), nameof(IsLibraryVideo), nameof(IsLibraryAudio), nameof(LibraryCount), nameof(WaitingCount), nameof(ActiveCount), nameof(PausedCount), nameof(CompletedCount), nameof(VideoCount), nameof(AudioCount), nameof(AllFilterLabel), nameof(ActiveFilterLabel), nameof(PausedFilterLabel), nameof(CompletedFilterLabel), nameof(QueueNavigationLabel), nameof(EmptyLibraryHeading), nameof(EmptyLibraryDetail), nameof(LibraryFooterLabel) }) OnPropertyChanged(name);
         LibraryActionCommand?.NotifyCanExecuteChanged(); LibraryCancelCommand?.NotifyCanExecuteChanged(); OpenLibraryFolderCommand?.NotifyCanExecuteChanged();
     }
     private void EnsureLibraryArtwork(QueueItemView row)

@@ -56,6 +56,7 @@ internal static partial class Program
         var service = new DownloadService(provider, new EmptyStorage());
         var thumbnailLoader = new FixtureThumbnailLoader();
         var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader) { ShowActivated = !args.Contains("--motion") && !args.Contains("--manager") && !args.Contains("--workspace-flow") };
+        if (args.Contains("--ci-layout")) window.Height = 704;
         window.ContentRendered += async (_, _) =>
         {
             try
@@ -111,15 +112,7 @@ internal static partial class Program
                 if (args.Contains("--docs"))
                 {
                     Check(Math.Abs(VisualTreeHelper.GetDpi(window).DpiScaleX - 1) < .01, "Documentation captures render at 100% scale");
-                    foreach (string locale in new[] { "en", "ar" })
-                        foreach (bool dark in new[] { true, false })
-                        {
-                            model.SelectLanguageCommand.Execute(locale);
-                            if (model.IsDark != dark) model.ThemeCommand.Execute(null);
-                            await Task.Delay(350);
-                            window.UpdateLayout();
-                            Capture(window, System.IO.Path.Combine(captures, "vydrop-" + (dark ? "dark" : "light") + "-" + locale + "-download.png"));
-                        }
+                    await CaptureReleaseDocumentation(window, model, provider, thumbnailLoader, captures);
                     Console.WriteLine(count + " WPF documentation capture checks passed.");
                     return;
                 }
@@ -581,6 +574,8 @@ internal static partial class Program
         public bool IsReady => true;
         public string ThumbnailAddress = "https://example.test/thumbnail.png";
         public string VideoTitle = "Local UI fixture";
+        public string VideoUploader = "Local test fixture";
+        public double VideoDuration = 504;
         public AudioSourceInfo SourceAudio = new("pcm_s16le", 1536, true);
         public bool WebMSupported = true;
         public DownloadOptions LastRequest;
@@ -607,8 +602,8 @@ internal static partial class Program
             return new()
             {
                 Title = VideoTitle,
-                Uploader = "Local test fixture",
-                Duration = 504,
+                Uploader = VideoUploader,
+                Duration = VideoDuration,
                 ThumbnailUrl = ThumbnailAddress,
                 Captions = CaptionTracks,
                 HasAudio = true,

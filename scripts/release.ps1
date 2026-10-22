@@ -56,7 +56,7 @@ $releaseNotes
 - Public media from YouTube, TikTok, Facebook, Vimeo and other yt-dlp-supported sites, plus compatible direct media links. Private, sign-in-only and DRM content is unsupported.
 - Queue, playlist selection and available SRT/VTT subtitles.
 - English/Arabic and light/dark themes.
-- Browser companion 1.4.1 inside Browser: player sending, connection testing, explicit queue handoff and optional media discovery. Earlier companion/native-host identities and version-1 fallback remain compatible.
+- Browser companion 1.5.0 inside Browser: in-player format/quality choices, confirmed download starts, closed-app launching, connection testing and optional media discovery. Earlier companion/native-host identities and version-1 fallback remain compatible.
 - Automatic daily verified yt-dlp/Deno checks and one compatible update-and-retry.
 - Settings keeps video errors in the download screen; manual app updates use this repository.
 

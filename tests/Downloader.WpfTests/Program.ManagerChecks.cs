@@ -43,6 +43,9 @@ internal static partial class Program
         Check(model.SelectedLibraryItem.OutputFile == firstFile && model.SelectedLibraryItem.TransferSummary.Contains("MB") && model.SelectedLibraryItem.Speed == "—", "Completed size comes from the file and inactive transfer speed is unknown: " + model.SelectedLibraryItem.TransferSummary + " speed=" + model.SelectedLibraryItem.Speed + " output=" + model.SelectedLibraryItem.OutputFile + " expected=" + firstFile);
         var reloaded = new DownloadQueue(new LocalQueueStorage(root));
         Check(reloaded.Entries.Count == 4 && reloaded.Entries[0].Options.ThumbnailUrl == complete.Options.ThumbnailUrl, "Library metadata extends the existing durable queue without replacing its schema");
+        int presentationResets = 0;
+        void CountReset(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs args) { if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) presentationResets++; }
+        model.LibraryItems.CollectionChanged += CountReset;
         foreach (string language in new[] { "en", "ar" }) foreach (bool dark in new[] { false, true })
         {
             model.SelectLanguageCommand.Execute(language); if (model.IsDark != dark) model.ThemeCommand.Execute(null);
@@ -52,6 +55,8 @@ internal static partial class Program
                 "The Add action stays content-sized and long save paths stay on one line: " + language + "/" + dark);
             Capture(window, Path.Combine(captures, "manager-" + language + (dark ? "-dark" : "-light") + ".png"));
         }
+        model.LibraryItems.CollectionChanged -= CountReset;
+        Check(presentationResets == 0, "Changing language, theme and window size preserves the existing virtualized rows");
         model.SelectLanguageCommand.Execute("en");
         window.Width = 800; await Task.Delay(100); window.UpdateLayout();
         Check(window.ManagerContent.DetailsColumn.Width.Value == 0 && window.ManagerContent.CompactDetailsButton.IsVisible, "Compact windows keep the library usable and offer an explicit Details button");

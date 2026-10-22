@@ -1,4 +1,4 @@
-param([string]$Version='4.3.0',[switch]$Preview,[string]$CompilerPath,[switch]$UseExistingPackage,[string]$OutputDirectory)
+param([string]$Version='4.4.0',[switch]$Preview,[string]$CompilerPath,[switch]$UseExistingPackage,[string]$OutputDirectory)
 $ErrorActionPreference='Stop'
 $taskRepo=Split-Path -Parent $PSScriptRoot
 if($Version -notmatch '^\d+\.\d+\.\d+(?:-preview\.\d+)?$' -or $Version.Contains('-preview.') -ne $Preview.IsPresent) {throw 'Choose a matching stable or preview version/channel.'}

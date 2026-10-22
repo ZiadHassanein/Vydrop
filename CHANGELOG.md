@@ -4,6 +4,8 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.0] - 2026-10-22
+
 ### Added
 - Make the download manager the main workspace, with search, media and status filters, transfer controls and a selected-media inspector in Vydrop's updated visual identity.
 - Choose video or audio format and quality from the browser menu, then start the confirmed download in Vydrop, including when the app is closed.
@@ -14,6 +16,7 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 - Remove superseded hidden header and form controls, unused presentation members and the old runtime logo bitmap.
 
 ### Fixed
+- Keep virtualized download rows stable through native window resizes, language and theme changes.
 - Recover missing browser companion files from the app's bundled copy and keep setup status actionable.
 - Keep scheduled stops from restarting a due queue, and preserve paused or interrupted jobs for recovery after reopening.
 - Announce new completions through the visible History navigation and send transfer announcements to the visible activity panel.

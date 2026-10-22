@@ -9,7 +9,8 @@ function CardBrush([string]$Color) { [Windows.Media.SolidColorBrush]::new([Windo
 function CardGeometry([string]$Key) { [Windows.Media.Geometry]::Parse($cardSymbols.SelectSingleNode("//*[@x:Key='$Key']", $cardNamespaces).InnerText) }
 $cardVisual = [Windows.Media.DrawingVisual]::new()
 $cardDrawing = $cardVisual.RenderOpen()
-$cardDrawing.DrawRectangle((CardBrush '#181B20'), $null, [Windows.Rect]::new(0, 0, 1200, 630))
+$cardDrawing.DrawRectangle((CardBrush '#211925'), $null, [Windows.Rect]::new(0, 0, 1200, 630))
+$cardDrawing.DrawGeometry((CardBrush '#713046'), $null, [Windows.Media.Geometry]::Parse('M0,0 H1200 V14 H20 L0,34 Z'))
 $cardDrawing.PushTransform([Windows.Media.TranslateTransform]::new(228, 100))
 $cardDrawing.PushTransform([Windows.Media.ScaleTransform]::new(.78, .78))
 $cardDrawing.DrawGeometry((CardBrush '#E63D4D'), $null, (CardGeometry 'BrandInitialGeometry'))
@@ -19,7 +20,7 @@ $cardDrawing.Pop(); $cardDrawing.Pop()
 foreach ($cardLine in @(
     @{ Text = 'Free video & audio downloader'; Size = 38; Y = 375; Ink = '#F6F2F4' },
     @{ Text = 'YouTube + 1,000+ supported sites'; Size = 28; Y = 438; Ink = '#C5B5C0' },
-    @{ Text = 'Windows 10/11 x64  ·  English & Arabic  ·  Open source'; Size = 22; Y = 502; Ink = '#C5B5C0' }
+    @{ Text = 'Vydrop 4.4  ·  Windows 10/11 x64  ·  English & Arabic'; Size = 22; Y = 502; Ink = '#DDC2D2' }
 )) {
     $cardText = [Windows.Media.FormattedText]::new($cardLine.Text, [Globalization.CultureInfo]::InvariantCulture, [Windows.FlowDirection]::LeftToRight, [Windows.Media.Typeface]::new('Segoe UI'), $cardLine.Size, (CardBrush $cardLine.Ink), 1.0)
     $cardDrawing.DrawText($cardText, [Windows.Point]::new((1200 - $cardText.Width) / 2, $cardLine.Y))

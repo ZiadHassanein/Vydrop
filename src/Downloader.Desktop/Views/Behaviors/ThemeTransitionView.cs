@@ -31,7 +31,8 @@ public sealed class ThemeTransitionView : Canvas
     internal void Run(FrameworkElement surface, FrameworkElement origin, Action change)
     {
         Reset();
-        if (!MotionPreferences.Enabled || !surface.IsVisible || surface.ActualWidth < 1 || surface.ActualHeight < 1)
+        // A snapshot must not force a second layout pass while virtualized rows are being generated.
+        if (!MotionPreferences.Enabled || !surface.IsVisible || !surface.IsMeasureValid || !surface.IsArrangeValid || surface.ActualWidth < 1 || surface.ActualHeight < 1)
         {
             change();
             return;

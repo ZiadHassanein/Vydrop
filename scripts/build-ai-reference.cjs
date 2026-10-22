@@ -28,7 +28,8 @@ function asText(source) {
   text = text.replace(/\{% include setup-shot\.html id="([^"]+)"(?: lang="([^"]+)")? %\}/gu, (_, id, language) => {
     const shot=JSON.parse(read('docs/_data/extension_shots.json'))[id];
     const lang=language || (source.startsWith('docs/ar/') ? 'ar' : 'en');
-    return `![${shot.alt[lang]}](${new URL(shot.path.slice(1),base).href})\n\n${shot.caption[lang]}`;
+    const image=shot.localized_paths?.[lang] || shot.path;
+    return `![${shot.alt[lang]}](${new URL(image.slice(1),base).href})\n\n${shot.caption[lang]}`;
   });
   if (/\{%|\{\{/u.test(text)) throw new Error(`${source}: unresolved template in plain-text reference`);
   text = text.replace(/<!--[\s\S]*?-->/gu, '').replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/gu, '');
