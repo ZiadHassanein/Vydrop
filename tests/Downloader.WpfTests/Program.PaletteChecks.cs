@@ -22,6 +22,16 @@ internal static partial class Program
             double a = Luminance(first), b = Luminance(second);
             return (Math.Max(a, b) + .05) / (Math.Min(a, b) + .05);
         }
+        foreach (string icon in new[] { "LinkIcon", "VideoIcon", "AudioIcon", "SubtitlesIcon", "DownloadIcon",
+            "GlobeIcon", "HistoryIcon", "FolderIcon", "OpenFolderIcon", "PlusIcon", "CloseIcon", "CheckIcon",
+            "ManagerPauseIcon", "ManagerPlayIcon", "ManagerClockIcon", "ChevronIcon", "AlertIcon", "BrowserIcon",
+            "RefreshIcon", "LibraryIcon", "QueueListIcon", "SettingsGearIcon", "ManagerSearchIcon", "SunIcon", "MoonIcon", "SlidersIcon" })
+        {
+            var bounds = ((Geometry)Application.Current.Resources[icon]).Bounds;
+            Check(!bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0 && bounds.Left >= 0 && bounds.Top >= 0 &&
+                bounds.Right <= 24.01 && bounds.Bottom <= 24.01,
+                "Adapted icon geometry stays inside its native 24-unit canvas: " + icon);
+        }
         var video = (RadioButton)WpfTree.Find(window, "VideoChoice");
         var audio = (RadioButton)WpfTree.Find(window, "AudioChoice");
         model.SettingsVisible = false;
@@ -36,10 +46,15 @@ internal static partial class Program
         foreach (bool dark in new[] { false, true })
         {
             if (model.IsDark != dark) model.ThemeCommand.Execute(null);
-            foreach (string foreground in new[] { "Ink", "Muted", "Accent", "Error", "Success" })
+            foreach (string foreground in new[] { "Ink", "Muted", "Accent", "Error", "Success", "Warning", "MediaVideo", "MediaAudio" })
                 foreach (string background in new[] { "Page", "Field", "Surface", "Hover", "Selected" })
                     Check(Contrast(Role(foreground), Role(background)) >= 4.5,
                         "Readable " + foreground + " on " + background + " in " + (dark ? "dark" : "light") + " theme");
+            foreach (string foreground in new[] { "NavigationInk", "NavigationMuted", "NavigationIcon" })
+                Check(Contrast(Role(foreground), Role("Navigation")) >= 4.5,
+                    "Navigation text and icons remain readable in " + (dark ? "dark" : "light") + " theme");
+            Check(Contrast(Role("NavigationSelectedInk"), Role("NavigationSelected")) >= 4.5,
+                "Selected navigation retains readable text and icons");
             Check(Contrast(Role("OnAccent"), Role("Action")) >= 4.5 && Contrast(Role("Action"), Role("Page")) >= 3,
                 "The primary action and its label remain distinct and readable");
             var action = Role("Action"); var label = Role("OnAccent");

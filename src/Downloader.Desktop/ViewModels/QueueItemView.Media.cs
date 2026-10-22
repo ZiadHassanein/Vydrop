@@ -39,7 +39,8 @@ public sealed partial class QueueItemView
         _ => "web"
     };
     public string Duration => Entry.Options.Duration is > 0 and < 8640000 ? TimeSpan.FromSeconds(Entry.Options.Duration).ToString(Entry.Options.Duration >= 3600 ? @"h\:mm\:ss" : @"m\:ss", CultureInfo.InvariantCulture) : "";
-    public Brush StateBrush => (Brush)System.Windows.Application.Current.Resources[MissingFile || Entry.State == QueueState.Failed ? "Error" : IsComplete ? "Success" : IsActive || Entry.State is QueueState.Paused or QueueState.Interrupted ? "Accent" : "Muted"];
+    public Brush StateBrush => (Brush)System.Windows.Application.Current.Resources[MissingFile || Entry.State == QueueState.Failed ? "Error" : IsComplete ? "Success" : IsActive ? "Accent" : Entry.State is QueueState.Paused or QueueState.Interrupted ? "Warning" : "Muted"];
+    public Brush MediaBrush => (Brush)System.Windows.Application.Current.Resources[IsAudio ? "MediaAudio" : "MediaVideo"];
     public Geometry MediaIcon => (Geometry)System.Windows.Application.Current.Resources[IsAudio ? "AudioIcon" : "VideoIcon"];
     internal void RefreshMedia(Func<string, string> t)
     {

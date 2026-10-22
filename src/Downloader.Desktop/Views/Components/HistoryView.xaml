@@ -34,8 +34,8 @@
    <ListBox.ItemTemplate><DataTemplate>
     <Grid ToolTip="{Binding FilePath}">
      <Grid.ColumnDefinitions><ColumnDefinition Width="32"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-     <Path Width="24" Height="24" Stretch="Uniform" Stroke="{DynamicResource Accent}" StrokeThickness="1.5" VerticalAlignment="Top" Margin="0,3,0,0">
-      <Path.Style><Style TargetType="Path"><Setter Property="Data" Value="{DynamicResource VideoIcon}"/><Style.Triggers><DataTrigger Binding="{Binding IsAudio}" Value="True"><Setter Property="Data" Value="{DynamicResource AudioIcon}"/></DataTrigger></Style.Triggers></Style></Path.Style>
+     <Path Width="24" Height="24" VerticalAlignment="Top" Margin="0,3,0,0">
+      <Path.Style><Style TargetType="Path" BasedOn="{StaticResource LineIcon}"><Setter Property="Data" Value="{StaticResource VideoIcon}"/><Setter Property="Stroke" Value="{DynamicResource MediaVideo}"/><Style.Triggers><DataTrigger Binding="{Binding IsAudio}" Value="True"><Setter Property="Data" Value="{StaticResource AudioIcon}"/><Setter Property="Stroke" Value="{DynamicResource MediaAudio}"/></DataTrigger><DataTrigger Binding="{Binding Available}" Value="False"><Setter Property="Stroke" Value="{DynamicResource Error}"/></DataTrigger></Style.Triggers></Style></Path.Style>
      </Path>
      <StackPanel Grid.Column="2">
       <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" LineHeight="20" MaxHeight="40">

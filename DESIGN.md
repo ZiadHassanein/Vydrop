@@ -3,11 +3,11 @@ name: Vydrop
 description: A media library with burgundy navigation, paper and plum surfaces, and cherry actions.
 colors:
   page-light: "#FCFAFC"
-  page-dark: "#1D1820"
-  surface-light: "#F5EDF2"
-  surface-dark: "#261E2A"
+  page-dark: "#1C1A20"
+  surface-light: "#F4EFF2"
+  surface-dark: "#252229"
   field-light: "#FFFFFF"
-  field-dark: "#2B242F"
+  field-dark: "#2D2931"
   ink-light: "#2A2029"
   ink-dark: "#FAF3F7"
   muted-light: "#715F6D"
@@ -21,16 +21,23 @@ colors:
   download-action-progress: "#651321"
   border-light: "#8E7D87"
   border-dark: "#94828D"
-  hover-light: "#F3E9ED"
-  hover-dark: "#353039"
-  selected-light: "#F8E8EE"
-  selected-dark: "#442638"
+  hover-light: "#F0E8EE"
+  hover-dark: "#363039"
+  selected-light: "#F7E8EF"
+  selected-dark: "#402936"
   error-light: "#A12232"
   error-dark: "#FFB0B7"
-  divider-light: "#E5D9E1"
-  divider-dark: "#443448"
+  divider-light: "#E2D7DF"
+  divider-dark: "#443B48"
   success-light: "#24643E"
   success-dark: "#85D1A2"
+  warning-light: "#81540F"
+  warning-dark: "#EBC17A"
+  media-video-light: "#A91F3B"
+  media-video-dark: "#F17B96"
+  media-audio-light: "#70519A"
+  media-audio-dark: "#C7AEF1"
+  navigation-icon: "#EBA6BB"
   navigation-light: "#3B1B2C"
   navigation-dark: "#351A2A"
   navigation-ink: "#FFF4FA"
@@ -141,7 +148,7 @@ Cherry, burgundy and warm plum define the palette; green is reserved for success
 ### Neutral
 
 - **Paper / Plum Page** (page-*): main workspace.
-- **Blush / Plum Surface** (surface-*): details, supporting containers and count badges. The browser dark panel uses Surface; its light panel uses Page.
+- **Blush / Plum Surface** (surface-*): details, supporting containers and count badges. The native workspace uses the refined surface values above; the companion retains its existing blush/plum CSS palette.
 - **Field**, **Ink** and **Muted**: input and radio-card faces, primary copy and supporting metadata.
 - **Border**, **Divider**, **Hover** and **Selected**: distinct boundary, separator, pointer and selection roles.
 - **Success** and **Error**: semantic feedback accompanied by explicit status text and a drawn state symbol. Missing files also use a struck title.
@@ -149,7 +156,7 @@ Cherry, burgundy and warm plum define the palette; green is reserved for success
 
 **The Semantic Brush Rule.** Use native dynamic resources for theme-aware color roles. In Windows high contrast, system colors replace the authored palette; never pin a status or selection to a brand color.
 
-High contrast maps Ink, Muted, Error, Success and navigation text to WindowText; Accent, Action, Border, DownloadActionFill and selected navigation to Highlight; OnAccent, DownloadActionInk, DownloadActionProgress and selected-navigation ink to HighlightText; other surfaces to Window. Source marks override their brand fills with Accent and their symbol stroke/fill with OnAccent. Selected/focused row border thickness increases from one to three. Browser forced colors use Canvas, CanvasText, ButtonText, Highlight and HighlightText. The launch button alone sets forced-color-adjust:none within the forced-colors query to suppress Chromium text backplates while explicitly retaining system Highlight and HighlightText.
+High contrast maps Ink, Muted, Error, Success, Warning, MediaVideo, MediaAudio, NavigationIcon and navigation text to WindowText; Accent, Action, Border, DownloadActionFill and selected navigation to Highlight; OnAccent, DownloadActionInk, DownloadActionProgress and selected-navigation ink to HighlightText; other surfaces to Window. Source marks override their brand fills with Accent and their symbol stroke/fill with OnAccent. Selected/focused row border thickness increases from one to three. Browser forced colors use Canvas, CanvasText, ButtonText, Highlight and HighlightText. The launch button alone sets forced-color-adjust:none within the forced-colors query to suppress Chromium text backplates while explicitly retaining system Highlight and HighlightText.
 
 The existing browser detector record (.impeccable/review/workspace-browser-detector.json) reports five advisory literal-color findings in video-overlay.js, covering #282b32, #FF8393 and #E63D4D. These pre-existing overlay values remain documented drift; this flow refinement neither promotes them to system tokens nor changes their styling.
 
@@ -215,7 +222,7 @@ Search uses Field and Ink, one-unit Border, control radius and height 44 DIP. A 
 
 ### Navigation
 
-Navigation items use outlined 18 × 18 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Selected items use NavigationSelected and semibold NavigationSelectedInk within the chamfered face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Queue, Video and Audio display live 23-high count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download, Settings and History select their center workspace without disabling sidebar navigation. Sidebar and Settings contain no visible version or release-channel labels.
+Navigation items use outlined 19 × 19 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Unselected icons use NavigationIcon, a warm rose; selected icons and labels use NavigationSelectedInk on the chamfered NavigationSelected face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Queue, Video and Audio display live 23-high count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download, Settings and History select their center workspace without disabling sidebar navigation. Sidebar and Settings contain no visible version or release-channel labels.
 
 ### Counted filter tabs
 
@@ -278,3 +285,12 @@ Inspection reuse is bounded to eight source URLs: pending requests are shared an
 ## Add download workspace refinement
 
 Keep the manager shell and its burgundy, plum/paper and cherry identity. The inline editor groups the URL, Paste action and brief guidance in one shallow surface, followed by flat output rows with aligned captions. Rows stack at narrow widths; URL entry stays left-to-right in either language. One folder picker includes Change, with a separate Open folder action. A divider separates the quiet queue action from the primary Download action. Header and form share their maximum content width. Media identity remains in the selected right inspector at wide widths and inline when compact. All controls continue to use real available media, saved options and existing queue commands.
+
+
+## Native icon and color refinement
+
+Use the selected Lucide 0.577.0 system icons as native WPF geometry, with the shared LineIcon rounded 1.7-DIP stroke. The approved Vydrop wordmark and brand arrow remain separate and unchanged. Navigation, form, History, menus and the theme switch share these geometries; keep the existing resource keys to preserve older view bindings. The pinned upstream commit and ISC / Feather MIT licenses are in THIRD-PARTY-NOTICES.txt. No icon package or network lookup runs in the app.
+
+Reserve cherry for actions, active downloads and selection. Paused or interrupted work uses Warning amber; completion uses Success green; unavailable files and failures use Error. Row and inspector progress inherit the same state brush as their status label and symbol. History's unavailable icon also uses Error alongside its existing struck title and explicit missing-file label. MediaAudio lavender differentiates audio controls and fallback artwork from MediaVideo cherry. Each state retains visible copy and a meaningful icon.
+
+The native dark workspace uses quieter charcoal/plum layers so the burgundy sidebar and cherry actions retain emphasis. English and Arabic use the same roles. Text and semantic colors meet 4.5:1 on normal, field, hover and selected surfaces; control boundaries meet 3:1. Windows high contrast overrides every new semantic role with system foreground colors.

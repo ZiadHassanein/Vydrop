@@ -28,9 +28,9 @@ internal static class ThemeResources
 
     private static readonly Dictionary<string, (string Light, string Dark)> Palette = new()
     {
-        ["Page"] = ("#FCFAFC", "#1D1820"),
-        ["Surface"] = ("#F5EDF2", "#261E2A"),
-        ["Field"] = ("#FFFFFF", "#2B242F"),
+        ["Page"] = ("#FCFAFC", "#1C1A20"),
+        ["Surface"] = ("#F4EFF2", "#252229"),
+        ["Field"] = ("#FFFFFF", "#2D2931"),
         ["Ink"] = ("#2A2029", "#FAF3F7"),
         ["Muted"] = ("#715F6D", "#CCBAC7"),
         ["Accent"] = ("#A91F3B", "#F17B96"),
@@ -40,11 +40,15 @@ internal static class ThemeResources
         ["DownloadActionInk"] = ("#FFFFFF", "#FFFFFF"),
         ["DownloadActionProgress"] = ("#651321", "#651321"),
         ["Border"] = ("#8E7D87", "#94828D"),
-        ["Hover"] = ("#F3E9ED", "#353039"),
-        ["Selected"] = ("#F8E8EE", "#442638"),
+        ["Hover"] = ("#F0E8EE", "#363039"),
+        ["Selected"] = ("#F7E8EF", "#402936"),
         ["Error"] = ("#A12232", "#FFB0B7"),
-        ["Divider"] = ("#E5D9E1", "#443448"),
+        ["Divider"] = ("#E2D7DF", "#443B48"),
         ["Success"] = ("#24643E", "#85D1A2"),
+        ["Warning"] = ("#81540F", "#EBC17A"),
+        ["MediaVideo"] = ("#A91F3B", "#F17B96"),
+        ["MediaAudio"] = ("#70519A", "#C7AEF1"),
+        ["NavigationIcon"] = ("#EBA6BB", "#EBA6BB"),
         ["Navigation"] = ("#3B1B2C", "#351A2A"),
         ["NavigationInk"] = ("#FFF4FA", "#FFF4FA"),
         ["NavigationMuted"] = ("#DDC2D2", "#DDC2D2"),
@@ -68,7 +72,7 @@ internal static class ThemeResources
             if (HighContrast)
                 brush = key switch
                 {
-                    "Ink" or "Muted" or "Error" or "Success" or "NavigationInk" or "NavigationMuted" => contrast.Foreground,
+                    "Ink" or "Muted" or "Error" or "Success" or "Warning" or "MediaVideo" or "MediaAudio" or "NavigationIcon" or "NavigationInk" or "NavigationMuted" => contrast.Foreground,
                     "Accent" or "Action" or "Border" or "DownloadActionFill" => contrast.Highlight,
                     "OnAccent" or "DownloadActionInk" or "DownloadActionProgress" or "NavigationSelectedInk" => contrast.HighlightText,
                     "NavigationSelected" => contrast.Highlight,

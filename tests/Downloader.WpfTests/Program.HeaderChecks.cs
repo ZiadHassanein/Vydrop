@@ -62,9 +62,12 @@ internal static partial class Program
                     }
                     var brandBounds = Bounds(brand);
                     var actionBounds = Bounds(actions);
-                    Check(brandBounds.Left < 100 && brandBounds.Right < actionBounds.Left && actionBounds.Right <= window.ActualWidth &&
-                        Bounds(settings).Top > Bounds(header).Bottom,
-                        "Header remains unclipped with fixed-left branding, right actions and reachable footer Settings");
+                    var navigationBounds = Bounds(((MainWindow)window).ManagerContent.NavigationSurface);
+                    bool brandSeparated = arabic ? actionBounds.Right <= brandBounds.Left : brandBounds.Right < actionBounds.Left;
+                    Check(brandBounds.Left >= navigationBounds.Left && brandBounds.Right <= navigationBounds.Right && brandSeparated &&
+                        actionBounds.Left >= 0 && actionBounds.Right <= window.ActualWidth &&
+                        Bounds(settings).Top > Bounds(header).Bottom && Bounds(settings).Bottom <= navigationBounds.Bottom,
+                        "Header actions and sidebar branding remain unclipped with reachable Settings in " + (arabic ? "Arabic RTL" : "English LTR"));
                     Check(brand is Viewbox && Equals(((System.Windows.Shapes.Path)WpfTree.Find(window, "BrandLetters")).Fill, Application.Current.Resources["NavigationInk"]) && Equals(((System.Windows.Shapes.Path)WpfTree.Find(window, "BrandInitial")).Fill, Application.Current.Resources["BrandFill"]) && brand.FlowDirection == FlowDirection.LeftToRight,
                         "The compact vector wordmark keeps a red V, themed remaining letters and fixed direction across themes");
                     string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + (width == startupWidth ? "-default" : width < 1000 ? "-compact" : "-wide");

@@ -90,6 +90,8 @@ internal static partial class Program
         for (int wait = 0; wait < 100 && model.QueueItems.First(q => q.Id == waiting.Id).Speed == "—"; wait++) await Task.Delay(25);
         model.SelectedLibraryItem = model.QueueItems.First(q => q.Id == waiting.Id);
         Check(model.SelectedLibraryItem.IsActive && model.SelectedLibraryItem.Speed != "—" && model.SelectedLibraryItem.TransferSummary.Contains('/'), "Starting through the manager displays engine progress and measured transfer data");
+        Check(Equals(model.SelectedLibraryItem.StateBrush, window.FindResource("Accent")),
+            "Active transfers use the brand accent alongside their download icon and label");
         Check(model.SelectedLibraryItem.RowStatus.Contains("42%", StringComparison.Ordinal) && model.SelectedLibraryItem.RowDescription.Contains("MB", StringComparison.Ordinal), "The active row exposes measured percentage and known size beside its compact controls");
         bool compactTransfer = window.ManagerContent.ActualWidth < 1080;
         if (compactTransfer) { ((IInvokeProvider)new ButtonAutomationPeer(window.ManagerContent.CompactDetailsButton).GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(60); }
@@ -108,6 +110,10 @@ internal static partial class Program
         Capture(window, Path.Combine(captures, "manager-active.png"));
         model.LibraryActionCommand.Execute(waiting.Id); await running; await Task.Delay(80);
         Check(model.Queue.Entries.First(e => e.Id == waiting.Id).State == QueueState.Paused && model.LibraryActionCommand.CanExecute(waiting.Id), "The selected transfer can pause and exposes Resume without losing its job");
+        Check(Equals(model.SelectedLibraryItem.StateBrush, window.FindResource("Warning")) &&
+            Equals(rowProgress.Foreground, window.FindResource("Warning")),
+            "Pausing changes the actual row status and progress to amber while retaining the pause label and icon");
+        Capture(window, Path.Combine(captures, "manager-paused.png"));
         provider.DownloadHandler = (options, _, _) => new DownloadResult { FilePath = firstFile };
         await model.LibraryActionCommand.ExecuteAsync(waiting.Id);
         Check(model.Queue.Entries.First(e => e.Id == waiting.Id).State == QueueState.Completed && provider.LastRequest.JobId == waiting.Id, "Resuming from the manager uses the existing durable job and download service");
@@ -129,6 +135,9 @@ internal static partial class Program
         Check(selectedContainer.IsSelected && selectedContainer.BorderThickness.Left == 3 && Equals(selectedContainer.BorderBrush, window.FindResource("Accent")), "High-contrast selection remains visibly outlined after keyboard focus moves to search");
         Capture(window, Path.Combine(captures, "manager-high-contrast.png"));
         Check(Equals(window.FindResource("Navigation"), System.Windows.Media.Brushes.Black), "High contrast uses system-equivalent navigation colors");
+        foreach (string role in new[] { "NavigationIcon", "MediaAudio", "MediaVideo", "Warning" })
+            Check(Equals(window.FindResource(role), System.Windows.Media.Brushes.White),
+                "Semantic icon and status colors respect high-contrast system foreground: " + role);
         ThemeResources.ContrastOverride = null; ThemeResources.Apply(model.IsDark);
     }
 }
