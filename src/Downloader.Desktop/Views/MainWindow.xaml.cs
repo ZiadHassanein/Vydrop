@@ -139,6 +139,7 @@ public partial class MainWindow : Window
         EditorOverlay.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         ManagerContent.RefreshWorkspace();
         EditorHeading.Text = model.SettingsVisible ? model.SettingsLabel : model.AddDownloadLabel;
+        EditorHeader.MaxWidth = model.SettingsVisible ? double.PositiveInfinity : 712;
         EditorHeading.FlowDirection = model.ContentDirection;
         ApplyResponsiveLayout();
         if (opening) Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>

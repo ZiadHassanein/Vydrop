@@ -43,9 +43,14 @@ public partial class App : Application
         else
             MainWindow = new MainWindow();
         MainWindow.Show();
-        if (e.Args.Length == 1 && e.Args[0] == "--browser-setup")
+        if ((e.Args.Length is 1 or 2) && e.Args[0] == "--browser-setup")
             _ = Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(() =>
-                ((MainViewModel)MainWindow.DataContext).BrowserCommand.Execute(null)));
+            {
+                var model = (MainViewModel)MainWindow.DataContext;
+                if (e.Args.Length == 2 && Enum.TryParse<SetupBrowser>(e.Args[1], out var browser) && Enum.IsDefined(browser))
+                    new DesktopActions(MainWindow).ShowBrowserIntegration(text => Texts.For(model.IsArabic ? "ar" : "en", text), new BrowserSetupActions(), browser);
+                else model.BrowserCommand.Execute(null);
+            }));
         if (!smoke)
         {
             browserLifetime = new();

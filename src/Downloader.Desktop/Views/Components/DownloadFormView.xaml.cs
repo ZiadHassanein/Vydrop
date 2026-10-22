@@ -10,11 +10,29 @@ public partial class DownloadFormView : UserControl
     public DownloadFormView()
     {
         InitializeComponent();
+        Loaded += (_, _) => ArrangeFields();
+        SizeChanged += (_, e) => { if (e.WidthChanged) ArrangeFields(); };
         AudioFormatMenu.PlacementTarget = AudioChoice;
         VideoFormatMenu.PlacementTarget = VideoChoice;
         AudioFormatMenu.CustomPopupPlacementCallback = (popup, _, _) => ContextMenuPlacement.CenterWithinClient(AudioChoice, popup);
         VideoFormatMenu.CustomPopupPlacementCallback = (popup, _, _) => ContextMenuPlacement.CenterWithinClient(VideoChoice, popup);
         Unloaded += (_, _) => { AudioFormatMenu.IsOpen = false; VideoFormatMenu.IsOpen = false; };
+    }
+
+    private void ArrangeFields()
+    {
+        bool stacked = ActualWidth - 48 < 520;
+        ArrangeField(FormatRow, FormatCaption, FormatPicker, stacked);
+        ArrangeField(OutputControls, QualityCaption, QualityControls, stacked);
+        ArrangeField(FolderAnchor, FolderCaption, FolderControls, stacked);
+    }
+
+    private static void ArrangeField(Grid row, TextBlock label, FrameworkElement field, bool stacked)
+    {
+        row.ColumnDefinitions[0].Width = new GridLength(stacked ? 0 : 104);
+        Grid.SetColumn(label, stacked ? 1 : 0);
+        Grid.SetRow(field, stacked ? 1 : 0);
+        label.Margin = stacked ? new Thickness(0, 0, 0, 6) : new Thickness(0, 0, 14, 0);
     }
 
     private void AudioClicked(object sender, RoutedEventArgs args) => OpenAudioMenu();

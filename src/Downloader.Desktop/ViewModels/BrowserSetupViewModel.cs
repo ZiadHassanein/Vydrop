@@ -12,6 +12,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     private string message = "";
     private bool hasError;
     private bool localSetupStarted;
+    private bool installerSetupStarted;
     public IReadOnlyList<SetupBrowser> Browsers { get; } = Enum.GetValues<SetupBrowser>();
     public SetupBrowser SelectedBrowser
     {
@@ -119,14 +120,32 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     }
 
     private void StartSetup()
+        => StartSetup(false);
+
+    internal void BeginInstallerSetup(SetupBrowser browser)
+    {
+        // Only the explicit installer handoff starts setup on opening. Ordinary Settings stays passive.
+        if (installerSetupStarted) return;
+        installerSetupStarted = true;
+        SelectedBrowser = browser;
+        StartSetup(true);
+    }
+
+    private void StartSetup(bool reuseInstalledConnection)
     {
         if (ShowMissingFiles) { GuideCommand.Execute(null); return; }
-        if (!UseStoreSetup) { StartLocalSetup(); return; }
-        if (!Run(() => SetConnection(true), "", "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.")) return;
+        if (!UseStoreSetup) { StartLocalSetup(reuseInstalledConnection); return; }
+        if (!EnsureConnection(reuseInstalledConnection)) return;
         Run(() => actions.OpenStore(SelectedBrowser), "Approve the extension in your browser, then choose Test connection in its popup.", "Could not open the store page. Open the illustrated guide for help.");
     }
 
     private void StartLocalSetup()
+        => StartLocalSetup(false);
+
+    private bool EnsureConnection(bool reuseInstalledConnection)
+        => reuseInstalledConnection && IsConnected || Run(() => SetConnection(true), "", "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.");
+
+    private void StartLocalSetup(bool reuseInstalledConnection)
     {
         if (!HasExtension)
         {
@@ -137,7 +156,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
         localSetupStarted = true;
         OnPropertyChanged(nameof(ShowFirefoxTemporaryHint));
         // Stop at the failed step; retain the manual actions for recovery.
-        if (!Run(() => SetConnection(true), "", "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.")) return;
+        if (!EnsureConnection(reuseInstalledConnection)) return;
         if (!Run(() => actions.Copy(ExtensionPath), "", "Could not copy to the clipboard. Select the address or path and copy it manually.")) return;
         Run(() => actions.OpenExtensions(SelectedBrowser),
             "App connected and extension path copied. Finish setup in your browser.",

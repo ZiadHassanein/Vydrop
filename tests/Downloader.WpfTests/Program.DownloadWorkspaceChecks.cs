@@ -1,0 +1,45 @@
+using System.Windows;
+using System.Windows.Controls;
+using YouTubeDownloader;
+
+internal static partial class Program
+{
+    private static async Task CheckDownloadWorkspace(MainWindow window, MainViewModel model, string captures)
+    {
+        foreach (string language in new[] { "en", "ar" })
+        foreach (bool dark in new[] { false, true })
+        foreach (double width in new[] { 1280d, 760d })
+        {
+            model.Url = "";
+            model.SelectLanguageCommand.Execute(language);
+            if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+            window.Width = width; window.Height = 800;
+            model.NewDownloadCommand.Execute(null);
+            await Task.Delay(100); window.UpdateLayout();
+            var form = window.DownloadForm;
+            Check(((FrameworkElement)form.LinkInput.Parent).FlowDirection == FlowDirection.LeftToRight,
+                "URL text and its link icon keep a predictable left-to-right field inside either app language");
+            Check(window.Viewport.ScrollableWidth < 1 && form.LinkInput.IsVisible && !form.QualityInput.IsEnabled,
+                "Empty download workspace fits and waits for actual available qualities");
+            Check(form.DestinationPicker.IsVisible && Descendants<Button>(form).Count(button => button.Command == model.BrowseCommand) == 1,
+                "The redesigned workspace has one unambiguous folder picker");
+            var primary = form.DownloadAction.DownloadButton;
+            var secondary = form.AddToQueueButton;
+            var primaryBounds = new Rect(primary.TranslatePoint(new Point(), form), primary.RenderSize);
+            var secondaryBounds = new Rect(secondary.TranslatePoint(new Point(), form), secondary.RenderSize);
+            Check(!primaryBounds.IntersectsWith(secondaryBounds), "Primary Download and secondary queue actions never overlap");
+            Check(form.FormContentPanel.ActualWidth > 0 && primaryBounds.Bottom <= window.Viewport.ViewportHeight + 1,
+                "The main download action is reachable without scrolling at normal height");
+            Capture(window, System.IO.Path.Combine(captures, $"download-empty-{language}-{dark}-{width}.png"));
+            model.Url = "https://youtu.be/jNQXAC9IVRw";
+            await WaitFor(() => model.CanDownload, "Real fixture inspection enables downloading");
+            await Task.Delay(80); window.UpdateLayout();
+            Check(form.QualityInput.IsEnabled && window.MediaPreview.IsVisible, "Inspected media retains quality choices and its responsive preview");
+            Capture(window, System.IO.Path.Combine(captures, $"download-ready-{language}-{dark}-{width}.png"));
+            model.Audio = true;
+            Check(form.AudioChoice.IsChecked == true && model.SelectedEncoding != null && model.Qualities.Count > 0,
+                "Audio mode retains its encoding and bitrate controls");
+            model.Audio = false;
+        }
+    }
+}

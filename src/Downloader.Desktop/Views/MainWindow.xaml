@@ -11,14 +11,14 @@
   <Grid x:Name="EditorOverlay" Background="{DynamicResource Page}" Visibility="Collapsed" Panel.ZIndex="40">
    <Border x:Name="EditorSurface" Background="{DynamicResource Page}" Margin="0">
     <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-     <Grid Margin="24,4,20,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <Grid x:Name="EditorHeader" Margin="24,4,24,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
       <TextBlock x:Name="EditorHeading" Text="{Binding AddDownloadLabel}" FontFamily="{Binding ContentFont}" FlowDirection="{Binding ContentDirection}" FontSize="34" LineHeight="44" FontWeight="SemiBold" VerticalAlignment="Center"/>
       <Button x:Name="EditorCloseButton" Grid.Column="1" Click="CloseEditorClicked" Style="{StaticResource QuietButton}" AutomationProperties.Name="{Binding CloseLabel}" Padding="10" MinHeight="36"><Path Data="{StaticResource CloseIcon}" Style="{StaticResource LineIcon}" Width="16" Height="16"/></Button>
      </Grid>
    <Grid Grid.Row="1" FlowDirection="LeftToRight">
     <ScrollViewer x:Name="Viewport" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FlowDirection="{Binding ContentDirection}">
      <Grid x:Name="FormContent" MinHeight="{Binding ViewportHeight,ElementName=Viewport}" FlowDirection="{Binding ContentDirection}">
-      <local:DownloadFormView x:Name="DownloadForm" MaxWidth="620" VerticalAlignment="Top"/>
+      <local:DownloadFormView x:Name="DownloadForm" MaxWidth="760" VerticalAlignment="Top"/>
      </Grid>
     </ScrollViewer>
     <ScrollViewer x:Name="ContextViewport" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FlowDirection="{Binding ContentDirection}">

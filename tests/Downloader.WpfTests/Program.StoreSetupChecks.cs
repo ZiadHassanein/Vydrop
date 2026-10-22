@@ -7,6 +7,7 @@ internal static partial class Program
 {
     private static async Task CheckStoreSetup(MainWindow owner, MainViewModel main, string captures)
     {
+        CheckInstallerSetup();
         foreach (bool arabic in new[] { false, true })
         foreach (bool dark in new[] { false, true })
         foreach (bool published in new[] { false, true })
@@ -73,5 +74,64 @@ internal static partial class Program
             await done.Task;
             if (failure != null) throw failure;
         }
+        await CheckInstallerDialog(owner);
     }
+    private static async Task CheckInstallerDialog(MainWindow owner)
+    {
+        var fixture = new SetupFixture { Catalog = new(new string('a', 32), new string('b', 32), "https://addons.mozilla.org/firefox/addon/vydrop/") };
+        fixture.Enable(); fixture.Trace.Clear();
+        Exception failure = null;
+        var finished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _ = owner.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(async () =>
+        {
+            BrowserSetupWindow dialog = null;
+            try
+            {
+                dialog = owner.OwnedWindows.OfType<BrowserSetupWindow>().Single();
+                await Task.Delay(120);
+                Check(((BrowserSetupViewModel)dialog.DataContext).SelectedBrowser == SetupBrowser.Edge && fixture.Trace.SequenceEqual(new[] { "store" }),
+                    "The actual installer-owned dialog continues into the selected browser without another Set up click or registration rewrite");
+            }
+            catch (Exception error) { failure = error; }
+            finally { dialog?.Close(); finished.TrySetResult(); }
+        }));
+        new DesktopActions(owner).ShowBrowserIntegration(text => text, fixture, SetupBrowser.Edge);
+        await finished.Task;
+        if (failure != null) throw failure;
+    }
+
+    private static void CheckInstallerSetup()
+    {
+        foreach (var browser in Enum.GetValues<SetupBrowser>())
+        foreach (bool published in new[] { false, true })
+        foreach (bool registered in new[] { false, true })
+        {
+            var fixture = new SetupFixture();
+            if (published) fixture.Catalog = new(new string('a', 32), new string('b', 32), "https://addons.mozilla.org/firefox/addon/vydrop/");
+            if (registered) fixture.Enable();
+            fixture.Trace.Clear();
+            var model = new BrowserSetupViewModel(text => text, fixture, false);
+            Check(fixture.Trace.Count == 0, "Ordinary setup construction stays passive");
+            model.BeginInstallerSetup(browser);
+            var expected = new List<string>();
+            if (!registered) expected.Add("enable");
+            expected.AddRange(published ? new[] { "store" } : new[] { "copy", "open" });
+            Check(model.SelectedBrowser == browser && fixture.Opened == browser && fixture.Trace.SequenceEqual(expected) && !model.HasError,
+                "Installer hands off directly to its chosen browser and preserves the installed registration: " + browser + "/" + published + "/" + registered);
+            int countBefore = fixture.Calls;
+            model.BeginInstallerSetup(browser);
+            Check(fixture.Calls == countBefore, "A repeated render cannot launch the installer handoff twice");
+        }
+        var missing = new SetupFixture { FilesPresent = false, CanPrepareExtension = true };
+        missing.Enable(); missing.Trace.Clear();
+        var recovery = new BrowserSetupViewModel(text => text, missing, false);
+        recovery.BeginInstallerSetup(SetupBrowser.Edge);
+        Check(missing.Trace.SequenceEqual(new[] { "prepare", "copy", "open" }), "Installer fallback restores companion files before copying their path");
+        var failure = new SetupFixture { Failure = "copy" };
+        failure.Enable(); failure.Trace.Clear();
+        var failed = new BrowserSetupViewModel(text => text, failure, false);
+        failed.BeginInstallerSetup(SetupBrowser.Chrome);
+        Check(failed.IsConnected && failed.HasError && failure.Trace.SequenceEqual(new[] { "copy" }), "Installer handoff stops on clipboard failure without undoing the connection or launching a broken step");
+    }
+
 }

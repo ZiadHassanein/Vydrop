@@ -6,6 +6,8 @@ internal static class Texts
 {
     private static readonly Dictionary<string, string> Arabic = new()
     {
+        { "Paste a link, then choose how to save it.", "الصق رابطًا، ثم اختر طريقة حفظه." },
+        { "Download options", "خيارات التنزيل" },
         { "More actions", "إجراءات أخرى" },
         { "Your downloads", "تنزيلاتك" },
         { "Library", "المكتبة" },

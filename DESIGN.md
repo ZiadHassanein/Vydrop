@@ -273,3 +273,8 @@ Inspection reuse is bounded to eight source URLs: pending requests are shared an
 - **Don't** use green as a general brand accent; reserve it for successful states with a label or symbol.
 - **Don't** add dashboard analytics, decorative graphs or an overcrowded legacy toolbar to the operating surface.
 - **Don't** replace native high-contrast or reduced-motion behavior with fixed authored styling.
+
+
+## Add download workspace refinement
+
+Keep the manager shell and its burgundy, plum/paper and cherry identity. The inline editor groups the URL, Paste action and brief guidance in one shallow surface, followed by flat output rows with aligned captions. Rows stack at narrow widths; URL entry stays left-to-right in either language. One folder picker includes Change, with a separate Open folder action. A divider separates the quiet queue action from the primary Download action. Header and form share their maximum content width. Media identity remains in the selected right inspector at wide widths and inline when compact. All controls continue to use real available media, saved options and existing queue commands.

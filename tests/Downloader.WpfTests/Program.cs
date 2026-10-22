@@ -81,6 +81,12 @@ internal static partial class Program
                     Console.WriteLine(count + " WPF setup/workspace UI checks passed.");
                     return;
                 }
+                if (args.Contains("--download-workspace"))
+                {
+                    await CheckDownloadWorkspace(window, model, captures);
+                    Console.WriteLine(count + " WPF download-workspace checks passed.");
+                    return;
+                }
                 if (args.Contains("--download-settings"))
                 {
                     await CheckDownloadSettings(window, model, root, captures);

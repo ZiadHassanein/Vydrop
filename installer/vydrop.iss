@@ -59,25 +59,22 @@ Root: HKCU32; Subkey: "Software\Microsoft\Edge\NativeMessagingHosts\{#HostName}"
 Root: HKCU64; Subkey: "Software\Microsoft\Edge\NativeMessagingHosts\{#HostName}"; ValueType: string; ValueData: "{app}\Integration\{#HostName}.chromium.json"
 Root: HKCU32; Subkey: "Software\Mozilla\NativeMessagingHosts\{#HostName}"; ValueType: string; ValueData: "{app}\Integration\{#HostName}.firefox.json"
 Root: HKCU64; Subkey: "Software\Mozilla\NativeMessagingHosts\{#HostName}"; ValueType: string; ValueData: "{app}\Integration\{#HostName}.firefox.json"
-#if ChromeStoreId != ""
-Root: HKCU32; Subkey: "Software\Google\Chrome\Extensions\{#ChromeStoreId}"; ValueType: string; ValueName: "update_url"; ValueData: "https://clients2.google.com/service/update2/crx"
-Root: HKCU64; Subkey: "Software\Google\Chrome\Extensions\{#ChromeStoreId}"; ValueType: string; ValueName: "update_url"; ValueData: "https://clients2.google.com/service/update2/crx"
-Root: HKCU32; Subkey: "Software\Google\Chrome\Extensions\{#ChromeStoreId}"; ValueType: string; ValueName: "vydrop_owner"; ValueData: "{app}"
-Root: HKCU64; Subkey: "Software\Google\Chrome\Extensions\{#ChromeStoreId}"; ValueType: string; ValueName: "vydrop_owner"; ValueData: "{app}"
-#endif
-#if EdgeStoreId != ""
-Root: HKCU32; Subkey: "Software\Microsoft\Edge\Extensions\{#EdgeStoreId}"; ValueType: string; ValueName: "update_url"; ValueData: "https://edge.microsoft.com/extensionwebstorebase/v1/crx"
-Root: HKCU64; Subkey: "Software\Microsoft\Edge\Extensions\{#EdgeStoreId}"; ValueType: string; ValueName: "update_url"; ValueData: "https://edge.microsoft.com/extensionwebstorebase/v1/crx"
-Root: HKCU32; Subkey: "Software\Microsoft\Edge\Extensions\{#EdgeStoreId}"; ValueType: string; ValueName: "vydrop_owner"; ValueData: "{app}"
-Root: HKCU64; Subkey: "Software\Microsoft\Edge\Extensions\{#EdgeStoreId}"; ValueType: string; ValueName: "vydrop_owner"; ValueData: "{app}"
-#endif
 
 [Run]
-Filename: "{app}\Vydrop.exe"; Parameters: "--browser-setup"; Description: "{cm:OpenVydrop}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Vydrop.exe"; Parameters: "{code:BrowserLaunchParameters}"; Description: "{cm:OpenVydrop}"; Flags: nowait postinstall skipifsilent
 
 [CustomMessages]
-english.OpenVydrop=Open Vydrop and connect your browser
-arabic.OpenVydrop=فتح Vydrop وربط المتصفح
+english.OpenVydrop=Open Vydrop
+arabic.OpenVydrop=فتح Vydrop
+
+english.BrowserSetupTitle=Browser integration
+english.BrowserSetupDescription=Download from your browser with Vydrop.
+english.BrowserSetupHint=Choose a browser to finish connecting after installation. Vydrop sets up the app connection automatically; you approve the extension in your browser.
+english.BrowserSetupLater=Set up later
+arabic.BrowserSetupTitle=ربط المتصفح
+arabic.BrowserSetupDescription=نزّل من متصفحك باستخدام Vydrop.
+arabic.BrowserSetupHint=اختر المتصفح لإكمال الربط بعد التثبيت. يجهّز Vydrop اتصال التطبيق تلقائيًا؛ وتوافق على الإضافة داخل متصفحك.
+arabic.BrowserSetupLater=الإعداد لاحقًا
 
 [UninstallDelete]
 Type: files; Name: "{app}\Integration\{#HostName}.chromium.json"
@@ -85,6 +82,8 @@ Type: files; Name: "{app}\Integration\{#HostName}.firefox.json"
 Type: dirifempty; Name: "{app}\Integration"
 
 [Code]
+#include "browser-setup.iss"
+
 function JsonString(Value: String): String;
 begin
   StringChangeEx(Value, '\', '\\', True);
@@ -111,6 +110,7 @@ begin
   end;
 end;
 
+// Cleanup is retained for older installers that wrote per-user external-store keys.
 procedure RemoveOwnedStore(RootKey: Integer; Key, UpdateUrl: String);
 var Current, Owner: String;
 begin

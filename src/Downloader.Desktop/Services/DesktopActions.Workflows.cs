@@ -90,7 +90,7 @@ public sealed partial class DesktopActions
     public void ShowBrowserIntegration(Func<string, string> t)
         => ShowBrowserIntegration(t, new BrowserSetupActions());
 
-    internal void ShowBrowserIntegration(Func<string, string> t, IBrowserSetupActions actions)
+    internal void ShowBrowserIntegration(Func<string, string> t, IBrowserSetupActions actions, SetupBrowser? installerBrowser = null)
     {
         var main = owner.DataContext as MainViewModel;
         var workArea = owner is MainWindow window ? window.CurrentWorkArea() : SystemParameters.WorkArea;
@@ -103,6 +103,8 @@ public sealed partial class DesktopActions
             Width = Math.Min(680, Math.Min(owner.ActualWidth - 48, workArea.Width - 48)),
             Height = Math.Min(700, Math.Min(owner.ActualHeight - 48, workArea.Height - 48))
         };
+        if (installerBrowser is { } browser)
+            dialog.ContentRendered += (_, _) => ((BrowserSetupViewModel)dialog.DataContext).BeginInstallerSetup(browser);
         var previousFocus = System.Windows.Input.Keyboard.FocusedElement as UIElement;
         dialog.ShowDialog();
         if (previousFocus is { IsEnabled: true, IsVisible: true }) previousFocus.Focus();
