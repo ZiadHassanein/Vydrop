@@ -91,7 +91,10 @@ internal static partial class Program
         model.SelectedLibraryItem = model.QueueItems.First(q => q.Id == waiting.Id);
         Check(model.SelectedLibraryItem.IsActive && model.SelectedLibraryItem.Speed != "—" && model.SelectedLibraryItem.TransferSummary.Contains('/'), "Starting through the manager displays engine progress and measured transfer data");
         Check(model.SelectedLibraryItem.RowStatus.Contains("42%", StringComparison.Ordinal) && model.SelectedLibraryItem.RowDescription.Contains("MB", StringComparison.Ordinal), "The active row exposes measured percentage and known size beside its compact controls");
+        bool compactTransfer = window.ManagerContent.ActualWidth < 1080;
+        if (compactTransfer) { ((IInvokeProvider)new ButtonAutomationPeer(window.ManagerContent.CompactDetailsButton).GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(60); }
         Check(model.LibraryActionCommand.CanExecute(waiting.Id) && window.ManagerContent.ManagerCancelButton.IsVisible && window.ManagerContent.ManagerCancelButton.IsEnabled, "A manager-started transfer retains enabled Pause and Cancel actions while the command is executing");
+        if (compactTransfer) ((IInvokeProvider)new ButtonAutomationPeer(window.ManagerContent.DetailsCloseButton).GetPattern(PatternInterface.Invoke)).Invoke();
         var more = Descendants<System.Windows.Controls.Button>(window.ManagerContent.DownloadsList).Single(button => System.Windows.Automation.AutomationProperties.GetName(button) == model.MoreActionsLabel && button.DataContext is QueueItemView row && row.Id == waiting.Id);
         ((IInvokeProvider)new ButtonAutomationPeer(more).GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(60);
         Check(more.ContextMenu.IsOpen && more.ContextMenu.Items.OfType<System.Windows.Controls.MenuItem>().All(item => Equals(item.CommandParameter, waiting.Id)), "The accessible More menu targets exactly the selected row");
