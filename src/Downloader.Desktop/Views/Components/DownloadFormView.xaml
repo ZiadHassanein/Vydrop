@@ -16,7 +16,7 @@
      <Grid FlowDirection="LeftToRight">
       <TextBox x:Name="LinkInput" Text="{Binding Url,UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource LatinFont}" FontSize="14" Height="48" Padding="40,10,12,10"
        FlowDirection="LeftToRight" IsEnabled="{Binding IsIdle}" AutomationProperties.Name="{Binding LinkLabel}" ToolTip="{Binding LinkShortcutHint}" AutomationProperties.AcceleratorKey="Ctrl+L"/>
-      <Path Data="{StaticResource LinkIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False" FlowDirection="LeftToRight"/>
+      <Path Data="{StaticResource LinkIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Muted}" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False" FlowDirection="LeftToRight"/>
       <TextBlock x:Name="LinkPlaceholder" Text="{Binding LinkPlaceholder}" Foreground="{DynamicResource Muted}" FontSize="14" Margin="40,0,12,0" VerticalAlignment="Center" IsHitTestVisible="False" TextTrimming="CharacterEllipsis" FlowDirection="{Binding ContentDirection}">
        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding Url}" Value=""><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
       </TextBlock>
@@ -68,7 +68,7 @@
      </ComboBox>
      <Button x:Name="MoreOptionsButton" Grid.Column="2" Command="{Binding OptionsCommand}" Padding="12,8" MinWidth="112" Height="44" ToolTip="{Binding OptionsHint}" AutomationProperties.Name="{Binding OptionsLabel}" AutomationProperties.HelpText="{Binding OptionsHint}">
       <Button.Style><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Style.Triggers><DataTrigger Binding="{Binding SubtitlesEnabled}" Value="True"><Setter Property="Background" Value="{DynamicResource Selected}"/><Setter Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter Property="Foreground" Value="{DynamicResource Accent}"/></DataTrigger></Style.Triggers></Style></Button.Style>
-      <StackPanel Orientation="Horizontal"><Path x:Name="SubtitleButtonIcon" Data="{StaticResource SubtitlesIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="18" Height="18" Margin="0,0,8,0" FlowDirection="LeftToRight"/><TextBlock Text="{Binding OptionsLabel}" VerticalAlignment="Center"/></StackPanel>
+      <StackPanel Orientation="Horizontal"><Path x:Name="SubtitleButtonIcon" Data="{StaticResource SubtitlesIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Muted}" Width="18" Height="18" Margin="0,0,8,0" FlowDirection="LeftToRight"/><TextBlock Text="{Binding OptionsLabel}" VerticalAlignment="Center"/></StackPanel>
      </Button>
     </Grid>
    </Grid>
@@ -81,11 +81,11 @@
      <Button x:Name="DestinationPicker" Command="{Binding BrowseCommand}" HorizontalContentAlignment="Stretch" ToolTip="{Binding Folder}" AutomationProperties.Name="{Binding FolderAccessibleName}" Padding="12,8">
       <DockPanel>
        <TextBlock DockPanel.Dock="Right" Text="{Binding ChangeFolderLabel}" Foreground="{DynamicResource Accent}" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0"/>
-       <Path DockPanel.Dock="Left" Data="{StaticResource FolderIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Margin="0,0,10,0"/>
+       <Path DockPanel.Dock="Left" Data="{StaticResource FolderIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Muted}" Margin="0,0,10,0"/>
        <TextBlock Text="{Binding FolderDisplay}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" FlowDirection="LeftToRight"/>
       </DockPanel>
      </Button>
-     <Button Grid.Column="2" Command="{Binding OpenFolderCommand}" AutomationProperties.Name="{Binding OpenFolderLabel}" ToolTip="{Binding OpenFolderLabel}" Padding="10"><Path Data="{StaticResource OpenFolderIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}"/></Button>
+     <Button Grid.Column="2" Command="{Binding OpenFolderCommand}" AutomationProperties.Name="{Binding OpenFolderLabel}" ToolTip="{Binding OpenFolderLabel}" Padding="10"><Path Data="{StaticResource OpenFolderIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Muted}"/></Button>
     </Grid>
    </Grid>
   </StackPanel>

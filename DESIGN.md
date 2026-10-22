@@ -1,49 +1,49 @@
 ---
 name: Vydrop
-description: A media library with burgundy navigation, paper and plum surfaces, and cherry actions.
+description: A media library with graphite navigation, clean neutral workspaces, and restrained Vydrop red actions.
 colors:
-  page-light: "#FCFAFC"
-  page-dark: "#1C1A20"
-  surface-light: "#F4EFF2"
-  surface-dark: "#252229"
+  page-light: "#F7F8FA"
+  page-dark: "#17191E"
+  surface-light: "#FFFFFF"
+  surface-dark: "#1F2228"
   field-light: "#FFFFFF"
-  field-dark: "#2D2931"
-  ink-light: "#2A2029"
-  ink-dark: "#FAF3F7"
-  muted-light: "#715F6D"
-  muted-dark: "#CCBAC7"
-  accent-light: "#A91F3B"
-  accent-dark: "#F17B96"
+  field-dark: "#262A31"
+  ink-light: "#20242C"
+  ink-dark: "#F1F3F5"
+  muted-light: "#58616D"
+  muted-dark: "#B7BFCA"
+  accent-light: "#AD253B"
+  accent-dark: "#F0838C"
   action: "#C72D49"
   on-accent: "#FFFFFF"
   download-action-fill: "#C13046"
   download-action-ink: "#FFFFFF"
   download-action-progress: "#651321"
-  border-light: "#8E7D87"
-  border-dark: "#94828D"
-  hover-light: "#F0E8EE"
-  hover-dark: "#363039"
-  selected-light: "#F7E8EF"
-  selected-dark: "#402936"
+  border-light: "#737E8C"
+  border-dark: "#84909F"
+  hover-light: "#E9EDF2"
+  hover-dark: "#2B3038"
+  selected-light: "#ECEFF3"
+  selected-dark: "#30353D"
   error-light: "#A12232"
-  error-dark: "#FFB0B7"
-  divider-light: "#E2D7DF"
-  divider-dark: "#443B48"
+  error-dark: "#F4A3AB"
+  divider-light: "#DDE2E8"
+  divider-dark: "#363C45"
   success-light: "#24643E"
   success-dark: "#85D1A2"
   warning-light: "#81540F"
-  warning-dark: "#EBC17A"
-  media-video-light: "#A91F3B"
-  media-video-dark: "#F17B96"
-  media-audio-light: "#70519A"
-  media-audio-dark: "#C7AEF1"
-  navigation-icon: "#EBA6BB"
-  navigation-light: "#3B1B2C"
-  navigation-dark: "#351A2A"
-  navigation-ink: "#FFF4FA"
-  navigation-muted: "#DDC2D2"
-  navigation-selected-light: "#753149"
-  navigation-selected-dark: "#642A43"
+  warning-dark: "#E4BD78"
+  media-video-light: "#58616D"
+  media-video-dark: "#B7BFCA"
+  media-audio-light: "#58616D"
+  media-audio-dark: "#B7BFCA"
+  navigation-icon: "#BCC4D0"
+  navigation-light: "#1B1F27"
+  navigation-dark: "#1B1F27"
+  navigation-ink: "#F1F3F5"
+  navigation-muted: "#BCC4D0"
+  navigation-selected-light: "#343B46"
+  navigation-selected-dark: "#343B46"
   navigation-selected-ink: "#FFFFFF"
   browser-border-light: "#C9B2C2"
   browser-border-dark: "#795C70"
@@ -112,14 +112,14 @@ components:
 
 **Creative North Star: "The Personal Media Library"**
 
-Vydrop frames download management as a personal media library: confident burgundy navigation, quiet paper or plum work surfaces, and cherry actions. Media identity leads through thumbnails and readable titles; controls and measured transfer state stay close to the selected item. The approved Vydrop V/download-arrow and wordmark anchor the identity.
+Vydrop frames download management as a personal media library: graphite navigation, clean off-white or charcoal work surfaces, and restrained red actions. Media identity leads through thumbnails and readable titles; controls and measured transfer state stay close to the selected item. The approved Vydrop V/download-arrow and wordmark anchor the identity.
 
 The native Windows interface uses tonal separation, fine borders, restrained corners and chamfered navigation and actions. The browser companion repeats the palette and action silhouette in a compact chooser with segmented media types and visible format and quality radio cards. Clarity, accessible states and honest runtime metadata define the visual character.
 
 **Key Characteristics:**
 
-- Burgundy navigation with cherry primary actions.
-- Paper-white light surfaces and layered plum dark surfaces.
+- Graphite navigation with Vydrop red primary actions.
+- Off-white light surfaces and layered charcoal dark surfaces.
 - Inter and Noto Sans Arabic in the native app; browser-native system typography in the companion.
 - Large media thumbnails, separated filters with nonzero counts, compact drawn status controls and a selected-media inspector.
 - Logical RTL layout, visible focus and system high-contrast colors.
@@ -132,13 +132,13 @@ The later scoped Add download, Settings and browser-setup corrections use native
 
 ## Colors
 
-Cherry, burgundy and warm plum define the palette; green is reserved for success. Frontmatter owns exact primitive values. Paired -light and -dark entries map to native semantic brushes. Sidecar tonal strips are synthesized OKLCH previews for documentation, not additional shipping palette tokens.
+Graphite navigation and cool neutral surfaces define the native palette. Vydrop red anchors primary actions and selection; green is reserved for success. Frontmatter owns exact primitive values. Paired -light and -dark entries map to native semantic brushes. Sidecar tonal strips are synthesized OKLCH previews for documentation, not additional shipping palette tokens.
 
 ### Primary
 
 - **Cherry Action** (action, on-accent): solid primary actions with white content in both themes.
 - **Cherry Accent** (accent-light, accent-dark): quiet actions, progress, focus and selected-row outlines; dark mode brightens small accent details.
-- **Burgundy Navigation** (navigation-*): persistent navigation, warm white ink, muted rose copy and lighter burgundy selected fill.
+- **Graphite Navigation** (navigation-*): persistent navigation, cool white ink, muted gray icons and copy, and a slate selected fill.
 - **Editor Download Action** (download-action-fill, download-action-ink, download-action-progress): retained dedicated download-control brushes, separate from manager Action and Accent.
 
 ### Secondary
@@ -147,8 +147,8 @@ Cherry, burgundy and warm plum define the palette; green is reserved for success
 
 ### Neutral
 
-- **Paper / Plum Page** (page-*): main workspace.
-- **Blush / Plum Surface** (surface-*): details, supporting containers and count badges. The native workspace uses the refined surface values above; the companion retains its existing blush/plum CSS palette.
+- **Neutral Page** (page-*): off-white light workspace and charcoal dark workspace.
+- **Neutral Surface** (surface-*): details, supporting containers and count badges. The native workspace uses the refined surface values above; the companion retains its existing blush/plum CSS palette.
 - **Field**, **Ink** and **Muted**: input and radio-card faces, primary copy and supporting metadata.
 - **Border**, **Divider**, **Hover** and **Selected**: distinct boundary, separator, pointer and selection roles.
 - **Success** and **Error**: semantic feedback accompanied by explicit status text and a drawn state symbol. Missing files also use a struck title.
@@ -172,7 +172,7 @@ The browser uses the system UI sans-serif stack and tabular numerals. Panel body
 
 ## Layout
 
-The manager uses navigation, a flexible library and a selected-media inspector. The native window opens at 1280 × 820 DIP, minimum 760 × 500. Library and inspector scroll independently; list containers are recycled and horizontal scrolling is suppressed.
+The manager uses graphite navigation, a flexible neutral library and a selected-media inspector. The native window opens at 1280 × 820 DIP, minimum 760 × 500. Library and inspector scroll independently; list containers are recycled and horizontal scrolling is suppressed.
 
 - Navigation is 224 DIP wide, reducing to 176 below manager width 960. Its brand row is 92 high.
 - The library inspector and inspected editor preview use width 320 from manager width 1080 through 1360, then 350 above 1360. Empty Add download, Settings and History collapse both the inspector and its reserved column/divider.
@@ -190,7 +190,7 @@ The browser chooser is at most 416 CSS pixels wide and leaves 12px viewport clea
 
 ## Elevation & Depth
 
-The native manager uses tonal layering and dividers rather than drop shadows. Selection adds a blush/plum fill and accent outline. The inspector is a continuous surface; the selected-library compact drawer uses a half-black scrim. Add download, Settings and History are ordinary center surfaces with no modal scrim. Settings sections sit directly on the workspace without a nested panel shell. Keep the library flat.
+The native manager uses tonal layering and dividers rather than drop shadows. Selection adds a neutral slate fill and a Vydrop red outline. The inspector is a continuous surface; the selected-library compact drawer uses a half-black scrim. Add download, Settings and History are ordinary center surfaces with no modal scrim. Settings sections sit directly on the workspace without a nested panel shell. Keep the library flat.
 
 The floating browser chooser has one structural shadow (0 18px 48px #170d2040). Its burgundy header and tonal card boundaries carry hierarchy within the panel.
 
@@ -222,7 +222,7 @@ Search uses Field and Ink, one-unit Border, control radius and height 44 DIP. A 
 
 ### Navigation
 
-Navigation items use outlined 19 × 19 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Unselected icons use NavigationIcon, a warm rose; selected icons and labels use NavigationSelectedInk on the chamfered NavigationSelected face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Queue, Video and Audio display live 23-high count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download, Settings and History select their center workspace without disabling sidebar navigation. Sidebar and Settings contain no visible version or release-channel labels.
+Navigation items use outlined 19 × 19 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Unselected icons use NavigationIcon, a cool gray; selected icons and labels use NavigationSelectedInk on the chamfered NavigationSelected face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Queue, Video and Audio display live 23-high count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download, Settings and History select their center workspace without disabling sidebar navigation. Sidebar and Settings contain no visible version or release-channel labels.
 
 ### Counted filter tabs
 
@@ -284,13 +284,18 @@ Inspection reuse is bounded to eight source URLs: pending requests are shared an
 
 ## Add download workspace refinement
 
-Keep the manager shell and its burgundy, plum/paper and cherry identity. The inline editor groups the URL, Paste action and brief guidance in one shallow surface, followed by flat output rows with aligned captions. Rows stack at narrow widths; URL entry stays left-to-right in either language. One folder picker includes Change, with a separate Open folder action. A divider separates the quiet queue action from the primary Download action. Header and form share their maximum content width. Media identity remains in the selected right inspector at wide widths and inline when compact. All controls continue to use real available media, saved options and existing queue commands.
+Keep the manager shell, neutral workspace and restrained Vydrop red actions. The inline editor groups the URL, Paste action and brief guidance in one shallow surface, followed by flat output rows with aligned captions. Rows stack at narrow widths; URL entry stays left-to-right in either language. One folder picker includes Change, with a separate Open folder action. A divider separates the quiet queue action from the primary Download action. Header and form share their maximum content width. Media identity remains in the selected right inspector at wide widths and inline when compact. All controls continue to use real available media, saved options and existing queue commands.
 
 
 ## Native icon and color refinement
 
 Use the selected Lucide 0.577.0 system icons as native WPF geometry, with the shared LineIcon rounded 1.7-DIP stroke. The approved Vydrop wordmark and brand arrow remain separate and unchanged. Navigation, form, History, menus and the theme switch share these geometries; keep the existing resource keys to preserve older view bindings. The pinned upstream commit and ISC / Feather MIT licenses are in THIRD-PARTY-NOTICES.txt. No icon package or network lookup runs in the app.
 
-Reserve cherry for actions, active downloads and selection. Paused or interrupted work uses Warning amber; completion uses Success green; unavailable files and failures use Error. Row and inspector progress inherit the same state brush as their status label and symbol. History's unavailable icon also uses Error alongside its existing struck title and explicit missing-file label. MediaAudio lavender differentiates audio controls and fallback artwork from MediaVideo cherry. Each state retains visible copy and a meaningful icon.
+Reserve cherry for actions, active downloads and selection. Paused or interrupted work uses Warning amber; completion uses Success green; unavailable files and failures use Error. Row and inspector progress inherit the same state brush as their status label and symbol. History's unavailable icon also uses Error alongside its existing struck title and explicit missing-file label. MediaAudio and MediaVideo use the same neutral icon color; their distinct shapes and labels identify the media type. Each state retains visible copy and a meaningful icon.
 
-The native dark workspace uses quieter charcoal/plum layers so the burgundy sidebar and cherry actions retain emphasis. English and Arabic use the same roles. Text and semantic colors meet 4.5:1 on normal, field, hover and selected surfaces; control boundaries meet 3:1. Windows high contrast overrides every new semantic role with system foreground colors.
+The native workspace uses off-white or charcoal layers with graphite navigation. Neutral utility icons recede so Vydrop red actions, focus outlines and status feedback retain emphasis. English and Arabic use the same roles. Text and semantic colors meet 4.5:1 on normal, field, hover and selected surfaces; control boundaries meet 3:1. Windows high contrast overrides every new semantic role with system foreground colors.
+
+
+### Restrained native palette
+
+The user rejected the pink/purple surface treatment. Native navigation is now graphite in both themes, with off-white light workspaces and charcoal dark workspaces. Selection surfaces and utility icons are neutral; the red logo and primary actions carry the brand. Remove lavender audio accents and rose navigation icons. Preserve status semantics, typography, layout, keyboard focus and all Windows high-contrast overrides. The browser companion retains its existing palette in this desktop-only scope.

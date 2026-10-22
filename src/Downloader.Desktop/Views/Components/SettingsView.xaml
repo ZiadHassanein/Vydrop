@@ -10,15 +10,15 @@
  </UserControl.Resources>
  <Border Background="Transparent" Padding="0" FlowDirection="{Binding ContentDirection}">
   <StackPanel>
-   <StackPanel Orientation="Horizontal" Margin="0,0,0,9"><Path Data="{StaticResource BrowserIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="18" Height="18" Margin="0,0,10,0"/><TextBlock Text="{Binding BrowserLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
+   <StackPanel Orientation="Horizontal" Margin="0,0,0,9"><Path Data="{StaticResource BrowserIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Muted}" Width="18" Height="18" Margin="0,0,10,0"/><TextBlock Text="{Binding BrowserLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
    <TextBlock Text="{Binding BrowserSettingsHint}" Foreground="{DynamicResource Muted}" FontSize="13" Margin="0,0,0,12"/>
    <Button Content="{Binding BrowserLabel}" Command="{Binding BrowserCommand}" HorizontalAlignment="Left"/>
    <Border Height="1" Background="{DynamicResource Divider}" Margin="0,24"/>
-   <StackPanel Orientation="Horizontal" Margin="0,0,0,9"><Path Data="{StaticResource RefreshIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="18" Height="18" Margin="0,0,10,0"/><TextBlock Text="{Binding UpdateSectionLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
+   <StackPanel Orientation="Horizontal" Margin="0,0,0,9"><Path Data="{StaticResource RefreshIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Muted}" Width="18" Height="18" Margin="0,0,10,0"/><TextBlock Text="{Binding UpdateSectionLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
    <Button x:Name="UpdateAnchor" Content="{Binding UpdateLabel}" Command="{Binding UpdateCommand}" HorizontalAlignment="Left"/>
    <StackPanel x:Name="UpdateNoticeHost" FlowDirection="LeftToRight"/>
    <Border Height="1" Background="{DynamicResource Divider}" Margin="0,24"/>
-   <StackPanel Orientation="Horizontal" Margin="0,0,0,9"><Path Data="{StaticResource DownloadIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="18" Height="18" Margin="0,0,10,0"/><TextBlock Text="{Binding DownloaderSectionLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
+   <StackPanel Orientation="Horizontal" Margin="0,0,0,9"><Path Data="{StaticResource DownloadIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Muted}" Width="18" Height="18" Margin="0,0,10,0"/><TextBlock Text="{Binding DownloaderSectionLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
    <TextBlock Text="{Binding ToolRefreshHint}" Foreground="{DynamicResource Muted}" FontSize="13" Margin="0,0,0,12"/>
    <Button x:Name="ToolRefreshAnchor" Content="{Binding ToolRefreshLabel}" Command="{Binding ToolRefreshCommand}" HorizontalAlignment="Left"
            AutomationProperties.HelpText="{Binding ToolRefreshHint}" ToolTipService.ShowOnDisabled="True" ToolTip="{StaticResource DownloaderHelp}"/>

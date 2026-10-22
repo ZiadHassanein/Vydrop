@@ -41,7 +41,7 @@ Download preferences apply to new downloads; queued jobs retain their captured s
 
 Retain the Vydrop name, approved red V/download-arrow wordmark and recognizable red brand accents. The reference images establish a download-manager workflow and an on-video quality menu; they do not authorize copying another product's branding or visual assets.
 
-The user selected the right-hand details-panel layout (concept A), but rejected the reference-like visual treatment. Keep that information layout while developing an original Vydrop style. Prioritize media identity, a recognizable brand-colored navigation area and clear, deliberately designed controls over a conventional dense file table. The old mockups are layout references, not approved visual designs.
+The user selected the right-hand details-panel layout (concept A), but rejected the reference-like visual treatment. Keep that information layout while developing an original Vydrop style. Prioritize media identity, recognizable graphite navigation with restrained Vydrop red actions and clear, deliberately designed controls over a conventional dense file table. The old mockups are layout references, not approved visual designs.
 
 ## Evidence on Hand
 
@@ -64,3 +64,7 @@ The user selected the right-hand details-panel layout (concept A), but rejected 
 ## Accessibility & Inclusion
 
 Readable English and Arabic typography, correct bidirectional text, visible keyboard focus, named controls, state indicators beyond color, reduced-motion behavior and Windows accessibility conventions remain requirements.
+
+## Current color direction
+
+The user rejected the pink/purple palette as insufficiently professional. Use graphite navigation, clean neutral light/dark workspaces and neutral utility icons, retaining the approved red logo and red primary actions. Keep semantic status colors and accessibility behavior.
