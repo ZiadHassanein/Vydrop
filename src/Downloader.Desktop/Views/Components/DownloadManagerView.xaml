@@ -7,7 +7,7 @@
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
   <Border x:Name="NavigationSurface" Grid.RowSpan="2" Background="{DynamicResource Navigation}">
    <Grid><Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-    <StackPanel x:Name="BrandHost" Margin="22,24,14,12" VerticalAlignment="Center" FlowDirection="LeftToRight"/>
+    <StackPanel x:Name="BrandHost" Margin="20,24,20,12" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight"/>
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Style="{StaticResource InsetScrollFrame}">
      <StackPanel>
       <ToggleButton Content="{Binding AddDownloadLabel}" IsChecked="{Binding IsAddDownloadPage,Mode=OneWay}" Command="{Binding NewDownloadCommand}" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource PlusIcon}"/>

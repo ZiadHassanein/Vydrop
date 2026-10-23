@@ -10,6 +10,26 @@ using YouTubeDownloader;
 
 internal static partial class Program
 {
+    private static async Task CheckBrandLayout(MainWindow window, MainViewModel model, string captures)
+    {
+        MotionPreferences.SetTestOverride(false);
+        try
+        {
+            foreach (string language in new[] { "en", "ar" }) foreach (bool dark in new[] { false, true }) foreach (double width in new[] { window.MinWidth, 1280d })
+            {
+                model.SelectLanguageCommand.Execute(language); if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+                window.Width = width; await Task.Delay(250); window.UpdateLayout();
+                var navigation = window.ManagerContent.NavigationSurface;
+                var brand = (FrameworkElement)WpfTree.Find(window, "BrandWordmark");
+                var bounds = brand.TransformToAncestor(navigation).TransformBounds(new Rect(brand.RenderSize));
+                Check(Math.Abs(bounds.Left + bounds.Width / 2 - navigation.ActualWidth / 2) <= 1 && bounds.Left >= 0 && bounds.Right <= navigation.ActualWidth && brand.FlowDirection == FlowDirection.LeftToRight,
+                    $"The complete logo is centered without mirroring: {language}/{dark}/{width} (logo={bounds}, sidebar={navigation.ActualWidth})");
+                Capture(window, System.IO.Path.Combine(captures, $"logo-{language}-{dark}-{width}.png"));
+            }
+        }
+        finally { MotionPreferences.SetTestOverride(null); }
+    }
+
     private static async Task CheckHeader(Window owner, MainViewModel model, string captures)
     {
         var window = (MainWindow)owner;
