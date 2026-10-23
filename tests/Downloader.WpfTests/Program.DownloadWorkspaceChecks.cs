@@ -30,11 +30,13 @@ internal static partial class Program
             Check(!primaryBounds.IntersectsWith(secondaryBounds), "Primary Download and secondary queue actions never overlap");
             Check(form.FormContentPanel.ActualWidth > 0 && primaryBounds.Bottom <= window.Viewport.ViewportHeight + 1,
                 "The main download action is reachable without scrolling at normal height");
+            CheckButtonHitAreas(window);
             Capture(window, System.IO.Path.Combine(captures, $"download-empty-{language}-{dark}-{width}.png"));
             model.Url = "https://youtu.be/jNQXAC9IVRw";
             await WaitFor(() => model.CanDownload, "Real fixture inspection enables downloading");
             await Task.Delay(80); window.UpdateLayout();
             Check(form.QualityInput.IsEnabled && window.MediaPreview.IsVisible, "Inspected media retains quality choices and its responsive preview");
+            CheckButtonHitAreas(window);
             Capture(window, System.IO.Path.Combine(captures, $"download-ready-{language}-{dark}-{width}.png"));
             model.Audio = true;
             Check(form.AudioChoice.IsChecked == true && model.SelectedEncoding != null && model.Qualities.Count > 0,

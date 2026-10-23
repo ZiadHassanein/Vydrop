@@ -19,6 +19,7 @@ internal static partial class Program
         Check(!window.EditorOverlay.IsVisible && window.ManagerContent.IsEnabled, "Closing the editor restores the library");
         model.SettingsCommand.Execute(null); await Task.Delay(80);
         Check(window.SettingsPane.IsVisible && window.EditorOverlay.IsVisible, "Settings remain accessible from the manager");
+        CheckButtonHitAreas(window);
         model.SettingsCommand.Execute(null);
         model.Folder = root;
         string firstFile = Path.Combine(root, "coast.mp4"), deletedFile = Path.Combine(root, "deleted.mp4");
@@ -59,6 +60,7 @@ internal static partial class Program
                 $"The inspector follows the actual viewport: {language}/{dark}, width={window.ManagerContent.ActualWidth}, window={window.ActualWidth}, column={window.ManagerContent.DetailsColumn.Width.Value}, visible={window.ManagerContent.DetailsBorder.IsVisible}, parent={window.ManagerContent.DetailsBorder.Parent}, add={model.AddDownloadVisible}, settings={model.SettingsVisible}, history={model.HistoryVisible}");
             Check(window.ManagerContent.AddDownloadButton.ActualWidth < 215 && window.ManagerContent.SelectedFolderPath.ActualHeight < 30,
                 "The Add action stays content-sized and long save paths stay on one line: " + language + "/" + dark);
+            CheckButtonHitAreas(window);
             Capture(window, Path.Combine(captures, "manager-" + language + (dark ? "-dark" : "-light") + ".png"));
         }
         model.LibraryItems.CollectionChanged -= CountReset;
@@ -100,6 +102,7 @@ internal static partial class Program
         bool compactTransfer = window.ManagerContent.ActualWidth < 1080;
         if (compactTransfer) { ((IInvokeProvider)new ButtonAutomationPeer(window.ManagerContent.CompactDetailsButton).GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(60); }
         Check(model.LibraryActionCommand.CanExecute(waiting.Id) && window.ManagerContent.ManagerCancelButton.IsVisible && window.ManagerContent.ManagerCancelButton.IsEnabled, "A manager-started transfer retains enabled Pause and Cancel actions while the command is executing");
+        CheckButtonHitAreas(window);
         if (compactTransfer) ((IInvokeProvider)new ButtonAutomationPeer(window.ManagerContent.DetailsCloseButton).GetPattern(PatternInterface.Invoke)).Invoke();
         var more = Descendants<System.Windows.Controls.Button>(window.ManagerContent.DownloadsList).Single(button => System.Windows.Automation.AutomationProperties.GetName(button) == model.MoreActionsLabel && button.DataContext is QueueItemView row && row.Id == waiting.Id);
         ((IInvokeProvider)new ButtonAutomationPeer(more).GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(60);
@@ -117,6 +120,7 @@ internal static partial class Program
         Check(Equals(model.SelectedLibraryItem.StateBrush, window.FindResource("Warning")) &&
             Equals(rowProgress.Foreground, window.FindResource("Warning")),
             "Pausing changes the actual row status and progress to amber while retaining the pause label and icon");
+        CheckButtonHitAreas(window);
         Capture(window, Path.Combine(captures, "manager-paused.png"));
         provider.DownloadHandler = (options, _, _) => new DownloadResult { FilePath = firstFile };
         await model.LibraryActionCommand.ExecuteAsync(waiting.Id);

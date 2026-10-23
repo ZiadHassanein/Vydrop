@@ -4,7 +4,7 @@
  <StackPanel>
  <Button x:Name="DownloadButton" Command="{Binding DownloadActionCommand}" Click="DownloadClicked" MouseEnter="DownloadHovered" MouseLeave="DownloadLeft" Style="{StaticResource PrimaryButton}" Background="{DynamicResource DownloadActionFill}" Foreground="{DynamicResource DownloadActionInk}" BorderBrush="{DynamicResource DownloadActionFill}" Height="52" AutomationProperties.Name="{Binding DownloadActionLabel}" AutomationProperties.HelpText="{Binding StatusDetail}" AutomationProperties.LiveSetting="Polite" ToolTip="{Binding StatusDetail}">
   <Button.Template><ControlTemplate TargetType="Button">
-   <Grid>
+   <Grid Background="Transparent">
     <Border x:Name="Face" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8"/>
     <Border Background="{DynamicResource DownloadActionProgress}" Opacity="0.16" CornerRadius="8" RenderTransformOrigin="0,0" FlowDirection="LeftToRight" IsHitTestVisible="False">
      <Border.RenderTransform><ScaleTransform x:Name="ProgressScale" ScaleX="0"/></Border.RenderTransform>

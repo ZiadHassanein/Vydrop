@@ -4,6 +4,10 @@
   <Style.Triggers><DataTrigger Binding="{Binding Tag,RelativeSource={RelativeSource Self}}" Value="0"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers>
  </Style>
  <Style x:Key="NavigationCount" TargetType="Border" BasedOn="{StaticResource ManagerCount}"><Setter Property="Background" Value="{DynamicResource NavigationSelected}"/></Style>
+ <Style x:Key="ManagerRowAction" TargetType="Button" BasedOn="{StaticResource QuietButton}">
+  <Setter Property="Width" Value="34"/><Setter Property="Height" Value="34"/><Setter Property="MinWidth" Value="34"/><Setter Property="MinHeight" Value="34"/><Setter Property="Padding" Value="8"/>
+  <Setter Property="VerticalAlignment" Value="Center"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+ </Style>
  <Style x:Key="ManagerProgress" TargetType="ProgressBar">
   <Setter Property="Height" Value="5"/><Setter Property="Foreground" Value="{DynamicResource Accent}"/><Setter Property="Background" Value="{DynamicResource Divider}"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ProgressBar"><Grid ClipToBounds="True"><Border x:Name="PART_Track" Background="{TemplateBinding Background}"/><Grid x:Name="PART_Indicator" HorizontalAlignment="Left"><Path Data="M0,0 H100 L94,6 H0 Z" Stretch="Fill" Fill="{TemplateBinding Foreground}"/></Grid></Grid></ControlTemplate></Setter.Value></Setter>
@@ -37,7 +41,7 @@
  <Style x:Key="VydropPrimary" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
   <Setter Property="MinHeight" Value="44"/><Setter Property="Padding" Value="18,10"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
-   <Grid>
+   <Grid Background="Transparent">
     <Canvas IsHitTestVisible="False"><Path x:Name="Face" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=Grid}}" Height="{Binding ActualHeight,RelativeSource={RelativeSource AncestorType=Grid}}" Data="M12,0 H240 V48 H0 V12 Z" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}"/></Canvas>
     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
    </Grid>
@@ -53,7 +57,7 @@
   <Setter Property="FontSize" Value="14"/><Setter Property="MinHeight" Value="48"/><Setter Property="Padding" Value="14,10"/><Setter Property="Margin" Value="10,3"/>
   <Setter Property="Cursor" Value="Hand"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
-   <Grid>
+   <Grid Background="Transparent">
     <Path x:Name="Face" Data="M0,0 H240 V35 L227,48 H0 Z" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="Transparent" StrokeThickness="1"/>
     <Grid Margin="{TemplateBinding Padding}"><Grid.ColumnDefinitions><ColumnDefinition Width="22"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
      <Path x:Name="NavigationGlyph" Data="{TemplateBinding Tag}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource NavigationIcon}" Width="19" Height="19"/>
@@ -71,7 +75,7 @@
   <Setter Property="Margin" Value="0,0,14,0"/>
   <Setter Property="Foreground" Value="{DynamicResource Muted}"/><Setter Property="MinHeight" Value="46"/><Setter Property="Padding" Value="8,9"/><Setter Property="Cursor" Value="Hand"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
-   <Border x:Name="Underline" BorderBrush="Transparent" BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}"><ContentPresenter VerticalAlignment="Center"/></Border>
+   <Border x:Name="Underline" Background="Transparent" BorderBrush="Transparent" BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}"><ContentPresenter VerticalAlignment="Center"/></Border>
    <ControlTemplate.Triggers>
     <Trigger Property="IsChecked" Value="True"><Setter TargetName="Underline" Property="BorderBrush" Value="{DynamicResource Action}"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="FontWeight" Value="SemiBold"/></Trigger>
     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Underline" Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter TargetName="Underline" Property="BorderThickness" Value="1,1,1,2"/></Trigger>
