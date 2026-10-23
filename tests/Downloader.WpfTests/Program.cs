@@ -236,14 +236,14 @@ internal static partial class Program
                 }
                 if (args.Contains("--footer"))
                 {
-                    await CheckFooter(window, model, captures);
+                    await CheckContactLinks(window, model, captures);
                     await CheckWindowLayout(window, model, provider, thumbnailLoader, captures);
-                    Console.WriteLine(count + " WPF footer/layout checks passed.");
+                    Console.WriteLine(count + " WPF contact/layout checks passed.");
                     return;
                 }
                 if (args.Contains("--contact"))
                 {
-                    await CheckFooter(window, model, captures);
+                    await CheckContactLinks(window, model, captures);
                     Console.WriteLine(count + " WPF contact checks passed.");
                     return;
                 }
@@ -341,7 +341,7 @@ internal static partial class Program
                 await CheckHorizontalScrolling(window, captures);
                 await CheckOverlayScrolling(window, model, captures);
                 await CheckWindowLayout(window, model, provider, thumbnailLoader, captures);
-                await CheckFooter(window, model, captures);
+                await CheckContactLinks(window, model, captures);
                 await CheckHeader(window, model, captures);
                 await CheckOutputPicker(window, model, captures);
                 await CheckDropdownScrolling(window, model, captures);
@@ -440,8 +440,8 @@ internal static partial class Program
                 Check(viewport.VerticalOffset > 0 && Math.Abs(activeBar.Value - viewport.VerticalOffset) < 1, "Paging scrolls content and keeps the scrollbar value synchronized");
                 viewport.ScrollToEnd();
                 window.UpdateLayout();
-                Check(Math.Abs(viewport.VerticalOffset - viewport.ScrollableHeight) < 1, "The bottom footer is reachable through the refined scrollbar");
-                Capture(window, System.IO.Path.Combine(captures, "scroll-footer.png"));
+                Check(Math.Abs(viewport.VerticalOffset - viewport.ScrollableHeight) < 1, "The end of the workspace is reachable through the refined scrollbar");
+                Capture(window, System.IO.Path.Combine(captures, "scroll-end.png"));
                 await Task.Delay(5200);
                 Check(!model.NoticeVisible, "Transient notices disappear after five seconds");
                 await CheckQueueWindow(window, model, provider, captures);
@@ -517,16 +517,16 @@ internal static partial class Program
                     "Maximization fills the native work area in " + language + (dark ? " dark" : " light"));
                 var root = (FrameworkElement)WpfTree.Find(window, "Root");
                 var viewport = (ScrollViewer)WpfTree.Find(window, "Viewport");
-                var footer = (FrameworkElement)WpfTree.Find(window, "FooterContent");
+                var navigation = (FrameworkElement)WpfTree.Find(window, "NavigationSurface");
                 // Small desktops can require scrolling even when the window is maximized.
                 viewport.ScrollToEnd();
                 window.UpdateLayout();
-                var footerBounds = footer.TransformToAncestor(root).TransformBounds(new Rect(0, 0, footer.ActualWidth, footer.ActualHeight));
+                var navigationBounds = navigation.TransformToAncestor(root).TransformBounds(new Rect(navigation.RenderSize));
                 double center = root.PointToScreen(new Point(root.ActualWidth / 2, 0)).X;
                 Check(root.ActualWidth >= window.MinWidth - 1 && Math.Abs(center - (info.Work.Left + info.Work.Right) / 2.0) <= 2 &&
-                    Math.Abs(footerBounds.Bottom - root.ActualHeight) <= 2,
-                    "The split workspace fills the window and keeps its footer anchored outside the scrolling task" +
-                    $" (footerBottom={footerBounds.Bottom}, viewportHeight={viewport.ActualHeight}, scrollableHeight={viewport.ScrollableHeight})");
+                    Math.Abs(navigationBounds.Bottom - root.ActualHeight) <= 2,
+                    "The split workspace fills the window and keeps navigation outside the scrolling task" +
+                    $" (navigationBottom={navigationBounds.Bottom}, viewportHeight={viewport.ActualHeight}, scrollableHeight={viewport.ScrollableHeight})");
                 viewport.ScrollToTop();
                 window.UpdateLayout();
                 Capture(window, System.IO.Path.Combine(captures, "maximized-" + language + (dark ? "-dark" : "-light") + ".png"));

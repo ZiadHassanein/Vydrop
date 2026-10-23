@@ -17,7 +17,7 @@ internal static partial class Program
         window.Height = normalHeight;
         var viewport = (ScrollViewer)WpfTree.Find(window, "Viewport");
         var form = (FrameworkElement)WpfTree.Find(window, "DownloadForm");
-        var footer = (FrameworkElement)WpfTree.Find(window, "FooterContent");
+        var navigation = (FrameworkElement)WpfTree.Find(window, "NavigationSurface");
         var download = (Button)WpfTree.Find(window, "DownloadButton");
         string[] anchors = { "LinkInput", "QualityInput", "MoreOptionsButton", "DestinationPicker", "DownloadButton" };
         Rect Frame() => new(window.Left, window.Top, window.ActualWidth, window.ActualHeight);
@@ -44,13 +44,13 @@ internal static partial class Program
         {
             await Stable(() => { model.SelectLanguageCommand.Execute(language); return Task.CompletedTask; }, state + " language " + language);
         }
-        void FooterAnchored()
+        void NavigationAnchored()
         {
             var root = (FrameworkElement)WpfTree.Find(window, "Root");
-            var bounds = footer.TransformToAncestor(root).TransformBounds(new Rect(footer.RenderSize));
+            var bounds = navigation.TransformToAncestor(root).TransformBounds(new Rect(navigation.RenderSize));
             Check(Math.Abs(bounds.Bottom - root.ActualHeight) <= 1 &&
                 Math.Abs(((FrameworkElement)WpfTree.Find(window, "FormContent")).MinHeight - viewport.ViewportHeight) <= 1,
-                "The footer stays outside the scrolling content and the workspace fills its viewport");
+                "Navigation stays outside the scrolling content and the workspace fills its viewport");
         }
         void CompactFormFits(string state)
         {
@@ -61,14 +61,17 @@ internal static partial class Program
             var action = Bounds(download);
             var brand = Bounds((FrameworkElement)WpfTree.Find(window, "BrandWordmark"));
             var utilities = Bounds((FrameworkElement)WpfTree.Find(window, "HeaderActions"));
-            Check(form.ActualWidth <= 621 && Math.Abs(download.ActualWidth - 280) <= 1 &&
-                Math.Abs((action.Left + action.Right) / 2 - (fields.Left + fields.Right) / 2) <= 1 &&
+            var navigationBounds = Bounds(navigation);
+            bool alignedAction = model.IsArabic ? Math.Abs(action.Left - fields.Left) <= 1 : Math.Abs(action.Right - fields.Right) <= 1;
+            bool separatedHeader = model.IsArabic ? utilities.Right <= brand.Left : brand.Right < utilities.Left;
+            Check(form.ActualWidth <= 761 && Math.Abs(download.ActualWidth - 240) <= 1 && alignedAction &&
                 anchors.All(name => { var bounds = Bounds((FrameworkElement)WpfTree.Find(window, name));
                     return bounds.Left >= fields.Left - 1 && bounds.Right <= fields.Right + 1; }) &&
                 ((FrameworkElement)WpfTree.Find(window, "LinkInput")).ActualWidth >= 200 &&
                 ((FrameworkElement)WpfTree.Find(window, "QualityInput")).ActualWidth >= 140 &&
-                brand.Right < utilities.Left && utilities.Right <= root.ActualWidth - 23,
-                "The bounded form, shorter Download action and full header fit in " + state +
+                separatedHeader && brand.Left >= navigationBounds.Left && brand.Right <= navigationBounds.Right &&
+                utilities.Left >= 0 && utilities.Right <= root.ActualWidth,
+                "The bounded form, trailing Download action and full header fit in " + state +
                 $" (form={formBounds}, action={action}, arabic={model.IsArabic}, brand={brand}, utilities={utilities}, root={root.RenderSize}, anchors={string.Join(';', anchors.Select(name => name + '=' + Bounds((FrameworkElement)WpfTree.Find(window, name))))})");
         }
 
@@ -105,7 +108,7 @@ internal static partial class Program
                         viewport.ScrollToTop();
                         window.UpdateLayout();
                     }
-                    FooterAnchored();
+                    NavigationAnchored();
                 }
 
                 await Stable(async () => { model.Url = "https://youtu.be/jNQXAC9IVRw"; await Task.Delay(850); }, "video inspection" + variant, true);
@@ -137,7 +140,7 @@ internal static partial class Program
                     viewport.ScrollToTop();
                     window.UpdateLayout();
                     Capture(window, System.IO.Path.Combine(captures, "layout-playlist-" + language + variant + ".png"));
-                    FooterAnchored();
+                    NavigationAnchored();
                 }
                 await Stable(() => { model.Url = ""; return Task.CompletedTask; }, "clearing media" + variant, true);
                 await Stable(() => { model.SettingsVisible = true; return Task.CompletedTask; }, "opening Settings" + variant);
@@ -155,7 +158,7 @@ internal static partial class Program
             await Settle();
             var bounds = download.TransformToAncestor(viewport).TransformBounds(new Rect(download.RenderSize));
             Check(bounds.Top >= 0 && bounds.Bottom <= viewport.ActualHeight + 1, "Keyboard navigation can reveal the main action in a short " + language + " window");
-            FooterAnchored();
+            NavigationAnchored();
             Capture(window, System.IO.Path.Combine(captures, "layout-short-" + language + ".png"));
         }
 

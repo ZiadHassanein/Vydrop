@@ -68,3 +68,5 @@ Readable English and Arabic typography, correct bidirectional text, visible keyb
 ## Current color direction
 
 The user rejected the pink/purple palette as insufficiently professional. Use graphite navigation, clean neutral light/dark workspaces and neutral utility icons, retaining the approved red logo and red primary actions. Keep semantic status colors and accessibility behavior.
+
+Contact links live directly in Settings as a Contact me section. Keep GitHub, LinkedIn and Email available without a popup; the sidebar contains navigation only.

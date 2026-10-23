@@ -299,3 +299,8 @@ The native workspace uses off-white or charcoal layers with graphite navigation.
 ### Restrained native palette
 
 The user rejected the pink/purple surface treatment. Native navigation is now graphite in both themes, with off-white light workspaces and charcoal dark workspaces. Selection surfaces and utility icons are neutral; the red logo and primary actions carry the brand. Remove lavender audio accents and rose navigation icons. Preserve status semantics, typography, layout, keyboard focus and all Windows high-contrast overrides. The browser companion retains its existing palette in this desktop-only scope.
+
+
+## Contact placement
+
+Contact me is a section in Settings below Download preferences. Its GitHub, LinkedIn and localized Email buttons are visible directly, wrap within the workspace, and use the existing SocialCommand destinations. The sidebar ends with Browser integration and Settings; no contact footer or popup remains. All links retain normal button focus, accessible names and English/Arabic layout.

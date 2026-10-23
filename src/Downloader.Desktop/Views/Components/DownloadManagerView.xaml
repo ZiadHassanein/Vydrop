@@ -24,7 +24,6 @@
      <Border Height="1" Background="{DynamicResource NavigationSelected}" Margin="18,0,18,10"/>
      <ToggleButton IsChecked="False" Content="{Binding BrowserLabel}" Command="{Binding BrowserCommand}" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource BrowserIcon}"/>
      <ToggleButton x:Name="SettingsButton" ToolTip="{Binding SettingsShortcutHint}" AutomationProperties.AcceleratorKey="Ctrl+," IsChecked="{Binding SettingsVisible,Mode=OneWay}" Content="{Binding SettingsLabel}" Command="{Binding SettingsCommand}" Style="{StaticResource LibraryNavigation}" Tag="{StaticResource SettingsGearIcon}"/>
-     <Border x:Name="FooterContent" Margin="16,4,12,0"><local:AppFooterView x:Name="ContactLinks"/></Border>
     </StackPanel>
    </Grid>
   </Border>

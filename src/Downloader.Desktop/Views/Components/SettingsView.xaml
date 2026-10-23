@@ -25,6 +25,8 @@
    <StackPanel x:Name="ToolNoticeHost" FlowDirection="LeftToRight"/>
    <Border Height="1" Background="{DynamicResource Divider}" Margin="0,24"/>
    <Expander Header="{Binding DownloadLimitsLabel}" Foreground="{DynamicResource Ink}"><local:DownloadLimitsView/></Expander>
+   <Border Height="1" Background="{DynamicResource Divider}" Margin="0,24"/>
+   <local:ContactLinksView x:Name="ContactLinks"/>
   </StackPanel>
  </Border>
 </UserControl>
