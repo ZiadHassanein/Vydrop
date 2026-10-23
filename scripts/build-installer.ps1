@@ -1,7 +1,12 @@
-param([string]$Version='4.4.1',[switch]$Preview,[string]$CompilerPath,[switch]$UseExistingPackage,[string]$OutputDirectory)
+param([string]$Version='4.4.1',[switch]$Preview,[string]$CompilerPath,[switch]$UseExistingPackage,[string]$OutputDirectory,[switch]$RequireStoreListings)
 $ErrorActionPreference='Stop'
 $taskRepo=Split-Path -Parent $PSScriptRoot
 if($Version -notmatch '^\d+\.\d+\.\d+(?:-preview\.\d+)?$' -or $Version.Contains('-preview.') -ne $Preview.IsPresent) {throw 'Choose a matching stable or preview version/channel.'}
+$taskCatalog=Get-Content -LiteralPath (Join-Path $taskRepo 'browser/store-listings.json') -Raw|ConvertFrom-Json
+if($taskCatalog.format -ne 1){throw 'Unsupported store catalog.'}
+foreach($taskId in @($taskCatalog.chromeId,$taskCatalog.edgeId)){if($null -eq $taskId -or ($taskId -ne '' -and $taskId -cnotmatch '^[a-p]{32}$')){throw 'Use the assigned Chrome/Edge store IDs.'}}
+if($taskCatalog.firefoxListingUrl -ne '' -and $taskCatalog.firefoxListingUrl -cnotmatch '^https://addons\.mozilla\.org/(?:[A-Za-z-]+/)?firefox/addon/[a-z0-9-]+/$'){throw 'Use the official Firefox listing URL.'}
+if($RequireStoreListings -and ($Preview -or $taskCatalog.chromeId -eq '' -or $taskCatalog.edgeId -eq '' -or $taskCatalog.firefoxListingUrl -eq '')){throw 'Store-based extension setup requires a stable build and real Chrome, Edge and Firefox listings. Register publisher accounts, submit the companions, and fill browser/store-listings.json first.'}
 if(!$OutputDirectory){$OutputDirectory=Join-Path $taskRepo 'dist/installers'}
 $OutputDirectory=[IO.Path]::GetFullPath($OutputDirectory)
 $taskPackage=Join-Path $taskRepo "dist/Vydrop-$Version-win-x64"
@@ -9,10 +14,6 @@ if(!$UseExistingPackage){& (Join-Path $PSScriptRoot 'package.ps1') -Version $Ver
 $taskManifest=Get-Content -LiteralPath (Join-Path $taskPackage 'package.json') -Raw|ConvertFrom-Json
 if($taskManifest.Version -ne $Version -or $taskManifest.BrowserStoresHash -ne (Get-FileHash -LiteralPath (Join-Path $taskRepo 'browser/store-listings.json')).Hash){throw 'Rebuild the app with the current version and browser-store configuration.'}
 foreach($taskFile in $taskManifest.Files.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $taskPackage $taskFile.Name)).Hash -ne $taskFile.Value){throw 'Package integrity check failed.'}}
-$taskCatalog=Get-Content -LiteralPath (Join-Path $taskRepo 'browser/store-listings.json') -Raw|ConvertFrom-Json
-if($taskCatalog.format -ne 1){throw 'Unsupported store catalog.'}
-foreach($taskId in @($taskCatalog.chromeId,$taskCatalog.edgeId)){if($null -eq $taskId -or ($taskId -ne '' -and $taskId -cnotmatch '^[a-p]{32}$')){throw 'Use the assigned Chrome/Edge store IDs.'}}
-if($taskCatalog.firefoxListingUrl -ne '' -and $taskCatalog.firefoxListingUrl -cnotmatch '^https://addons\.mozilla\.org/(?:[A-Za-z-]+/)?firefox/addon/[a-z0-9-]+/$'){throw 'Use the official Firefox listing URL.'}
 if(!$CompilerPath){$CompilerPath=Join-Path $taskRepo 'build/tools/inno-6.7.3/ISCC.exe'}
 if(!(Test-Path -LiteralPath $CompilerPath)) {
     $taskTools=Join-Path $taskRepo 'build/tools'; New-Item -ItemType Directory -Path $taskTools -Force|Out-Null

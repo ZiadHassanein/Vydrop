@@ -1,6 +1,12 @@
 # Browser store publication handoff
 
-Prepared October 22, 2026 for companion 1.5.0. Packages are upload candidates, not approved or signed extensions. Public release links remain unchanged.
+Prepared October 23, 2026 for companion 1.5.0. Packages are upload candidates, not approved or signed extensions. Public release links remain unchanged.
+
+## Automatic setup prerequisite
+
+The app installer already registers the native connection. The store catalog is empty, and publisher accounts have not been created. First-time extension delivery therefore still needs store registration, real assigned IDs, approval and Firefox signing. Chrome's supported Windows external installation also includes a one-time enable confirmation; restarting alone cannot enable an unpublished extension. See [Chrome installation rules](https://developer.chrome.com/docs/extensions/how-to/distribute/install-extensions) and [Firefox signing requirements](https://extensionworkshop.com/documentation/publish/signing-and-distribution-overview/).
+
+Once approved listings are configured, the existing installer handoff opens the selected store directly. The user approves the extension without Developer mode, folder selection or loading an unpacked package. `scripts/build-installer.ps1 -RequireStoreListings` prevents accidentally building that distribution with missing listings. It does not replace store approval or browser-installed package testing.
 
 ## What the publisher must provide
 
@@ -26,9 +32,9 @@ Select desktop Firefox as the AMO target. Do not enable Android distribution: Vy
 
 **Name:** Vydrop
 
-**Short description:** Send a playing video's link to Vydrop for Windows and review it before downloading.
+**Short description:** Choose a video's format and quality, then download with Vydrop for Windows.
 
-**Long description:** Vydrop connects your browser to the free, open-source Vydrop desktop app for Windows 10/11 x64. Send the selected playing video using its Vydrop button, the toolbar popup, or the link context menu. Review the result in the desktop app and choose when to download. Test connection checks the browser-to-app link. The companion can open the installed app when it is closed. An optional media-discovery action can find publicly accessible media streams after you grant its separate permissions. Vydrop does not bypass DRM or website access restrictions, and support depends on the video service. The desktop app is required; a link sent to the app never starts an automatic download. Available in English and Arabic. No advertising or analytics.
+**Long description:** Vydrop connects your browser to the free, open-source Vydrop desktop app for Windows 10/11 x64. Choose the selected playing video using its Vydrop button or toolbar popup, pick a format and quality, and press Download to start that output in the app's saved folder. Link-only sending opens the app for review; older app versions retain that review workflow. Test connection checks the browser-to-app link. The companion can open the installed app when it is closed. An optional media-discovery action can find publicly accessible media streams after you grant its separate permissions. Vydrop does not bypass DRM or website access restrictions, and support depends on the video service. The desktop app is required. Available in English and Arabic. No advertising or analytics.
 
 **Homepage/support:** https://ziadhassanein.github.io/Vydrop/ and https://github.com/ZiadHassanein/Vydrop/issues
 
@@ -54,4 +60,4 @@ Supply current screenshots showing the real player button, popup, and desktop re
 4. Test each approved/store-installed extension: health check, app open/closed, link review, queue, browser restart, app upgrade and uninstall. Check optional discovery refusal/revocation. Chrome/Edge external prompts are not proven until these actual identities can be installed.
 5. Only then release the installer and switch public download/setup links to the store flow. Retain local loading under troubleshooting and keep older app protocol behavior.
 
-Reviewers: install the candidate Windows app, add the corresponding companion, open a public playable video, click Vydrop and verify it opens a review. Close the app and repeat. No account or paid media service is required for this test. Do not use private or DRM-protected media as an acceptance fixture.
+Reviewers: install the candidate Windows app, add the corresponding companion, open a public playable video, choose its format and quality, and press Download. Verify the selected output starts in the saved app folder, including when the app was initially closed. Link-only sending should open a review; older hosts should keep their version-1 review fallback. No account or paid media service is required for this test. Do not use private or DRM-protected media as an acceptance fixture.

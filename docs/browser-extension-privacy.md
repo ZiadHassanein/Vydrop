@@ -5,9 +5,9 @@ description: What the Vydrop browser companion reads, transfers to the local app
 
 # Browser extension privacy
 
-Updated October 20, 2026. Maintainer: [Ziad Hassanein](https://github.com/ZiadHassanein). [Support and privacy questions](https://github.com/ZiadHassanein/Vydrop/issues).
+Updated October 23, 2026. Maintainer: [Ziad Hassanein](https://github.com/ZiadHassanein). [Support and privacy questions](https://github.com/ZiadHassanein/Vydrop/issues).
 
-The optional companion connects your browser to the Vydrop desktop app on your Windows computer. You choose which video to send and review it in Vydrop before downloading. Sending a link does not start a download automatically.
+The optional companion connects your browser to the Vydrop desktop app on your Windows computer. You choose the video, format and quality, then explicitly press Download to start that output in the app's saved folder. Sending only a link opens the app for review. Older app versions retain that review workflow.
 
 ## Information used
 
