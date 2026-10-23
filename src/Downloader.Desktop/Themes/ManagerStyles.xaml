@@ -5,6 +5,7 @@
  </Style>
  <Style x:Key="NavigationCount" TargetType="Border" BasedOn="{StaticResource ManagerCount}"><Setter Property="Background" Value="{DynamicResource NavigationSelected}"/></Style>
  <Style x:Key="ManagerRowAction" TargetType="Button" BasedOn="{StaticResource QuietButton}">
+  <Setter Property="FlowDirection" Value="LeftToRight"/>
   <Setter Property="Width" Value="34"/><Setter Property="Height" Value="34"/><Setter Property="MinWidth" Value="34"/><Setter Property="MinHeight" Value="34"/><Setter Property="Padding" Value="8"/>
   <Setter Property="VerticalAlignment" Value="Center"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
  </Style>
@@ -17,7 +18,7 @@
    <Border x:Name="Mark" Width="18" Height="16" CornerRadius="3" Background="{DynamicResource Accent}" Margin="0,0,6,0" VerticalAlignment="Center">
     <Path x:Name="Symbol" Data="{StaticResource GlobeIcon}" Stroke="White" StrokeThickness="1.7" Stretch="Uniform" Width="12" Height="12"/>
    </Border>
-   <TextBlock Text="{Binding SourceName}" Foreground="{DynamicResource Muted}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+   <TextBlock ToolTip="{Binding Url}" Text="{Binding SourceName}" Foreground="{DynamicResource Muted}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
   </DockPanel>
   <DataTemplate.Triggers>
    <DataTrigger Binding="{Binding SourceKind}" Value="youtube"><Setter TargetName="Mark" Property="Background" Value="#CB2535"/><Setter TargetName="Symbol" Property="Data" Value="M5,3 L15,9 5,15 Z"/><Setter TargetName="Symbol" Property="Fill" Value="White"/><Setter TargetName="Symbol" Property="Width" Value="8"/><Setter TargetName="Symbol" Property="Height" Value="8"/></DataTrigger>

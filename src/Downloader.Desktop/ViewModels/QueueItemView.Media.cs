@@ -25,7 +25,7 @@ public sealed partial class QueueItemView
     public string CaptionSummary { get; private set; }
     public string RowDescription { get; private set; }
     public string RowStatus => IsActive && (!IsPreparing || Percent > 0) || Entry.State is QueueState.Paused or QueueState.Interrupted
-        ? MediaStatus + " · " + Percent.ToString("0", CultureInfo.CurrentCulture) + "%" : MediaStatus;
+        ? MediaStatus + " · \u200e" + Percent.ToString("0", CultureInfo.InvariantCulture) + "%\u200e" : MediaStatus;
     public bool HasTransferProgress => IsActive || Entry.State is QueueState.Paused or QueueState.Interrupted;
     public Geometry ActionIcon => (Geometry)System.Windows.Application.Current.Resources[IsActive ? "ManagerPauseIcon" : "ManagerPlayIcon"];
     public Geometry StatusIcon => (Geometry)System.Windows.Application.Current.Resources[MissingFile || Entry.State == QueueState.Failed ? "AlertIcon" : IsComplete ? "CheckIcon" : IsActive ? "DownloadIcon" : Entry.State is QueueState.Paused or QueueState.Interrupted ? "ManagerPauseIcon" : "ManagerClockIcon"];

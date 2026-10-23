@@ -51,12 +51,12 @@ internal static partial class Program
         app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/Vydrop;component/Themes/Controls.xaml") });
         string root = System.IO.Path.Combine(AppContext.BaseDirectory, "wpf-test-" + Guid.NewGuid().ToString("N"));
         System.IO.Directory.CreateDirectory(root);
-        if (args.Contains("--library-queue")) PrepareLibraryQueue(root);
+        if (args.Contains("--library-queue") || args.Contains("--media-layout")) PrepareLibraryQueue(root);
         Exception failure = null;
         var provider = new FakeProvider();
         var service = new DownloadService(provider, new EmptyStorage());
         var thumbnailLoader = new FixtureThumbnailLoader();
-        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader) { ShowActivated = !args.Contains("--motion") && !args.Contains("--manager") && !args.Contains("--workspace-flow") && !args.Contains("--brand-layout") };
+        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader) { ShowActivated = !args.Contains("--motion") && !args.Contains("--manager") && !args.Contains("--workspace-flow") && !args.Contains("--brand-layout") && !args.Contains("--media-layout") };
         if (args.Contains("--ci-layout")) window.Height = 704;
         window.ContentRendered += async (_, _) =>
         {
@@ -76,6 +76,12 @@ internal static partial class Program
                 Check(window.Height <= window.CurrentWorkArea().Height && window.ActualHeight < 900, $"Native window fits content within the work area (height={window.Height}, actual={window.ActualHeight}, area={window.CurrentWorkArea().Height})");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--", StringComparison.Ordinal)) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--media-layout"))
+                {
+                    await CheckMediaLayout(window, model, captures);
+                    Console.WriteLine(count + " WPF media-layout checks passed.");
+                    return;
+                }
                 if (args.Contains("--brand-layout"))
                 {
                     await CheckBrandLayout(window, model, captures);

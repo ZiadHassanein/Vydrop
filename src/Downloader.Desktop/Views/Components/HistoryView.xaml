@@ -27,19 +27,20 @@
    <TextBlock Text="{Binding Heading}" FontSize="34" LineHeight="44" FontWeight="SemiBold"/>
    <TextBlock Text="{Binding Description}" Foreground="{DynamicResource Muted}" Margin="0,4,0,0"/>
   </StackPanel>
-  <ListBox x:Name="HistoryList" Grid.Row="1" ItemsSource="{Binding Files}" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource Ink}"
+  <ListBox x:Name="HistoryList" FontFamily="{StaticResource LatinFont}" Grid.Row="1" ItemsSource="{Binding Files}" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource Ink}"
            HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="False"
            AutomationProperties.Name="{Binding Heading}">
    <ListBox.Resources><Style TargetType="ScrollViewer" BasedOn="{StaticResource InsetScrollFrame}"/></ListBox.Resources>
    <ListBox.ItemTemplate><DataTemplate>
-    <Grid ToolTip="{Binding FilePath}">
+    <Grid FlowDirection="LeftToRight" ToolTip="{Binding FilePath}">
      <Grid.ColumnDefinitions><ColumnDefinition Width="32"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
      <Path Width="24" Height="24" VerticalAlignment="Top" Margin="0,3,0,0">
       <Path.Style><Style TargetType="Path" BasedOn="{StaticResource LineIcon}"><Setter Property="Data" Value="{StaticResource VideoIcon}"/><Setter Property="Stroke" Value="{DynamicResource MediaVideo}"/><Style.Triggers><DataTrigger Binding="{Binding IsAudio}" Value="True"><Setter Property="Data" Value="{StaticResource AudioIcon}"/><Setter Property="Stroke" Value="{DynamicResource MediaAudio}"/></DataTrigger><DataTrigger Binding="{Binding Available}" Value="False"><Setter Property="Stroke" Value="{DynamicResource Error}"/></DataTrigger></Style.Triggers></Style></Path.Style>
      </Path>
      <StackPanel Grid.Column="2">
-      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" LineHeight="20" MaxHeight="40">
+      <TextBlock FlowDirection="{Binding Title,Converter={StaticResource TextDirection}}" Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" LineHeight="20" MaxHeight="40">
        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers>
+        <Trigger Property="FlowDirection" Value="RightToLeft"><Setter Property="FontFamily" Value="{StaticResource ArabicFont}"/></Trigger>
         <DataTrigger Binding="{Binding Available}" Value="False"><Setter Property="TextDecorations" Value="Strikethrough"/><Setter Property="Foreground" Value="{DynamicResource Muted}"/></DataTrigger>
        </Style.Triggers></Style></TextBlock.Style>
       </TextBlock>
