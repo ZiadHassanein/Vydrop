@@ -7,6 +7,13 @@ internal static partial class Program
 {
     private static async Task CheckManager(MainWindow window, MainViewModel model, FakeProvider provider, string root, string captures)
     {
+        System.Windows.Controls.Button DetailsButton()
+        {
+            window.ManagerContent.DownloadsList.ScrollIntoView(model.SelectedLibraryItem);
+            window.UpdateLayout();
+            return Descendants<System.Windows.Controls.Button>(window.ManagerContent.DownloadsList)
+                .Single(button => button.Name == "RowDetails" && button.DataContext is QueueItemView row && row.Id == model.SelectedLibraryItem.Id);
+        }
         Check(!window.EditorOverlay.IsVisible && window.ManagerContent.IsEnabled && model.LibraryEmpty, "The manager opens as the primary screen with an honest empty library");
         Check(Descendants<System.Windows.Controls.Border>(window.ManagerContent).Where(b => b.Tag is int n && n == 0).All(b => b.Visibility == System.Windows.Visibility.Collapsed), "Zero counts are hidden across sidebar and status filters");
         Capture(window, Path.Combine(captures, "manager-empty-no-counts.png"));
@@ -57,7 +64,7 @@ internal static partial class Program
             window.Width = 1280; await Task.Delay(300); window.UpdateLayout();
             bool wide = window.ManagerContent.ActualWidth >= 1080;
             for (int settle = 0; settle < 50 && (wide ? !window.ManagerContent.DetailsBorder.IsVisible : window.ManagerContent.DetailsColumn.Width.Value != 0); settle++) { await Task.Delay(20); window.UpdateLayout(); }
-            Check(wide ? window.ManagerContent.DetailsBorder.IsVisible && window.ManagerContent.DetailsColumn.Width.Value > 0 : window.ManagerContent.DetailsColumn.Width.Value == 0 && window.ManagerContent.CompactDetailsButton.IsVisible,
+            Check(wide ? window.ManagerContent.DetailsBorder.IsVisible && window.ManagerContent.DetailsColumn.Width.Value > 0 : window.ManagerContent.DetailsColumn.Width.Value == 0 && window.ManagerContent.IsCompact && DetailsButton().IsVisible,
                 $"The inspector follows the actual viewport: {language}/{dark}, width={window.ManagerContent.ActualWidth}, window={window.ActualWidth}, column={window.ManagerContent.DetailsColumn.Width.Value}, visible={window.ManagerContent.DetailsBorder.IsVisible}, parent={window.ManagerContent.DetailsBorder.Parent}, add={model.AddDownloadVisible}, settings={model.SettingsVisible}, history={model.HistoryVisible}");
             Check(window.ManagerContent.AddDownloadButton.ActualWidth < 215 && window.ManagerContent.SelectedFolderPath.ActualHeight < 30,
                 "The Add action stays content-sized and long save paths stay on one line: " + language + "/" + dark);
@@ -68,8 +75,8 @@ internal static partial class Program
         Check(presentationResets == 0, "Changing language, theme and window size preserves the existing virtualized rows");
         model.SelectLanguageCommand.Execute("en");
         window.Width = 800; await Task.Delay(100); window.UpdateLayout();
-        Check(window.ManagerContent.DetailsColumn.Width.Value == 0 && window.ManagerContent.CompactDetailsButton.IsVisible, "Compact windows keep the library usable and offer an explicit Details button");
-        var detailsPeer = new ButtonAutomationPeer(window.ManagerContent.CompactDetailsButton);
+        Check(window.ManagerContent.DetailsColumn.Width.Value == 0 && window.ManagerContent.IsCompact && DetailsButton().IsVisible, "Compact windows keep the library usable and offer a Details button beside each file");
+        var detailsPeer = new ButtonAutomationPeer(DetailsButton());
         ((IInvokeProvider)detailsPeer.GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(80);
         Check(window.ManagerContent.DetailOverlay.IsVisible && window.ManagerContent.DetailsBorder.IsVisible, "The compact details drawer exposes the same selected download");
         Capture(window, Path.Combine(captures, "manager-compact-details.png"));
@@ -101,7 +108,7 @@ internal static partial class Program
             "Active transfers use the brand accent alongside their download icon and label");
         Check(model.SelectedLibraryItem.RowStatus.Contains("42%", StringComparison.Ordinal) && model.SelectedLibraryItem.RowDescription.Contains("MB", StringComparison.Ordinal), "The active row exposes measured percentage and known size beside its compact controls");
         bool compactTransfer = window.ManagerContent.ActualWidth < 1080;
-        if (compactTransfer) { ((IInvokeProvider)new ButtonAutomationPeer(window.ManagerContent.CompactDetailsButton).GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(60); }
+        if (compactTransfer) { ((IInvokeProvider)new ButtonAutomationPeer(DetailsButton()).GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(60); }
         Check(model.LibraryActionCommand.CanExecute(waiting.Id) && window.ManagerContent.ManagerCancelButton.IsVisible && window.ManagerContent.ManagerCancelButton.IsEnabled, "A manager-started transfer retains enabled Pause and Cancel actions while the command is executing");
         CheckButtonHitAreas(window);
         if (compactTransfer) ((IInvokeProvider)new ButtonAutomationPeer(window.ManagerContent.DetailsCloseButton).GetPattern(PatternInterface.Invoke)).Invoke();

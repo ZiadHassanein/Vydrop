@@ -72,7 +72,7 @@ internal static partial class Program
                 Check(MainViewModel.DescribeError(new InvalidOperationException("ERROR: [LinkedIn] 7517135049939525632: Unable to extract video")).Contains("Vydrop button") &&
                     MainViewModel.DescribeError(new System.Net.Http.HttpRequestException("Connection reset")).Contains("internet connection"),
                     "LinkedIn extraction failures explain the browser action while network failures retain connection guidance");
-                Check(window.Width <= 1280 && window.MinWidth == 760, "The manager workspace fits the monitor and permits compact windows");
+                Check(window.Width <= 1000 && window.MinWidth == 760 && window.ManagerContent.IsCompact && window.ManagerContent.DetailsColumn.Width.Value == 0, "The manager starts in a compact frame without an empty inspector and permits resizing");
                 Check(window.Height <= window.CurrentWorkArea().Height && window.ActualHeight < 900, $"Native window fits content within the work area (height={window.Height}, actual={window.ActualHeight}, area={window.CurrentWorkArea().Height})");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--", StringComparison.Ordinal)) ?? root;
                 System.IO.Directory.CreateDirectory(captures);

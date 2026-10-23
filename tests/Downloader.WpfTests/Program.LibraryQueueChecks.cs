@@ -26,7 +26,7 @@ internal static partial class Program
         Add("A new perspective · Waiting to download", QueueState.Pending);
         Add("Evening notes · Completed audio", QueueState.Completed, true, audio);
         Add("Audio notes · Paused", QueueState.Paused, true);
-        Add("Archived video · File moved or deleted", QueueState.Completed, file: Path.Combine(root, "missing.mp4"));
+        Add("تلاوة تهدئ النفس وتطمئن الروح — عنوان طويل لاختبار تخطيط الفيديوهات", QueueState.Completed, file: Path.Combine(root, "missing.mp4"));
         Add("Restored download · Interrupted", QueueState.Downloading);
         Add("Audio session · Failed", QueueState.Failed, true);
         Add("Short film · Cancelled", QueueState.Cancelled);

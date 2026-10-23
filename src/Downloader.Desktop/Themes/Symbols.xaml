@@ -21,6 +21,7 @@
   <Geometry x:Key="ManagerPlayIcon">M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z</Geometry>
   <Geometry x:Key="ManagerClockIcon">M22.0,12.0 A10.0,10.0 0 1 1 2.0,12.0 A10.0,10.0 0 1 1 22.0,12.0 Z M12 6v6l4 2</Geometry>
   <Geometry x:Key="ChevronIcon">M6,9 l6 6 6 -6</Geometry>
+  <Geometry x:Key="InfoIcon">M22,12 A10,10 0 1,1 2,12 A10,10 0 1,1 22,12 M12,16 V12 M12,8 H12.01</Geometry>
   <Geometry x:Key="AlertIcon">M21.73,18 l-8 -14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3 M12 9v4 M12 17h.01</Geometry>
   <Geometry x:Key="BrowserIcon">M4.0,4.0 H20.0 A2.0,2.0 0 0 1 22.0,6.0 V18.0 A2.0,2.0 0 0 1 20.0,20.0 H4.0 A2.0,2.0 0 0 1 2.0,18.0 V6.0 A2.0,2.0 0 0 1 4.0,4.0 Z M10 4v4 M2 8h20 M6 4v4</Geometry>
   <Geometry x:Key="RefreshIcon">M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8 M21 3v5h-5 M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16 M8 16H3v5</Geometry>

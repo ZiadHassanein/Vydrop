@@ -43,17 +43,13 @@
  <Border x:Name="HeaderFrame" Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="0" Padding="14,7,18,7">
   <Grid>
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Click="LogoClicked" MouseEnter="LogoHovered" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="{Binding NewDownloadLabel}">
+   <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="{Binding NewDownloadLabel}">
     <Grid x:Name="BrandArtwork" Width="128" Height="38">
      <Viewbox x:Name="BrandWordmark" Width="128" Height="38" Stretch="Uniform" VerticalAlignment="Center" FlowDirection="LeftToRight" AutomationProperties.Name="Vydrop">
       <Canvas Width="966" Height="284">
        <Canvas x:Name="BrandMark" Width="251" Height="269" IsHitTestVisible="False">
-        <Path x:Name="BrandInitial" Data="{StaticResource BrandInitialGeometry}" Fill="{StaticResource BrandFill}">
-         <Path.RenderTransform><TransformGroup><ScaleTransform x:Name="LogoScale" CenterX="125.5" CenterY="134.5"/><RotateTransform x:Name="LogoTurn" CenterX="125.5" CenterY="134.5"/></TransformGroup></Path.RenderTransform>
-        </Path>
-        <Path x:Name="BrandArrow" Data="{StaticResource BrandArrowGeometry}" Fill="White">
-         <Path.RenderTransform><TransformGroup><ScaleTransform x:Name="ArrowScale" CenterX="125.5" CenterY="120"/><RotateTransform x:Name="ArrowTurn" CenterX="125.5" CenterY="120"/><TranslateTransform x:Name="ArrowOffset"/></TransformGroup></Path.RenderTransform>
-        </Path>
+        <Path x:Name="BrandInitial" Data="{StaticResource BrandInitialGeometry}" Fill="{StaticResource BrandFill}"/>
+        <Path x:Name="BrandArrow" Data="{StaticResource BrandArrowGeometry}" Fill="White"/>
        </Canvas>
        <Path x:Name="BrandLetters" Data="{StaticResource BrandLettersGeometry}" Fill="{DynamicResource NavigationInk}"/>
       </Canvas>
@@ -78,7 +74,7 @@
     </Button>
     <Border Width="1" Height="28" Background="{DynamicResource Divider}" Margin="12,0"/>
     <Button x:Name="ThemeButton" Command="{Binding ThemeCommand}" Style="{StaticResource ThemeButtonStyle}" AutomationProperties.Name="{Binding ThemeAction}" ToolTip="{Binding ThemeAction}">
-     <Path x:Name="ThemeGlyph" Data="{Binding ThemeIcon}" Stroke="{DynamicResource Muted}" StrokeThickness="1.7" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stretch="Uniform" Width="20" Height="20"/>
+     <Path x:Name="ThemeGlyph" Data="{Binding ThemeIcon}" Stroke="{DynamicResource Ink}" StrokeThickness="1.7" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stretch="Uniform" Width="20" Height="20"/>
     </Button>
    </StackPanel>
   </Grid>

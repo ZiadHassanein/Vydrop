@@ -8,11 +8,27 @@ namespace YouTubeDownloader;
 public partial class DownloadManagerView : UserControl
 {
     private bool compact;
+    private IInputElement detailsReturnFocus;
+    private string detailsScope;
+    private Guid? detailsItem;
+    private static readonly DependencyPropertyKey IsCompactPropertyKey = DependencyProperty.RegisterReadOnly(nameof(IsCompact), typeof(bool), typeof(DownloadManagerView), new PropertyMetadata(false));
+    public static readonly DependencyProperty IsCompactProperty = IsCompactPropertyKey.DependencyProperty;
+    public bool IsCompact => (bool)GetValue(IsCompactProperty);
+    public static readonly RoutedCommand ShowDetailsCommand = new();
     private readonly WorkspaceMotion workspaceMotion;
     internal event Action WorkspaceLayoutChanged;
     public DownloadManagerView()
     {
         InitializeComponent();
+        CommandBindings.Add(new CommandBinding(ShowDetailsCommand, (_, e) =>
+        {
+            if (DataContext is MainViewModel model && e.Parameter is Guid id && model.QueueItems.FirstOrDefault(row => row.Id == id) is { } item)
+            {
+                model.SelectedLibraryItem = item;
+                ShowDetails(e.OriginalSource as IInputElement);
+            }
+            e.Handled = true;
+        }, (_, e) => { e.CanExecute = compact && e.Parameter is Guid id && DataContext is MainViewModel model && model.LibraryItems.Contains(model.QueueItems.FirstOrDefault(item => item.Id == id)); e.Handled = true; }));
         workspaceMotion = new WorkspaceMotion(this);
         ((Panel)Header.BrandButton.Parent).Children.Remove(Header.BrandButton);
         BrandHost.Children.Add(Header.BrandButton);
@@ -27,8 +43,10 @@ public partial class DownloadManagerView : UserControl
     }
     private void WorkspaceChanged(object sender, PropertyChangedEventArgs e)
     {
+        if (DetailOverlay.IsVisible && DataContext is MainViewModel model && (!model.LibraryVisible || detailsScope != CurrentLibraryScope || detailsItem != model.SelectedLibraryItem?.Id)) HideDetails();
         if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName is nameof(MainViewModel.AddDownloadVisible) or nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HistoryVisible) or nameof(MainViewModel.HasMediaPreview) or nameof(MainViewModel.ActiveWorkspace)) RefreshWorkspace();
     }
+    private string CurrentLibraryScope => DataContext is MainViewModel model ? model.IsQueuePage ? "queue" : model.IsLibraryVideo ? "video" : model.IsLibraryAudio ? "audio" : "all" : "";
     internal void RefreshWorkspace()
     {
         if (DataContext is not MainViewModel model) return;
@@ -54,10 +72,10 @@ public partial class DownloadManagerView : UserControl
     {
         double previousWidth = DetailsColumn.Width.Value;
         bool next = ActualWidth < 1080;
-        NavigationColumn.Width = new GridLength(ActualWidth < 960 ? 176 : 224);
+        NavigationColumn.Width = new GridLength(next ? 216 : 224);
         DetailsColumn.Width = new GridLength(next || !HasInspector ? 0 : ActualWidth > 1360 ? 350 : 320);
         LibraryContent.Margin = new Thickness(ActualWidth < 960 ? 14 : 24, 4, 18, 0);
-        CompactDetailsButton.Visibility = next ? Visibility.Visible : Visibility.Collapsed;
+        SetValue(IsCompactPropertyKey, next);
         if (compact != next)
         {
             compact = next;
@@ -67,9 +85,12 @@ public partial class DownloadManagerView : UserControl
         }
         if (previousWidth != DetailsColumn.Width.Value) WorkspaceLayoutChanged?.Invoke();
     }
-    private void ShowDetailsClicked(object sender, RoutedEventArgs e)
+    private void ShowDetails(IInputElement returnFocus = null)
     {
         if (!compact) return;
+        detailsReturnFocus = returnFocus ?? Keyboard.FocusedElement;
+        detailsScope = CurrentLibraryScope;
+        detailsItem = (DataContext as MainViewModel)?.SelectedLibraryItem?.Id;
         DetailOverlay.Visibility = Visibility.Visible;
         LibraryContent.Visibility = Visibility.Collapsed;
         DetailsCloseButton.Focus();
@@ -81,12 +102,17 @@ public partial class DownloadManagerView : UserControl
         model.LibrarySearch = "";
     }
     private void HideDetailsClicked(object sender, RoutedEventArgs e) => HideDetails();
-    private void DownloadDoubleClicked(object sender, MouseButtonEventArgs e) { if (compact && (DataContext as MainViewModel)?.SelectedLibraryItem != null) ShowDetailsClicked(sender, e); }
+    private void DownloadDoubleClicked(object sender, MouseButtonEventArgs e) { if (compact && (DataContext as MainViewModel)?.SelectedLibraryItem != null) ShowDetails(); }
     private void HideDetails()
     {
         bool visible = DetailOverlay.IsVisible;
         DetailOverlay.Visibility = Visibility.Collapsed;
         if (DataContext is MainViewModel model && model.LibraryVisible) LibraryContent.Visibility = Visibility.Visible;
-        if (visible) DownloadsList.Focus();
+        if (visible)
+        {
+            if (detailsReturnFocus is UIElement { IsVisible: true, IsEnabled: true } target) target.Focus();
+            else DownloadsList.Focus();
+            detailsReturnFocus = null;
+        }
     }
 }
