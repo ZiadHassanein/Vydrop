@@ -68,12 +68,16 @@
  </Style>
  <Style x:Key="LibraryFilter" TargetType="ToggleButton">
   <Setter Property="Margin" Value="0,0,14,0"/>
+  <Setter Property="FontWeight" Value="Medium"/>
   <Setter Property="Foreground" Value="{DynamicResource Muted}"/><Setter Property="MinHeight" Value="46"/><Setter Property="Padding" Value="8,9"/><Setter Property="Cursor" Value="Hand"/>
+  <Setter Property="FocusVisualStyle"><Setter.Value><Style TargetType="Control"><Setter Property="Template"><Setter.Value><ControlTemplate><Border Height="3" VerticalAlignment="Bottom" Background="{DynamicResource Ink}"/></ControlTemplate></Setter.Value></Setter></Style></Setter.Value></Setter>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
-   <Grid Background="Transparent"><Border x:Name="Underline" Background="Transparent" BorderBrush="Transparent" BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}"><Grid><Border CornerRadius="5" Background="{DynamicResource Hover}" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True" local:HoverMotion.Strength="0.35"/><ContentPresenter local:InteractionMotion.Enabled="True" VerticalAlignment="Center"/></Grid></Border><Border x:Name="FilterSelection" Height="2" VerticalAlignment="Bottom" Background="{DynamicResource Action}" Opacity="0" IsHitTestVisible="False" local:SelectionMotion.IsSelected="{Binding IsChecked,RelativeSource={RelativeSource TemplatedParent}}"/></Grid>
+   <Grid Background="Transparent">
+    <ContentPresenter x:Name="FilterContent" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+    <Border x:Name="FilterSelection" Height="2" VerticalAlignment="Bottom" Background="{DynamicResource Action}" IsHitTestVisible="False" RenderTransformOrigin=".5,.5" local:UnderlineMotion.IsSelected="{Binding IsChecked,RelativeSource={RelativeSource TemplatedParent}}"><Border.RenderTransform><ScaleTransform ScaleX="0"/></Border.RenderTransform></Border>
+   </Grid>
    <ControlTemplate.Triggers>
-    <Trigger Property="IsChecked" Value="True"><Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="FontWeight" Value="SemiBold"/></Trigger>
-    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Underline" Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter TargetName="Underline" Property="BorderThickness" Value="1,1,1,2"/></Trigger>
+    <Trigger Property="IsChecked" Value="True"><Setter Property="Foreground" Value="{DynamicResource Ink}"/></Trigger>
     <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{DynamicResource Accent}"/></Trigger>
    </ControlTemplate.Triggers>
   </ControlTemplate></Setter.Value></Setter>

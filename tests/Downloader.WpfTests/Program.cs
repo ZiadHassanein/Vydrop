@@ -51,7 +51,7 @@ internal static partial class Program
         app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/Vydrop;component/Themes/Controls.xaml") });
         string root = System.IO.Path.Combine(AppContext.BaseDirectory, "wpf-test-" + Guid.NewGuid().ToString("N"));
         System.IO.Directory.CreateDirectory(root);
-        if (args.Contains("--library-queue") || args.Contains("--media-layout")) PrepareLibraryQueue(root);
+        if (args.Contains("--library-queue") || args.Contains("--media-layout") || args.Contains("--filter-tabs")) PrepareLibraryQueue(root);
         Exception failure = null;
         var provider = new FakeProvider();
         var service = new DownloadService(provider, new EmptyStorage());
@@ -80,6 +80,12 @@ internal static partial class Program
                 {
                     await CheckMediaLayout(window, model, captures);
                     Console.WriteLine(count + " WPF media-layout checks passed.");
+                    return;
+                }
+                if (args.Contains("--filter-tabs"))
+                {
+                    await CheckFilterTabs(window, model, captures);
+                    Console.WriteLine(count + " WPF filter-tab checks passed.");
                     return;
                 }
                 if (args.Contains("--brand-layout"))

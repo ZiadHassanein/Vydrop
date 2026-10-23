@@ -64,7 +64,7 @@ public partial class DownloadManagerView : UserControl
         else if (model.SettingsVisible) workspaceMotion.Navigate("settings", EditorHost, 7);
         else if (model.HistoryVisible) workspaceMotion.Navigate("history", HistoryContent, 3);
         else if (model.AddDownloadVisible) workspaceMotion.Navigate("add", EditorHost, 0);
-        else workspaceMotion.Navigate(model.IsQueuePage ? "queue" : model.IsLibraryVideo ? "video" : model.IsLibraryAudio ? "audio" : "library", LibraryContent, model.IsQueuePage ? 2 : model.IsLibraryVideo ? 4 : model.IsLibraryAudio ? 5 : 1);
+        else workspaceMotion.Navigate(model.IsQueuePage ? "queue" : "library", LibraryContent, model.IsQueuePage ? 2 : 1);
     }
     private bool HasInspector => DataContext is MainViewModel model && !model.HasWorkspacePage && !model.SettingsVisible && !model.HistoryVisible && (!model.AddDownloadVisible || model.HasMediaPreview);
 
