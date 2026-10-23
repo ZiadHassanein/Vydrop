@@ -33,8 +33,10 @@ internal static partial class Program
                     Check(before.SequenceEqual(Positions()) && tabs.All(item => item.FontWeight == FontWeights.Medium) &&
                         tabs.All(item => Descendants<FrameworkElement>(item).All(visual => !InteractionMotion.GetEnabled(visual) && !HoverMotion.GetEnabled(visual))),
                         "Click and focus keep tab content stationary without a hover fill or press scaling");
+                    // The animation clock can attach before WPF composes its first frame.
+                    for (int attempt = 0; attempt < 20 && Scale(tab).HasAnimatedProperties && Scale(tab).ScaleX == 0; attempt++) await Task.Delay(16);
                     Check(tab.Template.FindName("Underline", tab) == null && Scale(tab).HasAnimatedProperties && Scale(tab).ScaleX > 0 && Scale(tab).ScaleX < 1,
-                        "Selection grows only the underline instead of drawing a rectangular tab border");
+                        $"Selection grows only the underline instead of drawing a rectangular tab border (tab={choice}, scale={Scale(tab).ScaleX}, animated={Scale(tab).HasAnimatedProperties}, visible={Line(tab).IsVisible})");
                     Check(manager.LibraryContent.RenderTransform.Value.IsIdentity && !manager.LibraryContent.HasAnimatedProperties,
                         "Switching media filters does not slide or fade the download workspace");
                     await Task.Delay(230); window.UpdateLayout();

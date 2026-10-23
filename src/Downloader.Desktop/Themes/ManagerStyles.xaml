@@ -68,11 +68,11 @@
   <Setter Property="Margin" Value="0,0,14,0"/>
   <Setter Property="FontWeight" Value="Medium"/>
   <Setter Property="Foreground" Value="{DynamicResource Muted}"/><Setter Property="MinHeight" Value="46"/><Setter Property="Padding" Value="8,9"/><Setter Property="Cursor" Value="Hand"/>
-  <Setter Property="FocusVisualStyle"><Setter.Value><Style TargetType="Control"><Setter Property="Template"><Setter.Value><ControlTemplate><Border Height="3" VerticalAlignment="Bottom" Background="{DynamicResource Ink}"/></ControlTemplate></Setter.Value></Setter></Style></Setter.Value></Setter>
+  <Setter Property="FocusVisualStyle"><Setter.Value><Style TargetType="Control"><Setter Property="Template"><Setter.Value><ControlTemplate><Border Height="3" Width="{Binding AdornedElement.Content.ActualWidth,RelativeSource={RelativeSource AncestorType=Adorner}}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Background="{DynamicResource Ink}"/></ControlTemplate></Setter.Value></Setter></Style></Setter.Value></Setter>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
    <Grid Background="Transparent">
-    <ContentPresenter x:Name="FilterContent" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
-    <Border x:Name="FilterSelection" Height="2" VerticalAlignment="Bottom" Background="{DynamicResource Action}" IsHitTestVisible="False" RenderTransformOrigin=".5,.5" local:UnderlineMotion.IsSelected="{Binding IsChecked,RelativeSource={RelativeSource TemplatedParent}}"><Border.RenderTransform><ScaleTransform ScaleX="0"/></Border.RenderTransform></Border>
+    <ContentPresenter x:Name="FilterContent" Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Border x:Name="FilterSelection" Width="{Binding ActualWidth,ElementName=FilterContent}" HorizontalAlignment="Center" Height="2" VerticalAlignment="Bottom" Background="{DynamicResource Action}" IsHitTestVisible="False" RenderTransformOrigin=".5,.5" local:UnderlineMotion.IsSelected="{Binding IsChecked,RelativeSource={RelativeSource TemplatedParent}}"><Border.RenderTransform><ScaleTransform ScaleX="0"/></Border.RenderTransform></Border>
    </Grid>
    <ControlTemplate.Triggers>
     <Trigger Property="IsChecked" Value="True"><Setter Property="Foreground" Value="{DynamicResource Ink}"/></Trigger>
