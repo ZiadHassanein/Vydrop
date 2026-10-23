@@ -88,7 +88,6 @@ internal static class Texts
         { "Maximum speed", "السرعة القصوى" },
         { "Custom", "مخصص" },
         { "Choose a speed, or select Custom for an exact limit.", "اختر سرعة، أو حدد مخصص لإدخال قيمة دقيقة." },
-        { "Unlimited", "بلا حد للسرعة" },
         { "Off: use your available bandwidth without a speed cap.", "عند إيقافه، يُنزَّل الملف دون حد للسرعة." },
         { "Automatic retries", "إعادة المحاولة تلقائيًا" },
         { "Retry a download if a temporary network error causes it to fail.", "إعادة محاولة التنزيل إذا فشل بسبب خطأ مؤقت في الشبكة." },

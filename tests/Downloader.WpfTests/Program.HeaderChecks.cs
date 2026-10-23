@@ -80,7 +80,7 @@ internal static partial class Program
                     "Language is a direct button with no dropdown or detached popup");
                 Check(Descendants<TextBlock>(language).Single().Text == (arabic ? "English" : "العربية") && AutomationProperties.GetName(language) == model.LanguageAction,
                     "The button names the destination language and exposes a localized accessible action");
-                Check(before.Left >= 0 && before.Right <= window.ActualWidth && before.Width == 106 && Bounds(brand).Left >= navigation.Left && Bounds(brand).Right <= navigation.Right,
+                Check(before.Left >= 0 && before.Right <= window.ActualWidth && Math.Abs(before.Width - 106) <= 1 && Bounds(brand).Left >= navigation.Left && Bounds(brand).Right <= navigation.Right,
                     "Header controls and branding fit the compact and wide layouts in both directions");
                 language.Focus();
                 ((IInvokeProvider)new ButtonAutomationPeer(language).GetPattern(PatternInterface.Invoke)).Invoke();

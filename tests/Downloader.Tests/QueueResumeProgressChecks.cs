@@ -29,6 +29,11 @@ internal static class QueueResumeProgressChecks
                     progress.Report(new() { Stage = stage, Percent = 0, Indeterminate = true });
                     Check(entry.Percent == 53);
                 }
+                foreach (string stage in new[] { "Preparing media tools", "Checking video", "Checking playlist" })
+                {
+                    progress.Report(new() { Stage = stage, Percent = 100 });
+                    Check(entry.State == QueueState.Preparing && entry.Percent == 53);
+                }
                 progress.Report(new() { Stage = "Downloading", Percent = 54, DownloadedBytes = 540, TotalBytes = 1000 });
                 Check(entry.Percent == 54);
                 // A server may genuinely restart a transfer: never invent retained bytes.

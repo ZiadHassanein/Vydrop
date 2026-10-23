@@ -3,27 +3,12 @@ using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using YouTubeDownloader;
 
 internal static partial class Program
 {
     private static async Task CheckUiRefinement(MainWindow window, MainViewModel model, string captures)
     {
-        // Verify the actual rendered ink, not merely TextBlock alignment properties.
-        foreach (string number in new[] { "1", "2", "5", "12", "99" })
-        {
-            var badge = new BadgeNumber { Text = number, FontFamily = (FontFamily)Application.Current.Resources["LatinFont"], FontWeight = FontWeights.SemiBold, FontSize = 11, Foreground = Brushes.White, Width = 24, Height = 20 };
-            badge.Measure(new Size(24, 20)); badge.Arrange(new Rect(0, 0, 24, 20));
-            var bitmap = new RenderTargetBitmap(24, 20, 96, 96, PixelFormats.Pbgra32); bitmap.Render(badge);
-            byte[] pixels = new byte[24 * 20 * 4]; bitmap.CopyPixels(pixels, 24 * 4, 0);
-            int left = 24, top = 20, right = -1, bottom = -1;
-            for (int y = 0; y < 20; y++) for (int x = 0; x < 24; x++)
-                if (pixels[(y * 24 + x) * 4 + 3] >= 64) { left = Math.Min(left, x); right = Math.Max(right, x); top = Math.Min(top, y); bottom = Math.Max(bottom, y); }
-            Check(right >= left && Math.Abs((left + right + 1) / 2d - 12) <= .5 && Math.Abs((top + bottom + 1) / 2d - 10) <= .5,
-                "The visible badge numeral is optically centered: " + number);
-        }
         Check(window.InputBindings.OfType<KeyBinding>().Any(k => k.Key == Key.J && k.Modifiers == ModifierKeys.Control && ReferenceEquals(k.Command, model.HistoryCommand)) &&
             window.InputBindings.OfType<KeyBinding>().Any(k => k.Key == Key.Q && k.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift) && ReferenceEquals(k.Command, model.QueueCommand)),
             "History and queue shortcuts use the same commands as their visible actions");

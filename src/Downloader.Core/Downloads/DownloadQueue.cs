@@ -133,7 +133,7 @@ public sealed partial class DownloadQueue
                                 entry.State = preparing ? QueueState.Preparing : QueueState.Downloading;
                                 // Preparation has no new byte measurement. Keep the saved position until
                                 // a measured transfer arrives, including an honest lower value after a restart.
-                                if (!p.Indeterminate && !preparing || p.Percent >= 100)
+                                if (!preparing && (!p.Indeterminate || p.Percent >= 100))
                                     entry.Percent = Math.Clamp(p.Percent, 0, 100);
                                 entry.Transfer = p;
                                 if (!string.IsNullOrWhiteSpace(p.ItemTitle)) entry.Title = p.ItemTitle;

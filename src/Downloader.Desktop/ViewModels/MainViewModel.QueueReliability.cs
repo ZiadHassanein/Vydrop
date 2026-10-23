@@ -76,7 +76,6 @@ public sealed partial class MainViewModel
     public string ConnectionsHint => T("Fetch parts of the same file at the same time, when supported.");
     public string SpeedLimitLabel => T("Limit download speed");
     public string SpeedValueLabel => T("Maximum speed");
-    public string UnlimitedSpeedLabel => T("Unlimited");
     public string SpeedLimitHint => T(IsSpeedLimited ? "Choose a speed, or select Custom for an exact limit." : "Off: use your available bandwidth without a speed cap.");
     public string AttemptsLabel => T("Automatic retries");
     public string AttemptsHint => T("Retry a download if a temporary network error causes it to fail.");

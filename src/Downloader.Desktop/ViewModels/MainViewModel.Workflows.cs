@@ -88,7 +88,6 @@ public sealed partial class MainViewModel
     public string AddQueueLabel => T("Add to queue");
     public string StartQueueLabel => T(Queue.Entries.Any(entry => entry.State is QueueState.Paused or QueueState.Interrupted) ? "Resume downloads" : "Start download");
     public string RemoveLabel => T("Remove");
-    public string QueueHeading => T("Download queue");
     public string QueueSettingsHint => T("New links use the format, quality and save folder from Add download.");
     public string QueueInputLabel => T("Video links");
     public string CloseLabel => T("Close");

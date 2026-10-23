@@ -47,9 +47,6 @@ public sealed partial class MainViewModel
     public string NextLanguageLabel => IsArabic ? "English" : "العربية";
     public FontFamily NextLanguageFont => (FontFamily)Application.Current.Resources[IsArabic ? "LatinFont" : "ArabicFont"];
     public string LanguageAction => T(IsArabic ? "Switch to English" : "Switch to Arabic");
-    public string LanguageLabel => T("Language");
-    public bool IsEnglish => !IsArabic;
-    public string NewDownloadLabel => T("New download");
     public string SettingsLabel => T("Settings");
     public string ContactLabel => T("Contact me");
     public string HistoryShortcutHint => T("Recent downloads") + " (Ctrl+J)";
