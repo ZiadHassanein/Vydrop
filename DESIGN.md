@@ -196,7 +196,11 @@ The floating browser chooser has one structural shadow (0 18px 48px #170d2040). 
 
 **The Surface Separation Rule.** Use palette layers and fine boundaries for native hierarchy; reserve the companion shadow for the floating browser chooser.
 
-Native hover layers fade in over 130ms and out over 100ms with cubic ease-out. View reveals use 180ms, opacity .82 to 1 and a 5 DIP vertical settle; theme change uses a 260ms circular reveal from the theme control. Windows client-area animation settings and high contrast disable these effects. The manager chamfered action has no added hover animation.
+Native hover layers fade in over 130ms and out over 100ms with cubic ease-out. Sidebar selection and filter underlines fade in over 170ms and out over 110ms. Workspace navigation uses a 180ms, 12-DIP lateral handoff with opacity .94 to 1; direction follows navigation order and mirrors for Arabic. Coalesce rapid navigation and animate route changes only, never ordinary transfer updates. Keep the viewport clipped and the sidebar, inspector and all button hit areas stationary.
+
+Button visuals compress to .975 over 80ms on press and return over 140–150ms on release or invocation. The chamfered primary action has a restrained white hover layer. Media-detail reveals use 180ms and a 4-DIP vertical settle; theme change retains its 260ms circular reveal. Completed, interrupted and hidden animations release their clocks and transforms. Windows client-area animation settings and high contrast disable spatial/decorative motion and retain immediate, legible state feedback.
+
+The header uses a fixed-width language button with the destination language in its own bundled font, the pinned Lucide Languages icon, and a localized action name. Click, Enter or Space switches directly between English and Arabic through the existing saved-language command; preserve its busy-operation guard. No language popup or chevron remains. Library uses the stacked-gallery symbol and video uses the clapperboard from the same pinned Lucide source; the theme symbol shares the 1.7-DIP outline weight.
 
 ## Shapes
 

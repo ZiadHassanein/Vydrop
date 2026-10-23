@@ -28,10 +28,11 @@
    </Grid>
   </Border>
   <local:AppHeaderView x:Name="Header" Grid.Column="1" Grid.ColumnSpan="2" FlowDirection="LeftToRight"/>
-  <Grid x:Name="EditorHost" Grid.Column="1" Grid.Row="1" Visibility="Collapsed"/>
-  <ContentControl x:Name="WorkspaceHost" Grid.Column="1" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Visibility="Collapsed"/>
-  <local:HistoryView x:Name="HistoryContent" Grid.Column="1" Grid.Row="1" DataContext="{Binding History}" Visibility="Collapsed"/>
-  <Grid x:Name="LibraryContent" Grid.Column="1" Grid.Row="1" Margin="24,4,20,0">
+  <Grid x:Name="WorkspaceViewport" Grid.Column="1" Grid.Row="1" ClipToBounds="True">
+  <Grid x:Name="EditorHost" Visibility="Collapsed"/>
+  <ContentControl x:Name="WorkspaceHost" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Visibility="Collapsed"/>
+  <local:HistoryView x:Name="HistoryContent" DataContext="{Binding History}" Visibility="Collapsed"/>
+  <Grid x:Name="LibraryContent" Margin="24,4,20,0">
    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
    <Grid Margin="0,0,0,18"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <TextBlock Text="{Binding LibraryHeading}" FontSize="34" LineHeight="44" FontWeight="SemiBold" VerticalAlignment="Center"/>
@@ -84,6 +85,7 @@
     <Button Content="{Binding AddDownloadLabel}" Command="{Binding NewDownloadCommand}" Style="{StaticResource VydropPrimary}" HorizontalAlignment="Center"/>
    </StackPanel>
    <DockPanel Grid.Row="5" Margin="0,8,0,10"><TextBlock Text="{Binding LibraryFooterLabel}" Foreground="{DynamicResource Muted}" FontSize="11" VerticalAlignment="Center"/><Button x:Name="CompactDetailsButton" DockPanel.Dock="Right" Content="{Binding DetailsLabel}" Click="ShowDetailsClicked" Visibility="Collapsed" Style="{StaticResource QuietButton}" MinHeight="30" Padding="8,3"/></DockPanel>
+  </Grid>
   </Grid>
   <Border x:Name="DetailsBorder" Grid.Column="2" Grid.Row="1" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Divider}" BorderThickness="1,0,0,0">
    <Grid>

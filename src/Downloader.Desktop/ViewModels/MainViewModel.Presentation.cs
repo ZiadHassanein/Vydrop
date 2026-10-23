@@ -42,7 +42,11 @@ public sealed partial class MainViewModel
     public IRelayCommand SettingsCommand { get; private set; }
     public IRelayCommand NewDownloadCommand { get; private set; }
     public IRelayCommand<string> SelectLanguageCommand { get; private set; }
+    public IRelayCommand ToggleLanguageCommand { get; private set; }
     public string CurrentLanguageLabel => IsArabic ? "العربية" : "English";
+    public string NextLanguageLabel => IsArabic ? "English" : "العربية";
+    public FontFamily NextLanguageFont => (FontFamily)Application.Current.Resources[IsArabic ? "LatinFont" : "ArabicFont"];
+    public string LanguageAction => T(IsArabic ? "Switch to English" : "Switch to Arabic");
     public string LanguageLabel => T("Language");
     public bool IsEnglish => !IsArabic;
     public string NewDownloadLabel => T("New download");
@@ -93,6 +97,7 @@ public sealed partial class MainViewModel
         SettingsCommand = new RelayCommand(() => SettingsVisible = !SettingsVisible);
         NewDownloadCommand = new RelayCommand(ShowAddDownload);
         SelectLanguageCommand = new RelayCommand<string>(SetLanguage, language => (language is "en" or "ar") && IsIdle);
+        ToggleLanguageCommand = new RelayCommand(() => SetLanguage(IsArabic ? "en" : "ar"), () => IsIdle);
     }
 
     private void SetLanguage(string language)

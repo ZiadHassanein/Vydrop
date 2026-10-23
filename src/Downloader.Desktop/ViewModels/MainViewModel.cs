@@ -318,6 +318,7 @@ public sealed partial class MainViewModel : ObservableObject
         DownloadCommand?.NotifyCanExecuteChanged();
         CancelCommand?.NotifyCanExecuteChanged();
         SelectLanguageCommand?.NotifyCanExecuteChanged();
+        ToggleLanguageCommand?.NotifyCanExecuteChanged();
         BrowseCommand?.NotifyCanExecuteChanged();
         OpenFolderCommand?.NotifyCanExecuteChanged();
         OpenFileCommand?.NotifyCanExecuteChanged();

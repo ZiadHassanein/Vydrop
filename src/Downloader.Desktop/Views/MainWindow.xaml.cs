@@ -77,7 +77,6 @@ public partial class MainWindow : Window
                 if (args.PropertyName == nameof(MainViewModel.SettingsVisible))
                 {
                     ContextViewport.ScrollToTop();
-                    if (model.SettingsVisible) ViewMotion.Reveal(SettingsPane);
                 }
                 else if (args.PropertyName == nameof(MainViewModel.HasMediaPreview) && model.HasMediaPreview && !model.SettingsVisible)
                 {

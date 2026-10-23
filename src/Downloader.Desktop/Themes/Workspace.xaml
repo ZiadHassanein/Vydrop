@@ -13,12 +13,12 @@
   <Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
   <Setter Property="Template"><Setter.Value>
    <ControlTemplate TargetType="RadioButton">
-    <Border x:Name="Face" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8">
+    <Grid Background="Transparent"><Border local:InteractionMotion.Enabled="True" x:Name="Face" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8">
      <Grid>
       <Border Background="{DynamicResource Hover}" CornerRadius="7" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True" local:HoverMotion.Strength="0.35"/>
       <ContentPresenter Margin="12,8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
      </Grid>
-    </Border>
+    </Border></Grid>
     <ControlTemplate.Triggers>
      <MultiTrigger><MultiTrigger.Conditions><Condition Property="IsMouseOver" Value="True"/><Condition Property="IsChecked" Value="False"/></MultiTrigger.Conditions>
       <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/>
@@ -64,9 +64,5 @@
     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/><Setter Property="Cursor" Value="Arrow"/></Trigger>
    </ControlTemplate.Triggers>
   </ControlTemplate></Setter.Value></Setter>
- </Style>
- <Style x:Key="LanguageMenuItem" TargetType="MenuItem" BasedOn="{StaticResource SelectionMenuItem}">
-  <Setter Property="MinHeight" Value="40"/><Setter Property="Height" Value="40"/>
-  <Setter Property="Margin" Value="0,0,0,4"/><Setter Property="Padding" Value="10,6"/>
  </Style>
 </ResourceDictionary>

@@ -142,6 +142,8 @@ internal static class Texts
         { "YouTube Mix · {0} videos from this changing mix", "YouTube Mix · {0} فيديو من القائمة المتجددة" },
         { "This download folder is no longer available.", "مجلد التنزيل لم يعد موجودًا في مكانه المحفوظ." },
         { "Choose a supported audio quality.", "اختر جودة صوت متاحة للصيغة المحددة." },
+        { "Switch to English", "التبديل إلى الإنجليزية" },
+        { "Switch to Arabic", "التبديل إلى العربية" },
         { "Language", "اللغة" },
         { "Done", "تم" },
         { "Subtitle file format", "صيغة ملف الترجمة" },

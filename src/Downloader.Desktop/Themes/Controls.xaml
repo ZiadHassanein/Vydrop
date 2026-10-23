@@ -19,12 +19,12 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
-          <Border x:Name="Face" CornerRadius="8" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
+          <Grid Background="Transparent"><Border local:InteractionMotion.Enabled="True" x:Name="Face" CornerRadius="8" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
             <Grid>
               <Border x:Name="HoverLayer" CornerRadius="7" Background="{DynamicResource Hover}" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True"/>
               <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="True" />
             </Grid>
-          </Border>
+          </Border></Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsPressed" Value="True">
               <Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}" />
@@ -52,12 +52,12 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
-          <Border x:Name="Face" CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+          <Grid Background="Transparent"><Border local:InteractionMotion.Enabled="True" x:Name="Face" CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
             <Grid>
               <Border CornerRadius="7" Background="{DynamicResource OnAccent}" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True" local:HoverMotion.Strength="0.08"/>
               <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
             </Grid>
-          </Border>
+          </Border></Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsPressed" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}"/></Trigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
@@ -117,7 +117,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="RadioButton">
-          <Border x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8">
+          <Grid Background="Transparent"><Border local:InteractionMotion.Enabled="True" x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8">
            <Grid>
             <Border Background="{DynamicResource Hover}" CornerRadius="7" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True" local:HoverMotion.Strength="0.35"/>
             <DockPanel VerticalAlignment="Center" Margin="12,8">
@@ -128,7 +128,7 @@
               <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True" />
             </DockPanel>
            </Grid>
-          </Border>
+          </Border></Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
               <Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}" />

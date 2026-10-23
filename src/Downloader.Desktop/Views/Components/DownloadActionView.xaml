@@ -4,7 +4,7 @@
  <StackPanel>
  <Button x:Name="DownloadButton" Command="{Binding DownloadActionCommand}" Click="DownloadClicked" MouseEnter="DownloadHovered" MouseLeave="DownloadLeft" Style="{StaticResource PrimaryButton}" Background="{DynamicResource DownloadActionFill}" Foreground="{DynamicResource DownloadActionInk}" BorderBrush="{DynamicResource DownloadActionFill}" Height="52" AutomationProperties.Name="{Binding DownloadActionLabel}" AutomationProperties.HelpText="{Binding StatusDetail}" AutomationProperties.LiveSetting="Polite" ToolTip="{Binding StatusDetail}">
   <Button.Template><ControlTemplate TargetType="Button">
-   <Grid Background="Transparent">
+   <Grid Background="Transparent"><Grid local:InteractionMotion.Enabled="True">
     <Border x:Name="Face" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8"/>
     <Border Background="{DynamicResource DownloadActionProgress}" Opacity="0.16" CornerRadius="8" RenderTransformOrigin="0,0" FlowDirection="LeftToRight" IsHitTestVisible="False">
      <Border.RenderTransform><ScaleTransform x:Name="ProgressScale" ScaleX="0"/></Border.RenderTransform>
@@ -14,7 +14,7 @@
      <Border CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource OnAccent}" OpacityMask="{Binding OpacityMask,ElementName=DownloadShineSurface}" Opacity="0.65"/>
     </Grid>
     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
-   </Grid>
+   </Grid></Grid>
    <ControlTemplate.Triggers>
     <Trigger Property="IsPressed" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}"/></Trigger>
     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}"/><Setter TargetName="Face" Property="BorderThickness" Value="2"/></Trigger>

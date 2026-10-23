@@ -19,7 +19,6 @@ public partial class SubtitleOptionsView : UserControl
         Loaded += (_, _) =>
         {
             CaptionInput.Focus();
-            ViewMotion.Reveal(OptionsContent);
         };
         Unloaded += (_, _) =>
         {
