@@ -22,10 +22,10 @@ internal static partial class Program
             var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             _ = owner.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(async () =>
             {
-                BrowserSetupWindow dialog = null;
+                BrowserIntegrationView dialog = null;
                 try
                 {
-                    dialog = owner.OwnedWindows.OfType<BrowserSetupWindow>().Single();
+                    dialog = (BrowserIntegrationView)owner.WorkspaceView;
                     await Task.Delay(100);
                     var model = (BrowserSetupViewModel)dialog.DataContext;
                     var manual = (Expander)WpfTree.Find(dialog, "SetupManual");
@@ -68,7 +68,7 @@ internal static partial class Program
                     Check(!model.LocalSetupCommand.CanExecute(null) && model.StartSetupCommand.CanExecute(null), "Store installation works without local files while manual loading is disabled");
                 }
                 catch (Exception error) { failure = error; }
-                finally { if (dialog?.IsVisible == true) dialog.Close(); done.TrySetResult(); }
+                finally { if (dialog?.IsVisible == true) ((MainViewModel)owner.DataContext).LibraryFilterCommand.Execute("queue"); done.TrySetResult(); }
             }));
             new DesktopActions(owner).ShowBrowserIntegration(text => Texts.For(arabic ? "ar" : "en", text), fixture);
             await done.Task;
@@ -84,16 +84,16 @@ internal static partial class Program
         var finished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         _ = owner.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(async () =>
         {
-            BrowserSetupWindow dialog = null;
+            BrowserIntegrationView dialog = null;
             try
             {
-                dialog = owner.OwnedWindows.OfType<BrowserSetupWindow>().Single();
+                dialog = (BrowserIntegrationView)owner.WorkspaceView;
                 await Task.Delay(120);
                 Check(((BrowserSetupViewModel)dialog.DataContext).SelectedBrowser == SetupBrowser.Edge && fixture.Trace.SequenceEqual(new[] { "store" }),
                     "The actual installer-owned dialog continues into the selected browser without another Set up click or registration rewrite");
             }
             catch (Exception error) { failure = error; }
-            finally { dialog?.Close(); finished.TrySetResult(); }
+            finally { ((MainViewModel)owner.DataContext).LibraryFilterCommand.Execute("queue"); finished.TrySetResult(); }
         }));
         new DesktopActions(owner).ShowBrowserIntegration(text => text, fixture, SetupBrowser.Edge);
         await finished.Task;

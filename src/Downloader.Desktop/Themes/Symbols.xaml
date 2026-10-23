@@ -48,4 +48,5 @@
     <Setter Property="StrokeLineJoin" Value="Round"/>
     <Setter Property="VerticalAlignment" Value="Center"/>
   </Style>
+ <Geometry x:Key="TrashIcon">M3,6 H21 M19,6 V20 Q19,21 18,21 H6 Q5,21 5,20 V6 M9,6 V3 H15 V6 M10,10 V17 M14,10 V17</Geometry>
 </ResourceDictionary>

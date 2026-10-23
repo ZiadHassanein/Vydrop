@@ -138,11 +138,12 @@ public sealed partial class DownloadQueue
             var options = entry.Options;
             if (!string.IsNullOrEmpty(options.MediaId) && options.MediaId != mediaId) throw new ArgumentException("Choose the same video to refresh this download.");
             // A new signed URL never appends to unverified partial data from the old resource.
-            var previous = (Options: entry.Options, entry.State, entry.Error);
+            var previous = (Options: entry.Options, entry.State, entry.Error, entry.Percent, entry.Transfer);
             options.Url = url; options.Selection = null; options.QualityKey = null; options.PartialGeneration++;
             entry.UpdateOptions(options); entry.State = QueueState.Paused; entry.Error = null;
+            entry.Percent = 0; entry.Transfer = null;
             try { Persist(); }
-            catch { entry.UpdateOptions(previous.Options); entry.State = previous.State; entry.Error = previous.Error; throw; }
+            catch { entry.UpdateOptions(previous.Options); entry.State = previous.State; entry.Error = previous.Error; entry.Percent = previous.Percent; entry.Transfer = previous.Transfer; throw; }
         }
         Changed?.Invoke(); return true;
     }

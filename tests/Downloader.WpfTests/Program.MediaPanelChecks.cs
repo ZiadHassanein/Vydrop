@@ -30,9 +30,10 @@ internal static partial class Program
         }
         try
         {
-            model.SettingsVisible = false; model.Url = ""; model.Audio = true; model.Folder = folder;
+            model.NewDownloadCommand.Execute(null); model.Url = ""; model.Audio = true; model.Folder = folder;
             foreach (var entry in model.Queue.Entries) model.RemoveQueueCommand.Execute(entry.Id);
-            window.Width = 740;
+            window.Width = 740; await Settle();
+            double compactWidth = window.Width;
             var work = window.CurrentWorkArea();
             window.Left = work.Left + 20;
             double left = window.Left, top = window.Top, height = window.Height;
@@ -42,18 +43,20 @@ internal static partial class Program
                     model.SelectLanguageCommand.Execute(locale);
                     if (model.IsDark != dark) model.ThemeCommand.Execute(null);
                     await Input("https://www.youtube.com/shorts/jNQXAC9IVRw?si=fixture");
-                    Check(window.Width > 740 && Math.Abs(window.Top - top) <= 1 && Math.Abs(window.Height - height) <= 1 &&
-                        Bounds(preview).Left >= Bounds(form).Right - 1 && context.IsVisible && !inline.IsVisible,
-                        "Shorts expand to a physical-right context pane without changing height: " + locale + "/" + dark);
+                    Check(window.Width == compactWidth && Math.Abs(window.Top - top) <= 1 && Math.Abs(window.Height - height) <= 1 &&
+                        model.InlineMediaPreview && preview.IsVisible && !context.IsVisible,
+                        "Shorts use the inline compact preview without changing the window size: " + locale + "/" + dark + $" width={window.Width}, top={top}->{window.Top}, height={height}->{window.Height}, inline={model.InlineMediaPreview}, preview={preview.IsVisible}, context={context.IsVisible}, add={model.AddDownloadVisible}");
                     var image = (Image)WpfTree.Find(preview, "ThumbnailImage");
                     Check(image.IsVisible && image.Source != null && image.Stretch == Stretch.Uniform && model.PreviewDuration == "8:24",
                         "Shorts retain the same real thumbnail, duration and uncropped artwork treatment as video");
                     HeadingFirst("Short " + locale);
                     Capture(window, Path.Combine(captures, "media-expanded-" + locale + (dark ? "-dark" : "-light") + ".png"));
                     model.Url = ""; await Settle();
-                    Check(Math.Abs(window.Width - 740) <= 1 && Math.Abs(window.Left - left) <= 1 && !context.IsVisible,
+                    Check(Math.Abs(window.Width - compactWidth) <= 1 && Math.Abs(window.Left - left) <= 1 && !context.IsVisible,
                         "Clearing media restores the original narrow frame and removes the context pane");
                 }
+            window.Width = 1280;
+            context = Descendants<ScrollViewer>(window.ManagerContent.DetailsBorder).First();
             await Input("https://www.youtube.com/watch?v=YKMJXdNBvNQ&list=RDYKMJXdNBvNQ&start_radio=1");
             model.WholePlaylist = true; await Task.Delay(900); await Settle();
             Check(model.HasPlaylist && model.CanDownload && model.PlaylistLabel.Contains("50") && model.PreviewImage != null,
@@ -73,18 +76,18 @@ internal static partial class Program
             provider.DownloadDelayMilliseconds = 5000;
             var running = model.DownloadCommand.ExecuteAsync(null);
             await Task.Delay(150); await Settle();
-            Check(model.IsBusy && ((ProgressBar)WpfTree.Find(preview, "JobProgress")).IsVisible && !inline.IsVisible,
-                "Active progress appears only in the right context pane");
+            Check(model.IsBusy && window.ManagerContent.DownloadsList.IsVisible && Descendants<ProgressBar>(window.ManagerContent.DownloadsList).Any(bar => bar.IsVisible),
+                "Active progress appears in the actual Queue row");
             Check(model.QueueItems.Single().Entry.State == QueueState.Downloading && model.QueueItems.Single().Percent > 0,
                 "A main-window download forwards its actual progress into its durable queue job");
-            HeadingFirst("downloading");
+            Check(model.IsQueuePage && !model.AddDownloadVisible, "Starting a download opens its Queue workspace");
             Capture(window, Path.Combine(captures, "media-progress-en-dark.png"));
-            model.CancelCommand.Execute(null); await running; await Settle();
+            model.CancelCommand.Execute(null); await running; model.NewDownloadCommand.Execute(null); await Settle();
             Check(model.Url.Length > 0 && context.IsVisible && window.Width > 740 && model.IsIdle,
                 "Cancellation keeps the link and context available for retry");
             provider.DownloadHandler = (_, _, _) => new DownloadResult { FilePath = file, Files = new() { file }, Total = 1, Completed = 1 };
-            await model.DownloadCommand.ExecuteAsync(null); await Settle();
-            Check(model.Url == "" && Math.Abs(window.Width - 740) <= 1 && !context.IsVisible && !inline.IsVisible && model.HasFile && (model.RecentDownloadCount > 0),
+            await model.DownloadCommand.ExecuteAsync(null); model.NewDownloadCommand.Execute(null); await Settle();
+            Check(model.Url == "" && window.ManagerContent.DetailsColumn.Width.Value == 0 && !context.IsVisible && !inline.IsVisible && model.HasFile && (model.RecentDownloadCount > 0),
                 "Successful download collapses the pane and signals completion in recent downloads");
             HeadingFirst("completed");
             Check(!inline.IsVisible, "Routine completion does not add a block below the main action");
@@ -105,10 +108,10 @@ internal static partial class Program
             window.Left = work.Right - 760;
             double edgeLeft = window.Left;
             await Input("https://youtu.be/jNQXAC9IVRw");
-            Check(window.Left >= work.Left && window.Left + window.Width <= work.Right && window.Left < edgeLeft,
-                "Expansion near the screen edge moves only enough to keep the right pane inside the work area");
+            Check(window.Left >= work.Left && window.Left + window.Width <= work.Right && Math.Abs(window.Left - edgeLeft) <= 1,
+                "Inline preview near the screen edge preserves the window position within the work area");
             model.Url = ""; await Settle();
-            Check(Math.Abs(window.Left - edgeLeft) <= 1 && window.Width == 740,
+            Check(Math.Abs(window.Left - edgeLeft) <= 1 && window.Width >= window.MinWidth,
                 "Collapse restores the original position after screen-edge containment");
             window.Left = left;
             Check(model.QueueItems.Count == 2 && model.QueueItems.Any(item => item.Entry.State == QueueState.Cancelled) && model.QueueItems.Any(item => item.HasCompletedOutput),
@@ -117,7 +120,7 @@ internal static partial class Program
             await Input("https://www.youtube.com/shorts/jNQXAC9IVRw");
             model.AddQueueCommand.Execute(null); model.DismissNoticeCommand.Execute(null);
             await model.QueueStartCommand.ExecuteAsync(null); await Settle();
-            Check(model.QueueItems.Single().HasCompletedOutput && model.Url == "" && window.Width == 740 && !context.IsVisible,
+            Check(model.QueueItems.Single().HasCompletedOutput && model.Url == "" && window.Width >= window.MinWidth && !context.IsVisible,
                 "Queue completion matches the canonical Short URL and restores the narrow frame");
             foreach (string locale in new[] { "en", "ar" })
             {
@@ -129,8 +132,8 @@ internal static partial class Program
                     "Completed outputs retain their real folder action in Library: " + locale);
                 await InspectQueueModal(window, model, async dialog =>
                 {
-                    var jobs = (ItemsControl)WpfTree.Find(dialog, "QueueItemsHost");
-                    Check(jobs.Items.Count == 0 && !model.HasQueue,
+                    var jobs = model.QueueItems.Where(row => !row.IsComplete).ToArray();
+                    Check(jobs.Length == 0 && !model.HasQueue,
                         "Completed outputs are available in Library without reappearing in queue management");
                     Capture(dialog, Path.Combine(captures, "media-queue-empty-" + locale + ".png"));
                     await Task.CompletedTask;
@@ -138,6 +141,7 @@ internal static partial class Program
             }
             File.Delete(file); Directory.Delete(folder);
             Check(!model.OpenQueueFolderCommand.CanExecute(model.QueueItems.Single().Id), "A deleted output folder cannot be opened by a stale queue action");
+            model.NewDownloadCommand.Execute(null); await Settle();
             HeadingFirst("queue finished");
         }
         finally

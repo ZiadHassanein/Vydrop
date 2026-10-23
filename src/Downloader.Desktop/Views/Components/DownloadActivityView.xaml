@@ -7,7 +7,7 @@
    <Path Data="{Binding ActivityIcon}" Style="{StaticResource LineIcon}" Stroke="{Binding ActivityBrush}" Width="18" Height="18" VerticalAlignment="Top" Margin="0,2,0,0"/>
    <TextBlock Grid.Column="1" x:Name="StatusHeading" Text="{Binding PreviewStatus}" Margin="10,0,0,0" Foreground="{Binding StatusBrush}" FontWeight="SemiBold" FontSize="15" AutomationProperties.LiveSetting="Polite"/>
   </Grid>
-  <TextBlock Text="{Binding StatusDetail}" Foreground="{DynamicResource Muted}" Margin="0,8,0,0" Visibility="{Binding HasStatus,Converter={StaticResource BoolVisibility}}" TextWrapping="Wrap"/>
+  <TextBlock Text="{Binding ActivityDetail}" Foreground="{DynamicResource Muted}" Margin="0,8,0,0" TextWrapping="Wrap"/>
   <ProgressBar x:Name="JobProgress" Value="{Binding Progress,Mode=OneWay}" IsIndeterminate="{Binding Indeterminate}" Foreground="{DynamicResource Accent}" Background="{DynamicResource Border}" Height="4" Margin="0,14,0,0" Visibility="{Binding ShowProgress,Converter={StaticResource BoolVisibility}}"/>
   <WrapPanel Margin="0,12,0,0" Visibility="{Binding HasActivityActions,Converter={StaticResource BoolVisibility}}">
    <Button x:Name="CancelDownload" Content="{Binding CancelLabel}" Command="{Binding CancelCommand}" Visibility="{Binding IsBusy,Converter={StaticResource BoolVisibility}}" Margin="0,0,8,8"/>

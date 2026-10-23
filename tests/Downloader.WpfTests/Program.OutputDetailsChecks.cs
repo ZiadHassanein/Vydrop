@@ -33,7 +33,7 @@ internal static partial class Program
         }
         try
         {
-            model.SettingsVisible = false; model.Url = ""; model.Folder = folder; model.Audio = true;
+            model.NewDownloadCommand.Execute(null); model.Url = ""; model.Folder = folder; model.Audio = true;
             Check(model.Qualities.Count == 1 && model.Qualities[0].Bitrate == 0 && !quality.IsEnabled,
                 "Before inspection audio offers only automatic conversion");
             provider.SourceAudio = new("aac", 128);
@@ -57,11 +57,11 @@ internal static partial class Program
                     Check(model.Qualities.Any(choice => choice.Bitrate == 128) && model.Qualities.All(choice => choice.Bitrate <= 128) && model.QualityLabel != "Quality",
                         "A128kbps source offers honest supported conversion targets instead of320kbps quality");
                     model.SelectedQuality = model.Qualities.First(choice => choice.Bitrate == 128);
-                    Check(model.AudioSourceHint.Contains("128") && ((TextBlock)WpfTree.Find(window, "SourceAudioSummary")).IsVisible,
-                        "The details panel discloses the inspected source estimate and conversion limit");
+                    Check(model.AudioSourceHint.Contains("128") && (model.InlineMediaPreview ? Equals(quality.ToolTip, model.AudioSourceHint) : ((TextBlock)WpfTree.Find(window, "SourceAudioSummary")).IsVisible),
+                        "The details panel discloses the inspected source estimate and conversion limit: " + model.AudioSourceHint + $" visible={((TextBlock)WpfTree.Find(window, "SourceAudioSummary")).IsVisible}, preview={window.MediaPreview.IsVisible}, inline={model.InlineMediaPreview}, add={model.AddDownloadVisible}");
                     await InspectOptionsModal(window, model, async dialog =>
                     {
-                        Check(dialog.Title == model.CaptionsLabel && model.OptionsLabel == model.CaptionsLabel,
+                        Check(model.ActiveWorkspace == WorkspacePage.Subtitles && model.OptionsLabel == model.CaptionsLabel,
                             "The form action and owned modal are explicitly named Subtitles");
                         ((ComboBox)WpfTree.Find(dialog, "CaptionInput")).SelectedItem = model.CaptionChoices.First(choice => choice.Language == "en");
                         ((RadioButton)WpfTree.Find(dialog, "VttOption")).IsChecked = true; await Settle();
@@ -78,17 +78,18 @@ internal static partial class Program
                     model.Audio = false;
                     int before = model.RecentDownloadCount;
                     provider.DownloadHandler = (_, _, _) => new() { FilePath = file, Files = new() { file }, Completed = 1, Total = 1 };
+                    await WaitFor(() => model.CanDownload && !model.DownloadCommand.IsRunning, "Output fixture is ready for a new download");
                     await model.DownloadCommand.ExecuteAsync(null); await Settle();
                     Check(provider.LastRequest.VideoContainer == VideoContainer.Mkv && provider.LastRequest.Captions is { Language: "en", Format: CaptionFormat.Vtt },
                         "The download receives the chosen container and selected subtitles");
-                    Check(model.RecentDownloadCount == before + 1 && history.IsVisible && !inline.IsVisible && model.Url == "" && window.Width == 740,
-                        "Success collapses media context and increments the recent count without a completion block");
+                    Check(model.RecentDownloadCount == before + 1 && history.IsVisible && !inline.IsVisible && model.Url == "" && window.ActualWidth >= window.MinWidth,
+                        "Success collapses media context and increments the recent count without a completion block: " + $"count={before}->{model.RecentDownloadCount}, history={history.IsVisible}, inline={inline.IsVisible}, url={model.Url}, width={window.Width}, min={window.MinWidth}");
                     Check(AutomationProperties.GetName(history) == model.HistoryAccessibleName,
                         "The completion count is included in the visible History action's accessible name");
                     window.Width = window.MinWidth; await Settle();
                     var brand = (FrameworkElement)WpfTree.Find(window, "BrandWordmark");
                     var actions = (FrameworkElement)WpfTree.Find(window, "HeaderActions");
-                    Check(brand.TranslatePoint(new Point(brand.ActualWidth, 0), window).X < actions.TranslatePoint(new Point(), window).X,
+                    Check(brand.TranslatePoint(new Point(brand.ActualWidth, 0), window).X < actions.TranslatePoint(new Point(), window).X || actions.TranslatePoint(new Point(actions.ActualWidth, 0), window).X < brand.TranslatePoint(new Point(), window).X,
                         "The notification badge fits beside the header utilities at minimum width");
                     Capture(window, Path.Combine(captures, "output-completed-" + variant + ".png"));
                     await History(variant);

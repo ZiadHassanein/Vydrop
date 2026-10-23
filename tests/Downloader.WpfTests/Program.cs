@@ -76,6 +76,12 @@ internal static partial class Program
                 Check(window.Height <= window.CurrentWorkArea().Height && window.ActualHeight < 900, $"Native window fits content within the work area (height={window.Height}, actual={window.ActualHeight}, area={window.CurrentWorkArea().Height})");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--", StringComparison.Ordinal)) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--resume-progress"))
+                {
+                    await CheckResumeProgress(window, model, provider, root, captures);
+                    Console.WriteLine(count + " WPF resume-progress checks passed.");
+                    return;
+                }
                 if (args.Contains("--setup-ui"))
                 {
                     await CheckSetupWorkspaceUi(window, model, provider, root, captures);
@@ -473,6 +479,8 @@ internal static partial class Program
 
         return 0;
     }
+
+    private static void Capture(FrameworkElement view, string file) => Capture(Window.GetWindow(view), file);
 
     private static void Capture(Window window, string file, bool transitionFrame = false)
     {

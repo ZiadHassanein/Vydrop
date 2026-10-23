@@ -67,7 +67,6 @@ public sealed partial class DownloadQueue
             if (entry == null || entry.State is not (QueueState.Failed or QueueState.Cancelled or QueueState.Paused or QueueState.Interrupted)) return false;
             entry.State = QueueState.Pending;
             entry.Error = null;
-            entry.Percent = 0;
             entry.Attempts = 0;
             entry.Result = null;
             entry.Transfer = null;
@@ -130,8 +129,12 @@ public sealed partial class DownloadQueue
                             lock (gate)
                             {
                                 if (!ReferenceEquals(lifetime, run) || entry.Generation != generation || run.IsCancellationRequested || entry.State is QueueState.Cancelled or QueueState.Completed or QueueState.Failed) return;
-                                entry.State = p.Stage is "Preparing media tools" or "Checking video" or "Checking playlist" ? QueueState.Preparing : QueueState.Downloading;
-                                entry.Percent = Math.Clamp(p.Percent, 0, 100);
+                                bool preparing = p.Stage is "Preparing media tools" or "Checking video" or "Checking playlist";
+                                entry.State = preparing ? QueueState.Preparing : QueueState.Downloading;
+                                // Preparation has no new byte measurement. Keep the saved position until
+                                // a measured transfer arrives, including an honest lower value after a restart.
+                                if (!p.Indeterminate && !preparing || p.Percent >= 100)
+                                    entry.Percent = Math.Clamp(p.Percent, 0, 100);
                                 entry.Transfer = p;
                                 if (!string.IsNullOrWhiteSpace(p.ItemTitle)) entry.Title = p.ItemTitle;
                             }

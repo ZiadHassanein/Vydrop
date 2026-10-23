@@ -59,9 +59,9 @@ internal static partial class Program
             var setupActions = new SetupFixture();
             var setup = new BrowserSetupViewModel(key => Texts.For(language, key), setupActions, false);
             setup.StartSetupCommand.Execute(null);
-            var dialog = new BrowserSetupWindow { DataContext = setup, Owner = window, ShowActivated = false };
-            try { dialog.Show(); await Task.Delay(180); Capture(dialog, Path.Combine(captures, $"guided-setup-{language}.png")); }
-            finally { dialog.Close(); }
+            var dialog = new BrowserIntegrationView { DataContext = setup };
+            try { window.ShowWorkspace(WorkspacePage.BrowserIntegration, dialog); await Task.Delay(180); Capture(dialog, Path.Combine(captures, $"guided-setup-{language}.png")); }
+            finally { model.LibraryFilterCommand.Execute("queue"); }
         }
         Check(model.Queue.Entries.Count == 3 && model.Queue.Entries.Any(entry => entry.Id == waiting.Id && entry.State == QueueState.Pending), "Documentation fixtures stay isolated and do not start pending jobs");
         MotionPreferences.SetTestOverride(null);

@@ -82,10 +82,10 @@ internal static partial class Program
         var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         _ = owner.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(async () =>
         {
-            Window dialog = null;
+            System.Windows.Controls.UserControl dialog = null;
             try
             {
-                dialog = owner.OwnedWindows.Cast<Window>().Single();
+                dialog = (System.Windows.Controls.UserControl)owner.WorkspaceView;
                 foreach (var palette in palettes)
                 {
                     ThemeResources.ContrastOverride = palette;
@@ -107,11 +107,11 @@ internal static partial class Program
                 }
             }
             catch (Exception ex) { failure = ex; }
-            finally { dialog?.Close(); done.TrySetResult(); }
+            finally { ((MainViewModel)owner.DataContext).NewDownloadCommand.Execute(null); done.TrySetResult(); }
         }));
         var actions = new DesktopActions(owner);
         if (browser) actions.ShowBrowserIntegration(t => t);
-        else actions.SelectPlaylist(new PlaylistInfo { Title = "Fixture", Entries = new() { new() { Id = "fixture", MediaUrl = "https://example.com/video", Title = "Video" } } }, null, t => t);
+        else _ = actions.SelectPlaylist(new PlaylistInfo { Title = "Fixture", Entries = new() { new() { Id = "fixture", MediaUrl = "https://example.com/video", Title = "Video" } } }, null, t => t);
         await done.Task;
         if (failure != null) throw failure;
     }

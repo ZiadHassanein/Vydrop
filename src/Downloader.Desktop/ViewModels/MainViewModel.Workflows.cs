@@ -19,6 +19,7 @@ public sealed partial class QueueItemView : ObservableObject
     public double Percent => Entry.Percent;
     public bool IsActive => Entry.State is QueueState.Preparing or QueueState.Downloading;
     public bool IsPreparing => Entry.State == QueueState.Preparing;
+    public bool IsPreparingWithoutProgress => IsPreparing && Percent <= 0;
     public bool CanRetry { get; private set; }
     public string RetryAction { get; private set; }
     public bool CanRemove => Entry.State is not (QueueState.Preparing or QueueState.Downloading);
@@ -34,7 +35,8 @@ public sealed partial class QueueItemView : ObservableObject
             catch (ArgumentException) { return null; }
         }
     }
-    public bool CanOpenFolder => HasCompletedOutput && Directory.Exists(CompletedFolder);
+    public string FolderToOpen => HasCompletedOutput ? CompletedFolder : SaveFolder;
+    public bool CanOpenFolder => Directory.Exists(FolderToOpen);
     public QueueItemView(QueueEntry entry) => Entry = entry;
     public void Refresh(Func<string, string> translate, bool running)
     {
@@ -84,10 +86,10 @@ public sealed partial class MainViewModel
     public string CaptionSearchEmptyLabel => T("No matching languages. Try another name or code.");
     public string CaptionLanguagesLabel => T("Get subtitle languages");
     public string AddQueueLabel => T("Add to queue");
-    public string StartQueueLabel => T("Start download");
+    public string StartQueueLabel => T(Queue.Entries.Any(entry => entry.State is QueueState.Paused or QueueState.Interrupted) ? "Resume downloads" : "Start download");
     public string RemoveLabel => T("Remove");
     public string QueueHeading => T("Download queue");
-    public string QueueSettingsHint => T("Choose the format and quality in the main window before adding links.");
+    public string QueueSettingsHint => T("New links use the format, quality and save folder from Add download.");
     public string QueueInputLabel => T("Video links");
     public string CloseLabel => T("Close");
     public string BrowserLabel => T("Browser integration");
@@ -100,6 +102,7 @@ public sealed partial class MainViewModel
     public IRelayCommand AddQueueCommand { get; private set; }
     public IRelayCommand AddLinksCommand { get; private set; }
     public IAsyncRelayCommand QueueStartCommand { get; private set; }
+    public IAsyncRelayCommand QueuePrimaryCommand { get; private set; }
     public IRelayCommand<Guid> RetryQueueCommand { get; private set; }
     public IRelayCommand<Guid> RemoveQueueCommand { get; private set; }
     public IRelayCommand<Guid> OpenQueueFolderCommand { get; private set; }
@@ -126,6 +129,12 @@ public sealed partial class MainViewModel
             catch (Exception ex) { ShowNotice("Could not add download", ex.Message, true, "folder"); }
         }, () => CanDownload);
         QueueStartCommand = new AsyncRelayCommand(StartQueueAsync, () => IsIdle && Queue.Entries.Any(e => e.State == QueueState.Pending));
+        QueuePrimaryCommand = new AsyncRelayCommand(async () =>
+        {
+            foreach (var entry in Queue.Entries.Where(entry => entry.State is QueueState.Paused or QueueState.Interrupted).ToArray()) Queue.Retry(entry.Id);
+            LibraryFilterCommand.Execute("queue"); LibrarySearch = "";
+            if (QueueStartCommand.CanExecute(null)) await QueueStartCommand.ExecuteAsync(null);
+        }, () => IsIdle && Queue.Entries.Any(entry => entry.State is QueueState.Pending or QueueState.Paused or QueueState.Interrupted));
         InitializeQueueInputs();
         RetryQueueCommand = new RelayCommand<Guid>(id => Queue.Retry(id), _ => !Queue.IsRunning);
         RemoveQueueCommand = new RelayCommand<Guid>(id => Queue.Remove(id));
@@ -135,7 +144,7 @@ public sealed partial class MainViewModel
             try
             {
                 if (item?.CanOpenFolder != true) throw new IOException();
-                actions.OpenFolder(item.CompletedFolder);
+                actions.OpenFolder(item.FolderToOpen);
             }
             catch (Exception error) when (error is not OutOfMemoryException)
             {
@@ -144,9 +153,9 @@ public sealed partial class MainViewModel
                 SyncQueue();
             }
         }, id => QueueItems.Any(row => row.Id == id && row.CanOpenFolder));
-        PlaylistSelectionCommand = new RelayCommand(() =>
+        PlaylistSelectionCommand = new AsyncRelayCommand(async () =>
         {
-            var selected = actions.SelectPlaylist(playlistInfo, selectedPlaylistIds, T);
+            var selected = await actions.SelectPlaylist(playlistInfo, selectedPlaylistIds, T);
             if (selected != null) { selectedPlaylistIds = selected; OnPropertyChanged(nameof(PlaylistSelectionLabel)); }
         }, () => CanSelectPlaylist);
         BrowserCommand = new RelayCommand(() => actions.ShowBrowserIntegration(T), () => IsIdle);
@@ -235,6 +244,7 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(QueueLabel));
         OnPropertyChanged(nameof(HasQueue));
         OnPropertyChanged(nameof(QueueRunning));
+        OnPropertyChanged(nameof(StartQueueLabel));
         QueuePauseCommand?.NotifyCanExecuteChanged(); MoveQueueUpCommand?.NotifyCanExecuteChanged(); MoveQueueDownCommand?.NotifyCanExecuteChanged();
         RefreshAvailability();
         RefreshLibrary();
@@ -280,6 +290,7 @@ public sealed partial class MainViewModel
         AddQueueCommand?.NotifyCanExecuteChanged();
         OptionsCommand?.NotifyCanExecuteChanged();
         QueueStartCommand?.NotifyCanExecuteChanged();
+        QueuePrimaryCommand?.NotifyCanExecuteChanged();
         RefreshQueueInputAvailability();
         RetryQueueCommand?.NotifyCanExecuteChanged();
         OpenQueueFolderCommand?.NotifyCanExecuteChanged();

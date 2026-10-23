@@ -35,8 +35,8 @@ public sealed partial class MainViewModel
         QueueDownloadCommand = new AsyncRelayCommand(async () =>
         {
             if (HasDraftLinks && !AddLinks()) return;
-            if (QueueStartCommand.CanExecute(null)) await QueueStartCommand.ExecuteAsync(null);
-        }, () => IsIdle && (HasDraftLinks || QueueStartCommand.CanExecute(null)));
+            if (QueuePrimaryCommand.CanExecute(null)) await QueuePrimaryCommand.ExecuteAsync(null);
+        }, () => IsIdle && (HasDraftLinks || QueuePrimaryCommand.CanExecute(null)));
         QueueLinkInputs.Add(NewQueueLinkInput());
         RefreshQueueLinkLabels();
     }

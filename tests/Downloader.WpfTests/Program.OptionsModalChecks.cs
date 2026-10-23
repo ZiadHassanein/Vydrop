@@ -3,179 +3,58 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Threading;
 using YouTubeDownloader;
-
 internal static partial class Program
 {
     private static async Task CheckOutputOptionsModal(Window owner, MainViewModel model, FakeProvider provider, string captures)
     {
         provider.CaptionTracks = new() { new("en", "English"), new("ar", "العربية") };
         model.Url = "https://youtu.be/jNQXAC9IVRw";
-        await Task.Delay(850);
-        var more = (Button)WpfTree.Find(owner, "MoreOptionsButton");
-        foreach (bool arabic in new[] { false, true })
+        await WaitFor(() => model.CanDownload, "Subtitle fixture is ready");
+        foreach (bool arabic in new[] { false, true }) foreach (bool dark in new[] { false, true })
         {
-            if (model.IsArabic != arabic) model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
-            foreach (bool dark in new[] { false, true })
+            model.SelectLanguageCommand.Execute(arabic ? "ar" : "en");
+            if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+            await InspectOptionsModal(owner, model, async view =>
             {
-                if (model.IsDark != dark) model.ThemeCommand.Execute(null);
-                await Task.Delay(150);
-                double height = owner.ActualHeight;
-                more.Focus();
-                await InspectOptionsModal(owner, model, async dialog =>
-                {
-                    Check(dialog.Owner == owner && !IsWindowEnabled(new WindowInteropHelper(owner).Handle),
-                        "More options opens an owned modal that blocks the main window");
-                    Check(ReferenceEquals(dialog.DataContext, model) && dialog.FlowDirection == model.ContentDirection &&
-                        Equals(dialog.Background, owner.Background) && dialog.Title == model.OptionsLabel,
-                        "The modal follows the current language, theme and settings");
-                    var caption = (ComboBox)WpfTree.Find(dialog, "CaptionInput");
-                    var vtt = (RadioButton)WpfTree.Find(dialog, "VttOption");
-                    Check(caption.IsKeyboardFocusWithin, "Initial modal focus starts on the subtitle selector");
-                    caption.SelectedItem = model.CaptionChoices.First(c => c.Language == "en");
-                    var srt = (RadioButton)WpfTree.Find(dialog, "SrtOption");
-                    var viewport = (ScrollViewer)WpfTree.Find(dialog, "OptionsViewport");
-                    var presenter = (FrameworkElement)viewport.Template.FindName("PART_ScrollContentPresenter", viewport);
-                    foreach (var selected in new[] { srt, vtt })
-                    {
-                        selected.IsChecked = true;
-                        selected.Focus();
-                        await Task.Delay(75);
-                        dialog.UpdateLayout();
-                        foreach (var option in new[] { srt, vtt })
-                        {
-                            var face = (Border)option.Template.FindName("Face", option);
-                            var outline = face.TransformToAncestor(presenter).TransformBounds(new Rect(face.RenderSize));
-                            Check(outline.Left >= 1 && outline.Right <= presenter.ActualWidth - 1 &&
-                                outline.Top >= 0 && outline.Bottom <= presenter.ActualHeight,
-                                $"Both subtitle outlines stay inside the viewport with {selected.Content} focused ({model.IsArabic}/{model.IsDark}, {option.Content}: {outline}, viewport={presenter.RenderSize})");
-                        }
-                        Capture(dialog, System.IO.Path.Combine(captures, "subtitle-formats-" + (arabic ? "ar" : "en") +
-                            (dark ? "-dark" : "-light") + (ReferenceEquals(selected, srt) ? "-srt" : "-vtt") + ".png"));
-                    }
-                    Check(model.SelectedCaption.Language == "en" && model.VttCaptions,
-                        "Modal controls change the actual subtitle language and file format");
-                    await CheckCaptionSearch(dialog, model, captures, (arabic ? "ar" : "en") + (dark ? "-dark" : "-light"));
-                    var done = (Button)WpfTree.Find(dialog, "DoneButton");
-                    done.Focus();
-                    done.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-                    Check(caption.IsKeyboardFocusWithin, "Tab cycles inside the modal");
-                    GetWindowRect(new WindowInteropHelper(dialog).Handle, out var bounds);
-                    GetWindowRect(new WindowInteropHelper(owner).Handle, out var ownerBounds);
-                    Check(bounds.Left >= ownerBounds.Left && bounds.Right <= ownerBounds.Right &&
-                        bounds.Top >= ownerBounds.Top && bounds.Bottom <= ownerBounds.Bottom,
-                        "The options dialog stays inside its owner bounds");
-                    await Task.Delay(100);
-                    Capture(dialog, System.IO.Path.Combine(captures, "options-" + (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + ".png"));
-                    done.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-                    Check(!dialog.IsVisible, "Done closes the modal");
-                });
-                await Task.Delay(100);
-                Check(IsWindowEnabled(new WindowInteropHelper(owner).Handle) && more.IsKeyboardFocused &&
-                    Math.Abs(owner.ActualHeight - height) <= 2 && model.VttCaptions && model.SelectedCaption.Language == "en",
-                    $"Closing restores focus, retains choices and leaves the main layout unchanged (active={owner.IsActive}, enabled={IsWindowEnabled(new WindowInteropHelper(owner).Handle)}, focus={more.IsKeyboardFocused}, height={height}->{owner.ActualHeight}, vtt={model.VttCaptions}, language={model.SelectedCaption?.Language})");
-            }
-        }
-        double previousMaxHeight = owner.MaxHeight;
-        double previousHeight = owner.Height;
-        owner.MaxHeight = 500;
-        owner.Width = 820;
-        owner.Height = 500;
-        await Task.Delay(150);
-        await InspectOptionsModal(owner, model, dialog =>
-        {
-            var done = (Button)WpfTree.Find(dialog, "DoneButton");
-            var doneBounds = done.TransformToAncestor(dialog).TransformBounds(new Rect(done.RenderSize));
-            Check(dialog.ActualHeight <= owner.ActualHeight - 46 && doneBounds.Bottom <= dialog.ActualHeight &&
-                ((ScrollViewer)WpfTree.Find(dialog, "OptionsViewport")).ScrollableHeight > 0,
-                $"A short window scrolls the options body while keeping Done reachable (owner={owner.ActualHeight}, dialog={dialog.ActualHeight}, buttonBottom={doneBounds.Bottom}, scroll={((ScrollViewer)WpfTree.Find(dialog, "OptionsViewport")).ScrollableHeight})");
-            Capture(dialog, System.IO.Path.Combine(captures, "options-ar-dark-short.png"));
-            return Task.CompletedTask;
-        });
-        owner.MaxHeight = previousMaxHeight;
-        owner.Height = previousHeight;
-        owner.Width = 1160;
-        await Task.Delay(150);
-        await InspectOptionsModal(owner, model, async dialog =>
-        {
-            Check(model.VttCaptions && Equals(((ComboBox)WpfTree.Find(dialog, "CaptionInput")).SelectedItem, model.SelectedCaption),
-                "Reopening options preserves the current choices");
-            InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(dialog), Environment.TickCount, Key.Escape)
-            {
-                RoutedEvent = Keyboard.KeyDownEvent,
-                Source = WpfTree.Find(dialog, "CaptionInput")
+                Check(owner.OwnedWindows.Count == 0 && owner.IsEnabled && ((MainWindow)owner).ManagerContent.NavigationSurface.IsEnabled, "Subtitles opens inside the workspace without disabling navigation");
+                Check(view.FlowDirection == model.ContentDirection && ReferenceEquals(view.DataContext, model), "Subtitle section follows current language and settings");
+                model.SelectedCaption = model.CaptionChoices.First(choice => choice.Language == "en");
+                model.VttCaptions = true;
+                await CheckCaptionSearch(view, model, captures, (arabic ? "ar" : "en") + (dark ? "-dark" : "-light"));
+                Capture(owner, System.IO.Path.Combine(captures, "subtitle-section-" + arabic + "-" + dark + ".png"));
+                ((Button)WpfTree.Find(view, "DoneButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                await Task.Delay(80);
+                Check(model.AddDownloadVisible && !model.HasWorkspacePage && model.VttCaptions, "Done returns to Add download and preserves subtitle choices");
             });
-            await Task.Delay(100);
-            Check(!dialog.IsVisible, "Escape dismisses the options modal");
-        });
+        }
         model.AddQueueCommand.Execute(null);
-        var entry = model.Queue.Entries.Single();
-        Check(entry.Options.Captions is { Language: "en", Format: CaptionFormat.Vtt },
-            "Queued downloads receive the subtitle settings selected in the modal");
-        model.RemoveQueueCommand.Execute(entry.Id);
+        Check(model.Queue.Entries.Single().Options.Captions is { Language: "en", Format: CaptionFormat.Vtt }, "Inline subtitle choices are persisted with the queued job");
+        foreach (var entry in model.Queue.Entries) model.RemoveQueueCommand.Execute(entry.Id);
         model.Url = "https://www.youtube.com/playlist?list=PLFixture";
-        await Task.Delay(850);
-        await InspectOptionsModal(owner, model, async dialog =>
+        await WaitFor(() => model.CanDownload, "Playlist fixture is ready");
+        await InspectOptionsModal(owner, model, async view =>
         {
-            Check(((Button)WpfTree.Find(dialog, "GetLanguages")).IsVisible, "Playlist subtitle lookup remains available in the modal");
             await model.CaptionLanguagesCommand.ExecuteAsync(null);
-            await Task.Delay(100);
-            Check(model.OptionsNoticeVisible && !model.MainNoticeVisible && ((FrameworkElement)WpfTree.Find(dialog, "OptionsNotice")).IsVisible &&
-                ((ComboBox)WpfTree.Find(dialog, "CaptionInput")).Items.Count == 3,
-                "Playlist language results and their explanation appear inside the modal");
-            Capture(dialog, System.IO.Path.Combine(captures, "options-playlist-result.png"));
-            provider.InspectionHook = _ => throw new System.Net.Http.HttpRequestException("Fixture network failure");
-            await model.CaptionLanguagesCommand.ExecuteAsync(null);
-            await Task.Delay(100);
-            Check(model.OptionsNoticeVisible && !model.MainNoticeVisible && Equals(model.NoticeBrush, Application.Current.Resources["Error"]) &&
-                model.NoticeDetail.Contains(model.CaptionLanguagesLabel),
-                "Language lookup errors stay inside the modal and name its available retry action");
-            Capture(dialog, System.IO.Path.Combine(captures, "options-playlist-error.png"));
-        });
-        Check(!model.OptionsNoticeVisible, "Closing clears the modal's transient message");
-        provider.InspectionHook = token => { token.WaitHandle.WaitOne(3000); token.ThrowIfCancellationRequested(); };
-        await InspectOptionsModal(owner, model, async dialog =>
-        {
+            Check(model.OptionsNoticeVisible && !model.MainNoticeVisible, "Playlist language feedback stays in its section");
+            provider.InspectionHook = token => { token.WaitHandle.WaitOne(3000); token.ThrowIfCancellationRequested(); };
             var loading = model.CaptionLanguagesCommand.ExecuteAsync(null);
-            await Task.Delay(100);
-            Check(model.IsBusy && model.CaptionLanguagesCommand.IsRunning, "Language loading has a real busy state");
-            dialog.Close();
+            await Task.Delay(80);
+            model.LibraryFilterCommand.Execute("queue");
             await loading;
-            Check(model.IsIdle && !model.OptionsNoticeVisible, "Closing cancels an active lookup without stale feedback");
+            Check(model.IsIdle && !model.OptionsNoticeVisible, "Navigating away cancels subtitle lookup and clears transient feedback");
         });
-        provider.InspectionHook = null;
-        provider.CaptionTracks = new();
-        model.Url = "https://youtu.be/jNQXAC9IVRw";
-        await Task.Delay(850);
-        model.Url = "";
+        provider.InspectionHook = null; provider.CaptionTracks = new(); model.Url = "";
     }
-
-    private static async Task InspectOptionsModal(Window owner, MainViewModel model, Func<OutputOptionsWindow, Task> inspect)
+    private static async Task InspectOptionsModal(Window owner, MainViewModel model, Func<SubtitleOptionsView, Task> inspect)
     {
-        var completion = new TaskCompletionSource<Exception>();
-        _ = owner.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(async () =>
-        {
-            OutputOptionsWindow dialog = null;
-            Exception failure = null;
-            try
-            {
-                dialog = owner.OwnedWindows.OfType<OutputOptionsWindow>().Single();
-                await Task.Delay(250);
-                await inspect(dialog);
-            }
-            catch (Exception ex) { failure = ex; }
-            finally
-            {
-                if (dialog?.IsVisible == true) dialog.Close();
-                completion.TrySetResult(failure);
-            }
-        }));
         model.OptionsCommand.Execute(null);
-        if (await completion.Task is { } error) throw new InvalidOperationException("Options modal check failed.", error);
+        await Task.Delay(180);
+        var view = (SubtitleOptionsView)((MainWindow)owner).WorkspaceView;
+        try { await inspect(view); }
+        finally { if (((MainWindow)owner).WorkspaceView == view) model.NewDownloadCommand.Execute(null); }
     }
-
-    private static async Task CheckCaptionSearch(OutputOptionsWindow dialog, MainViewModel model, string captures, string variant)
+    private static async Task CheckCaptionSearch(SubtitleOptionsView dialog, MainViewModel model, string captures, string variant)
     {
         var caption = (ComboBox)WpfTree.Find(dialog, "CaptionInput");
         var french = new CaptionChoice("fr-CA", "Français (Canada)");

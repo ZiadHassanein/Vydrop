@@ -36,6 +36,7 @@ internal static partial class Program
         await model.Queue.RunJobAsync(completedAudio.Id, (_, _, _) => Task.FromResult(new DownloadResult { FilePath = audioFile }));
         await Task.Delay(120);
         Check(model.LibraryCount == 3 && model.WaitingCount == 2 && model.AudioCount == 1 && model.VideoCount == 2, "Library counts completed media while Queue counts unfinished jobs");
+        Check(ReferenceEquals(model.QueueItems.First(row => row.Id == complete.Id).ActionIcon, window.FindResource("ManagerPlayIcon")), "Completed rows distinguish Open file from the separate folder action");
         model.LibrarySearch = "coastal";
         Check(model.LibraryItems.Cast<QueueItemView>().Single().Id == complete.Id, "Search finds a saved download by title");
         model.LibrarySearch = "no matching fixture"; Check(model.LibraryEmpty && model.HasLibrarySearch, "A failed search shows an explicit empty result");
@@ -104,11 +105,13 @@ internal static partial class Program
         Check(model.LibraryActionCommand.CanExecute(waiting.Id) && window.ManagerContent.ManagerCancelButton.IsVisible && window.ManagerContent.ManagerCancelButton.IsEnabled, "A manager-started transfer retains enabled Pause and Cancel actions while the command is executing");
         CheckButtonHitAreas(window);
         if (compactTransfer) ((IInvokeProvider)new ButtonAutomationPeer(window.ManagerContent.DetailsCloseButton).GetPattern(PatternInterface.Invoke)).Invoke();
-        var more = Descendants<System.Windows.Controls.Button>(window.ManagerContent.DownloadsList).Single(button => System.Windows.Automation.AutomationProperties.GetName(button) == model.MoreActionsLabel && button.DataContext is QueueItemView row && row.Id == waiting.Id);
-        ((IInvokeProvider)new ButtonAutomationPeer(more).GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(60);
-        Check(more.ContextMenu.IsOpen && more.ContextMenu.Items.OfType<System.Windows.Controls.MenuItem>().All(item => Equals(item.CommandParameter, waiting.Id)), "The accessible More menu targets exactly the selected row");
-        CaptureVisual(more.ContextMenu, Path.Combine(captures, "manager-active-menu.png"));
-        more.ContextMenu.IsOpen = false;
+        var rowButtons = Descendants<System.Windows.Controls.Button>(window.ManagerContent.DownloadsList).Where(button => button.IsVisible && button.DataContext is QueueItemView row && row.Id == waiting.Id).ToArray();
+        Check(rowButtons.Length >= 5 && rowButtons.All(button => button.ContextMenu == null), "Row actions are directly available without an overflow menu");
+        var actionTop = rowButtons[0].TransformToAncestor(window).Transform(new System.Windows.Point()).Y;
+        Check(rowButtons.All(button => Math.Abs(button.TransformToAncestor(window).Transform(new System.Windows.Point()).Y - actionTop) <= 1), "All download actions share the Pause button row");
+        var title = Descendants<System.Windows.Controls.TextBlock>(window.ManagerContent.DownloadsList).Single(text => text.DataContext is QueueItemView row && row.Id == waiting.Id && text.Text == row.Title);
+        var status = Descendants<System.Windows.Controls.TextBlock>(window.ManagerContent.DownloadsList).Single(text => text.DataContext is QueueItemView row && row.Id == waiting.Id && text.Text == row.RowStatus);
+        Check(Math.Abs(title.TransformToAncestor(window).Transform(new System.Windows.Point(0, title.ActualHeight / 2)).Y - status.TransformToAncestor(window).Transform(new System.Windows.Point(0, status.ActualHeight / 2)).Y) <= 2, "Downloading status aligns with the video title");
         var rowProgress = Descendants<System.Windows.Controls.ProgressBar>(window.ManagerContent.DownloadsList).Single(bar => bar.DataContext is QueueItemView item && item.Id == waiting.Id);
         var rowArt = Descendants<System.Windows.Controls.Image>(window.ManagerContent.DownloadsList).Single(image => image.DataContext is QueueItemView item && item.Id == waiting.Id);
         double progressBottom = rowProgress.TransformToAncestor(window).Transform(new System.Windows.Point(0, rowProgress.ActualHeight)).Y;
@@ -123,7 +126,8 @@ internal static partial class Program
         CheckButtonHitAreas(window);
         Capture(window, Path.Combine(captures, "manager-paused.png"));
         provider.DownloadHandler = (options, _, _) => new DownloadResult { FilePath = firstFile };
-        await model.LibraryActionCommand.ExecuteAsync(waiting.Id);
+        Check(model.StartQueueLabel == "Resume downloads" && model.QueuePrimaryCommand.CanExecute(null) && System.Windows.Automation.AutomationProperties.GetName(window.ManagerContent.StartQueueButton) == model.StartQueueLabel, "A paused job offers Resume downloads on the rendered queue primary action");
+        await model.QueuePrimaryCommand.ExecuteAsync(null);
         Check(model.Queue.Entries.First(e => e.Id == waiting.Id).State == QueueState.Completed && provider.LastRequest.JobId == waiting.Id, "Resuming from the manager uses the existing durable job and download service");
         Check(model.RecentDownloadCount > 0 && window.ManagerContent.HistoryButton.IsVisible && System.Windows.Automation.AutomationProperties.GetName(window.ManagerContent.HistoryButton) == model.HistoryAccessibleName,
             "The visible History navigation announces new completions using the preserved unseen-download count");
@@ -132,11 +136,12 @@ internal static partial class Program
             "Opening History acknowledges new completions without hiding its navigation action");
         model.LibraryFilterCommand.Execute("queue");
         var sentinel = model.Queue.Add(Options("jNQXAC9IVR1"), "Keep waiting · Cancel regression");
+        var cancellable = model.Queue.Add(Options("jNQXAC9IVR2"), "Cancel only this download");
         provider.DownloadHandler = (_, token, _) => { token.WaitHandle.WaitOne(); token.ThrowIfCancellationRequested(); return new DownloadResult(); };
-        var cancelled = model.LibraryActionCommand.ExecuteAsync(audio.Id);
-        for (int wait = 0; wait < 100 && !model.QueueItems.First(q => q.Id == audio.Id).IsActive; wait++) await Task.Delay(25);
-        model.LibraryCancelCommand.Execute(audio.Id); await cancelled;
-        Check(model.Queue.Entries.First(e => e.Id == audio.Id).State == QueueState.Cancelled && model.Queue.Entries.First(e => e.Id == sentinel.Id).State == QueueState.Pending, "Cancelling the selected active transfer preserves other pending jobs");
+        var cancelled = model.LibraryActionCommand.ExecuteAsync(cancellable.Id);
+        for (int wait = 0; wait < 100 && !model.QueueItems.First(q => q.Id == cancellable.Id).IsActive; wait++) await Task.Delay(25);
+        model.LibraryCancelCommand.Execute(cancellable.Id); await cancelled;
+        Check(model.Queue.Entries.First(e => e.Id == cancellable.Id).State == QueueState.Cancelled && model.Queue.Entries.First(e => e.Id == sentinel.Id).State == QueueState.Pending, "Cancelling the selected active transfer preserves other pending jobs");
         ThemeResources.ContrastOverride = new(System.Windows.Media.Brushes.Black, System.Windows.Media.Brushes.White, System.Windows.Media.Brushes.Yellow, System.Windows.Media.Brushes.Black);
         ThemeResources.Apply(true); model.RefreshThemeBindings(); model.LibraryFilterCommand.Execute("all"); model.SelectedLibraryItem = model.QueueItems.First(q => q.Id == complete.Id); window.ManagerContent.SearchInput.Focus(); await Task.Delay(60);
         var selectedContainer = (System.Windows.Controls.ListBoxItem)window.ManagerContent.DownloadsList.ItemContainerGenerator.ContainerFromItem(model.SelectedLibraryItem);

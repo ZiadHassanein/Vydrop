@@ -13,6 +13,8 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     private bool hasError;
     private bool localSetupStarted;
     private bool installerSetupStarted;
+    private bool guideArabic;
+    internal void RefreshLanguage(bool arabic) { guideArabic = arabic; OnPropertyChanged(string.Empty); }
     public IReadOnlyList<SetupBrowser> Browsers { get; } = Enum.GetValues<SetupBrowser>();
     public SetupBrowser SelectedBrowser
     {
@@ -39,7 +41,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
             OnPropertyChanged(nameof(EnableLabel));
         }
     }
-    public string Message { get => message; private set { if (SetProperty(ref message, value)) OnPropertyChanged(nameof(HasMessage)); } }
+    public string Message { get => t(message); private set { if (SetProperty(ref message, value)) OnPropertyChanged(nameof(HasMessage)); } }
     public bool HasMessage => Message.Length > 0;
     public bool HasError { get => hasError; private set => SetProperty(ref hasError, value); }
     public bool IsFirefox => SelectedBrowser == SetupBrowser.Firefox;
@@ -70,7 +72,6 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public string FirefoxHint => t("Firefox removes this temporary add-on when it restarts. Load it again next session.");
     public string TestHint => t("Refresh a video page and click its Vydrop button. Choose the format and quality, then Download.");
     public string GuideLabel => t("View illustrated guide");
-    public string CloseLabel => t("Close");
     public string StartSetupLabel => ShowMissingFiles ? GuideLabel : UseStoreSetup ? string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Add to {0}"), SelectedBrowser) : string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Set up {0}"), SelectedBrowser);
     public string StartSetupHint => ShowMissingFiles ? MissingFilesHint : t(UseStoreSetup
         ? "Vydrop is ready. Add the official extension and approve your browser's confirmation. The connection is automatic."
@@ -98,6 +99,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     internal BrowserSetupViewModel(Func<string, string> translate, IBrowserSetupActions actions, bool arabic)
     {
         t = translate;
+        guideArabic = arabic;
         this.actions = actions;
         IsConnected = actions.IsConnected;
         StartSetupCommand = new RelayCommand(StartSetup);
@@ -115,7 +117,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
             "Extension path copied. Paste it into the browser file picker.", "Could not copy to the clipboard. Select the address or path and copy it manually."), () => HasExtension);
         ShowFolderCommand = new RelayCommand(() => Run(() => actions.ShowFolder(SelectedBrowser),
             "Choose these extension files in the browser loading dialog.", "Could not open the extension folder. Copy its path and open it in File Explorer."), () => HasExtension);
-        GuideCommand = new RelayCommand(() => Run(() => actions.OpenGuide(SelectedBrowser, arabic),
+        GuideCommand = new RelayCommand(() => Run(() => actions.OpenGuide(SelectedBrowser, guideArabic),
             "The illustrated guide opened in your browser.", "Could not open the guide. Visit the Vydrop documentation website."));
     }
 
@@ -172,8 +174,8 @@ internal sealed class BrowserSetupViewModel : ObservableObject
 
     private bool Run(Action action, string success, string failure)
     {
-        try { action(); HasError = false; Message = t(success); return true; }
+        try { action(); HasError = false; Message = success; return true; }
         catch (Exception error) when (error is not OutOfMemoryException)
-        { HasError = true; Message = t(failure); return false; }
+        { HasError = true; Message = failure; return false; }
     }
 }

@@ -3,13 +3,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 namespace YouTubeDownloader;
-public partial class QueueWindow : Window
+public partial class QueueComposerView : UserControl
 {
-    public QueueWindow()
+    public QueueComposerView()
     {
         InitializeComponent();
-        SourceInitialized += (_, _) => ThemeResources.ApplyTitleBar(this, (DataContext as MainViewModel)?.IsDark == true);
-        ContentRendered += (_, _) => ShowInitialContent();
+        Loaded += (_, _) => ShowInitialContent();
     }
 
     private void ShowInitialContent()
@@ -24,7 +23,7 @@ public partial class QueueWindow : Window
         int position = DataContext is MainViewModel current && previous != null ? current.QueueLinkInputs.IndexOf(previous) : -1;
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
         {
-            if (DataContext is not MainViewModel model) return;
+            if (!IsLoaded || DataContext is not MainViewModel { ActiveWorkspace: WorkspacePage.QueueComposer } model) return;
             FocusLinkInput(previous != null && model.QueueLinkInputs.Contains(previous) ? previous :
                 position >= 0 ? model.QueueLinkInputs.ElementAtOrDefault(Math.Min(position, model.QueueLinkInputs.Count - 1)) : model.QueueLinkInputs.LastOrDefault());
         }));
@@ -34,13 +33,9 @@ public partial class QueueWindow : Window
     {
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
         {
-            if (DataContext is not MainViewModel model) return;
+            if (!IsLoaded || DataContext is not MainViewModel { ActiveWorkspace: WorkspacePage.QueueComposer } model) return;
             if (model.QueueLinkInputs.FirstOrDefault(draft => draft.HasError) is { } invalid) FocusLinkInput(invalid);
-            else
-            {
-                QueueItemsHost.UpdateLayout();
-                (QueueItemsHost.ItemContainerGenerator.ContainerFromIndex(0) as FrameworkElement)?.BringIntoView();
-            }
+            else model.LibraryFilterCommand.Execute("queue");
         }));
     }
 
@@ -72,5 +67,5 @@ public partial class QueueWindow : Window
             if (FindInput(VisualTreeHelper.GetChild(root, index)) is { } found) return found;
         return null;
     }
-    private void CloseClicked(object sender, RoutedEventArgs args) => Close();
+    private void CloseClicked(object sender, RoutedEventArgs args) => (DataContext as MainViewModel)?.LibraryFilterCommand.Execute("queue");
 }

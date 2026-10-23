@@ -190,7 +190,7 @@ The browser chooser is at most 416 CSS pixels wide and leaves 12px viewport clea
 
 ## Elevation & Depth
 
-The native manager uses tonal layering and dividers rather than drop shadows. Selection adds a neutral slate fill and a Vydrop red outline. The inspector is a continuous surface; the selected-library compact drawer uses a half-black scrim. Add download, Settings and History are ordinary center surfaces with no modal scrim. Settings sections sit directly on the workspace without a nested panel shell. Keep the library flat.
+The native manager uses tonal layering and dividers rather than drop shadows. Selection adds a neutral slate fill and a Vydrop red outline. The inspector is a continuous surface; compact details uses the center workspace with a Back action. Add download, Settings and History are ordinary center surfaces with no modal scrim. Settings sections sit directly on the workspace without a nested panel shell. Keep the library flat.
 
 The floating browser chooser has one structural shadow (0 18px 48px #170d2040). Its burgundy header and tonal card boundaries carry hierarchy within the panel.
 
@@ -226,7 +226,7 @@ Navigation items use outlined 19 × 19 vector icons, minimum height 48 DIP, padd
 
 ### Counted filter tabs
 
-Library filters are text tabs with a two-unit underline, 14 DIP trailing separation, minimum height 46 and 8 horizontal by 9 vertical padding. They wrap as needed. Their 23-high count badges collapse completely at zero. Selection uses Ink, semibold weight and Action underline; hover uses Accent text. Focus adds an Accent boundary while retaining the thicker bottom edge. Library uses All, Videos and Audio filters over completed media. Queue uses All, Downloading, Waiting, Paused and Needs attention filters over unfinished work. Paused includes interrupted work; Needs attention includes failed, cancelled and source-refresh jobs. Counts come from the full matching scope rather than the search-filtered result set. Queue has visible Start download, Pause queue and Manage queue controls; Library has no transfer toolbar.
+Library filters are text tabs with a two-unit underline, 14 DIP trailing separation, minimum height 46 and 8 horizontal by 9 vertical padding. They wrap as needed. Their 23-high count badges collapse completely at zero. Selection uses Ink, semibold weight and Action underline; hover uses Accent text. Focus adds an Accent boundary while retaining the thicker bottom edge. Library uses All, Videos and Audio filters over completed media. Queue uses All, Downloading, Waiting, Paused and Needs attention filters over unfinished work. Paused includes interrupted work; Needs attention includes failed, cancelled and source-refresh jobs. Counts come from the full matching scope rather than the search-filtered result set. Queue has visible Start download / Resume downloads, Pause queue and Add to queue controls; Library has no transfer toolbar.
 
 ### Library rows and selected-media details
 
@@ -312,4 +312,6 @@ Library is the completed-media collection; Queue is the unfinished-work workspac
 
 A job that finishes leaves Queue and appears in Library with the same persisted identity. Changing scope, filters, or job state cannot leave an invisible row selected in the inspector. The visible Start download action returns Queue to All and clears its search so new transfers are visible; confirmed browser work also opens Queue. Preserve the existing durable queue schema and explicit resume behavior.
 
-Advanced queue management uses a separate, stable unfinished-job view independent of the main search. Its count excludes completed media; move controls skip completed records in the shared durable store and disable unavailable boundaries. Completed-folder actions remain in Library. Opening queue management no longer scrolls to archived output rows.
+Queue rows expose Pause/Resume, Cancel while active, folder, source refresh when applicable, move controls and Remove on one line. Status shares the title line; the progress bar ends at the thumbnail's lower edge. Accessible names and tooltips explain every icon. Move controls skip completed records and disable unavailable boundaries; active jobs cannot be removed.
+
+Add to queue opens a center workspace for URL drafts, download preferences and scheduling. Accepted links return to the actual Queue list. Browser integration, subtitle options and playlist selection also use inline workspace sections, retaining the sidebar and language/theme controls. Compact details replaces the center list until Back to queue is chosen. No in-app workflow creates a modal window; the native folder picker keeps its normal operating-system behavior. The queue's primary label changes to Resume downloads for paused/interrupted work; an explicit click resumes those durable jobs and processes pending work without changing saved options or the queue schema.

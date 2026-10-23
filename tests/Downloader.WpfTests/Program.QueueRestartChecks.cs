@@ -148,12 +148,20 @@ internal static partial class Program
                         Capture(dialog, Path.Combine(root, "queue-restored.png"));
                     });
                     double? firstProgress = null;
+                    var resumedEntry = model.Queue.Entries[0];
+                    double savedPercent = resumedEntry.Percent;
+                    bool lostSavedPercent = false;
+                    model.Queue.Changed += () =>
+                    {
+                        if (resumedEntry.State is QueueState.Pending or QueueState.Preparing || resumedEntry.Transfer?.Indeterminate == true)
+                            lostSavedPercent |= resumedEntry.Percent < savedPercent;
+                    };
                     service.Progress += progress =>
                     {
                         if (progress.Stage == "Downloading" && progress.Percent > 0) firstProgress ??= progress.Percent;
                     };
-                    model.RetryQueueCommand.Execute(model.Queue.Entries[0].Id);
-                    await model.QueueStartCommand.ExecuteAsync(null).WaitAsync(TimeSpan.FromSeconds(120));
+                    await model.QueuePrimaryCommand.ExecuteAsync(null).WaitAsync(TimeSpan.FromSeconds(120));
+                    Check(!lostSavedPercent, "Resuming preserves the saved percentage through real metadata and connection setup");
                     Check(model.Queue.Entries.All(e => e.State == QueueState.Completed), "Resuming completes the interrupted job and the remaining queued job");
                     long referenceLength = new FileInfo(Path.Combine(Directory.GetParent(root).FullName, "reference.mp4")).Length;
                     Check(firstProgress.HasValue && firstProgress >= 100.0 * partial / referenceLength,

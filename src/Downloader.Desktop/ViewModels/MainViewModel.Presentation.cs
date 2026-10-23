@@ -33,7 +33,7 @@ public sealed partial class MainViewModel
         {
             if (SetProperty(ref settingsVisible, value))
             {
-                if (value) HistoryVisible = false;
+                if (value) { HistoryVisible = false; ActiveWorkspace = WorkspacePage.None; }
                 RefreshLibrary();
                 OnPropertyChanged(nameof(ShowInlineActivity));
             }
@@ -63,7 +63,7 @@ public sealed partial class MainViewModel
     public string PreviewLabel => T("Video preview");
     public bool HasMediaPreview => videoInfo != null || playlistInfo != null;
     public bool IsCheckingMedia => checkingMedia && !QueueRunning && downloadActionState == DownloadActionState.Ready;
-    public bool ShowInlineActivity => HasStatus && !(string.IsNullOrWhiteSpace(Url) && !QueueRunning && downloadActionState == DownloadActionState.Ready) && !quietCompletion && !IsCheckingMedia && (!HasMediaPreview || InlineMediaPreview) && !SettingsVisible;
+    public bool ShowInlineActivity => (HasStatus || QueueRunning) && !(string.IsNullOrWhiteSpace(Url) && !QueueRunning && downloadActionState == DownloadActionState.Ready) && (!quietCompletion || QueueRunning) && !IsCheckingMedia && (!HasMediaPreview || InlineMediaPreview) && !SettingsVisible;
     public string FolderDisplay => string.IsNullOrWhiteSpace(Folder) ? T("Choose a folder") :
         Path.GetFileName(Path.TrimEndingDirectorySeparator(Folder)) is { Length: > 0 } name ? name : Folder;
     public string FolderAccessibleName => T("Save to") + ": " + Folder;
@@ -81,7 +81,8 @@ public sealed partial class MainViewModel
     private string QueueOutput(DownloadOptions request) => request.Audio
         ? OutputProfiles.AudioExtension(request.AudioEncoding).ToUpperInvariant() + " · " + (OutputProfiles.IsLossless(request.AudioEncoding) ? T("No bitrate setting") : request.AudioBitrate == 0 ? T("Automatic") : request.AudioBitrate + " kbps")
         : OutputProfiles.VideoExtension(request.VideoContainer).ToUpperInvariant() + " · " + (request.Height == 0 ? T("Best available") : request.Height + "p");
-    public string PreviewStatus => HasStatus ? StatusHeading : CanDownload ? T("Ready to download") : T("Paste a video or playlist link");
+    public string PreviewStatus => QueueRunning && ActiveQueueEntry is { } active ? QueueItems.FirstOrDefault(row => row.Id == active.Id)?.Status ?? T("Download queue") : HasStatus ? StatusHeading : CanDownload ? T("Ready to download") : T("Paste a video or playlist link");
+    public string ActivityDetail => QueueRunning && ActiveQueueEntry is { } active ? active.Title : StatusDetail;
     private bool ActivityReady => HasFile || !HasStatus && CanDownload;
     public Geometry ActivityIcon => (Geometry)Application.Current.Resources[statusError ? "AlertIcon" : IsBusy ? "DownloadIcon" : ActivityReady ? "CheckIcon" : "VideoIcon"];
     public Brush ActivityBrush => (Brush)Application.Current.Resources[statusError ? "Error" : IsBusy ? "Accent" : ActivityReady ? "Success" : "Muted"];
@@ -123,7 +124,7 @@ public sealed partial class MainViewModel
             nameof(PlaylistLabel), nameof(PreviewImage), nameof(HasPreviewCaptions), nameof(PreviewCaptions), nameof(AudioSourceHint), nameof(PreviewIsAudio),
             nameof(PreviewTitle), nameof(PreviewSubtitle), nameof(PreviewTitleDirection),
             nameof(PreviewDuration), nameof(HasPreviewDuration), nameof(PreviewOutput),
-            nameof(PreviewStatus), nameof(ActivityIcon), nameof(ActivityBrush), nameof(HasActivityActions), nameof(IsCheckingMedia), nameof(DownloadActionLabel), nameof(ShowInlineActivity)
+            nameof(PreviewStatus), nameof(ActivityDetail), nameof(ActivityIcon), nameof(ActivityBrush), nameof(HasActivityActions), nameof(IsCheckingMedia), nameof(DownloadActionLabel), nameof(ShowInlineActivity)
         }) OnPropertyChanged(property);
         string address = videoInfo?.ThumbnailUrl ?? playlistInfo?.ThumbnailUrl;
         if (thumbnailAddress == address) return;

@@ -8,21 +8,20 @@ using System.Windows.Threading;
 
 namespace YouTubeDownloader;
 
-public partial class OutputOptionsWindow : Window
+public partial class SubtitleOptionsView : UserControl
 {
-    public OutputOptionsWindow()
+    public SubtitleOptionsView()
     {
         InitializeComponent();
         CaptionInput.ItemContainerGenerator.StatusChanged += (_, _) => FilterCaptionChoices();
-        SourceInitialized += (_, _) => ThemeResources.ApplyTitleBar(this, (DataContext as MainViewModel)?.IsDark == true);
         Loaded += (_, _) => { if (DataContext is MainViewModel model) model.PropertyChanged += NoticeChanged; };
-        Closed += (_, _) => { if (DataContext is MainViewModel model) model.PropertyChanged -= NoticeChanged; };
-        ContentRendered += (_, _) =>
+        Unloaded += (_, _) => { if (DataContext is MainViewModel model) model.PropertyChanged -= NoticeChanged; };
+        Loaded += (_, _) =>
         {
             CaptionInput.Focus();
             ViewMotion.Reveal(OptionsContent);
         };
-        Closing += (_, _) =>
+        Unloaded += (_, _) =>
         {
             if (DataContext is not MainViewModel model) return;
             model.CaptionLanguagesCommand.Cancel();
@@ -30,7 +29,7 @@ public partial class OutputOptionsWindow : Window
         };
     }
 
-    private void DoneClicked(object sender, RoutedEventArgs args) => Close();
+    private void DoneClicked(object sender, RoutedEventArgs args) => (DataContext as MainViewModel)?.NewDownloadCommand.Execute(null);
 
     private TextBox SearchInput => CaptionInput.Template?.FindName("CaptionSearchInput", CaptionInput) as TextBox;
 

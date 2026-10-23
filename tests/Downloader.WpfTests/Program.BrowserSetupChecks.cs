@@ -1,6 +1,4 @@
 using System.Windows;
-using System.Windows.Automation.Peers;
-using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using YouTubeDownloader;
@@ -57,10 +55,10 @@ internal static partial class Program
                     var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
                     _ = owner.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(async () =>
                     {
-                        BrowserSetupWindow dialog = null;
+                        BrowserIntegrationView dialog = null;
                         try
                         {
-                            dialog = owner.OwnedWindows.OfType<BrowserSetupWindow>().Single();
+                            dialog = (BrowserIntegrationView)owner.WorkspaceView;
                             await Task.Delay(150);
                             var model = (BrowserSetupViewModel)dialog.DataContext;
                             var viewport = (ScrollViewer)WpfTree.Find(dialog, "SetupViewport");
@@ -136,7 +134,7 @@ internal static partial class Program
                             dialog.UpdateLayout();
                             double footerTop = footer.TranslatePoint(new Point(), dialog).Y;
                             Check(viewport.ScrollableWidth <= 1 && footerTop + footer.ActualHeight <= dialog.ActualHeight &&
-                                dialog.ActualWidth <= owner.ActualWidth - 47 && dialog.ActualHeight <= owner.ActualHeight - 47,
+                                owner.OwnedWindows.Count == 0 && owner.ManagerContent.NavigationSurface.IsEnabled,
                                 "Setup stays within the owner, avoids horizontal scrolling and keeps footer actions reachable");
                             Capture(dialog, System.IO.Path.Combine(captures, "setup-" + variant + ".png"));
                             if (compact) fixture.AppFolder = @"C:\Apps\A long permanent application folder with spaces\Vydrop downloaded packages\Current desktop application";
@@ -153,13 +151,19 @@ internal static partial class Program
                             Check(path.IsReadOnly && path.FlowDirection == FlowDirection.LeftToRight && (!compact || path.LineCount > 1),
                                 "Long extension paths wrap and remain selectable in either language");
                             Capture(dialog, System.IO.Path.Combine(captures, "setup-firefox-" + variant + ".png"));
-                            var close = (Button)WpfTree.Find(dialog, "SetupClose");
-                            ((IInvokeProvider)new ButtonAutomationPeer(close).GetPattern(PatternInterface.Invoke)).Invoke();
+                            model.EnableCommand.Execute(null);
+                            main.SelectLanguageCommand.Execute(arabic ? "en" : "ar");
+                            await Task.Delay(60);
+                            Check(dialog.FlowDirection == main.ContentDirection && model.Heading == Texts.For(main.IsArabic ? "ar" : "en", "Browser extension setup") && model.Message == Texts.For(main.IsArabic ? "ar" : "en", "Browser connection enabled. Load the companion extension to send links."), "An open browser section and its feedback follow a language change: " + $"language={main.IsArabic}, direction={dialog.FlowDirection}/{main.ContentDirection}, heading={model.Heading}, message={model.Message}");
+                            model.GuideCommand.Execute(null);
+                            Check(fixture.ArabicGuide == main.IsArabic, "The guide uses the current language after switching within the section");
+                            main.SelectLanguageCommand.Execute(arabic ? "ar" : "en");
+                            main.LibraryFilterCommand.Execute("queue");
                         }
                         catch (Exception error) { failure = error; }
-                        finally { if (dialog?.IsVisible == true) dialog.Close(); done.TrySetResult(); }
+                        finally { if (dialog?.IsVisible == true) main.LibraryFilterCommand.Execute("queue"); done.TrySetResult(); }
                     }));
-                    new DesktopActions(owner).ShowBrowserIntegration(text => Texts.For(arabic ? "ar" : "en", text), fixture);
+                    new DesktopActions(owner).ShowBrowserIntegration(text => Texts.For(main.IsArabic ? "ar" : "en", text), fixture);
                     await done.Task;
                     if (failure != null) throw failure;
                 }

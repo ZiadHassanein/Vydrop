@@ -16,7 +16,7 @@ if(!$CaptureDirectory) { $CaptureDirectory=Join-Path $projectRoot 'build/ui-capt
 if($LASTEXITCODE -ne 0) { throw 'WPF checks failed.' }
 & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') (Join-Path $CaptureDirectory 'manager-small-display') --manager --dpi-unaware --ci-layout
 if($LASTEXITCODE -ne 0) { throw 'Small-display manager checks failed.' }
-foreach($mode in @('library-queue', 'contact', 'download-workspace', 'download-settings', 'setup-ui', 'workspace-flow', 'motion', 'checking-feedback', 'close-race', 'system-theme', 'performance', 'error-presentation', 'browser-setup', 'store-setup', 'download-improvements-ui', 'ui-refinement')) {
+foreach($mode in @('resume-progress', 'queue-window', 'options-modal', 'library-queue', 'contact', 'download-workspace', 'download-settings', 'setup-ui', 'workspace-flow', 'motion', 'checking-feedback', 'close-race', 'system-theme', 'performance', 'error-presentation', 'browser-setup', 'store-setup', 'download-improvements-ui', 'ui-refinement')) {
     & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') (Join-Path $CaptureDirectory $mode) "--$mode"
     if($LASTEXITCODE -ne 0) { throw "WPF $mode checks failed." }
 }

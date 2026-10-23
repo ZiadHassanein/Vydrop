@@ -30,7 +30,6 @@ internal static partial class Program
             model.SelectLanguageCommand.Execute(language); if (model.IsDark != dark) model.ThemeCommand.Execute(null);
             await InspectQueueModal(owner, model, async dialog =>
             {
-                dialog.Width = 640; dialog.Height = 540;
                 var viewport = (ScrollViewer)WpfTree.Find(dialog, "QueueViewport");
                 var limits = Descendants<Expander>(dialog).Single(e => Equals(e.Header, model.DownloadLimitsLabel));
                 limits.IsExpanded = true;

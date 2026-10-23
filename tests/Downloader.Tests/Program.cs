@@ -8,6 +8,7 @@ internal static class Program
         {
             if (args.Length == 1 && args[0] == "--browser-stores") { BrowserStoreChecks.Run(); BrowserRegistrationChecks.Run(); return 0; }
             if (args.Length == 1 && args[0] == "--queue-concurrency") { await QueueConcurrencyChecks.Run(); return 0; }
+            if (args.Length == 1 && args[0] == "--queue-resume-progress") { await QueueResumeProgressChecks.Run(); return 0; }
             if (args.Length == 1 && args[0] == "--download-improvements") { BrowserLinkTransport.PipeNameOverride = "Vydrop.Improvements." + Guid.NewGuid().ToString("N"); await DownloadImprovementChecks.Run(); return 0; }
             if (args.Length == 2 && args[0] == "--native-host") return await NativeHostChecks.Run(args[1]);
             if (args.Length == 2 && args[0] == "--package") return PackageArtifactChecks.Run(args[1]);
@@ -24,6 +25,7 @@ internal static class Program
             await BoundaryChecks.Run(args[0]);
             await ServiceChecks.Run();
             await QueueConcurrencyChecks.Run();
+            await QueueResumeProgressChecks.Run();
             await DownloadImprovementChecks.Run();
             await WorkflowChecks.Run(args[0]);
             OutputProfileChecks.Run(args[0]);

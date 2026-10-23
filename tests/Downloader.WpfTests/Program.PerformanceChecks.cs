@@ -19,10 +19,10 @@ internal static partial class Program
             Exception failure = null;
             _ = owner.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(async () =>
             {
-                Window dialog = null;
+                System.Windows.Controls.UserControl dialog = null;
                 try
                 {
-                    dialog = owner.OwnedWindows.Cast<Window>().Single();
+                    dialog = (System.Windows.Controls.UserControl)owner.WorkspaceView;
                     timings.Add(watch.Elapsed.TotalMilliseconds);
                     var choices = LogicalDescendants(dialog).OfType<ListBox>().Single();
                     Check(choices.Items.Count == 1000, "Performance workload retains every available playlist choice");
@@ -68,14 +68,19 @@ internal static partial class Program
                     LogicalDescendants(dialog).OfType<Button>().Single(b => Equals(b.Content, "Use selection")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 }
                 catch (Exception ex) { failure = ex; }
-                finally { if (dialog?.IsVisible == true) dialog.Close(); finished.TrySetResult(); }
+                finally { if (dialog?.IsVisible == true) ((MainViewModel)owner.DataContext).NewDownloadCommand.Execute(null); finished.TrySetResult(); }
             }));
-            var selected = new DesktopActions(owner).SelectPlaylist(playlist, null, value => value);
+            var selected = await new DesktopActions(owner).SelectPlaylist(playlist, null, value => value);
             await finished.Task;
             if (failure != null) throw failure;
             Check(selected?.Count == (iteration == 0 ? 998 : 999), "Applying selection returns exactly the chosen available videos: " + selected?.Count);
         }
         Console.WriteLine("Playlist dialog first-idle milliseconds (1,000 entries, five runs): " + string.Join(", ", timings.Select(value => value.ToString("F1", System.Globalization.CultureInfo.InvariantCulture))));
+        var abandoned = new DesktopActions(owner).SelectPlaylist(playlist, null, value => value);
+        await owner.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+        Check(!abandoned.IsCompleted && owner.OwnedWindows.Count == 0 && owner.ManagerContent.NavigationSurface.IsEnabled, "Playlist selection stays inline with navigation available");
+        ((MainViewModel)owner.DataContext).LibraryFilterCommand.Execute("all");
+        Check(await abandoned == null && owner.WorkspaceView == null, "Navigating away cancels an uncommitted playlist selection");
         Console.WriteLine(count + " WPF playlist checks passed.");
     }
 }

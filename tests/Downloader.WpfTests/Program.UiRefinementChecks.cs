@@ -47,7 +47,6 @@ internal static partial class Program
                 "Focus-link shortcut returns from Settings and selects the existing link in " + language);
             await InspectQueueModal(window, model, async dialog =>
             {
-                dialog.Width = 620; dialog.Height = 600;
                 var viewport = (ScrollViewer)WpfTree.Find(dialog, "QueueViewport");
                 var limits = Descendants<Expander>(dialog).Single(e => Equals(e.Header, model.DownloadLimitsLabel));
                 var toggle = Descendants<System.Windows.Controls.Primitives.ToggleButton>(limits).First();

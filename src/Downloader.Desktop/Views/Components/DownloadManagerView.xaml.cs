@@ -25,21 +25,23 @@ public partial class DownloadManagerView : UserControl
     }
     private void WorkspaceChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName is nameof(MainViewModel.AddDownloadVisible) or nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HistoryVisible) or nameof(MainViewModel.HasMediaPreview)) RefreshWorkspace();
+        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName is nameof(MainViewModel.AddDownloadVisible) or nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HistoryVisible) or nameof(MainViewModel.HasMediaPreview) or nameof(MainViewModel.ActiveWorkspace)) RefreshWorkspace();
     }
     internal void RefreshWorkspace()
     {
         if (DataContext is not MainViewModel model) return;
-        bool editor = model.AddDownloadVisible || model.SettingsVisible;
-        LibraryContent.Visibility = !editor && !model.HistoryVisible ? Visibility.Visible : Visibility.Collapsed;
-        HistoryContent.Visibility = !editor && model.HistoryVisible ? Visibility.Visible : Visibility.Collapsed;
+        bool editor = !model.HasWorkspacePage && (model.AddDownloadVisible || model.SettingsVisible);
+        LibraryContent.Visibility = !model.HasWorkspacePage && !editor && !model.HistoryVisible ? Visibility.Visible : Visibility.Collapsed;
+        HistoryContent.Visibility = !model.HasWorkspacePage && !editor && model.HistoryVisible ? Visibility.Visible : Visibility.Collapsed;
+        WorkspaceHost.Visibility = model.HasWorkspacePage ? Visibility.Visible : Visibility.Collapsed;
         EditorHost.Visibility = editor ? Visibility.Visible : Visibility.Collapsed;
         EditorDetailsHost.Visibility = model.AddDownloadVisible && model.HasMediaPreview && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
         LibraryDetails.Visibility = editor ? Visibility.Collapsed : Visibility.Visible;
         DetailsBorder.Visibility = HasInspector ? Visibility.Visible : Visibility.Collapsed;
+        if (!model.LibraryVisible) HideDetails();
         LayoutManager();
     }
-    private bool HasInspector => DataContext is MainViewModel model && !model.SettingsVisible && !model.HistoryVisible && (!model.AddDownloadVisible || model.HasMediaPreview);
+    private bool HasInspector => DataContext is MainViewModel model && !model.HasWorkspacePage && !model.SettingsVisible && !model.HistoryVisible && (!model.AddDownloadVisible || model.HasMediaPreview);
 
     private void LayoutManager()
     {
@@ -62,7 +64,7 @@ public partial class DownloadManagerView : UserControl
     {
         if (!compact) return;
         DetailOverlay.Visibility = Visibility.Visible;
-        NavigationSurface.IsEnabled = Header.IsEnabled = LibraryContent.IsEnabled = false;
+        LibraryContent.Visibility = Visibility.Collapsed;
         DetailsCloseButton.Focus();
     }
     private void StartQueueClicked(object sender, RoutedEventArgs e)
@@ -71,35 +73,13 @@ public partial class DownloadManagerView : UserControl
         model.LibraryFilterCommand.Execute("queue");
         model.LibrarySearch = "";
     }
-    private void RowMoreClicked(object sender, RoutedEventArgs e)
-    {
-        if (sender is not Button { DataContext: QueueItemView row } button || DataContext is not MainViewModel model) return;
-        model.SelectedLibraryItem = row;
-        var menu = new ContextMenu { PlacementTarget = button, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom, FlowDirection = model.ContentDirection, FontFamily = model.ContentFont, Style = (Style)FindResource("ManagerMenu") };
-        void Add(string header, System.Windows.Input.ICommand command, string icon, bool enabled = true, bool destructive = false)
-        {
-            var item = new MenuItem { Header = header, Command = command, CommandParameter = row.Id, IsEnabled = enabled, Tag = FindResource(icon), Style = (Style)FindResource("ManagerMenuItem") };
-            if (destructive) item.SetResourceReference(ForegroundProperty, "Error");
-            menu.Items.Add(item);
-        }
-        Add(row.PrimaryAction, model.LibraryActionCommand, row.IsActive ? "ManagerPauseIcon" : "ManagerPlayIcon");
-        if (row.IsActive) Add(model.CancelLabel, model.LibraryCancelCommand, "CloseIcon");
-        menu.Items.Add(new Separator());
-        Add(model.OpenSaveFolderLabel, model.OpenQueueFolderCommand, "OpenFolderIcon", row.CanOpenFolder);
-        if (row.CanRefresh) Add(model.RefreshSourceLabel, model.RefreshQueueSourceCommand, "RefreshIcon");
-        menu.Items.Add(new Separator());
-        Add(model.RemoveLabel, model.RemoveQueueCommand, "CloseIcon", row.CanRemove, destructive: true);
-        menu.Closed += (_, _) => { button.ContextMenu = null; button.Focus(); };
-        button.ContextMenu = menu;
-        menu.IsOpen = true;
-    }
     private void HideDetailsClicked(object sender, RoutedEventArgs e) => HideDetails();
     private void DownloadDoubleClicked(object sender, MouseButtonEventArgs e) { if (compact && (DataContext as MainViewModel)?.SelectedLibraryItem != null) ShowDetailsClicked(sender, e); }
     private void HideDetails()
     {
         bool visible = DetailOverlay.IsVisible;
         DetailOverlay.Visibility = Visibility.Collapsed;
-        NavigationSurface.IsEnabled = Header.IsEnabled = LibraryContent.IsEnabled = true;
+        if (DataContext is MainViewModel model && model.LibraryVisible) LibraryContent.Visibility = Visibility.Visible;
         if (visible) DownloadsList.Focus();
     }
 }

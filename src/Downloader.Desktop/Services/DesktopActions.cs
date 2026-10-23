@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using Microsoft.Win32;
 
 namespace YouTubeDownloader;
@@ -90,26 +88,6 @@ public sealed partial class DesktopActions
     }
 
     public void OpenReleaseDownload() => Process.Start(new ProcessStartInfo(AppUpdates.Repository + "/releases") { UseShellExecute = true });
-    private Window Dialog(string title, int height = 300)
-    {
-        var dialog = new Window
-        {
-            Owner = owner,
-            Title = title,
-            Width = Math.Min(620, Math.Max(480, owner.ActualWidth - 64)),
-            Height = Math.Min(height, Math.Max(260, owner.ActualHeight - 60)),
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            ResizeMode = ResizeMode.NoResize,
-            ShowInTaskbar = false,
-            FontFamily = (owner.DataContext as MainViewModel)?.ContentFont ?? (FontFamily)Application.Current.Resources["LatinFont"],
-            FlowDirection = (owner.DataContext as MainViewModel)?.ContentDirection ?? FlowDirection.LeftToRight,
-            FontSize = 15,
-            Icon = owner.Icon
-        };
-        dialog.SetResourceReference(Control.BackgroundProperty, "Page");
-        dialog.SetResourceReference(Control.ForegroundProperty, "Ink");
-        return dialog;
-    }
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
     private static extern int SHParseDisplayName(string path, IntPtr bindContext, out IntPtr item, uint attributes, out uint returnedAttributes);
     [DllImport("shell32.dll")]

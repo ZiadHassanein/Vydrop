@@ -50,10 +50,10 @@ internal static partial class Program
             var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             _ = window.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(async () =>
             {
-                BrowserSetupWindow dialog = null;
+                BrowserIntegrationView dialog = null;
                 try
                 {
-                    dialog = window.OwnedWindows.OfType<BrowserSetupWindow>().Single(); await Task.Delay(120);
+                    dialog = (BrowserIntegrationView)window.WorkspaceView; await Task.Delay(120);
                     var setupModel = (BrowserSetupViewModel)dialog.DataContext;
                     var viewport = (ScrollViewer)WpfTree.Find(dialog, "SetupViewport"); dialog.UpdateLayout();
                     Check(recovery.Calls == 0 && !setupModel.ShowMissingFiles && ((Button)WpfTree.Find(dialog, "SetupStart")).IsEnabled, "A standalone app offers setup without missing-file errors or opening-time actions");
@@ -65,7 +65,7 @@ internal static partial class Program
                     Capture(dialog, Path.Combine(captures, $"setup-embedded-after-{language}-{dark}.png"));
                 }
                 catch (Exception error) { failure = error; }
-                finally { if (dialog?.IsVisible == true) dialog.Close(); done.TrySetResult(); }
+                finally { if (dialog?.IsVisible == true) model.LibraryFilterCommand.Execute("queue"); done.TrySetResult(); }
             }));
             new DesktopActions(window).ShowBrowserIntegration(key => Texts.For(language, key), recovery);
             await done.Task; if (failure != null) throw failure;

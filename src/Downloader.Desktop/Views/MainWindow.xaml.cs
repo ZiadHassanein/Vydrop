@@ -60,6 +60,7 @@ public partial class MainWindow : Window
         {
             if (string.IsNullOrEmpty(args.PropertyName))
             {
+                RefreshWorkspacePresentation();
                 if (presentationDirection != model.ContentDirection)
                 {
                     ResetDropDowns(Root);
@@ -86,6 +87,7 @@ public partial class MainWindow : Window
                 }
             }
             if (args.PropertyName is nameof(MainViewModel.AddDownloadVisible) or nameof(MainViewModel.HistoryVisible)) UpdateEditor();
+            if (args.PropertyName == nameof(MainViewModel.ActiveWorkspace)) UpdateEditor();
             if (args.PropertyName == nameof(MainViewModel.HasFile) && model.HasFile && model.ShowInlineActivity)
                 Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => DownloadForm.InlineActivity.BringIntoView());
             if (((args.PropertyName == nameof(MainViewModel.StatusHeading) || args.PropertyName == nameof(MainViewModel.IsCheckingMedia) && model.IsCheckingMedia) && !model.SettingsVisible)
@@ -133,7 +135,8 @@ public partial class MainWindow : Window
 
     private void UpdateEditor()
     {
-        bool visible = model.SettingsVisible || model.AddDownloadVisible;
+        bool visible = !model.HasWorkspacePage && (model.SettingsVisible || model.AddDownloadVisible);
+        if (!model.HasWorkspacePage) ManagerContent.WorkspaceHost.Content = null;
         bool opening = visible && !EditorOverlay.IsVisible;
         if (opening) editorReturnFocus = Keyboard.FocusedElement;
         EditorOverlay.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
