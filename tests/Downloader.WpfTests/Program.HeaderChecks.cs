@@ -24,6 +24,15 @@ internal static partial class Program
                 var bounds = brand.TransformToAncestor(navigation).TransformBounds(new Rect(brand.RenderSize));
                 Check(Math.Abs(bounds.Left + bounds.Width / 2 - navigation.ActualWidth / 2) <= 1 && bounds.Left >= 0 && bounds.Right <= navigation.ActualWidth && brand.FlowDirection == FlowDirection.LeftToRight,
                     $"The complete logo is centered without mirroring: {language}/{dark}/{width} (logo={bounds}, sidebar={navigation.ActualWidth})");
+                var header = window.HeaderContent;
+                Rect HeaderBounds(FrameworkElement element) => element.TransformToAncestor(header).TransformBounds(new Rect(element.RenderSize));
+                var actions = HeaderBounds(header.HeaderActions);
+                var languageButton = HeaderBounds(header.LanguageButton);
+                var themeButton = HeaderBounds(header.ThemeButton);
+                bool arabic = language == "ar";
+                double edge = arabic ? actions.Left - header.HeaderFrame.Padding.Left : header.ActualWidth - header.HeaderFrame.Padding.Right - actions.Right;
+                Check(Math.Abs(edge) <= 1 && (arabic ? themeButton.Right <= languageButton.Left : languageButton.Right <= themeButton.Left),
+                    $"Header controls occupy the outer edge in the correct physical order: {language}/{dark}/{width} (actions={actions}, language={languageButton}, theme={themeButton})");
                 Capture(window, System.IO.Path.Combine(captures, $"logo-{language}-{dark}-{width}.png"));
             }
         }

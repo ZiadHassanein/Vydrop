@@ -67,7 +67,15 @@
      </Viewbox>
     </Grid>
    </Button>
-   <StackPanel x:Name="HeaderActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+   <StackPanel x:Name="HeaderActions" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Center">
+    <StackPanel.Style><Style TargetType="StackPanel">
+     <Setter Property="HorizontalAlignment" Value="Right"/>
+     <Setter Property="FlowDirection" Value="LeftToRight"/>
+     <Style.Triggers><DataTrigger Binding="{Binding IsArabic}" Value="True">
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="FlowDirection" Value="RightToLeft"/>
+     </DataTrigger></Style.Triggers>
+    </Style></StackPanel.Style>
     <Button x:Name="LanguageButton" Command="{Binding ToggleLanguageCommand}" AutomationProperties.Name="{Binding LanguageAction}" AutomationProperties.HelpText="{Binding CurrentLanguageLabel}" ToolTip="{Binding LanguageAction}">
      <Button.Style><Style TargetType="Button" BasedOn="{StaticResource ThemeButtonStyle}"><Setter Property="Width" Value="106"/><Setter Property="Padding" Value="10,0"/></Style></Button.Style>
      <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight">
