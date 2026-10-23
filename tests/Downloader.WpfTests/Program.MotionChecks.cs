@@ -36,7 +36,7 @@ internal static partial class Program
                 var drawing = new DrawingVisual();
                 using (var canvas = drawing.RenderOpen())
                 {
-                    canvas.DrawRectangle((Brush)Application.Current.Resources["Page"], null, new Rect(0, 0, width + 48, height + 36));
+                    canvas.DrawRectangle((Brush)Application.Current.Resources[downloadButton ? "Page" : "Navigation"], null, new Rect(0, 0, width + 48, height + 36));
                     canvas.DrawRectangle(new VisualBrush(artwork), null, new Rect(24, 18, width, height));
                 }
                 var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)((width + 48) * renderScale), (int)((height + 36) * renderScale), 96 * renderScale, 96 * renderScale, PixelFormats.Pbgra32);
@@ -67,6 +67,9 @@ internal static partial class Program
     private static async Task CheckMotion(MainWindow window, MainViewModel model, FakeProvider provider, string captures)
     {
         var brand = window.HeaderContent.BrandButton;
+        var mark = window.HeaderContent.BrandMark;
+        var turn = window.HeaderContent.LogoScale;
+        var tilt = window.HeaderContent.LogoTilt;
         var light = (System.Windows.Shapes.Path)WpfTree.Find(brand, "LogoLight");
         var transition = window.ThemeTransition;
         bool previousDark = model.IsDark;
@@ -85,11 +88,33 @@ internal static partial class Program
                 await Task.Delay(400);
                 var original = brand.TransformToAncestor(window).TransformBounds(new Rect(brand.RenderSize));
                 brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
+                await Until(() => turn.ScaleY < -.5, "The V and arrow visibly flip together: " + language + "/" + dark);
+                Check(ReferenceEquals(VisualTreeHelper.GetParent(window.HeaderContent.BrandInitial), mark) && ReferenceEquals(VisualTreeHelper.GetParent(window.HeaderContent.BrandArrow), mark) &&
+                    light.Opacity == 0 && window.HeaderContent.BrandLetters.RenderTransform.Value.IsIdentity && !window.HeaderContent.BrandLetters.HasAnimatedProperties,
+                    "Both emblem parts share one turn while the letters stay still and the finishing shine waits");
+                brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
+                Check(turn.ScaleY < 0, "Repeated hover does not restart or stack a turn already in progress");
                 await Until(() => light.Opacity > 0, "The idle manager wordmark has a finite hover response: " + language + "/" + dark);
+                Check(turn.ScaleY == 1 && !turn.HasAnimatedProperties && !tilt.HasAnimatedProperties && mark.Opacity == 1 && light.Opacity <= .35,
+                    "The emblem settles exactly before the restrained shine begins");
                 Check(brand.TransformToAncestor(window).TransformBounds(new Rect(brand.RenderSize)) == original && provider.DownloadCalls == 0, "Brand motion never moves layout or starts downloads");
+                await Until(() => light.Opacity == 0 && !light.HasAnimatedProperties, "The one-shot finish ends and releases its animation clocks without pointer exit");
                 brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
                 await Until(() => light.Opacity == 0, "Pointer exit settles the manager wordmark");
             }
+            brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
+            await Until(() => turn.ScaleY < -.5, "A fresh hover can start another turn");
+            brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
+            Check(turn.ScaleY < 0, "Leaving during a turn lets the emblem finish instead of snapping upright");
+            await Until(() => !turn.HasAnimatedProperties && !light.HasAnimatedProperties && mark.RenderTransform.Value.IsIdentity, "An interrupted hover still settles into the exact resting logo");
+            brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
+            await Until(() => turn.ScaleY < -.5, "The motion preference fixture starts mid-flip");
+            MotionPreferences.SetTestOverride(false);
+            Check(!turn.HasAnimatedProperties && !tilt.HasAnimatedProperties && !mark.HasAnimatedProperties && mark.RenderTransform.Value.IsIdentity && light.Opacity == 0,
+                "Turning off animation mid-flip immediately restores the complete resting logo");
+            await Task.Delay(650);
+            Check(light.Opacity == 0 && !light.HasAnimatedProperties, "A cancelled turn cannot start a late shine");
+            MotionPreferences.SetTestOverride(true);
             model.LibraryFilterCommand.Execute("paused");
             model.LibrarySearch = "Previous queue search";
             model.NewDownloadCommand.Execute(null);

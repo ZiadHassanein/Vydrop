@@ -200,6 +200,8 @@ Native hover layers fade in over 130ms and out over 100ms with cubic ease-out. S
 
 Button visuals compress to .975 over 80ms on press and return over 140–150ms on release or invocation. The chamfered primary action has a restrained white hover layer. Media-detail reveals use 180ms and a 4-DIP vertical settle; theme change retains its 260ms circular reveal. Completed, interrupted and hidden animations release their clocks and transforms. Windows client-area animation settings and high contrast disable spatial/decorative motion and retain immediate, legible state feedback.
 
+The sidebar emblem plays a single coordinated 540ms horizontal-axis flip of the V and download arrow on hover or activation, with a 4-degree perspective hint and restrained back-face shading. The letters, layout and hit area stay still. A neutral, narrow 420ms highlight follows only after the emblem settles; its overlay opacity is capped at .32. Repeated hover/clicks do not stack or restart a running sequence. Pointer exit lets an in-flight turn finish; hidden, unloaded, disabled or reduced-motion states immediately restore the exact resting logo and cancel late highlights. The existing Download button shine keeps its own timing and palette.
+
 The header uses a fixed-width language button with the destination language in its own bundled font, the pinned Lucide Languages icon, and a localized action name. Click, Enter or Space switches directly between English and Arabic through the existing saved-language command; preserve its busy-operation guard. No language popup or chevron remains. Library uses the stacked-gallery symbol and video uses the clapperboard from the same pinned Lucide source; the theme symbol shares the 1.7-DIP outline weight.
 
 ## Shapes
