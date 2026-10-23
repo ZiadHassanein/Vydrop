@@ -9,10 +9,8 @@
      <Border x:Name="Face" CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
      <Border x:Name="HoverLayer" CornerRadius="8" Background="{DynamicResource Hover}" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True"/>
      <ContentPresenter local:InteractionMotion.Enabled="True" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
-     <Border x:Name="FocusRing" CornerRadius="8" BorderBrush="{DynamicResource Accent}" BorderThickness="2" Opacity="0" IsHitTestVisible="False"/>
     </Grid>
     <ControlTemplate.Triggers>
-     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="FocusRing" Property="Opacity" Value="1"/></Trigger>
      <Trigger Property="IsPressed" Value="True"><Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}"/><Setter TargetName="HoverLayer" Property="Visibility" Value="Hidden"/></Trigger>
      <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value=".55"/></Trigger>
     </ControlTemplate.Triggers>

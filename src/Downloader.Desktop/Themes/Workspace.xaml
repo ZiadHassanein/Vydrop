@@ -1,4 +1,13 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:YouTubeDownloader">
+ <Style x:Key="ButtonKeyboardFocus" TargetType="Control">
+  <Setter Property="Foreground" Value="{DynamicResource Ink}"/>
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Control">
+   <Border Height="2" VerticalAlignment="Bottom" Margin="6,0,6,-3" Background="{TemplateBinding Foreground}" IsHitTestVisible="False"/>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="NavigationKeyboardFocus" TargetType="Control" BasedOn="{StaticResource ButtonKeyboardFocus}">
+  <Setter Property="Foreground" Value="{DynamicResource NavigationInk}"/>
+ </Style>
  <Style x:Key="OutputFormatMenu" TargetType="ContextMenu">
   <Setter Property="MinWidth" Value="216"/><Setter Property="StaysOpen" Value="False"/><Setter Property="Placement" Value="Custom"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContextMenu"><Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="6"><ItemsPresenter/></Border></ControlTemplate></Setter.Value></Setter>

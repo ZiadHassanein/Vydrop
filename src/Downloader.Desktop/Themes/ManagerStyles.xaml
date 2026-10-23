@@ -38,13 +38,13 @@
     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
    </Grid></Grid>
    <ControlTemplate.Triggers>
-    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Face" Property="Stroke" Value="{DynamicResource Ink}"/><Setter TargetName="Face" Property="StrokeThickness" Value="2"/></Trigger>
     <Trigger Property="IsPressed" Value="True"><Setter Property="Opacity" Value=".85"/></Trigger>
     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value=".45"/></Trigger>
    </ControlTemplate.Triggers>
   </ControlTemplate></Setter.Value></Setter>
  </Style>
  <Style x:Key="LibraryNavigation" TargetType="ToggleButton">
+  <Setter Property="FocusVisualStyle" Value="{StaticResource NavigationKeyboardFocus}"/>
   <Setter Property="Foreground" Value="{DynamicResource NavigationInk}"/><Setter Property="Background" Value="Transparent"/>
   <Setter Property="FontSize" Value="14"/><Setter Property="MinHeight" Value="48"/><Setter Property="Padding" Value="14,10"/><Setter Property="Margin" Value="10,3"/>
   <Setter Property="Cursor" Value="Hand"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -57,12 +57,10 @@
      <Path x:Name="NavigationGlyph" Data="{TemplateBinding Tag}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource NavigationIcon}" Width="19" Height="19"/>
      <ContentPresenter Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"/>
     </Grid>
-    <Path x:Name="NavigationFocus" Data="M0,0 H240 V35 L227,48 H0 Z" Stretch="Fill" Stroke="Transparent" StrokeThickness="2" IsHitTestVisible="False"/>
    </Grid></Grid>
    <ControlTemplate.Triggers>
     <Trigger Property="IsChecked" Value="True"><Setter TargetName="NavigationGlyph" Property="Stroke" Value="{DynamicResource NavigationSelectedInk}"/><Setter Property="Foreground" Value="{DynamicResource NavigationSelectedInk}"/><Setter Property="FontWeight" Value="SemiBold"/></Trigger>
     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Face" Property="Stroke" Value="{DynamicResource NavigationMuted}"/></Trigger>
-    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="NavigationFocus" Property="Stroke" Value="{DynamicResource NavigationInk}"/></Trigger>
    </ControlTemplate.Triggers>
   </ControlTemplate></Setter.Value></Setter>
  </Style>

@@ -84,3 +84,5 @@ The desktop opens in a compact 1000 × 740 frame, constrained to the monitor wor
 Use the selected sidebar option A: small 19-pixel navigation icons with the eight navigation items distributed across the available window height. Keep the brand centered and preserve the Media and utility separators. Short windows scroll the navigation instead of shrinking hit areas or hiding Settings.
 
 Library and Queue filter tabs use only a selected underline. Keep label weight, padding, counters and click areas fixed on hover, press, focus and selection. Animate the underline's horizontal scale with a short smooth expansion; keyboard focus also uses an underline. Changing a media filter updates the existing Library view without sliding or fading the workspace. Reduced motion settles the underline immediately.
+
+Button clicks keep their ordinary appearance after release. Header, action and navigation buttons use a separate underline for keyboard focus, without leaving a focus outline behind after mouse activation or changing their border thickness and content position.

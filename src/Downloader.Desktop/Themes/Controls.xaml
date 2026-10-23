@@ -43,7 +43,7 @@
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="MinHeight" Value="44" />
     <Setter Property="Cursor" Value="Hand" />
-    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource ButtonKeyboardFocus}" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
@@ -57,10 +57,6 @@
             <Trigger Property="IsPressed" Value="True">
               <Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}" />
               <Setter TargetName="HoverLayer" Property="Visibility" Value="Hidden" />
-            </Trigger>
-            <Trigger Property="IsKeyboardFocused" Value="True">
-              <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}" />
-              <Setter TargetName="Face" Property="BorderThickness" Value="2" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Setter Property="Opacity" Value="0.55" />
@@ -89,10 +85,6 @@
           </Border></Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsPressed" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}"/></Trigger>
-            <Trigger Property="IsKeyboardFocused" Value="True">
-              <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}" />
-              <Setter TargetName="Face" Property="BorderThickness" Value="2" />
-            </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Setter Property="Opacity" Value="0.5" />
               <Setter Property="Cursor" Value="Arrow" />
