@@ -21,6 +21,14 @@ internal static partial class Program
                 "URL text and its link icon keep a predictable left-to-right field inside either app language");
             Check(window.Viewport.ScrollableWidth < 1 && form.LinkInput.IsVisible && !form.QualityInput.IsEnabled,
                 "Empty download workspace fits and waits for actual available qualities");
+            Check(Math.Abs(form.ActualWidth - window.Viewport.ViewportWidth) <= 1 &&
+                Math.Abs(form.FormContentPanel.ActualWidth + 48 - window.Viewport.ViewportWidth) <= 1,
+                "The download tab fills the center panel with consistent padding at every viewport width");
+            var linkBounds = form.LinkWell.TransformToAncestor(window.EditorSurface).TransformBounds(new Rect(form.LinkWell.RenderSize));
+            var headingBounds = window.EditorHeader.TransformToAncestor(window.EditorSurface).TransformBounds(new Rect(window.EditorHeader.RenderSize));
+            Check(Math.Abs(linkBounds.Left - headingBounds.Left) <= 1 && Math.Abs(linkBounds.Right - headingBounds.Right) <= 1 &&
+                !Descendants<Button>(window.EditorHeader).Any(),
+                "The tab heading aligns with the full-width form and has no modal close button");
             Check(form.DestinationPicker.IsVisible && Descendants<Button>(form).Count(button => button.Command == model.BrowseCommand) == 1,
                 "The redesigned workspace has one unambiguous folder picker");
             var primary = form.DownloadAction.DownloadButton;
@@ -36,6 +44,8 @@ internal static partial class Program
             await WaitFor(() => model.CanDownload, "Real fixture inspection enables downloading");
             await Task.Delay(80); window.UpdateLayout();
             Check(form.QualityInput.IsEnabled && window.MediaPreview.IsVisible, "Inspected media retains quality choices and its responsive preview");
+            Check(Math.Abs(form.ActualWidth - window.Viewport.ViewportWidth) <= 1,
+                "The form continues to fill its available width when the media inspector appears");
             CheckButtonHitAreas(window);
             Capture(window, System.IO.Path.Combine(captures, $"download-ready-{language}-{dark}-{width}.png"));
             model.Audio = true;

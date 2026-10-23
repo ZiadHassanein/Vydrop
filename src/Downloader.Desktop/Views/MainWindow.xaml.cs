@@ -139,7 +139,6 @@ public partial class MainWindow : Window
         EditorOverlay.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         ManagerContent.RefreshWorkspace();
         EditorHeading.Text = model.SettingsVisible ? model.SettingsLabel : model.AddDownloadLabel;
-        EditorHeader.MaxWidth = model.SettingsVisible ? double.PositiveInfinity : 712;
         EditorHeading.FlowDirection = model.ContentDirection;
         ApplyResponsiveLayout();
         if (opening) Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
@@ -149,7 +148,6 @@ public partial class MainWindow : Window
         });
         else if (!visible && editorReturnFocus != null) { Keyboard.Focus(editorReturnFocus); editorReturnFocus = null; }
     }
-    private void CloseEditorClicked(object sender, RoutedEventArgs e) => CloseEditor();
     private void CloseEditor()
     {
         model.SettingsVisible = false;

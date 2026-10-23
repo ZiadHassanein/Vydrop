@@ -20,7 +20,7 @@ internal static partial class Program
             Capture(window, Path.Combine(captures, $"add-empty-{language}-{dark}-{width}.png"));
             model.SettingsVisible = true; await Task.Delay(100); window.UpdateLayout();
             Check(window.ManagerContent.DetailsColumn.Width.Value == 0 && !window.ManagerContent.DetailsBorder.IsVisible, "Settings uses the available center width without an empty inspector");
-            Check(Descendants<TextBlock>(window.EditorOverlay).Count(text => text.IsVisible && text.Text == model.SettingsLabel) == 1 && Descendants<Button>(window.EditorOverlay).Count(button => button.IsVisible && System.Windows.Automation.AutomationProperties.GetName(button) == model.CloseLabel) == 1, "Settings has one workspace title and one Close action");
+            Check(Descendants<TextBlock>(window.EditorOverlay).Count(text => text.IsVisible && text.Text == model.SettingsLabel) == 1 && !Descendants<Button>(window.EditorHeader).Any(), "Settings has one workspace title and uses tab navigation without a modal Close action");
             Check(!Descendants<TextBlock>(window).Any(text => text.IsVisible && text.Text == versionText), "Settings also omits the version label");
             Capture(window, Path.Combine(captures, $"settings-{language}-{dark}-{width}.png"));
             model.SettingsVisible = false;

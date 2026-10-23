@@ -64,14 +64,14 @@ internal static partial class Program
             var navigationBounds = Bounds(navigation);
             bool alignedAction = model.IsArabic ? Math.Abs(action.Left - fields.Left) <= 1 : Math.Abs(action.Right - fields.Right) <= 1;
             bool separatedHeader = model.IsArabic ? utilities.Right <= brand.Left : brand.Right < utilities.Left;
-            Check(form.ActualWidth <= 761 && Math.Abs(download.ActualWidth - 240) <= 1 && alignedAction &&
+            Check(Math.Abs(form.ActualWidth - viewport.ViewportWidth) <= 1 && Math.Abs(download.ActualWidth - 240) <= 1 && alignedAction &&
                 anchors.All(name => { var bounds = Bounds((FrameworkElement)WpfTree.Find(window, name));
                     return bounds.Left >= fields.Left - 1 && bounds.Right <= fields.Right + 1; }) &&
                 ((FrameworkElement)WpfTree.Find(window, "LinkInput")).ActualWidth >= 200 &&
                 ((FrameworkElement)WpfTree.Find(window, "QualityInput")).ActualWidth >= 140 &&
                 separatedHeader && brand.Left >= navigationBounds.Left && brand.Right <= navigationBounds.Right &&
                 utilities.Left >= 0 && utilities.Right <= root.ActualWidth,
-                "The bounded form, trailing Download action and full header fit in " + state +
+                "The fluid form, trailing Download action and full header fit in " + state +
                 $" (form={formBounds}, action={action}, arabic={model.IsArabic}, brand={brand}, utilities={utilities}, root={root.RenderSize}, anchors={string.Join(';', anchors.Select(name => name + '=' + Bounds((FrameworkElement)WpfTree.Find(window, name))))})");
         }
 
