@@ -35,11 +35,11 @@ internal static partial class Program
                     $"Header controls occupy the outer edge in the correct physical order: {language}/{dark}/{width} (actions={actions}, language={languageButton}, theme={themeButton})");
                 var manager = window.ManagerContent;
                 var navigationButtons = Descendants<System.Windows.Controls.Primitives.ToggleButton>(navigation).ToArray();
-                Check(navigationButtons.Length == 8 && navigationButtons.All(button => button.Template.FindName("NavigationGlyph", button) is System.Windows.Shapes.Path { Width: 19, Height: 19 } && button.ActualHeight >= 48),
-                    "All eight navigation actions retain small icons and full-size click areas");
+                Check(navigationButtons.Length == 8 && navigationButtons.All(button => button.Template.FindName("NavigationGlyph", button) is System.Windows.Shapes.Path { Width: 19, Height: 19 } && Math.Abs(button.ActualHeight - 48) <= 1),
+                    "All eight navigation actions retain small icons and compact 48-pixel click areas");
                 Check(Math.Abs(manager.NavigationItems.ActualHeight - manager.NavigationViewport.ViewportHeight) <= 1 && manager.NavigationViewport.ScrollableHeight == 0 &&
                     manager.SettingsButton.TranslatePoint(new Point(0, manager.SettingsButton.ActualHeight), navigation).Y >= navigation.ActualHeight - 15,
-                    "Navigation fills the available window height with Settings at the bottom");
+                    "The sidebar keeps extra space before its utility actions with Settings at the bottom");
                 Capture(window, System.IO.Path.Combine(captures, $"logo-{language}-{dark}-{width}.png"));
             }
             window.Width = window.MinWidth; window.Height = window.MinHeight;
