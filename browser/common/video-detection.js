@@ -1,11 +1,19 @@
 globalThis.ViFreeVideoDetection = (() => {
   // Self-contained: Chrome/Firefox serialize this function into the active tab's isolated world.
   function inspectVideoPage(sourceHint = "", materializeLinks = false, selectedVideo = null, assetHint = "") {
-    let warmedLink = false, linkedInSourcePage = "";
+    let warmedLink = false, linkedInSourcePage = "", advertisement = false;
     function platform(value) {
       const host = new URL(value).hostname.toLowerCase();
-      return /(^|\.)tiktok\.com$/u.test(host) ? "tiktok" : /(^|\.)(facebook\.com|fb\.watch)$/u.test(host) ? "facebook" : /(^|\.)(youtube\.com|youtu\.be|youtube-nocookie\.com)$/u.test(host) ? "youtube" : /(^|\.)linkedin\.com$/u.test(host) ? "linkedin" : "";
+      if (/(^|\.)tiktok\.com$/u.test(host)) return "tiktok";
+      if (/(^|\.)(facebook\.com|fb\.watch)$/u.test(host)) return "facebook";
+      if (/(^|\.)(youtube\.com|youtu\.be|youtube-nocookie\.com)$/u.test(host)) return "youtube";
+      if (/(^|\.)linkedin\.com$/u.test(host)) return "linkedin";
+      if (/(^|\.)reddit\.com$/u.test(host) || host === "redd.it") return "reddit";
+      if (/(^|\.)twitch\.tv$/u.test(host)) return "twitch";
+      if (/(^|\.)dailymotion\.com$/u.test(host) || host === "dai.ly") return "dailymotion";
+      return "";
     }
+    const parent = node => node.parentElement || node.getRootNode?.()?.host;
     function publicUrl(value) {
       try {
         const url = new URL(value);
@@ -22,6 +30,20 @@ globalThis.ViFreeVideoDetection = (() => {
           return /^[\w-]{11}$/u.test(id ?? "") ? `https://www.youtube.com/watch?v=${id}` : "";
         }
         if (!platform(location.href)) return "";
+        if (platform(url.href) === "reddit") {
+          const post = url.hostname === "redd.it" ? url.pathname.match(/^\/([a-z0-9]{1,12})\/?$/iu)?.[1] : url.pathname.match(/^\/(?:r\/[^/]+\/)?comments\/([a-z0-9]{1,12})(?:\/|$)/iu)?.[1];
+          return post ? `https://www.reddit.com/comments/${post}/` : "";
+        }
+        if (platform(url.href) === "twitch") {
+          const clip = url.hostname === "clips.twitch.tv" ? url.pathname === "/embed" ? url.searchParams.get("clip") : url.pathname.match(/^\/([\w-]+)\/?$/u)?.[1] : url.pathname.match(/^\/\w+\/clip\/([\w-]+)\/?$/u)?.[1];
+          if (/^[\w-]+$/u.test(clip ?? "")) return `https://clips.twitch.tv/${clip}`;
+          const video = url.pathname.match(/^\/videos\/(\d+)\/?$/u)?.[1];
+          return video ? `https://www.twitch.tv/videos/${video}` : "";
+        }
+        if (platform(url.href) === "dailymotion") {
+          const video = url.hostname === "dai.ly" ? url.pathname.match(/^\/([a-z0-9]+)\/?$/iu)?.[1] : url.pathname.match(/^\/(?:embed\/)?video\/([a-z0-9]+)(?:_[^/]*)?\/?$/iu)?.[1] ?? url.searchParams.get("video");
+          return /^[a-z0-9]+$/iu.test(video ?? "") ? `https://www.dailymotion.com/video/${video}` : "";
+        }
         if (platform(url.href) === "linkedin") {
           const path = decodeURIComponent(url.pathname);
           const activity = path.match(/^\/feed\/update\/urn:li:activity:(\d{8,25})\/?$/u);
@@ -57,8 +79,8 @@ globalThis.ViFreeVideoDetection = (() => {
     function visible(video) {
       let box = video.getBoundingClientRect(), style = getComputedStyle(video);
       if (style.display === "none" || style.visibility === "hidden") return null;
-      for (let parent = video.parentElement, depth = 0; parent && parent !== document.body && depth < 40; parent = parent.parentElement, depth++) {
-        const paint = getComputedStyle(parent);
+      for (let ancestor = parent(video), depth = 0; ancestor && ancestor !== document.body && depth < 40; ancestor = parent(ancestor), depth++) {
+        const paint = getComputedStyle(ancestor);
         if (paint.display === "none" || paint.visibility === "hidden" || Number(paint.opacity) === 0) return null;
       }
       // TikTok can paint the active video through a visible sibling canvas while hiding the video element.
@@ -137,9 +159,14 @@ globalThis.ViFreeVideoDetection = (() => {
       const wrapped = permalink(video.closest("a[href]")?.href ?? "");
       if (wrapped) return wrapped;
       let scope = video, mediaId = "";
-      for (let level = 0; scope && scope !== document.body && level < 40; level++, scope = scope.parentElement) {
+      for (let level = 0; scope && scope !== document.body && level < 40; level++, scope = parent(scope)) {
         // Never borrow a permalink from a different visible feed item or a sidebar.
         if (visibleVideos.some(other => other !== video && scope.contains(other))) break;
+        if (platform(location.href) === "reddit") {
+          if (scope.getAttribute("post-promoted") !== null) { advertisement = true; return ""; }
+          const post = scope.getAttribute("post-id")?.match(/^t3_([a-z0-9]{1,12})$/iu)?.[1];
+          if (post) return `https://www.reddit.com/comments/${post}/`;
+        }
         if (platform(location.href) === "linkedin") {
           const activity = [scope.getAttribute("data-urn"), scope.getAttribute("data-id")]
             .map(value => value?.match(/^urn:li:activity:(\d{8,25})$/u)).find(Boolean);
@@ -184,7 +211,7 @@ globalThis.ViFreeVideoDetection = (() => {
             timestamps[0].dispatchEvent(new MouseEvent("mouseenter"));
           }
         }
-        if (scope.matches('article,[role="article"],[role="dialog"],[data-e2e="feed-item"],[data-e2e="recommend-list-item-container"],[data-pagelet^="FeedUnit"],ytd-rich-item-renderer,ytd-video-renderer,ytd-reel-video-renderer,yt-lockup-view-model') ||
+        if (scope.matches('article,[role="article"],[role="dialog"],[data-e2e="feed-item"],[data-e2e="recommend-list-item-container"],[data-pagelet^="FeedUnit"],ytd-rich-item-renderer,ytd-video-renderer,ytd-reel-video-renderer,yt-lockup-view-model,shreddit-post') ||
           platform(location.href) === "linkedin" && scope.matches('[role="listitem"],.feed-shared-update-v2,[data-urn^="urn:li:activity:"],[data-id^="urn:li:activity:"],[data-urn^="urn:li:ugcPost:"],[data-urn^="urn:li:groupPost:"],[data-urn^="urn:li:share:"]') ||
           platform(location.href) === "facebook" && scope.querySelectorAll('h2,h3,h4,[role="heading"]').length) break;
       }
@@ -195,7 +222,8 @@ globalThis.ViFreeVideoDetection = (() => {
       const url = linkedInMedia(null, assetHint);
       return { url, reason: url ? "source" : "missing-link" };
     }
-    const allVideos = Array.from(document.querySelectorAll("video")).slice(0, 100);
+    const roots = [document, ...Array.from(document.querySelectorAll("shreddit-player")).filter(player => player.getAttribute("comment-id") === null).slice(0, 100).map(player => player.shadowRoot).filter(Boolean)];
+    const allVideos = roots.flatMap(root => Array.from(root.querySelectorAll("video")).slice(0, 100)).slice(0, 100);
     const videos = allVideos.map(visible).filter(Boolean).sort((a, b) => b.score - a.score);
     const hinted = selectedVideo ? videos.find(item => item.video === selectedVideo) : sourceHint && videos.find(item => item.video.currentSrc === sourceHint || item.video.src === sourceHint);
     if ((selectedVideo || sourceHint) && !hinted) return { url: "", reason: "no-video" };
@@ -205,6 +233,7 @@ globalThis.ViFreeVideoDetection = (() => {
       const media = linkedInMedia(ranked[0].video);
       if (media) return { url: media, reason: "source", sourcePage: localLink(ranked[0].video, videos.map(item => item.video)) || permalink(location.href) };
       const local = localLink(ranked[0].video, videos.map(item => item.video));
+      if (advertisement) return { url: "", reason: "advertisement" };
       if (local) {
         const asset = platform(location.href) === "linkedin" && !ranked[0].video.mediaKeys && linkedInAsset(ranked[0].video);
         return asset ? { url: local, reason: "player", linkedinAsset: asset, sourcePage: linkedInSourcePage || local } : { url: local, reason: "player" };
@@ -217,6 +246,8 @@ globalThis.ViFreeVideoDetection = (() => {
         if (wrapped && wrapped !== publicUrl(location.href) && new URL(wrapped).pathname !== "/") return { url: wrapped, reason: "player" };
         if (allVideos.length === 1) return { url: publicUrl(location.href), reason: "page" };
       }
+      if (platform(location.href) === "dailymotion" && location.hostname === "geo.dailymotion.com" && /^\/player\/[\w-]+\.html$/u.test(new URL(location.href).pathname) && !permalink(location.href))
+        return { url: publicUrl(location.href), reason: "frame" };
     }
     const current = permalink(location.href);
     if (current) return { url: current, reason: "page" };
@@ -233,10 +264,31 @@ globalThis.ViFreeVideoDetection = (() => {
   }
 
   function socialPlatform(value) {
-    try { const host = new URL(value).hostname; return /(^|\.)tiktok\.com$/u.test(host) ? "tiktok" : /(^|\.)(facebook\.com|fb\.watch)$/u.test(host) ? "facebook" : /(^|\.)linkedin\.com$/u.test(host) ? "linkedin" : ""; }
+    try {
+      const host = new URL(value).hostname.toLowerCase();
+      if (/(^|\.)tiktok\.com$/u.test(host)) return "tiktok";
+      if (/(^|\.)(facebook\.com|fb\.watch)$/u.test(host)) return "facebook";
+      if (/(^|\.)linkedin\.com$/u.test(host)) return "linkedin";
+      if (/(^|\.)reddit\.com$/u.test(host) || host === "redd.it") return "reddit";
+      if (/(^|\.)twitch\.tv$/u.test(host)) return "twitch";
+      if (/(^|\.)dailymotion\.com$/u.test(host) || host === "dai.ly") return "dailymotion";
+      return "";
+    }
     catch { return ""; }
   }
   async function resolveSource(found) {
+    // Dailymotion configures its cross-origin player through messages; its
+    // frame URL may contain only a player ID. The browser supplies the actual
+    // containing tab URL, which must be a matching public Dailymotion video.
+    try {
+      const frame = new URL(found.frameUrl), tab = new URL(found.tabUrl);
+      if (found.url === frame.href && frame.protocol === "https:" && frame.hostname === "geo.dailymotion.com" &&
+        !frame.username && !frame.password && !frame.port && /^\/player\/[\w-]+\.html$/u.test(frame.pathname) &&
+        tab.protocol === "https:" && /(^|\.)dailymotion\.com$/u.test(tab.hostname) && !tab.username && !tab.password && !tab.port) {
+        const video = tab.pathname.match(/^\/video\/([a-z0-9]+)(?:_[^/]*)?\/?$/iu)?.[1];
+        if (video) return `https://www.dailymotion.com/video/${video}`;
+      }
+    } catch { /* Other sites continue through ordinary source resolution. */ }
     if (!found?.linkedinAsset || !found.sourcePage) return found?.url ?? "";
     let post, page;
     try { post = new URL(found.url); page = new URL(found.sourcePage); } catch { return found.url; }

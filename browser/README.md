@@ -1,6 +1,8 @@
 # Vydrop browser companion
 
-## Companion 1.5.0
+## Companion 1.5.1
+
+Companion 1.5.1 fixes detection of Reddit's open-shadow players and preserves Twitch clip and Dailymotion watch-page links. Twitch clips with missing stream metadata also need the updated desktop build. Reload the existing unpacked extension and refresh video tabs after replacing its files. Extension IDs, permissions and the version-1 native-host fallback are unchanged.
 
 The Windows installer registers the native connection automatically for the current user. New installer builds offer your detected browsers during installation; choose one and leave **Open Vydrop** selected to continue directly into that browser's extension setup. **Set up later** keeps installation independent of the extension. Upgrades default to leaving an existing setup alone. The installed native connection is reused rather than rewritten by the app. When official store listings are configured, **Settings → Browser integration → Add to Chrome/Edge/Firefox** opens the selected store; approve the browser confirmation and use **Test connection**. Developer mode and folder selection are only needed for the local development companion. Store listings are not published yet. Preview builds retain a separate connection and use the local preview companion.
 

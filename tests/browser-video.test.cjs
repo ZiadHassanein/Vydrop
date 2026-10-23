@@ -19,6 +19,7 @@ class Element {
   }
   get href() { return this.attrs.href; }
   getAttribute(name) { return this.attrs[name] ?? null; }
+  getRootNode() { let node = this; while (node.parentElement) node = node.parentElement; return node.rootNode ?? node; }
   dispatchEvent(event) { this.attrs.onEvent?.(event, this); return true; }
   getBoundingClientRect() { return { ...this.box, right: this.box.left + this.box.width, bottom: this.box.top + this.box.height }; }
   contains(node) { return this === node || this.children.some(child => child.contains(node)); }
@@ -34,13 +35,85 @@ const el = (tag, attrs, ...children) => new Element(tag, attrs, children);
 const link = href => el('a', { href });
 function fixture(url, ...children) {
   const body = el('body', {}, ...children);
-  const context = vm.createContext({ URL, setTimeout, MouseEvent: class { constructor(type) { this.type = type; } }, location: { href: url }, document: { body, querySelectorAll: selector => body.querySelectorAll(selector) }, getComputedStyle: node => node.style, innerWidth: 1200, innerHeight: 800 });
+  const context = vm.createContext({ URL, setTimeout, MouseEvent: class { constructor(type) { this.type = type; } }, location: { href: url, hostname: new URL(url).hostname }, document: { body, querySelectorAll: selector => body.querySelectorAll(selector) }, getComputedStyle: node => node.style, innerWidth: 1200, innerHeight: 800 });
   vm.runInContext(scripts('video-detection.js'), context);
   return { context, body, detect: (hint, warm) => context.ViFreeVideoDetection.inspectVideoPage(hint, warm) };
 }
 const tiktok = (id, author, attrs = {}) => el('article', { 'data-e2e': 'recommend-list-item-container' },
   el('section', { 'data-e2e': 'feed-video' }, el('div', { id: `xgwrapper-0-${id}` }, el('video', attrs)), link(`https://www.tiktok.com/@${author}`)));
 const facebook = (id, attrs = {}) => el('article', { role: 'article' }, el('div', {}, el('video', attrs)), link(`https://www.facebook.com/watch/?v=${id}&tracking=discard`));
+function reddit(id, attrs = {}) {
+  const player = el('shreddit-player', { 'post-id': `t3_${id}`, ...attrs });
+  const child = el('div', {}, el('video'));
+  const shadow = el('shadow-root', {}, child);
+  shadow.host = player; child.parentElement = null; child.rootNode = shadow;
+  player.shadowRoot = shadow;
+  return player;
+}
+
+test('Reddit selects the post behind its open shadow player rather than a video-only CDN URL', () => {
+  assert.equal(fixture('https://www.reddit.com/r/videos/', reddit('abc123')).detect().url, 'https://www.reddit.com/comments/abc123/');
+});
+
+test('Reddit follows the explicitly selected player without borrowing another feed post', () => {
+  const one = reddit('abc123'), two = reddit('def456');
+  const { context } = fixture('https://www.reddit.com/', one, two);
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, two.shadowRoot.querySelectorAll('video')[0]).url, 'https://www.reddit.com/comments/def456/');
+});
+
+test('Reddit shadow players respect hidden host ancestors and avoid ads', () => {
+  const hidden = reddit('abc123'); hidden.style.visibility = 'hidden';
+  assert.equal(fixture('https://www.reddit.com/', hidden).detect().url, '');
+  const ad = reddit('def456', { 'post-promoted': '' });
+  assert.equal(fixture('https://www.reddit.com/comments/abc123/', ad).detect().reason, 'advertisement');
+  const comment = reddit('abc123', { 'comment-id': 't1_example' });
+  const { context } = fixture('https://www.reddit.com/comments/abc123/', comment);
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, comment.shadowRoot.querySelectorAll('video')[0]).url, '', 'a comment GIF cannot resolve to the main post video');
+});
+
+test('Dailymotion format lookup follows navigation even when its frame URL stays the same', async () => {
+  let handler;
+  const inspected = [];
+  const api = { runtime: { id: 'fixture', getManifest: () => ({ name: 'Vydrop' }), onMessage: { addListener: fn => { handler = fn; } }, onInstalled: { addListener: () => {} } }, contextMenus: { onClicked: { addListener: () => {} } } };
+  const context = vm.createContext({ browser: api, URL });
+  for (const file of ['connection.js', 'video-detection.js']) vm.runInContext(scripts(file), context);
+  context.ViFreeConnection.inspectLink = async url => { inspected.push(url); return { title: url, videos: [], audio: [] }; };
+  vm.runInContext(scripts('background.js'), context);
+  const frameUrl = 'https://geo.dailymotion.com/player/xtv3w.html?';
+  for (const id of ['x9wfwwa', 'x9vnf46']) {
+    const sender = { id: 'fixture', frameId: 2, url: frameUrl, tab: { id: 42, url: `https://www.dailymotion.com/video/${id}` } };
+    const response = await new Promise(resolve => handler({ version: 1, type: 'vydrop-inspect-video', url: frameUrl, tabUrl: 'https://evil.example/' }, sender, resolve));
+    assert.equal(response.url, `https://www.dailymotion.com/video/${id}`);
+    assert.equal(response.ok, true);
+  }
+  assert.deepEqual(inspected, ['https://www.dailymotion.com/video/x9wfwwa', 'https://www.dailymotion.com/video/x9vnf46']);
+});
+
+test('Reddit canonical links drop tracking and never mistake a homepage for a post', () => {
+  assert.equal(fixture('https://www.reddit.com/r/videos/comments/abc123/example/?tracking=discard').detect().url, 'https://www.reddit.com/comments/abc123/');
+  assert.equal(fixture('https://redd.it/abc123').detect().url, 'https://www.reddit.com/comments/abc123/');
+  assert.equal(fixture('https://www.reddit.com/r/videos/').detect().url, '');
+});
+
+test('Twitch keeps the public clip permalink instead of the currently playing rendition', () => {
+  assert.equal(fixture('https://www.twitch.tv/nasa/clip/ExampleClip-123?tracking=discard', el('video', { src: 'https://cdn.cloudfront.net/landscape/hevc/480/index.mp4' })).detect().url, 'https://clips.twitch.tv/ExampleClip-123');
+  assert.equal(fixture('https://clips.twitch.tv/embed?clip=ExampleClip-123').detect().url, 'https://clips.twitch.tv/ExampleClip-123');
+  assert.equal(fixture('https://www.twitch.tv/nasa', el('video')).detect().url, '');
+});
+
+test('Dailymotion normalizes watch and embedded video links', () => {
+  assert.equal(fixture('https://www.dailymotion.com/video/x9wfwwa_title?tracking=discard').detect().url, 'https://www.dailymotion.com/video/x9wfwwa');
+  assert.equal(fixture('https://geo.dailymotion.com/player/xtv3w.html?video=x9wfwwa', el('video')).detect().url, 'https://www.dailymotion.com/video/x9wfwwa');
+});
+
+test('Dailymotion player-only frames use the browser-supplied containing video page', async () => {
+  const frameUrl = 'https://geo.dailymotion.com/player/xtv3w.html?';
+  const { context, detect } = fixture(frameUrl, el('video'));
+  assert.equal(detect().reason, 'frame');
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: frameUrl, frameUrl, tabUrl: 'https://www.dailymotion.com/video/x9wfwwa?tracking=discard' }), 'https://www.dailymotion.com/video/x9wfwwa');
+  for (const tabUrl of ['https://evil.example/video/x9wfwwa', 'http://www.dailymotion.com/video/x9wfwwa', 'https://user:secret@www.dailymotion.com/video/x9wfwwa', 'https://www.dailymotion.com:8443/video/x9wfwwa', 'https://www.dailymotion.com/'])
+    assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: frameUrl, frameUrl, tabUrl }), frameUrl);
+});
 
 test('TikTok current feed wrapper identifies the playing video behind a blob URL', () => {
   const { detect } = fixture('https://www.tiktok.com/en/', tiktok('7000000000000000001', 'playing'), tiktok('7000000000000000002', 'paused', { paused: true }));

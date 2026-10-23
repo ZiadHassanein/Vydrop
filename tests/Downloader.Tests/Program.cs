@@ -6,6 +6,8 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 1 && args[0] == "--twitch-clips") { TwitchClipChecks.Run(); return 0; }
+            if (args.Length == 2 && args[0] == "--twitch-clips-live") return await TwitchClipChecks.Live(args[1]);
             if (args.Length == 1 && args[0] == "--browser-stores") { BrowserStoreChecks.Run(); BrowserRegistrationChecks.Run(); return 0; }
             if (args.Length == 1 && args[0] == "--queue-concurrency") { await QueueConcurrencyChecks.Run(); return 0; }
             if (args.Length == 1 && args[0] == "--queue-resume-progress") { await QueueResumeProgressChecks.Run(); return 0; }
@@ -31,6 +33,7 @@ internal static class Program
             await DownloadImprovementChecks.Run();
             await WorkflowChecks.Run(args[0]);
             OutputProfileChecks.Run(args[0]);
+            TwitchClipChecks.Run();
             await AutomaticToolChecks.Run(args[0]);
             await ReviewRegressionChecks.Run(args[0]);
             BrowserRegistrationChecks.Run();

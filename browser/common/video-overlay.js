@@ -74,6 +74,24 @@
 
   let currentVideo = null, pendingVideo = null, busy = false, scheduled = false, feedbackTimer;
   const playing = video => video?.isConnected && !video.paused && !video.ended && video.readyState >= 2;
+  const parent = node => node.parentElement || node.getRootNode?.()?.host;
+  const mediaEvents = ["play", "playing", "loadeddata", "canplay", "pause", "ended", "loadedmetadata", "emptied"];
+  const watchedRoots = new Map();
+  function videosInPage() {
+    const roots = new Set(Array.from(document.querySelectorAll("shreddit-player")).filter(player => player.getAttribute("comment-id") === null).slice(0, 100).map(player => player.shadowRoot).filter(Boolean));
+    for (const [root, observer] of watchedRoots) if (!roots.has(root)) {
+      observer.disconnect();
+      for (const event of mediaEvents) root.removeEventListener(event, schedule, true);
+      watchedRoots.delete(root);
+    }
+    for (const root of roots) if (!watchedRoots.has(root)) {
+      const observer = new MutationObserver(schedule);
+      observer.observe(root, { childList: true, subtree: true });
+      for (const event of mediaEvents) root.addEventListener(event, schedule, true);
+      watchedRoots.set(root, observer);
+    }
+    return [document, ...roots].flatMap(root => Array.from(root.querySelectorAll("video")).slice(0, 100)).slice(0, 100);
+  }
   function bounds(video) {
     const r = video.getBoundingClientRect();
     if (r.width < 80 || r.height < 60 || r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) return null;
@@ -88,7 +106,7 @@
       if (!canvas) return null;
       visual = canvas.getBoundingClientRect();
     }
-    for (let p = video.parentElement, depth = 0; p && p !== document.body && depth < 40; p = p.parentElement, depth++) {
+    for (let p = parent(video), depth = 0; p && p !== document.body && depth < 40; p = parent(p), depth++) {
       const s = getComputedStyle(p);
       if (s.display === "none" || s.visibility === "hidden" || Number(s.opacity) === 0) return null;
     }
@@ -99,7 +117,7 @@
     if (document.hidden || document.pictureInPictureElement) { host.style.setProperty("display", "none", "important"); return; }
     let video = busy && playing(pendingVideo) ? pendingVideo : null;
     if (!video) {
-      const candidates = Array.from(document.querySelectorAll("video")).slice(0, 100).filter(v => !v.paused && !v.ended && v.readyState >= 2)
+      const candidates = videosInPage().filter(v => !v.paused && !v.ended && v.readyState >= 2)
         .map(video => ({ video, rect: bounds(video) })).filter(v => v.rect)
         .sort((a, b) => visibleArea(b.rect) - visibleArea(a.rect));
       video = candidates[0]?.video;
@@ -201,10 +219,11 @@
     if (records.some(record => record.target !== host && !host.contains(record.target))) schedule();
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
-  for (const event of ["play", "playing", "loadeddata", "canplay", "pause", "ended", "loadedmetadata", "emptied", "fullscreenchange", "visibilitychange"])
+  for (const event of [...mediaEvents, "fullscreenchange", "visibilitychange"])
     document.addEventListener(event, schedule, true);
   addEventListener("scroll", schedule, { passive: true, capture: true });
   addEventListener("resize", schedule, { passive: true });
   button.addEventListener("blur", schedule);
+  if (typeof customElements !== "undefined") void customElements.whenDefined("shreddit-player").then(schedule);
   schedule();
 })();

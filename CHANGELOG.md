@@ -4,6 +4,11 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+### Fixed
+- Detect Reddit's open shadow-root players, keep the selected post's permalink, and avoid promoting comment GIFs or advertisements to the main video.
+- Keep Twitch clip permalinks and measure missing stream metadata so video and audio formats remain available.
+- Resolve Dailymotion player-only frames to the containing video page, including after navigation reuses the same frame URL.
+
 ## [4.4.2] - 2026-10-23
 
 ### Fixed

@@ -7,11 +7,11 @@ const text = arabic
   : { link: `Open link in ${name}`, video: `Open video in ${name}` };
 const resolvedSources = new Map();
 async function resolveOnce(message, sender) {
-  const key = `${sender.tab.id}:${sender.frameId}:${message.url}:${message.linkedinAsset || ""}:${message.sourcePage || ""}`;
+  const key = `${sender.tab.id}:${sender.frameId}:${sender.tab.url || ""}:${message.url}:${message.linkedinAsset || ""}:${message.sourcePage || ""}`;
   const cached = resolvedSources.get(key);
   if (cached && Date.now() - cached.time < 30000) return cached.promise;
   if (resolvedSources.size >= 8) resolvedSources.delete(resolvedSources.keys().next().value);
-  const entry = { time: Date.now(), promise: globalThis.ViFreeVideoDetection.resolveSource({ url: message.url, linkedinAsset: message.linkedinAsset, sourcePage: message.sourcePage }) };
+  const entry = { time: Date.now(), promise: globalThis.ViFreeVideoDetection.resolveSource({ url: message.url, linkedinAsset: message.linkedinAsset, sourcePage: message.sourcePage, frameUrl: sender.url, tabUrl: sender.tab.url }) };
   resolvedSources.set(key, entry);
   try { return await entry.promise; } catch (error) { resolvedSources.delete(key); throw error; }
 }

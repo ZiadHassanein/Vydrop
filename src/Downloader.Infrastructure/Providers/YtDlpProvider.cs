@@ -135,7 +135,7 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
             return new VideoInfo { Title = Value(data, "title"), Collection = PlaylistMetadata.Read(url, data) };
         if (DirectMediaMetadata.NeedsProbe(data, url))
             DirectMediaMetadata.Apply(data, ProbeMedia(url, token));
-        foreach (var format in LinkedInMediaMetadata.ProbeFormats(data, url))
+        foreach (var format in LinkedInMediaMetadata.ProbeFormats(data, url).Concat(TwitchClipMetadata.ProbeFormats(data, url)))
             DirectMediaMetadata.ApplyFormat(data, format, ProbeMedia(Value(format, "url"), token));
         var info = new VideoInfo
         {
