@@ -43,26 +43,19 @@
  <Border x:Name="HeaderFrame" Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="0" Padding="14,7,18,7">
   <Grid>
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Click="LogoClicked" MouseEnter="LogoHovered" MouseLeave="LogoLeft" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="{Binding NewDownloadLabel}">
+   <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Click="LogoClicked" MouseEnter="LogoHovered" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="{Binding NewDownloadLabel}">
     <Grid x:Name="BrandArtwork" Width="128" Height="38">
      <Viewbox x:Name="BrandWordmark" Width="128" Height="38" Stretch="Uniform" VerticalAlignment="Center" FlowDirection="LeftToRight" AutomationProperties.Name="Vydrop">
       <Canvas Width="966" Height="284">
        <Canvas x:Name="BrandMark" Width="251" Height="269" IsHitTestVisible="False">
-        <Canvas.RenderTransform><TransformGroup><ScaleTransform x:Name="LogoScale" CenterX="125.5" CenterY="134.5"/><SkewTransform x:Name="LogoTilt" CenterX="125.5" CenterY="134.5"/></TransformGroup></Canvas.RenderTransform>
-        <Path x:Name="BrandInitial" Data="{StaticResource BrandInitialGeometry}" Fill="{StaticResource BrandFill}"/>
-        <Path x:Name="BrandArrow" Data="{StaticResource BrandArrowGeometry}" Fill="White"/>
+        <Path x:Name="BrandInitial" Data="{StaticResource BrandInitialGeometry}" Fill="{StaticResource BrandFill}">
+         <Path.RenderTransform><TransformGroup><ScaleTransform x:Name="LogoScale" CenterX="125.5" CenterY="134.5"/><RotateTransform x:Name="LogoTurn" CenterX="125.5" CenterY="134.5"/></TransformGroup></Path.RenderTransform>
+        </Path>
+        <Path x:Name="BrandArrow" Data="{StaticResource BrandArrowGeometry}" Fill="White">
+         <Path.RenderTransform><TransformGroup><ScaleTransform x:Name="ArrowScale" CenterX="125.5" CenterY="120"/><RotateTransform x:Name="ArrowTurn" CenterX="125.5" CenterY="120"/><TranslateTransform x:Name="ArrowOffset"/></TransformGroup></Path.RenderTransform>
+        </Path>
        </Canvas>
        <Path x:Name="BrandLetters" Data="{StaticResource BrandLettersGeometry}" Fill="{DynamicResource NavigationInk}"/>
-       <Path x:Name="LogoLight" IsHitTestVisible="False" Opacity="0">
-       <Path.Fill><LinearGradientBrush StartPoint="0,0" EndPoint="1,0.25">
-        <GradientStop Color="#00FFFFFF" Offset="0.36"/><GradientStop Color="#30FFFFFF" Offset="0.46"/><GradientStop Color="#A0FFFFFF" Offset="0.5"/><GradientStop Color="#30FFFFFF" Offset="0.54"/><GradientStop Color="#00FFFFFF" Offset="0.64"/>
-        <LinearGradientBrush.RelativeTransform><TranslateTransform X="-0.72"/></LinearGradientBrush.RelativeTransform>
-       </LinearGradientBrush></Path.Fill>
-       <Path.Data><GeometryGroup><GeometryGroup.Children><GeometryCollection>
-        <GeometryGroup Transform="{Binding RenderTransform,ElementName=BrandMark}"><GeometryGroup.Children><GeometryCollection><StaticResource ResourceKey="BrandInitialGeometry"/><StaticResource ResourceKey="BrandArrowGeometry"/></GeometryCollection></GeometryGroup.Children></GeometryGroup>
-        <StaticResource ResourceKey="BrandLettersGeometry"/>
-       </GeometryCollection></GeometryGroup.Children></GeometryGroup></Path.Data>
-       </Path>
       </Canvas>
      </Viewbox>
     </Grid>

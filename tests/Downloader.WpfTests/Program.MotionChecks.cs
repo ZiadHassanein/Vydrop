@@ -68,9 +68,12 @@ internal static partial class Program
     {
         var brand = window.HeaderContent.BrandButton;
         var mark = window.HeaderContent.BrandMark;
-        var turn = window.HeaderContent.LogoScale;
-        var tilt = window.HeaderContent.LogoTilt;
-        var light = (System.Windows.Shapes.Path)WpfTree.Find(brand, "LogoLight");
+        var turn = window.HeaderContent.LogoTurn;
+        var counterTurn = window.HeaderContent.ArrowTurn;
+        var offset = window.HeaderContent.ArrowOffset;
+        bool IsSettled() => !turn.HasAnimatedProperties && !counterTurn.HasAnimatedProperties && !offset.HasAnimatedProperties &&
+            !window.HeaderContent.LogoScale.HasAnimatedProperties && !window.HeaderContent.ArrowScale.HasAnimatedProperties &&
+            window.HeaderContent.BrandInitial.RenderTransform.Value.IsIdentity && window.HeaderContent.BrandArrow.RenderTransform.Value.IsIdentity;
         var transition = window.ThemeTransition;
         bool previousDark = model.IsDark;
         async Task Until(Func<bool> ready, string label)
@@ -88,32 +91,37 @@ internal static partial class Program
                 await Task.Delay(400);
                 var original = brand.TransformToAncestor(window).TransformBounds(new Rect(brand.RenderSize));
                 brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
-                await Until(() => turn.ScaleY < -.5, "The V and arrow visibly flip together: " + language + "/" + dark);
+                await Until(() => turn.Angle > 65 && turn.Angle < 240, "The V and arrow turn together in opposite directions: " + language + "/" + dark);
                 Check(ReferenceEquals(VisualTreeHelper.GetParent(window.HeaderContent.BrandInitial), mark) && ReferenceEquals(VisualTreeHelper.GetParent(window.HeaderContent.BrandArrow), mark) &&
-                    light.Opacity == 0 && window.HeaderContent.BrandLetters.RenderTransform.Value.IsIdentity && !window.HeaderContent.BrandLetters.HasAnimatedProperties,
-                    "Both emblem parts share one turn while the letters stay still and the finishing shine waits");
+                    counterTurn.Angle < 0 && Math.Abs(turn.Angle + counterTurn.Angle) <= 5 && offset.Y == 0 &&
+                    window.HeaderContent.BrandLetters.RenderTransform.Value.IsIdentity && !window.HeaderContent.BrandLetters.HasAnimatedProperties && brand.FindName("LogoLight") == null,
+                    "The arrow counter-rotates in sync with the V, the letters stay still, and the logo has no shine layer");
                 brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
-                Check(turn.ScaleY < 0, "Repeated hover does not restart or stack a turn already in progress");
-                await Until(() => light.Opacity > 0, "The idle manager wordmark has a finite hover response: " + language + "/" + dark);
-                Check(turn.ScaleY == 1 && !turn.HasAnimatedProperties && !tilt.HasAnimatedProperties && mark.Opacity == 1 && light.Opacity <= .35,
-                    "The emblem settles exactly before the restrained shine begins");
+                Check(turn.Angle > 60, "Repeated hover does not restart or stack a turn already in progress");
+                await Until(() => offset.Y > 20, "A visible downward arrow bounce finishes the turn: " + language + "/" + dark);
+                Check(turn.Angle == 0 && counterTurn.Angle == 0 && !turn.HasAnimatedProperties && !counterTurn.HasAnimatedProperties && window.HeaderContent.LogoScale.ScaleX == 1,
+                    "Both turns finish upright before the arrow bounce begins");
                 Check(brand.TransformToAncestor(window).TransformBounds(new Rect(brand.RenderSize)) == original && provider.DownloadCalls == 0, "Brand motion never moves layout or starts downloads");
-                await Until(() => light.Opacity == 0 && !light.HasAnimatedProperties, "The one-shot finish ends and releases its animation clocks without pointer exit");
+                await Until(IsSettled, "The one-shot bounce ends at the exact resting logo and releases every animation clock without pointer exit");
                 brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
-                await Until(() => light.Opacity == 0, "Pointer exit settles the manager wordmark");
+                Check(IsSettled(), "Pointer exit leaves the manager wordmark at rest");
             }
             brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
-            await Until(() => turn.ScaleY < -.5, "A fresh hover can start another turn");
+            await Until(() => turn.Angle > 65 && turn.Angle < 240, "A fresh hover can start another turn");
             brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
-            Check(turn.ScaleY < 0, "Leaving during a turn lets the emblem finish instead of snapping upright");
-            await Until(() => !turn.HasAnimatedProperties && !light.HasAnimatedProperties && mark.RenderTransform.Value.IsIdentity, "An interrupted hover still settles into the exact resting logo");
+            Check(turn.Angle > 60, "Leaving during a turn lets the emblem finish instead of snapping upright");
+            await Until(IsSettled, "An interrupted hover still settles into the exact resting logo");
             brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
-            await Until(() => turn.ScaleY < -.5, "The motion preference fixture starts mid-flip");
+            await Until(() => turn.Angle > 65 && turn.Angle < 240, "The motion preference fixture starts mid-turn");
             MotionPreferences.SetTestOverride(false);
-            Check(!turn.HasAnimatedProperties && !tilt.HasAnimatedProperties && !mark.HasAnimatedProperties && mark.RenderTransform.Value.IsIdentity && light.Opacity == 0,
-                "Turning off animation mid-flip immediately restores the complete resting logo");
+            Check(IsSettled(), "Turning off animation mid-turn immediately restores the complete resting logo");
             await Task.Delay(650);
-            Check(light.Opacity == 0 && !light.HasAnimatedProperties, "A cancelled turn cannot start a late shine");
+            Check(IsSettled(), "A cancelled turn cannot start a late arrow bounce");
+            MotionPreferences.SetTestOverride(true);
+            brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
+            await Until(() => offset.Y > 20, "The second preference fixture starts during the finishing bounce");
+            MotionPreferences.SetTestOverride(false);
+            Check(IsSettled(), "Turning off animation mid-bounce immediately restores the arrow");
             MotionPreferences.SetTestOverride(true);
             model.LibraryFilterCommand.Execute("paused");
             model.LibrarySearch = "Previous queue search";
@@ -142,7 +150,7 @@ internal static partial class Program
             MotionPreferences.SetTestOverride(false);
             brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
             await Task.Delay(80);
-            Check(light.Opacity == 0, "Reduced motion suppresses decorative brand animation");
+            Check(IsSettled(), "Reduced motion suppresses decorative brand animation");
             model.ThemeCommand.Execute(null);
             Check(!transition.IsTransitioning, "Reduced motion applies theme changes immediately");
         }
