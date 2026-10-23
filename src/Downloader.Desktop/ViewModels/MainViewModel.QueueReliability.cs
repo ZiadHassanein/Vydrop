@@ -17,6 +17,24 @@ public sealed partial class MainViewModel
     public IReadOnlyList<KeyValuePair<int, string>> RetryOptions => new KeyValuePair<int, string>[] { new(1, T("No retries")), new(2, T("Retry once")), new(3, T("Retry twice")), new(4, T("Retry 3 times")), new(5, T("Retry 4 times")) };
     public int DownloadConnections { get => state.Connections is 2 or 4 ? state.Connections : 1; set { if (value is not (1 or 2 or 4)) return; state.Connections = value; Save(); OnPropertyChanged(); } }
     private int lastSpeedLimitKiB = 1024;
+    private bool customSpeedLimit;
+    private static readonly int[] SpeedPresets = { 512, 1024, 2048, 5120, 10240 };
+    public IReadOnlyList<KeyValuePair<int, string>> SpeedLimitOptions => new KeyValuePair<int, string>[]
+    {
+        new(512, "0.5 MiB/s"), new(1024, "1 MiB/s"), new(2048, "2 MiB/s"), new(5120, "5 MiB/s"), new(10240, "10 MiB/s"), new(-1, T("Custom"))
+    };
+    public int SelectedSpeedPreset
+    {
+        get => customSpeedLimit || !SpeedPresets.Contains(LimitedSpeedKiB) ? -1 : LimitedSpeedKiB;
+        set
+        {
+            if (value == -1) customSpeedLimit = true;
+            else if (SpeedPresets.Contains(value)) { customSpeedLimit = false; SpeedLimitKiB = value; }
+            else return;
+            OnPropertyChanged(); OnPropertyChanged(nameof(IsCustomSpeedLimit)); OnPropertyChanged(nameof(LimitedSpeedKiB));
+        }
+    }
+    public bool IsCustomSpeedLimit => IsSpeedLimited && SelectedSpeedPreset == -1;
     public int SpeedLimitKiB
     {
         get => state.SpeedLimitKiB;
@@ -27,13 +45,19 @@ public sealed partial class MainViewModel
             if (state.SpeedLimitKiB > 0) lastSpeedLimitKiB = state.SpeedLimitKiB;
             state.SpeedLimitKiB = next; if (next > 0) lastSpeedLimitKiB = next;
             Save(); OnPropertyChanged(); OnPropertyChanged(nameof(IsSpeedLimited)); OnPropertyChanged(nameof(LimitedSpeedKiB)); OnPropertyChanged(nameof(SpeedLimitHint));
+            OnPropertyChanged(nameof(SelectedSpeedPreset)); OnPropertyChanged(nameof(IsCustomSpeedLimit));
         }
     }
     public bool IsSpeedLimited { get => SpeedLimitKiB > 0; set { if (value != IsSpeedLimited) SpeedLimitKiB = value ? lastSpeedLimitKiB : 0; } }
     public int LimitedSpeedKiB
     {
         get => IsSpeedLimited ? SpeedLimitKiB : lastSpeedLimitKiB;
-        set { ArgumentOutOfRangeException.ThrowIfLessThan(value, 1); ArgumentOutOfRangeException.ThrowIfGreaterThan(value, 1024 * 1024); SpeedLimitKiB = value; }
+        set
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1); ArgumentOutOfRangeException.ThrowIfGreaterThan(value, 1024 * 1024);
+            customSpeedLimit = true; SpeedLimitKiB = value;
+            OnPropertyChanged(nameof(SelectedSpeedPreset)); OnPropertyChanged(nameof(IsCustomSpeedLimit));
+        }
     }
     public int QueueAttempts { get => state.QueueAttempts; set { state.QueueAttempts = Math.Clamp(value, 1, 5); Save(); OnPropertyChanged(); } }
     public bool DirectFileAcceleration { get => state.DirectFileAcceleration; set { state.DirectFileAcceleration = value; Save(); OnPropertyChanged(); } }
@@ -53,7 +77,7 @@ public sealed partial class MainViewModel
     public string SpeedLimitLabel => T("Limit download speed");
     public string SpeedValueLabel => T("Maximum speed");
     public string UnlimitedSpeedLabel => T("Unlimited");
-    public string SpeedLimitHint => T(IsSpeedLimited ? "1024 KiB/s = 1 MiB/s. This cap applies to each new download." : "Off: use your available bandwidth without a speed cap.");
+    public string SpeedLimitHint => T(IsSpeedLimited ? "Choose a speed, or select Custom for an exact limit." : "Off: use your available bandwidth without a speed cap.");
     public string AttemptsLabel => T("Automatic retries");
     public string AttemptsHint => T("Retry a download if a temporary network error causes it to fail.");
     public string RangeAccelerationLabel => T("Use multiple parts for direct MP4 links");

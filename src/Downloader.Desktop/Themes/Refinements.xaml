@@ -14,8 +14,8 @@
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="CheckBox">
    <Border x:Name="Focus" BorderBrush="Transparent" BorderThickness="2" CornerRadius="6" Padding="3">
     <Grid Background="Transparent"><Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-     <Border x:Name="Box" Width="18" Height="18" VerticalAlignment="Center" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="4">
-      <Grid><Path x:Name="Check" Data="M2,6 L5,9 11,2" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.7" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="12" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+     <Border x:Name="Box" Width="20" Height="20" VerticalAlignment="Center" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="4" SnapsToDevicePixels="True">
+      <Grid><Path x:Name="Check" Data="M2,6 L5,9 11,2" FlowDirection="LeftToRight" Stretch="Uniform" Stroke="{DynamicResource OnAccent}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="12" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
        <Border x:Name="Mixed" Height="2" Width="9" Background="{DynamicResource OnAccent}" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
       </Grid>
      </Border>

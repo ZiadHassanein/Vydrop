@@ -55,6 +55,7 @@ internal static partial class Program
                 Check(limits.IsExpanded, "The themed advanced header retains native toggle accessibility");
                 var speed = (TextBox)WpfTree.Find(dialog, "SpeedLimitInput");
                 model.IsSpeedLimited = true;
+                model.SelectedSpeedPreset = -1;
                 int previousSpeed = model.SpeedLimitKiB;
                 speed.SetCurrentValue(TextBox.TextProperty, "oops"); speed.GetBindingExpression(TextBox.TextProperty).UpdateSource();
                 Check(Validation.GetHasError(speed) && model.SpeedLimitKiB == previousSpeed,

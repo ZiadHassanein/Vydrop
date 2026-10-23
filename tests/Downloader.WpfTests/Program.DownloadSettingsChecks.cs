@@ -18,10 +18,20 @@ internal static partial class Program
         var view = Descendants<DownloadLimitsView>(expander).Single();
         var toggle = (CheckBox)WpfTree.Find(view, "SpeedLimitToggle");
         var speed = (TextBox)WpfTree.Find(view, "SpeedLimitInput");
+        var preset = (ComboBox)WpfTree.Find(view, "SpeedPresetInput");
         CaptureDownloadPreferences(window, model, view.ActualWidth, Path.Combine(captures, "preferences-default-en-dark.png"));
         void ToggleSpeed() => ((IToggleProvider)new CheckBoxAutomationPeer(toggle).GetPattern(PatternInterface.Toggle)).Toggle();
         ToggleSpeed(); window.UpdateLayout();
-        Check(model.IsSpeedLimited && model.SpeedLimitKiB == 1024 && speed.IsVisible, "Explicit speed limiting starts with an explained positive cap instead of a magic zero");
+        Check(model.IsSpeedLimited && model.SpeedLimitKiB == 1024 && preset.IsVisible && !speed.IsVisible && Equals(preset.SelectedValue, 1024), "Enabling the limit starts with a simple 1 MiB/s choice instead of a conversion exercise");
+        CaptureDownloadPreferences(window, model, view.ActualWidth, Path.Combine(captures, "preferences-preset-en-dark.png"));
+        foreach (int kib in new[] { 512, 2048, 5120, 10240, 1024 })
+        {
+            preset.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, kib); window.UpdateLayout();
+            Check(model.SpeedLimitKiB == kib && new SettingsRepository(root).Load().SpeedLimitKiB == kib && !speed.IsVisible,
+                "Preset selection saves its exact legacy KiB/s value without showing a numeric field: " + kib);
+        }
+        preset.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, -1); window.UpdateLayout();
+        Check(speed.IsVisible && speed.Text == "1024", "Custom exposes the exact saved value without changing the limit");
         foreach (string invalid in new[] { "oops", "0", "-1", "1048577" })
         {
             speed.SetCurrentValue(TextBox.TextProperty, invalid); speed.GetBindingExpression(TextBox.TextProperty).UpdateSource();
@@ -56,12 +66,27 @@ internal static partial class Program
             foreach (bool limited in new[] { false, true })
             {
                 model.IsSpeedLimited = limited; await Task.Delay(40); window.UpdateLayout();
+                if (limited)
+                {
+                    preset.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, 1024); window.UpdateLayout();
+                    Check(!speed.IsVisible && Equals(preset.SelectedValue, 1024), "The preset stays a preset after locale and layout changes");
+                    CaptureDownloadPreferences(window, model, view.ActualWidth, Path.Combine(captures, $"preferences-preset-{language}-{dark}-{width}.png"));
+                    preset.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, -1); window.UpdateLayout();
+                }
+                var check = (System.Windows.Shapes.Path)toggle.Template.FindName("Check", toggle);
+                var box = (Border)toggle.Template.FindName("Box", toggle);
+                var checkBounds = check.TransformToAncestor(box).TransformBounds(new System.Windows.Rect(check.RenderSize));
+                Check(check.FlowDirection == System.Windows.FlowDirection.LeftToRight && (!limited || Math.Abs(checkBounds.Left + checkBounds.Width / 2 - box.ActualWidth / 2) <= 1) &&
+                    check.Visibility == (limited ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed),
+                    "The checkmark keeps its orientation, centered alignment and correct state in both languages");
                 Check(window.ContextViewport.ScrollableWidth <= 1 && connections.ActualWidth <= view.ActualWidth && speed.IsVisible == limited,
                     "Preferences wrap without horizontal overflow and expose the correct cap state: " + language + "/" + width + "/" + limited);
                 CaptureDownloadPreferences(window, model, view.ActualWidth, Path.Combine(captures, $"preferences-{language}-{dark}-{width}-{limited}.png"));
             }
         }
         model.SelectLanguageCommand.Execute("en"); model.IsSpeedLimited = true;
+        preset.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, 512);
+        preset.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, -1); window.UpdateLayout();
         speed.SetCurrentValue(TextBox.TextProperty, "0"); speed.GetBindingExpression(TextBox.TextProperty).UpdateSource();
         Check(Validation.GetHasError(speed), "Zero cannot silently disable an active speed limit");
         model.IsSpeedLimited = false; model.IsSpeedLimited = true; window.UpdateLayout();
