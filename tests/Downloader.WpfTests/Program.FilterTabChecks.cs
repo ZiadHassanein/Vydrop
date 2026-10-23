@@ -29,17 +29,21 @@ internal static partial class Program
                     await Task.Delay(30); window.UpdateLayout();
                     Check(before.SequenceEqual(Positions()), "Hover keeps every tab label and counter in the same position");
                     tab.Focus(); tab.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)); tab.Command.Execute(tab.CommandParameter);
+                    window.UpdateLayout();
+                    // Observe the clock before yielding: a loaded machine may resume a timer
+                    // after the whole animation has finished instead of at its requested delay.
+                    bool animatedSelection = Scale(tab).HasAnimatedProperties;
                     await Task.Delay(35); window.UpdateLayout();
                     Check(before.SequenceEqual(Positions()) && tabs.All(item => item.FontWeight == FontWeights.Medium) &&
                         tabs.All(item => Descendants<FrameworkElement>(item).All(visual => !InteractionMotion.GetEnabled(visual) && !HoverMotion.GetEnabled(visual))),
                         "Click and focus keep tab content stationary without a hover fill or press scaling");
-                    // The animation clock can attach before WPF composes its first frame.
-                    for (int attempt = 0; attempt < 20 && Scale(tab).HasAnimatedProperties && Scale(tab).ScaleX == 0; attempt++) await Task.Delay(16);
-                    Check(tab.Template.FindName("Underline", tab) == null && Scale(tab).HasAnimatedProperties && Scale(tab).ScaleX > 0 && Scale(tab).ScaleX < 1,
-                        $"Selection grows only the underline instead of drawing a rectangular tab border (tab={choice}, scale={Scale(tab).ScaleX}, animated={Scale(tab).HasAnimatedProperties}, visible={Line(tab).IsVisible})");
+                    Check(tab.Template.FindName("Underline", tab) == null && animatedSelection && Line(tab).IsVisible,
+                        $"Selection animates only the underline instead of drawing a rectangular tab border (tab={choice}, animated={animatedSelection}, visible={Line(tab).IsVisible})");
                     Check(manager.LibraryContent.RenderTransform.Value.IsIdentity && !manager.LibraryContent.HasAnimatedProperties,
                         "Switching media filters does not slide or fade the download workspace");
-                    await Task.Delay(230); window.UpdateLayout();
+                    await WaitFor(() => tabs.All(item => !Scale(item).HasAnimatedProperties && Scale(item).ScaleX == (item.IsChecked == true ? 1 : 0)),
+                        "The underline clocks settle on the selected filter");
+                    window.UpdateLayout();
                     Check(before.SequenceEqual(Positions()) && tabs.All(item => !Scale(item).HasAnimatedProperties && Scale(item).ScaleX == (item.IsChecked == true ? 1 : 0)),
                         "The final selection has one complete underline and releases every animation clock");
                     tab.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });

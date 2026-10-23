@@ -106,6 +106,12 @@ internal static partial class Program
                     Console.WriteLine(count + " WPF resume-progress checks passed.");
                     return;
                 }
+                if (args.Contains("--resume-workflows"))
+                {
+                    await CheckResumeWorkflows(model, provider, root);
+                    Console.WriteLine(count + " WPF resume-workflow checks passed.");
+                    return;
+                }
                 if (args.Contains("--setup-ui"))
                 {
                     await CheckSetupWorkspaceUi(window, model, provider, root, captures);

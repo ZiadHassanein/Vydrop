@@ -76,7 +76,10 @@ internal static partial class Program
         model.SelectLanguageCommand.Execute("en");
         window.Width = 800; await Task.Delay(100); window.UpdateLayout();
         Check(window.ManagerContent.DetailsColumn.Width.Value == 0 && window.ManagerContent.IsCompact && DetailsButton().IsVisible, "Compact windows keep the library usable and offer a Details button beside each file");
-        var detailsPeer = new ButtonAutomationPeer(DetailsButton());
+        var detailsButton = DetailsButton();
+        Check(DownloadManagerView.ShowDetailsCommand.CanExecute(detailsButton.CommandParameter, detailsButton), "A compact row's Details command can execute after resizing");
+        await WaitFor(() => detailsButton.IsEnabled, "The compact Details button becomes enabled after resizing");
+        var detailsPeer = new ButtonAutomationPeer(detailsButton);
         ((IInvokeProvider)detailsPeer.GetPattern(PatternInterface.Invoke)).Invoke(); await Task.Delay(80);
         Check(window.ManagerContent.DetailOverlay.IsVisible && window.ManagerContent.DetailsBorder.IsVisible, "The compact details drawer exposes the same selected download");
         Capture(window, Path.Combine(captures, "manager-compact-details.png"));

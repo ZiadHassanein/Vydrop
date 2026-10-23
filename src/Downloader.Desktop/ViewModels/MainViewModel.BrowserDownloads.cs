@@ -31,8 +31,7 @@ public sealed partial class MainViewModel
         options.ThumbnailUrl = options.Uploader = null; options.Duration = 0;
         options.SourcePage = request.SourcePage; options.MediaId = request.MediaId;
         ApplyBrowserOutput(options, request.Output);
-        var existing = Queue.Entries.FirstOrDefault(e => e.Url == link && e.State == QueueState.Pending &&
-            e.Options.Folder == options.Folder && OutputProfiles.Key(e.Options) == OutputProfiles.Key(options));
+        var existing = FindQueuedDownload(options);
         var awaiting = request.SourcePage == null ? null : Queue.Entries.FirstOrDefault(e =>
             e.State == QueueState.AwaitingSource && e.Options.SourcePage == request.SourcePage && e.Options.MediaId == request.MediaId);
         QueueEntry job;
@@ -42,6 +41,7 @@ public sealed partial class MainViewModel
             Queue.CapturePreparedOptions(refreshed); Queue.Retry(awaiting.Id); job = awaiting;
         }
         else job = existing ?? Queue.Add(options, new Uri(link).Host);
+        if (job.State != QueueState.Pending && !Queue.Retry(job.Id)) return new(false, "busy");
         bool canStart = IsIdle;
         automaticBrowserJobs.Add(job.Id);
         LibraryFilterCommand.Execute("queue");

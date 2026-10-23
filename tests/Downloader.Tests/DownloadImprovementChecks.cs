@@ -83,7 +83,7 @@ internal static class DownloadImprovementChecks
         Check(new DownloadQueue(new LocalQueueStorage(malformed)).StorageError != null && File.ReadAllText(Path.Combine(malformed, "queue.json")) == "{broken", "Unreadable queue data is retained and reported rather than discarded");
         string malformedPlaylist = Path.Combine(root, "malformed-playlist"); Directory.CreateDirectory(malformedPlaylist);
         var malformedJob = new QueueSnapshot { Jobs = new() { new() { Id = Guid.NewGuid(), Options = new DownloadOptions { Url = "https://example.com/video", Playlist = new PlaylistInfo { Entries = null } } } } };
-        new LocalQueueStorage(malformedPlaylist).Save(malformedJob);
+        File.WriteAllText(Path.Combine(malformedPlaylist, "queue.json"), new JsonCodec().Serialize(malformedJob));
         Check(new DownloadQueue(new LocalQueueStorage(malformedPlaylist)).StorageError != null, "Malformed saved playlist data cannot crash queue recovery");
 
         using var legacy = JsonDocument.Parse("{\"version\":1,\"type\":\"open-link\",\"url\":\"https://example.com/video\"}");

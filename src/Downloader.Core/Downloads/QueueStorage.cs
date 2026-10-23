@@ -38,13 +38,11 @@ public sealed partial class DownloadQueue
         try
         {
             var saved = storage.Load();
-            if (saved == null || saved.Version != 1 || saved.Jobs == null || saved.Jobs.Count > Capacity) throw new InvalidDataException();
+            ValidateSnapshot(saved);
             StartAt = saved.StartAt;
             StopAt = saved.StopAt;
             foreach (var job in saved.Jobs)
             {
-                if (job == null || job.Options == null || job.Files == null || job.Files.Length > 1000 || job.Id == Guid.Empty || entries.Any(e => e.Id == job.Id) || !Enum.IsDefined(job.State) || string.IsNullOrWhiteSpace(job.Options.Url) || job.Options.Url.Length > 8192 || job.Title?.Length > 4096) throw new InvalidDataException();
-                if (job.Options.Playlist is { } playlist && (playlist.Entries == null || playlist.Entries.Count > 10000 || playlist.Entries.Any(entry => entry == null))) throw new InvalidDataException();
                 var options = job.Options.Snapshot();
                 options.Selection = null; options.QualityKey = null;
                 var entry = new QueueEntry(WithJobIdentity(options, job.Id), job.Title) { Id = job.Id, State = job.State, Percent = Math.Clamp(job.Percent, 0, 100), Error = job.Error };
@@ -55,6 +53,16 @@ public sealed partial class DownloadQueue
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException or System.Text.Json.JsonException)
         { entries.Clear(); StorageError = "The saved queue could not be read. Its original file was kept for recovery."; }
+    }
+    internal static void ValidateSnapshot(QueueSnapshot snapshot)
+    {
+        if (snapshot == null || snapshot.Version != 1 || snapshot.Jobs == null || snapshot.Jobs.Count > Capacity) throw new InvalidDataException();
+        var ids = new HashSet<Guid>();
+        foreach (var job in snapshot.Jobs)
+        {
+            if (job == null || job.Options == null || job.Files == null || job.Files.Length > 1000 || job.Id == Guid.Empty || !ids.Add(job.Id) || !Enum.IsDefined(job.State) || !double.IsFinite(job.Percent) || string.IsNullOrWhiteSpace(job.Options.Url) || job.Options.Url.Length > 8192 || job.Title?.Length > 4096) throw new InvalidDataException();
+            if (job.Options.Playlist is { } playlist && (playlist.Entries == null || playlist.Entries.Count > 10000 || playlist.Entries.Any(entry => entry == null))) throw new InvalidDataException();
+        }
     }
     private static DownloadOptions WithJobIdentity(DownloadOptions value, Guid id) { value.JobId = id; return value; }
     private void Persist()
@@ -106,10 +114,21 @@ public sealed partial class DownloadQueue
         lock (gate)
         {
             if (lifetime != null || !StartAt.HasValue || now < StartAt) return false;
-            StartAt = null;
-            if (StopAt <= now) { StopAt = null; Persist(); return false; }
-            foreach (var e in entries.Where(e => e.State is QueueState.Paused or QueueState.Interrupted)) e.State = QueueState.Pending;
-            Persist(); return true;
+            var previous = (StartAt, StopAt);
+            var resumable = entries.Where(e => e.State is QueueState.Paused or QueueState.Interrupted).Select(e => (Entry: e, e.State)).ToArray();
+            try
+            {
+                StartAt = null;
+                if (StopAt <= now) { StopAt = null; Persist(); return false; }
+                foreach (var job in resumable) job.Entry.State = QueueState.Pending;
+                Persist(); return true;
+            }
+            catch
+            {
+                (StartAt, StopAt) = previous;
+                foreach (var job in resumable) job.Entry.State = job.State;
+                throw;
+            }
         }
     }
     public void CheckScheduledStop(DateTimeOffset now)

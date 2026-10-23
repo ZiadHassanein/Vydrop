@@ -12,7 +12,7 @@ public sealed class LocalQueueStorage : IQueueStorage
     {
         lock (gate)
         {
-            if (!File.Exists(FilePath)) return new();
+            if (!File.Exists(FilePath)) return File.Exists(FilePath + ".backup") ? Read(FilePath + ".backup") : new();
             try { return Read(FilePath); }
             catch (Exception ex) when (ex is JsonException or InvalidDataException)
             {
@@ -26,12 +26,15 @@ public sealed class LocalQueueStorage : IQueueStorage
     private static QueueSnapshot Read(string path)
     {
         if (new FileInfo(path).Length > 4 * 1024 * 1024) throw new InvalidDataException("The queue file is too large.");
-        return JsonSerializer.Deserialize<QueueSnapshot>(File.ReadAllBytes(path), Json) ?? throw new InvalidDataException("The queue is empty.");
+        var snapshot = JsonSerializer.Deserialize<QueueSnapshot>(File.ReadAllBytes(path), Json) ?? throw new InvalidDataException("The queue is empty.");
+        DownloadQueue.ValidateSnapshot(snapshot);
+        return snapshot;
     }
     public void Save(QueueSnapshot snapshot)
     {
         lock (gate)
         {
+            DownloadQueue.ValidateSnapshot(snapshot);
             Directory.CreateDirectory(directory);
             string temporary = FilePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
             try
@@ -39,7 +42,19 @@ public sealed class LocalQueueStorage : IQueueStorage
                 byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(snapshot, Json);
                 if (bytes.Length > 4 * 1024 * 1024) throw new InvalidDataException("The queue is too large to save.");
                 using (var stream = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None)) { stream.Write(bytes); stream.Flush(true); }
-                if (File.Exists(FilePath)) File.Replace(temporary, FilePath, FilePath + ".backup");
+                if (File.Exists(FilePath))
+                {
+                    bool validPrimary;
+                    try { Read(FilePath); validPrimary = true; }
+                    catch (Exception ex) when (ex is JsonException or InvalidDataException) { validPrimary = false; }
+                    if (validPrimary) File.Replace(temporary, FilePath, FilePath + ".backup");
+                    else
+                    {
+                        // Never rotate a damaged primary over a known-good recovery backup.
+                        File.Copy(FilePath, FilePath + ".damaged-" + Guid.NewGuid().ToString("N"));
+                        File.Move(temporary, FilePath, true);
+                    }
+                }
                 else File.Move(temporary, FilePath);
             }
             finally { if (File.Exists(temporary)) File.Delete(temporary); }
