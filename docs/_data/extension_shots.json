@@ -160,19 +160,20 @@
     "zones": [],
     "width": 1280,
     "height": 761,
-    "path": "/images/screenshots/vydrop-light-en-manager.png",
+    "path": "/images/screenshots/vydrop-light-en-queue.png",
     "native_width": 1280,
     "style": "--shot-native-width:1280px;aspect-ratio:1280/761;--shot-width:100%;--shot-left:0%;--shot-top:0%",
     "alt": {
-      "en": "Vydrop 4.4 download manager with sample completed, paused and pending jobs",
-      "ar": "مدير تنزيلات Vydrop 4.4 مع أمثلة للملفات المكتملة والمتوقفة مؤقتًا والمنتظرة"
+      "en": "Vydrop 4.4.1 Queue with sample paused and waiting jobs",
+      "ar": "قائمة تنزيلات Vydrop 4.4.1 مع مهام تجريبية منتظرة ومتوقفة مؤقتًا"
     },
     "caption": {
-      "en": "After confirming Download, Vydrop shows the transfer in the manager. This native capture uses example jobs. Unrelated queued jobs retain their state.",
-      "ar": "بعد تأكيد التنزيل يظهر الملف في مدير التنزيلات. تستخدم هذه اللقطة الأصلية أمثلة للتنزيلات، وتحتفظ بقية الملفات في القائمة بحالتها."
+      "en": "After confirming Download, Vydrop opens Queue for the active transfer. Completed files appear in Library. This native capture uses example jobs.",
+      "ar": "بعد تأكيد التنزيل يفتح Vydrop قائمة التنزيلات لمتابعة الملف الجاري. تظهر الملفات المكتملة في المكتبة. تستخدم هذه اللقطة الأصلية مهام تجريبية."
     },
     "localized_paths": {
-      "ar": "/images/screenshots/vydrop-light-ar-manager.png"
+      "ar": "/images/screenshots/vydrop-light-ar-queue.png",
+      "en": "/images/screenshots/vydrop-light-en-queue.png"
     }
   },
   "review": {

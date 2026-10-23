@@ -90,6 +90,8 @@ internal static partial class Program
                 brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
                 await Until(() => light.Opacity == 0, "Pointer exit settles the manager wordmark");
             }
+            model.LibraryFilterCommand.Execute("paused");
+            model.LibrarySearch = "Previous queue search";
             model.NewDownloadCommand.Execute(null);
             model.Url = "https://youtu.be/jNQXAC9IVRw";
             await Until(() => model.CanDownload, "Inspection prepares the real editor without simulating transfer progress");
@@ -102,7 +104,7 @@ internal static partial class Program
             };
             var task = model.DownloadCommand.ExecuteAsync(null);
             await Until(() => model.IsBusy && model.Progress == 20 && model.SelectedLibraryItem?.Percent == 20, "The active manager receives actual transfer progress");
-            Check(!model.AddDownloadVisible && model.SelectedLibraryItem.IsActive && model.LibraryCancelCommand.CanExecute(model.SelectedLibraryItem.Id), "Starting transitions from editor to the selected transfer with a reachable Cancel action");
+            Check(!model.AddDownloadVisible && model.IsLibraryQueue && model.LibrarySearch == "" && model.LibraryItems.Contains(model.SelectedLibraryItem) && model.SelectedLibraryItem.IsActive && model.LibraryCancelCommand.CanExecute(model.SelectedLibraryItem.Id), "Starting opens Queue All, clears its stale search and selects the active transfer with a reachable Cancel action");
             model.LibraryCancelCommand.Execute(model.SelectedLibraryItem.Id); await task;
             Check(model.SelectedLibraryItem.Entry.State == QueueState.Cancelled && model.DownloadActionState == DownloadActionState.Ready, "Cancellation never animates or records a successful transfer");
             model.CloseAddDownloadCommand.Execute(null);

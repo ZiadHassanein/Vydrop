@@ -47,6 +47,12 @@ The installer registers the browser connection for your account. Browser-store l
 
 $releaseNotes
 
+### Updated interface
+
+![Library with completed media — native app with example downloads](https://raw.githubusercontent.com/$repository/$($env:GITHUB_REF_NAME)/docs/images/screenshots/vydrop-dark-en-manager.png)
+
+![قائمة التنزيلات بالعربية — لقطة أصلية بمهام تجريبية](https://raw.githubusercontent.com/$repository/$($env:GITHUB_REF_NAME)/docs/images/screenshots/vydrop-light-ar-queue.png)
+
 [Documentation](https://ziadhassanein.github.io/Vydrop/) · [العربية](https://ziadhassanein.github.io/Vydrop/ar/) · [Illustrated Chrome, Edge and Firefox setup](https://github.com/$repository/blob/$($env:GITHUB_REF_NAME)/docs/browser-extension-setup.md)
 
 ### Downloads and media support

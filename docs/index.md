@@ -7,7 +7,7 @@ alternate: true
 english: /
 arabic: /ar/
 home: true
-last_reviewed: 2026-10-22
+last_reviewed: 2026-10-23
 ---
 
 # Vydrop: free video and audio downloader for Windows
@@ -17,9 +17,9 @@ last_reviewed: 2026-10-22
 Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp, with English and Arabic interfaces.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.0/VydropSetup-v4.4.0-win-x64.exe">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.1/VydropSetup-v4.4.1-win-x64.exe">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">Download Vydrop</span><span class="download-meta">Windows 10/11 x64 · v4.4.0 · Setup</span></span>
+    <span class="download-copy"><span class="download-title">Download Vydrop</span><span class="download-meta">Windows 10/11 x64 · v4.4.1 · Setup</span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads" height="20"></a>
 </div>
@@ -28,9 +28,11 @@ Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-d
 
 {% include facts.md %}
 
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-manager.png"><img src="images/screenshots/vydrop-light-en-manager.png" width="1280" height="761" alt="Vydrop 4.4 native download manager with library search, status filters, transfer controls and a selected-media inspector"></picture><figcaption>Vydrop 4.4.0, captured from the native Windows app at 100% scale with example downloads. No mouse pointer.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-manager.png"><img src="images/screenshots/vydrop-light-en-manager.png" width="1280" height="761" alt="Vydrop 4.4.1 Library with completed media, search and a selected-file inspector"></picture><figcaption>Vydrop 4.4.1, captured from the native Windows app at 100% scale with example downloads. No mouse pointer.</figcaption></figure>
 
-Search your library, filter video or audio, pause and resume transfers, and keep the selected download's details beside the list. **Add download**, Settings and History open in the same workspace.
+**Library** contains completed video and audio files. **Queue** contains waiting, downloading, paused and failed jobs, with its own search, status filters and start/pause controls. Starting a download opens Queue and selects the transfer; completed files appear in Library. **Add download**, Settings and History use the same workspace.
+
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-queue.png"><img src="images/screenshots/vydrop-light-en-queue.png" width="1280" height="761" loading="lazy" alt="Vydrop 4.4.1 Queue with paused and waiting example jobs, status filters and transfer details"></picture><figcaption>Queue keeps unfinished work separate from completed media. Native app capture with example jobs.</figcaption></figure>
 
 ## Guides by language and region
 
@@ -43,7 +45,7 @@ New to the app? Read the [official download, installation and update guide](down
 1. Run the Windows installer and open **Vydrop** from Start. For the portable ZIP, extract the complete folder and open **Vydrop.exe**. The .NET runtime is bundled.
 2. Paste a video's own link or a public playlist link. Review the detected title and available quality.
 3. Choose **Video** or **Audio**, the output format, and your save folder. Select **Subtitles** if captions are available.
-4. Choose **Download**. Use **Queue** for multiple links and **Recent downloads** to open completed files.
+4. Choose **Download** to follow the transfer in **Queue**. Open completed files from **Library**, or use **History** for the last five completed downloads.
 
 The first use may download missing media tools. No account, API key or subscription is needed. Save only media you have permission to download.
 

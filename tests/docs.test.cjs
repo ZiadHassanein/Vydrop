@@ -77,7 +77,7 @@ test('Site has no remote scripts, tracking or unsupported review ratings', () =>
 });
 
 test('Native screenshot set is complete, optimized and actually PNG', () => {
-  for (const language of ['en', 'ar']) for (const theme of ['dark', 'light']) for (const view of ['manager', 'download']) {
+  for (const language of ['en', 'ar']) for (const theme of ['dark', 'light']) for (const view of ['manager', 'queue', 'download']) {
     const bytes = fs.readFileSync(path.join(root, `docs/images/screenshots/vydrop-${theme}-${language}-${view}.png`));
     assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
     assert.ok(bytes.length < 300 * 1024);

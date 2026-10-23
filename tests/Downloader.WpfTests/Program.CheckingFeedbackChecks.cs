@@ -47,7 +47,7 @@ internal static partial class Program
                             "The checking action localizes its label without reversing the video scanner");
                         Check(cancel.IsVisible && cancel.IsEnabled, "Checking retains an available Cancel action");
                         await Task.Delay(300);
-                        Check(Bounds(button) == before && before.Width == 280 && before.Height == 52, "Checking motion preserves the action bounds");
+                        Check(Bounds(button) == before && before.Width == 240 && before.Height == 52, "Checking motion preserves the current inline action bounds");
                         Capture(window, Path.Combine(captures, "checking-" + language + (dark ? "-dark" : "-light") + ".png"));
                         model.SettingsCommand.Execute(null);
                         await Task.Delay(40);

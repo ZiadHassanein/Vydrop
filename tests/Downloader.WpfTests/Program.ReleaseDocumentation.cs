@@ -9,6 +9,7 @@ internal static partial class Program
     private static async Task CaptureReleaseDocumentation(MainWindow window, MainViewModel model, FakeProvider provider, FixtureThumbnailLoader loader, string captures)
     {
         captures = Path.GetFullPath(captures);
+        MotionPreferences.SetTestOverride(false);
         provider.VideoTitle = "Vydrop browser extension setup";
         provider.VideoUploader = "Ziad Hassanein · Vydrop";
         provider.VideoDuration = 155.4;
@@ -35,9 +36,16 @@ internal static partial class Program
         {
             model.Url = ""; model.LibraryFilterCommand.Execute("all");
             model.SelectLanguageCommand.Execute(language); if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+            model.SelectedLibraryItem = model.QueueItems.First(item => item.Id == complete.Id);
             await Task.Delay(400); window.UpdateLayout();
             Check(window.ManagerContent.DetailsBorder.IsVisible && window.ManagerContent.HistoryButton.IsVisible, "Release screenshots show the real manager and inspector");
             Capture(window, Path.Combine(captures, $"vydrop-{(dark ? "dark" : "light")}-{language}-manager.png"));
+            model.LibraryFilterCommand.Execute("queue");
+            model.SelectedLibraryItem = model.QueueItems.First(item => item.Id == paused.Id);
+            await Task.Delay(100); window.UpdateLayout();
+            Check(model.LibraryItems.Cast<QueueItemView>().All(item => !item.IsComplete) && model.LibraryItems.Cast<QueueItemView>().Count() == 2,
+                "Release queue screenshots contain only paused and waiting example work");
+            Capture(window, Path.Combine(captures, $"vydrop-{(dark ? "dark" : "light")}-{language}-queue.png"));
             model.NewDownloadCommand.Execute(null); model.Url = "https://youtu.be/jNQXAC9IVRw";
             for (int attempt = 0; attempt < 100 && !model.CanDownload; attempt++) await Task.Delay(25);
             Check(model.CanDownload, "The release Add download capture has an inspected output choice");
@@ -56,5 +64,6 @@ internal static partial class Program
             finally { dialog.Close(); }
         }
         Check(model.Queue.Entries.Count == 3 && model.Queue.Entries.Any(entry => entry.Id == waiting.Id && entry.State == QueueState.Pending), "Documentation fixtures stay isolated and do not start pending jobs");
+        MotionPreferences.SetTestOverride(null);
     }
 }

@@ -217,6 +217,8 @@ public sealed partial class MainViewModel
             }) ?? Queue.Add(request, videoInfo?.Title ?? playlistInfo?.Title);
             request = job.Options;
             SyncQueue();
+            LibraryFilterCommand.Execute("queue");
+            LibrarySearch = "";
             SelectedLibraryItem = QueueItems.First(item => item.Id == job.Id);
             DownloadResult result = null;
             await Queue.RunJobAsync(job.Id, async (options, progress, token) =>

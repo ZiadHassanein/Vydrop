@@ -4,6 +4,20 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.1] - 2026-10-23
+
+### Changed
+- Separate completed video and audio in Library from waiting, active, paused and failed work in Queue, with independent searches and relevant filters and actions.
+- Refine the app with neutral graphite surfaces, consistent native outline icons, clearer transfer colors and contact links in Settings.
+- Let Add download fill the center panel, align its action buttons and remove the modal Close control from workspace tabs.
+- Offer the detected browser during installation and prepare the selected browser connection; browser approval and local extension loading remain required while store listings are pending.
+- Refresh the English and Arabic screenshots, setup guides and Windows download links.
+
+### Fixed
+- Make the full Resume, Download, navigation and filter button surfaces clickable, including their padding.
+- Open the active job in Queue after starting from Add download, clearing stale queue filters and searches while keeping completed files in Library.
+- Preserve existing settings, queue snapshots, media history, partial downloads and older browser companion protocols.
+
 ## [4.4.0] - 2026-10-22
 
 ### Added

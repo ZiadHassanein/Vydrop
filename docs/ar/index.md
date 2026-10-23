@@ -7,7 +7,7 @@ alternate: true
 english: /
 arabic: /ar/
 home: true
-last_reviewed: 2026-10-22
+last_reviewed: 2026-10-23
 ---
 
 # Vydrop: برنامج مجاني لتنزيل الفيديو والصوت لويندوز
@@ -17,9 +17,9 @@ last_reviewed: 2026-10-22
 نزّل من YouTube وTikTok وFacebook وVimeo وأكثر من ١٠٠٠ موقع عبر yt-dlp، بواجهة عربية وإنجليزية.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.0/VydropSetup-v4.4.0-win-x64.exe">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.1/VydropSetup-v4.4.1-win-x64.exe">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.4.0 · Setup</bdi></span></span>
+    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.4.1 · Setup</bdi></span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="إجمالي تنزيلات إصدارات GitHub" height="20"></a>
 </div>
@@ -28,9 +28,11 @@ last_reviewed: 2026-10-22
 
 {% include facts-ar.md %}
 
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="../images/screenshots/vydrop-dark-ar-manager.png"><img src="../images/screenshots/vydrop-light-ar-manager.png" width="1280" height="761" alt="مدير تنزيلات Vydrop 4.4 في ويندوز مع البحث ومرشحات الحالة وأزرار التحكم وتفاصيل الملف المحدد"></picture><figcaption>لقطة أصلية من تطبيق Vydrop 4.4.0 في ويندوز بمقياس ١٠٠٪، مع أمثلة للتنزيلات ودون مؤشر الفأرة.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="../images/screenshots/vydrop-dark-ar-manager.png"><img src="../images/screenshots/vydrop-light-ar-manager.png" width="1280" height="761" alt="مكتبة Vydrop 4.4.1 في ويندوز مع الملفات المكتملة والبحث وتفاصيل الملف المحدد"></picture><figcaption>لقطة أصلية من تطبيق Vydrop 4.4.1 في ويندوز بمقياس ١٠٠٪، مع أمثلة للتنزيلات ودون مؤشر الفأرة.</figcaption></figure>
 
-ابحث في المكتبة، وصفِّ الفيديو والصوت، وأوقف التنزيلات مؤقتًا واستأنفها، وشاهد تفاصيل الملف المحدد بجوار القائمة. تفتح **إضافة تنزيل** والإعدادات والسجل داخل مساحة العمل نفسها.
+تحتوي **المكتبة** على ملفات الفيديو والصوت المكتملة. وتجمع **قائمة التنزيلات** المهام المنتظرة والجارية والمتوقفة مؤقتًا والفاشلة، مع بحث مستقل ومرشحات للحالة وأزرار البدء والإيقاف المؤقت. عند بدء تنزيل تُفتح القائمة ويُحدَّد الملف الجاري، ثم يظهر في المكتبة بعد اكتماله. تفتح **إضافة تنزيل** والإعدادات والسجل داخل مساحة العمل نفسها.
+
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="../images/screenshots/vydrop-dark-ar-queue.png"><img src="../images/screenshots/vydrop-light-ar-queue.png" width="1280" height="761" loading="lazy" alt="قائمة تنزيلات Vydrop 4.4.1 بالعربية مع مهام تجريبية منتظرة ومتوقفة مؤقتًا ومرشحات الحالة وتفاصيل الملف"></picture><figcaption>تجمع قائمة التنزيلات العمل غير المكتمل، وتبقى الملفات المكتملة في المكتبة. لقطة أصلية من التطبيق مع مهام تجريبية.</figcaption></figure>
 
 ## إرشادات بلغتك
 
@@ -45,7 +47,7 @@ last_reviewed: 2026-10-22
 1. شغّل مُثبّت ويندوز وافتح **Vydrop** من قائمة ابدأ. للنسخة المحمولة، فكّ ملف ZIP كاملًا وافتح **Vydrop.exe**. بيئة .NET مضمّنة.
 2. الصق رابط الفيديو نفسه أو رابط قائمة عامة، وراجع العنوان والجودة المتاحة.
 3. اختر الفيديو أو الصوت والصيغة ومجلد الحفظ. فعّل **الترجمة** عند توافرها.
-4. اضغط **تنزيل**، واستخدم قائمة التنزيلات لروابط متعددة والتنزيلات الأخيرة لفتح الملفات المكتملة.
+4. اضغط **تنزيل** لمتابعة المهمة في **قائمة التنزيلات**. افتح الملفات المكتملة من **المكتبة**، أو استخدم **السجل** لآخر خمسة تنزيلات مكتملة.
 
 قد يُجهّز التطبيق الأدوات الناقصة في الاستخدام الأول. لا يحتاج إلى حساب أو مفتاح API أو اشتراك. نزّل فقط ما تملك إذنًا بحفظه.
 
