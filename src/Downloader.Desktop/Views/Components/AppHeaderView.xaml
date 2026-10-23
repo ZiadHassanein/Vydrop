@@ -43,13 +43,13 @@
  <Border x:Name="HeaderFrame" Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="0" Padding="14,7,18,7">
   <Grid>
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="{Binding NewDownloadLabel}">
+   <Button x:Name="BrandButton" Click="LogoClicked" MouseEnter="LogoHovered" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="Vydrop" ToolTip="{x:Null}" ToolTipService.IsEnabled="False">
     <Grid x:Name="BrandArtwork" Width="128" Height="38">
      <Viewbox x:Name="BrandWordmark" Width="128" Height="38" Stretch="Uniform" VerticalAlignment="Center" FlowDirection="LeftToRight" AutomationProperties.Name="Vydrop">
       <Canvas Width="966" Height="284">
        <Canvas x:Name="BrandMark" Width="251" Height="269" IsHitTestVisible="False">
         <Path x:Name="BrandInitial" Data="{StaticResource BrandInitialGeometry}" Fill="{StaticResource BrandFill}"/>
-        <Path x:Name="BrandArrow" Data="{StaticResource BrandArrowGeometry}" Fill="White"/>
+        <Path x:Name="BrandArrow" Data="{StaticResource BrandArrowGeometry}" Fill="White"><Path.RenderTransform><TranslateTransform x:Name="LogoArrowOffset"/></Path.RenderTransform></Path>
        </Canvas>
        <Path x:Name="BrandLetters" Data="{StaticResource BrandLettersGeometry}" Fill="{DynamicResource NavigationInk}"/>
       </Canvas>

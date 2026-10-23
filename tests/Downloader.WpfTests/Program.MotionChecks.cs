@@ -67,7 +67,8 @@ internal static partial class Program
     private static async Task CheckMotion(MainWindow window, MainViewModel model, FakeProvider provider, string captures)
     {
         var brand = window.HeaderContent.BrandButton;
-        bool IsSettled() => !window.HeaderContent.BrandInitial.HasAnimatedProperties && !window.HeaderContent.BrandArrow.HasAnimatedProperties &&
+        var arrowOffset = window.HeaderContent.LogoArrowOffset;
+        bool IsSettled() => !window.HeaderContent.BrandInitial.HasAnimatedProperties && !window.HeaderContent.BrandArrow.HasAnimatedProperties && !arrowOffset.HasAnimatedProperties &&
             window.HeaderContent.BrandInitial.RenderTransform.Value.IsIdentity && window.HeaderContent.BrandArrow.RenderTransform.Value.IsIdentity;
         var transition = window.ThemeTransition;
         bool previousDark = model.IsDark;
@@ -80,10 +81,22 @@ internal static partial class Program
         {
             MotionPreferences.SetTestOverride(true);
             model.CloseAddDownloadCommand.Execute(null);
+            ((System.Windows.Automation.Provider.IInvokeProvider)new System.Windows.Automation.Peers.ButtonAutomationPeer(brand).GetPattern(System.Windows.Automation.Peers.PatternInterface.Invoke)).Invoke();
+            await Until(() => arrowOffset.Y > 12, "Clicking the logo plays a downward arrow gesture");
+            Check(brand.Command == null && brand.ToolTip == null && !ToolTipService.GetIsEnabled(brand) && !model.AddDownloadVisible && model.LibraryVisible && provider.DownloadCalls == 0,
+                "Logo activation never opens Add download, shows a tooltip, changes page or starts a download");
+            Check(window.HeaderContent.BrandInitial.RenderTransform.Value.IsIdentity && window.HeaderContent.BrandLetters.RenderTransform.Value.IsIdentity && brand.FindName("LogoLight") == null,
+                "Only the white arrow moves while the V and lettering stay still");
+            await Until(IsSettled, "The arrow returns to its exact resting position and releases its animation clocks");
             brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
-            await Task.Delay(100);
-            Check(IsSettled() && brand.FindName("LogoLight") == null && provider.DownloadCalls == 0,
-                "The wordmark stays still without a shine while its animation is undecided");
+            await Until(() => arrowOffset.Y > 12, "Hovering plays the same arrow gesture without navigation");
+            brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
+            Check(arrowOffset.Y > 10, "Repeated hover does not stack or restart the animation");
+            MotionPreferences.SetTestOverride(false);
+            Check(IsSettled(), "Reduced motion restores the logo immediately even halfway through its animation");
+            await Task.Delay(450);
+            Check(IsSettled() && model.LibraryVisible && !model.AddDownloadVisible, "A cancelled logo animation cannot restart or change pages later");
+            MotionPreferences.SetTestOverride(true);
             model.LibraryFilterCommand.Execute("paused");
             model.LibrarySearch = "Previous queue search";
             model.NewDownloadCommand.Execute(null);
