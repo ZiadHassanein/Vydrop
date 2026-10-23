@@ -30,16 +30,16 @@ public partial class AppHeaderView : UserControl
         long revision = logoGeneration;
         var slide = new DoubleAnimationUsingKeyFrames { FillBehavior = FillBehavior.Stop };
         slide.KeyFrames.Add(new LinearDoubleKeyFrame(0, TimeSpan.Zero));
-        slide.KeyFrames.Add(new SplineDoubleKeyFrame(52, TimeSpan.FromMilliseconds(200), new KeySpline(.4, 0, .7, 1)));
-        slide.KeyFrames.Add(new DiscreteDoubleKeyFrame(-24, TimeSpan.FromMilliseconds(201)));
-        slide.KeyFrames.Add(new SplineDoubleKeyFrame(0, TimeSpan.FromMilliseconds(420), new KeySpline(.16, 1, .3, 1)));
+        slide.KeyFrames.Add(new SplineDoubleKeyFrame(52, TimeSpan.FromMilliseconds(400), new KeySpline(.4, 0, .7, 1)));
+        slide.KeyFrames.Add(new DiscreteDoubleKeyFrame(-24, TimeSpan.FromMilliseconds(402)));
+        slide.KeyFrames.Add(new SplineDoubleKeyFrame(0, TimeSpan.FromMilliseconds(840), new KeySpline(.16, 1, .3, 1)));
         slide.Completed += (_, _) => { if (revision == logoGeneration) ResetLogo(); };
         var fade = new DoubleAnimationUsingKeyFrames { FillBehavior = FillBehavior.Stop };
         fade.KeyFrames.Add(new LinearDoubleKeyFrame(1, TimeSpan.Zero));
-        fade.KeyFrames.Add(new LinearDoubleKeyFrame(1, TimeSpan.FromMilliseconds(65)));
-        fade.KeyFrames.Add(new SplineDoubleKeyFrame(0, TimeSpan.FromMilliseconds(180), new KeySpline(.4, 0, 1, 1)));
-        fade.KeyFrames.Add(new LinearDoubleKeyFrame(0, TimeSpan.FromMilliseconds(240)));
-        fade.KeyFrames.Add(new SplineDoubleKeyFrame(1, TimeSpan.FromMilliseconds(420), new KeySpline(.16, 1, .3, 1)));
+        fade.KeyFrames.Add(new LinearDoubleKeyFrame(1, TimeSpan.FromMilliseconds(130)));
+        fade.KeyFrames.Add(new SplineDoubleKeyFrame(0, TimeSpan.FromMilliseconds(360), new KeySpline(.4, 0, 1, 1)));
+        fade.KeyFrames.Add(new LinearDoubleKeyFrame(0, TimeSpan.FromMilliseconds(480)));
+        fade.KeyFrames.Add(new SplineDoubleKeyFrame(1, TimeSpan.FromMilliseconds(840), new KeySpline(.16, 1, .3, 1)));
         BrandArrow.BeginAnimation(UIElement.OpacityProperty, fade);
         LogoArrowOffset.BeginAnimation(TranslateTransform.YProperty, slide);
     }
