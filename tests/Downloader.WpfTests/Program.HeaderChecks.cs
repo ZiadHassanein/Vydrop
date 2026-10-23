@@ -33,8 +33,24 @@ internal static partial class Program
                 double edge = arabic ? actions.Left - header.HeaderFrame.Padding.Left : header.ActualWidth - header.HeaderFrame.Padding.Right - actions.Right;
                 Check(Math.Abs(edge) <= 1 && (arabic ? themeButton.Right <= languageButton.Left : languageButton.Right <= themeButton.Left),
                     $"Header controls occupy the outer edge in the correct physical order: {language}/{dark}/{width} (actions={actions}, language={languageButton}, theme={themeButton})");
+                var manager = window.ManagerContent;
+                var navigationButtons = Descendants<System.Windows.Controls.Primitives.ToggleButton>(navigation).ToArray();
+                Check(navigationButtons.Length == 8 && navigationButtons.All(button => button.Template.FindName("NavigationGlyph", button) is System.Windows.Shapes.Path { Width: 19, Height: 19 } && button.ActualHeight >= 48),
+                    "All eight navigation actions retain small icons and full-size click areas");
+                Check(Math.Abs(manager.NavigationItems.ActualHeight - manager.NavigationViewport.ViewportHeight) <= 1 && manager.NavigationViewport.ScrollableHeight == 0 &&
+                    manager.SettingsButton.TranslatePoint(new Point(0, manager.SettingsButton.ActualHeight), navigation).Y >= navigation.ActualHeight - 15,
+                    "Navigation fills the available window height with Settings at the bottom");
                 Capture(window, System.IO.Path.Combine(captures, $"logo-{language}-{dark}-{width}.png"));
             }
+            window.Width = window.MinWidth; window.Height = window.MinHeight;
+            await Task.Delay(120); window.UpdateLayout();
+            var compact = window.ManagerContent;
+            Check(compact.NavigationViewport.ScrollableHeight > 0, "Short windows scroll the sidebar instead of shrinking the navigation actions");
+            compact.SettingsButton.BringIntoView(); await Task.Delay(80); window.UpdateLayout();
+            var settings = compact.SettingsButton.TransformToAncestor(compact.NavigationViewport).TransformBounds(new Rect(compact.SettingsButton.RenderSize));
+            Check(settings.Top >= -1 && settings.Bottom <= compact.NavigationViewport.ActualHeight + 1 && compact.SettingsButton.IsEnabled,
+                "Settings remains fully reachable at the minimum window height");
+            Capture(window, System.IO.Path.Combine(captures, "sidebar-short-window.png"));
         }
         finally { MotionPreferences.SetTestOverride(null); }
     }
