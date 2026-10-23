@@ -4,10 +4,19 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.3] - 2026-10-23
+
+### Updated
+- Bundle browser companion 1.5.1 in both the Windows installer and portable ZIP, preserving extension IDs, existing permissions and the version-1 native-host fallback.
+- Include the latest UI and queue recovery, resume and scheduling fixes while retaining compatible settings, history and saved jobs.
+
 ### Fixed
 - Detect Reddit's open shadow-root players, keep the selected post's permalink, and avoid promoting comment GIFs or advertisements to the main video.
 - Keep Twitch clip permalinks and measure missing stream metadata so video and audio formats remain available.
 - Resolve Dailymotion player-only frames to the containing video page, including after navigation reuses the same frame URL.
+
+### Limitations
+- Site access restrictions still apply. Some Reddit pages require authentication, and the tested Krmizy video hosts are not certified as working.
 
 ## [4.4.2] - 2026-10-23
 

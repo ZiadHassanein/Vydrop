@@ -8,7 +8,7 @@ The Windows installer registers the native connection automatically for the curr
 
 Firefox 140+ displays built-in consent for browsing activity and website content: selected page/media URLs are transferred to the local desktop app. No analytics or cloud collection is added. Optional stream discovery remains off until its separate permissions are granted.
 
-Companion 1.5.0 adds **Test connection** (keep the app open for a full round trip), **Add to download queue**, and optional media-stream discovery in the popup. Version-1 link sending and existing extension/native-host identities are retained for compatibility.
+The companion includes **Test connection** (keep the app open for a full round trip), **Add to download queue**, and optional media-stream discovery in the popup. Version-1 link sending and existing extension/native-host identities are retained for compatibility.
 
 Discovery is disabled until you grant optional `webRequest` and HTTP(S) host access. It reads media response types/URLs, never cookies, account information, request bodies or media response bodies. Results are bounded per tab/frame, expire after 90 seconds and disappear on navigation or worker restart. Select a listed stream explicitly to send it for inspection; multiple players, ads, MSE, private content, unsupported formats and DRM can still prevent a usable download. Denying or removing the permission leaves normal page/player sending available.
 
@@ -18,7 +18,7 @@ To prepare unsigned store-root archives, use `scripts/package-browser.ps1 -Store
 
 ## Local setup and player behavior
 
-Optional Chrome/Edge and Firefox companions are included in the app ZIP under `Browser`. Normal app downloads need no extension. Companion 1.5.0 places **Download by Vydrop** inside the playing video's top-right corner. Choose Video or Audio, format and quality, then explicitly press Download to start it in the saved app folder. The toolbar popup provides the same choices.
+Optional Chrome/Edge and Firefox companions are included in the app ZIP under `Browser`. Normal app downloads need no extension. Companion 1.5.1 places **Download by Vydrop** inside the playing video's top-right corner. Choose Video or Audio, format and quality, then explicitly press Download to start it in the saved app folder. The toolbar popup provides the same choices.
 
 **New to the extension? Follow the illustrated [Chrome](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome), [Edge](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) or [Firefox](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) guide**, with English and Arabic instructions. The regular **Vydrop** companion connects to the regular app. A separately built **Vydrop Preview** companion uses the preview channel.
 
