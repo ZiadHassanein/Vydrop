@@ -1,4 +1,4 @@
-param([string]$Version = '4.4.1')
+param([string]$Version = '4.4.2')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $source = Join-Path $projectRoot "dist/Vydrop-$Version-win-x64/Vydrop.exe"

@@ -13,11 +13,11 @@ last_reviewed: 2026-10-23
 
 **Vydrop is a free, open-source video and audio downloader for Windows 10/11 x64.** Download the packaged app from the project's GitHub Releases page. The desktop interface supports English and Arabic.
 
-[Download Vydrop 4.4.1 — Windows installer](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.1/VydropSetup-v4.4.1-win-x64.exe) · [Portable ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.1/Vydrop-v4.4.1-win-x64.zip) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.1)
+[Download Vydrop 4.4.2 — Windows installer](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.2/VydropSetup-v4.4.2-win-x64.exe) · [Portable ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.2/Vydrop-v4.4.2-win-x64.zip) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.2)
 
 ## Install Vydrop
 
-1. Run **VydropSetup-v4.4.1-win-x64.exe**. Installation is for your Windows account and does not need administrator rights.
+1. Run **VydropSetup-v4.4.2-win-x64.exe**. Installation is for your Windows account and does not need administrator rights.
 2. Open **Vydrop** from Start. Setup installs the app, creates its uninstaller and registers the browser connection automatically.
 3. To add the optional companion, open **Settings → Browser integration**. Store listings are still pending: choose **Manual setup and troubleshooting → Load the local companion**, finish the browser's loading step, then use **Test connection**.
 
@@ -28,8 +28,8 @@ The installer closes the setup gap on the app side. Your browser still requires 
 | Item | What you need |
 | --- | --- |
 | Operating system | Windows 10 or Windows 11, x64 |
-| Installer | `VydropSetup-v4.4.1-win-x64.exe` from GitHub Releases |
-| Portable app | `Vydrop-v4.4.1-win-x64.zip`; extract the complete folder |
+| Installer | `VydropSetup-v4.4.2-win-x64.exe` from GitHub Releases |
+| Portable app | `Vydrop-v4.4.2-win-x64.zip`; extract the complete folder |
 | .NET | Included in the package; no separate runtime installation |
 | Media tools | Missing tools are prepared when needed; first use needs an internet connection |
 | Browser companion | Optional Chrome, Edge or Firefox companion, inside the app's **Browser** folder |

@@ -4,6 +4,19 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.2] - 2026-10-23
+
+### Fixed
+- Protect the last valid queue backup when recovering a damaged or missing primary file, and retain damaged originals for recovery.
+- Validate saved queue contents before restoring or replacing them, including malformed playlists, duplicate jobs and invalid states.
+- Resume a matching paused or interrupted download from Add download and the browser companion, preserving its job identity, partial files, progress and original per-job settings.
+- Keep scheduled times and paused job states intact when saving a scheduled start fails.
+- Make compact Details and filter-animation checks wait for the actual UI state instead of relying on fixed timer delays.
+
+### Compatibility
+- Retain queue format 1, existing settings and history, legacy browser identities, and exact version-1 native messaging fallback.
+- Browser-store listings remain unpublished; the installer prepares the native connection, and browser installation still requires approval.
+
 ## [4.4.1] - 2026-10-23
 
 ### Changed

@@ -13,11 +13,11 @@ last_reviewed: 2026-10-23
 
 **Vydrop برنامج مجاني ومفتوح المصدر لتنزيل الفيديو والصوت على Windows 10/11 x64.** نزّل حزمة التطبيق الجاهزة من إصدارات المشروع على GitHub. واجهة التطبيق متاحة بالعربية والإنجليزية.
 
-[تنزيل مُثبّت Vydrop 4.4.1 لويندوز](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.1/VydropSetup-v4.4.1-win-x64.exe) · [ملف ZIP المحمول](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.1/Vydrop-v4.4.1-win-x64.zip) · [ملاحظات الإصدار](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.1)
+[تنزيل مُثبّت Vydrop 4.4.2 لويندوز](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.2/VydropSetup-v4.4.2-win-x64.exe) · [ملف ZIP المحمول](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.2/Vydrop-v4.4.2-win-x64.zip) · [ملاحظات الإصدار](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.2)
 
 ## تثبيت Vydrop
 
-1. شغّل **VydropSetup-v4.4.1-win-x64.exe**. يُثبّت البرنامج لحساب ويندوز الحالي دون الحاجة إلى صلاحيات المدير.
+1. شغّل **VydropSetup-v4.4.2-win-x64.exe**. يُثبّت البرنامج لحساب ويندوز الحالي دون الحاجة إلى صلاحيات المدير.
 2. افتح **Vydrop** من قائمة ابدأ. يثبّت الإعداد التطبيق وأداة إزالته ويجهّز ربط المتصفحات تلقائيًا.
 3. لإضافة المتصفح الاختيارية، افتح **الإعدادات ← الربط بالمتصفح**. لم تُنشر صفحات المتاجر بعد؛ اختر **الإعداد اليدوي وحل المشكلات ← تحميل الإضافة المحلية**، وأكمل التحميل داخل المتصفح، ثم استخدم **اختبار الاتصال**.
 
@@ -28,8 +28,8 @@ last_reviewed: 2026-10-23
 | المطلوب | التفاصيل |
 | --- | --- |
 | نظام التشغيل | Windows 10 أو Windows 11 بمعمارية x64 |
-| المُثبّت | `VydropSetup-v4.4.1-win-x64.exe` من صفحة الإصدارات |
-| النسخة المحمولة | `Vydrop-v4.4.1-win-x64.zip`؛ فكّ المجلد كاملًا |
+| المُثبّت | `VydropSetup-v4.4.2-win-x64.exe` من صفحة الإصدارات |
+| النسخة المحمولة | `Vydrop-v4.4.2-win-x64.zip`؛ فكّ المجلد كاملًا |
 | بيئة .NET | مضمّنة؛ لا تحتاج تثبيتًا منفصلًا |
 | أدوات الوسائط | تُجهّز الأدوات الناقصة عند الحاجة؛ الاستخدام الأول يحتاج اتصالًا بالإنترنت |
 | إضافة المتصفح | اختيارية لـChrome وEdge وFirefox، داخل مجلد **Browser** المرفق |
