@@ -28,6 +28,7 @@ settings.json
 *.log
 **/bin/
 **/obj/
+*_wpftmp.csproj
 .impeccable/
 *.previous
 *.backup
