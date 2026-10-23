@@ -10,6 +10,9 @@
   <Grid x:Name="LibraryNoticeHost" VerticalAlignment="Bottom" HorizontalAlignment="Center" MaxWidth="660" Margin="24" Panel.ZIndex="30"/>
   <Grid x:Name="EditorOverlay" Background="{DynamicResource Page}" Visibility="Collapsed" Panel.ZIndex="40">
    <Border x:Name="EditorSurface" Background="{DynamicResource Page}" Margin="0">
+    <Border.Style><Style TargetType="Border"><Style.Triggers>
+     <DataTrigger Binding="{Binding SettingsVisible}" Value="False"><Setter Property="Width" Value="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=Grid}}"/><Setter Property="MaxWidth" Value="840"/><Setter Property="HorizontalAlignment" Value="Center"/></DataTrigger>
+    </Style.Triggers></Style></Border.Style>
     <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
      <Grid x:Name="EditorHeader" Margin="24,4,24,12">
       <TextBlock x:Name="EditorHeading" Text="{Binding AddDownloadLabel}" FontFamily="{Binding ContentFont}" FlowDirection="{Binding ContentDirection}" FontSize="34" LineHeight="44" FontWeight="SemiBold" VerticalAlignment="Center"/>

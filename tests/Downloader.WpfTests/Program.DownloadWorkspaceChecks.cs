@@ -22,8 +22,9 @@ internal static partial class Program
             Check(window.Viewport.ScrollableWidth < 1 && form.LinkInput.IsVisible && !form.QualityInput.IsEnabled,
                 "Empty download workspace fits and waits for actual available qualities");
             Check(Math.Abs(form.ActualWidth - window.Viewport.ViewportWidth) <= 1 &&
-                Math.Abs(form.FormContentPanel.ActualWidth + 48 - window.Viewport.ViewportWidth) <= 1,
-                "The download tab fills the center panel with consistent padding at every viewport width");
+                Math.Abs(form.FormContentPanel.ActualWidth + 48 - window.Viewport.ViewportWidth) <= 1 &&
+                Math.Abs(window.EditorSurface.ActualWidth - Math.Min(840, window.EditorOverlay.ActualWidth)) <= 1,
+                $"The download form fills a capped readable column with consistent padding at every viewport width (surface={window.EditorSurface.ActualWidth}, workspace={window.EditorOverlay.ActualWidth}, form={form.ActualWidth}, viewport={window.Viewport.ViewportWidth}, content={form.FormContentPanel.ActualWidth})");
             var linkBounds = form.LinkWell.TransformToAncestor(window.EditorSurface).TransformBounds(new Rect(form.LinkWell.RenderSize));
             var headingBounds = window.EditorHeader.TransformToAncestor(window.EditorSurface).TransformBounds(new Rect(window.EditorHeader.RenderSize));
             Check(Math.Abs(linkBounds.Left - headingBounds.Left) <= 1 && Math.Abs(linkBounds.Right - headingBounds.Right) <= 1 &&
@@ -33,8 +34,8 @@ internal static partial class Program
                 "The redesigned workspace has one unambiguous folder picker");
             var primary = form.DownloadAction.DownloadButton;
             var secondary = form.AddToQueueButton;
-            var primaryBounds = new Rect(primary.TranslatePoint(new Point(), form), primary.RenderSize);
-            var secondaryBounds = new Rect(secondary.TranslatePoint(new Point(), form), secondary.RenderSize);
+            var primaryBounds = primary.TransformToAncestor(form).TransformBounds(new Rect(primary.RenderSize));
+            var secondaryBounds = secondary.TransformToAncestor(form).TransformBounds(new Rect(secondary.RenderSize));
             Check(!primaryBounds.IntersectsWith(secondaryBounds), "Primary Download and secondary queue actions never overlap");
             Check(form.FormContentPanel.ActualWidth > 0 && primaryBounds.Bottom <= window.Viewport.ViewportHeight + 1,
                 "The main download action is reachable without scrolling at normal height");
