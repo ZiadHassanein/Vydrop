@@ -44,7 +44,8 @@ public sealed partial class MainViewModel
         else job = existing ?? Queue.Add(options, new Uri(link).Host);
         bool canStart = IsIdle;
         automaticBrowserJobs.Add(job.Id);
-        AddDownloadVisible = false; SettingsVisible = false; HistoryVisible = false;
+        LibraryFilterCommand.Execute("queue");
+        LibrarySearch = "";
         SelectedLibraryItem = QueueItems.FirstOrDefault(row => row.Id == job.Id);
         TryStartBrowserDownloads();
         if (!canStart) ShowNotice("Added to queue", "The download will start when the current operation finishes.", false, "library");

@@ -222,11 +222,11 @@ Search uses Field and Ink, one-unit Border, control radius and height 44 DIP. A 
 
 ### Navigation
 
-Navigation items use outlined 19 × 19 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Unselected icons use NavigationIcon, a cool gray; selected icons and labels use NavigationSelectedInk on the chamfered NavigationSelected face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Queue, Video and Audio display live 23-high count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download, Settings and History select their center workspace without disabling sidebar navigation. Sidebar and Settings contain no visible version or release-channel labels.
+Navigation items use outlined 19 × 19 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Unselected icons use NavigationIcon, a cool gray; selected icons and labels use NavigationSelectedInk on the chamfered NavigationSelected face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Library, Queue, Video and Audio display live 23-high count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download, Settings and History select their center workspace without disabling sidebar navigation. Sidebar and Settings contain no visible version or release-channel labels.
 
 ### Counted filter tabs
 
-Library filters are text tabs with a two-unit underline, 14 DIP trailing separation, minimum height 46 and 8 horizontal by 9 vertical padding. They wrap as needed. Their 23-high count badges collapse completely at zero. Selection uses Ink, semibold weight and Action underline; hover uses Accent text. Focus adds an Accent boundary while retaining the thicker bottom edge. All, Downloading, Paused and Completed show nonzero queue-derived counts. Paused includes interrupted work; these counts come from the full queue rather than the search-filtered result set. A drawn compact control beside the tabs opens queue management.
+Library filters are text tabs with a two-unit underline, 14 DIP trailing separation, minimum height 46 and 8 horizontal by 9 vertical padding. They wrap as needed. Their 23-high count badges collapse completely at zero. Selection uses Ink, semibold weight and Action underline; hover uses Accent text. Focus adds an Accent boundary while retaining the thicker bottom edge. Library uses All, Videos and Audio filters over completed media. Queue uses All, Downloading, Waiting, Paused and Needs attention filters over unfinished work. Paused includes interrupted work; Needs attention includes failed, cancelled and source-refresh jobs. Counts come from the full matching scope rather than the search-filtered result set. Queue has visible Start download, Pause queue and Manage queue controls; Library has no transfer toolbar.
 
 ### Library rows and selected-media details
 
@@ -304,3 +304,12 @@ The user rejected the pink/purple surface treatment. Native navigation is now gr
 ## Contact placement
 
 Contact me is a section in Settings below Download preferences. Its GitHub, LinkedIn and localized Email buttons are visible directly, wrap within the workspace, and use the existing SocialCommand destinations. The sidebar ends with Browser integration and Settings; no contact footer or popup remains. All links retain normal button focus, accessible names and English/Arabic layout.
+
+
+## Library and Queue separation
+
+Library is the completed-media collection; Queue is the unfinished-work workspace. Both share the existing virtualized rows and inspector, while headings, descriptions, search hints, filters and actions state their distinct roles. Library and Media badges count completed files; Queue counts unfinished jobs. Search text is retained separately in each scope. Missing completed files retain their strike-through title and unavailable status in Library.
+
+A job that finishes leaves Queue and appears in Library with the same persisted identity. Changing scope, filters, or job state cannot leave an invisible row selected in the inspector. The visible Start download action returns Queue to All and clears its search so new transfers are visible; confirmed browser work also opens Queue. Preserve the existing durable queue schema and explicit resume behavior.
+
+Advanced queue management uses a separate, stable unfinished-job view independent of the main search. Its count excludes completed media; move controls skip completed records in the shared durable store and disable unavailable boundaries. Completed-folder actions remain in Library. Opening queue management no longer scrolls to archived output rows.

@@ -15,14 +15,7 @@ public partial class QueueWindow : Window
     private void ShowInitialContent()
     {
         if (DataContext is not MainViewModel model) return;
-        if (model.QueueItems.Count > 0 && model.QueueItems.All(item => item.HasCompletedOutput) &&
-            model.QueueLinkInputs.All(input => string.IsNullOrWhiteSpace(input.Url)))
-        {
-            QueueItemsHost.UpdateLayout();
-            (QueueItemsHost.ItemContainerGenerator.ContainerFromIndex(0) as FrameworkElement)?.BringIntoView();
-            QueueCloseButton.Focus();
-        }
-        else FocusLinkInput(model.QueueLinkInputs.FirstOrDefault());
+        FocusLinkInput(model.QueueLinkInputs.FirstOrDefault());
     }
 
     private void LinkActionClicked(object sender, RoutedEventArgs args)

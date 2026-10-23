@@ -51,6 +51,7 @@ internal static partial class Program
         app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/Vydrop;component/Themes/Controls.xaml") });
         string root = System.IO.Path.Combine(AppContext.BaseDirectory, "wpf-test-" + Guid.NewGuid().ToString("N"));
         System.IO.Directory.CreateDirectory(root);
+        if (args.Contains("--library-queue")) PrepareLibraryQueue(root);
         Exception failure = null;
         var provider = new FakeProvider();
         var service = new DownloadService(provider, new EmptyStorage());
@@ -99,6 +100,12 @@ internal static partial class Program
                     await CheckBrowserAutostart(window, model, provider, root, captures);
                     await CheckRecentDownloads(window, model, captures);
                     Console.WriteLine(count + " WPF workspace-flow checks passed.");
+                    return;
+                }
+                if (args.Contains("--library-queue"))
+                {
+                    await CheckLibraryQueue(window, model, provider, root, captures);
+                    Console.WriteLine(count + " WPF library/queue checks passed.");
                     return;
                 }
                 if (args.Contains("--manager") || !args.Any(arg => arg.StartsWith("--", StringComparison.Ordinal)))

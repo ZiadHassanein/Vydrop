@@ -70,9 +70,9 @@ public sealed partial class MainViewModel
     public bool MainNoticeVisible => NoticeVisible && noticeAnchor != "options";
     public bool CanSelectPlaylist => IsIdle && playlistInfo != null;
     public bool CanGetCaptionLanguages => IsIdle && playlistInfo != null;
-    public bool HasQueue => QueueItems.Count > 0;
+    public bool HasQueue => WaitingCount > 0;
     public bool QueueRunning => Queue.IsRunning;
-    public string QueueLabel => QueueItems.Count > 0 ? F("Queue ({0})", QueueItems.Count) : T("Queue");
+    public string QueueLabel => WaitingCount > 0 ? F("Queue ({0})", WaitingCount) : T("Queue");
     public string PlaylistSelectionLabel => playlistInfo == null ? T("Choose videos") : F("Choose videos ({0}/{1})", selectedPlaylistIds?.Count ?? playlistInfo.Entries.Count, playlistInfo.Entries.Count);
     public string OptionsLabel => T("Subtitles");
     public string DoneLabel => T("Done");
@@ -254,7 +254,7 @@ public sealed partial class MainViewModel
                 return result;
         });
         bool pending = Queue.Entries.Any(e => e.State is QueueState.Pending or QueueState.Paused or QueueState.Interrupted or QueueState.AwaitingSource);
-        SetStatus(pending ? "Queue paused" : "Queue finished", pending ? "Review the queue to resume or start the remaining downloads." : "Open the queue to review completed or failed downloads.", false);
+        SetStatus(pending ? "Queue paused" : "Queue finished", pending ? "Review the queue to resume or start the remaining downloads." : "Find completed files in Library. Check Queue for downloads that need attention.", false);
         quietCompletion = Queue.Entries.All(entry => entry.State == QueueState.Completed && entry.Result?.Warning == null);
         SyncQueue();
     }

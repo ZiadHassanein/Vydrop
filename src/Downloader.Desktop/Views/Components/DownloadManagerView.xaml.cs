@@ -65,6 +65,12 @@ public partial class DownloadManagerView : UserControl
         NavigationSurface.IsEnabled = Header.IsEnabled = LibraryContent.IsEnabled = false;
         DetailsCloseButton.Focus();
     }
+    private void StartQueueClicked(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel model) return;
+        model.LibraryFilterCommand.Execute("queue");
+        model.LibrarySearch = "";
+    }
     private void RowMoreClicked(object sender, RoutedEventArgs e)
     {
         if (sender is not Button { DataContext: QueueItemView row } button || DataContext is not MainViewModel model) return;

@@ -70,3 +70,5 @@ Readable English and Arabic typography, correct bidirectional text, visible keyb
 The user rejected the pink/purple palette as insufficiently professional. Use graphite navigation, clean neutral light/dark workspaces and neutral utility icons, retaining the approved red logo and red primary actions. Keep semantic status colors and accessibility behavior.
 
 Contact links live directly in Settings as a Contact me section. Keep GitHub, LinkedIn and Email available without a popup; the sidebar contains navigation only.
+
+Library and Queue have separate purposes: Library contains completed video/audio downloads, including explicitly marked missing files; Queue contains pending, active, paused, interrupted, failed, cancelled and source-refresh work. Completion removes a job from Queue and makes the same durable job visible in Library. Each scope keeps its own search. Confirmed browser downloads open Queue. Existing settings and queue schema remain unchanged.

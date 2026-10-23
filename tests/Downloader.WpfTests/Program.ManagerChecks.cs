@@ -30,19 +30,22 @@ internal static partial class Program
         await model.Queue.RunJobAsync(deleted.Id, (_, _, _) => Task.FromResult(new DownloadResult { FilePath = deletedFile })); File.Delete(deletedFile);
         var audio = model.Queue.Add(Options("jNQXAC9IVRy", true), "Evening notes · Audio test media");
         var waiting = model.Queue.Add(Options("jNQXAC9IVRz"), "A new perspective · Waiting to download");
+        string audioFile = Path.Combine(root, "completed-audio.mp3"); File.WriteAllBytes(audioFile, new byte[2048]);
+        var completedAudio = model.Queue.Add(Options("jNQXAC9IVRa", true), "Collected sounds · Completed audio");
+        await model.Queue.RunJobAsync(completedAudio.Id, (_, _, _) => Task.FromResult(new DownloadResult { FilePath = audioFile }));
         await Task.Delay(120);
-        Check(model.LibraryCount == 4 && model.CompletedCount == 2 && model.AudioCount == 1 && model.VideoCount == 3, "The library counts real persisted jobs by state and media type");
+        Check(model.LibraryCount == 3 && model.WaitingCount == 2 && model.AudioCount == 1 && model.VideoCount == 2, "Library counts completed media while Queue counts unfinished jobs");
         model.LibrarySearch = "coastal";
         Check(model.LibraryItems.Cast<QueueItemView>().Single().Id == complete.Id, "Search finds a saved download by title");
         model.LibrarySearch = "no matching fixture"; Check(model.LibraryEmpty && model.HasLibrarySearch, "A failed search shows an explicit empty result");
-        model.LibrarySearch = ""; model.LibraryFilterCommand.Execute("audio"); Check(model.LibraryItems.Cast<QueueItemView>().Single().Id == audio.Id, "Media filters identify audio jobs");
+        model.LibrarySearch = ""; model.LibraryFilterCommand.Execute("audio"); Check(model.LibraryItems.Cast<QueueItemView>().Single().Id == completedAudio.Id, "Media filters identify completed audio without including queued audio");
         model.LibraryFilterCommand.Execute("all");
         model.SelectedLibraryItem = model.QueueItems.First(q => q.Id == deleted.Id);
         Check(model.SelectedLibraryItem.MissingFile && !model.LibraryActionCommand.CanExecute(deleted.Id) && model.SelectedLibraryItem.MediaStatus == "File moved or deleted", "Missing output files are marked explicitly and cannot be opened");
         model.SelectedLibraryItem = model.QueueItems.First(q => q.Id == complete.Id);
         Check(model.SelectedLibraryItem.OutputFile == firstFile && model.SelectedLibraryItem.TransferSummary.Contains("MB") && model.SelectedLibraryItem.Speed == "—", "Completed size comes from the file and inactive transfer speed is unknown: " + model.SelectedLibraryItem.TransferSummary + " speed=" + model.SelectedLibraryItem.Speed + " output=" + model.SelectedLibraryItem.OutputFile + " expected=" + firstFile);
         var reloaded = new DownloadQueue(new LocalQueueStorage(root));
-        Check(reloaded.Entries.Count == 4 && reloaded.Entries[0].Options.ThumbnailUrl == complete.Options.ThumbnailUrl, "Library metadata extends the existing durable queue without replacing its schema");
+        Check(reloaded.Entries.Count == 5 && reloaded.Entries[0].Options.ThumbnailUrl == complete.Options.ThumbnailUrl, "Library metadata extends the existing durable queue without replacing its schema");
         int presentationResets = 0;
         void CountReset(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs args) { if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) presentationResets++; }
         model.LibraryItems.CollectionChanged += CountReset;
@@ -86,6 +89,7 @@ internal static partial class Program
             progress.Report(new DownloadProgress { Stage = "Downloading", Percent = 42, DownloadedBytes = 4200000, TotalBytes = 10000000, BytesPerSecond = 600000, RemainingSeconds = 10 });
             token.WaitHandle.WaitOne(); token.ThrowIfCancellationRequested(); return new DownloadResult();
         };
+        model.LibraryFilterCommand.Execute("queue");
         var running = model.LibraryActionCommand.ExecuteAsync(waiting.Id);
         for (int wait = 0; wait < 100 && model.QueueItems.First(q => q.Id == waiting.Id).Speed == "—"; wait++) await Task.Delay(25);
         model.SelectedLibraryItem = model.QueueItems.First(q => q.Id == waiting.Id);
@@ -122,7 +126,7 @@ internal static partial class Program
         model.HistoryCommand.Execute(null); await Task.Delay(60);
         Check(model.RecentDownloadCount == 0 && window.ManagerContent.HistoryButton.IsVisible && System.Windows.Automation.AutomationProperties.GetName(window.ManagerContent.HistoryButton) == model.HistoryLabel,
             "Opening History acknowledges new completions without hiding its navigation action");
-        model.LibraryFilterCommand.Execute("all");
+        model.LibraryFilterCommand.Execute("queue");
         var sentinel = model.Queue.Add(Options("jNQXAC9IVR1"), "Keep waiting · Cancel regression");
         provider.DownloadHandler = (_, token, _) => { token.WaitHandle.WaitOne(); token.ThrowIfCancellationRequested(); return new DownloadResult(); };
         var cancelled = model.LibraryActionCommand.ExecuteAsync(audio.Id);
@@ -130,7 +134,7 @@ internal static partial class Program
         model.LibraryCancelCommand.Execute(audio.Id); await cancelled;
         Check(model.Queue.Entries.First(e => e.Id == audio.Id).State == QueueState.Cancelled && model.Queue.Entries.First(e => e.Id == sentinel.Id).State == QueueState.Pending, "Cancelling the selected active transfer preserves other pending jobs");
         ThemeResources.ContrastOverride = new(System.Windows.Media.Brushes.Black, System.Windows.Media.Brushes.White, System.Windows.Media.Brushes.Yellow, System.Windows.Media.Brushes.Black);
-        ThemeResources.Apply(true); model.RefreshThemeBindings(); model.SelectedLibraryItem = model.QueueItems.First(q => q.Id == complete.Id); window.ManagerContent.SearchInput.Focus(); await Task.Delay(60);
+        ThemeResources.Apply(true); model.RefreshThemeBindings(); model.LibraryFilterCommand.Execute("all"); model.SelectedLibraryItem = model.QueueItems.First(q => q.Id == complete.Id); window.ManagerContent.SearchInput.Focus(); await Task.Delay(60);
         var selectedContainer = (System.Windows.Controls.ListBoxItem)window.ManagerContent.DownloadsList.ItemContainerGenerator.ContainerFromItem(model.SelectedLibraryItem);
         Check(selectedContainer.IsSelected && selectedContainer.BorderThickness.Left == 3 && Equals(selectedContainer.BorderBrush, window.FindResource("Accent")), "High-contrast selection remains visibly outlined after keyboard focus moves to search");
         Capture(window, Path.Combine(captures, "manager-high-contrast.png"));

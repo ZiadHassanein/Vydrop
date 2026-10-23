@@ -66,8 +66,8 @@ public sealed partial class MainViewModel
     private void InitializeQueueReliability()
     {
         QueuePauseCommand = new RelayCommand(() => { automaticBrowserJobs.Clear(); Queue.Pause(); }, () => Queue.IsRunning);
-        MoveQueueUpCommand = new RelayCommand<Guid>(id => Queue.Move(id, -1), _ => !Queue.IsRunning);
-        MoveQueueDownCommand = new RelayCommand<Guid>(id => Queue.Move(id, 1), _ => !Queue.IsRunning);
+        MoveQueueUpCommand = new RelayCommand<Guid>(id => MoveQueueWork(id, -1), id => !Queue.IsRunning && QueueMoveSteps(id, -1) > 0);
+        MoveQueueDownCommand = new RelayCommand<Guid>(id => MoveQueueWork(id, 1), id => !Queue.IsRunning && QueueMoveSteps(id, 1) > 0);
         RefreshQueueSourceCommand = new RelayCommand<Guid>(id =>
         {
             try
@@ -188,6 +188,21 @@ public sealed partial class MainViewModel
             if (quality != null) SelectedQuality = quality;
             else ShowNotice("Format changed", "The available formats changed. Review the quality before downloading.", false, "folder");
         }
+    }
+    private int QueueMoveSteps(Guid id, int direction)
+    {
+        var jobs = Queue.Entries;
+        int index = -1;
+        for (int i = 0; i < jobs.Count; i++) if (jobs[i].Id == id) { index = i; break; }
+        if (index < 0 || jobs[index].State == QueueState.Completed) return 0;
+        int next = index + direction;
+        while (next >= 0 && next < jobs.Count && jobs[next].State == QueueState.Completed) next += direction;
+        return next >= 0 && next < jobs.Count ? Math.Abs(next - index) : 0;
+    }
+    private void MoveQueueWork(Guid id, int direction)
+    {
+        int steps = QueueMoveSteps(id, direction);
+        for (int i = 0; i < steps; i++) if (!Queue.Move(id, direction)) break;
     }
     private string incomingSourcePage, incomingMediaId;
 }

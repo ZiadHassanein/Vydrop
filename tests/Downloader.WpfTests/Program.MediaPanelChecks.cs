@@ -122,17 +122,17 @@ internal static partial class Program
             foreach (string locale in new[] { "en", "ar" })
             {
                 model.SelectLanguageCommand.Execute(locale);
+                model.LibraryFilterCommand.Execute("all");
+                await Settle();
+                var completed = model.LibraryItems.Cast<QueueItemView>().Single();
+                Check(completed.IsComplete && completed.CompletedFolder == folder && model.OpenQueueFolderCommand.CanExecute(completed.Id),
+                    "Completed outputs retain their real folder action in Library: " + locale);
                 await InspectQueueModal(window, model, async dialog =>
                 {
-                    var open = Descendants<Button>(dialog).Single(button => button.Name == "QueueOpenFolder");
-                    Check(open.IsVisible && open.IsEnabled && Equals(open.Content, model.OpenFolderLabel) && Equals(open.ToolTip, folder) &&
-                        open.Command.CanExecute(open.CommandParameter), "Completed queue items expose their real output folder in " + locale);
-                    var status = Descendants<TextBlock>(dialog).Single(label => label.Text == model.QueueItems.Single().Status);
-                    var queueViewport = (ScrollViewer)WpfTree.Find(dialog, "QueueViewport");
-                    var statusBounds = status.TransformToAncestor(queueViewport).TransformBounds(new Rect(status.RenderSize));
-                    Check(statusBounds.Top >= 0 && statusBounds.Bottom <= queueViewport.ActualHeight,
-                        "A completed queue opens with its result and folder action in view");
-                    Capture(dialog, Path.Combine(captures, "media-queue-completed-" + locale + ".png"));
+                    var jobs = (ItemsControl)WpfTree.Find(dialog, "QueueItemsHost");
+                    Check(jobs.Items.Count == 0 && !model.HasQueue,
+                        "Completed outputs are available in Library without reappearing in queue management");
+                    Capture(dialog, Path.Combine(captures, "media-queue-empty-" + locale + ".png"));
                     await Task.CompletedTask;
                 });
             }

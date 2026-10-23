@@ -87,7 +87,7 @@
     <StackPanel x:Name="QueuedDownloadsSection" Visibility="{Binding HasQueue,Converter={StaticResource BoolVisibility}}">
     <TextBlock Text="{Binding QueueLabel}" FontWeight="SemiBold" Margin="0,0,0,8"/>
     <Border>
-      <ItemsControl x:Name="QueueItemsHost" ItemsSource="{Binding QueueItems}">
+      <ItemsControl x:Name="QueueItemsHost" ItemsSource="{Binding QueueWorkItems}">
        <ItemsControl.ItemTemplate>
         <DataTemplate>
          <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,12">
@@ -102,7 +102,6 @@
             <TextBlock Text="{Binding Status}" FontSize="12" Margin="0,6,0,0">
              <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource Muted}"/><Style.Triggers>
               <DataTrigger Binding="{Binding IsActive}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Accent}"/></DataTrigger>
-              <DataTrigger Binding="{Binding Entry.State}" Value="Completed"><Setter Property="Foreground" Value="{DynamicResource Success}"/></DataTrigger>
               <DataTrigger Binding="{Binding Entry.State}" Value="Failed"><Setter Property="Foreground" Value="{DynamicResource Error}"/></DataTrigger>
              </Style.Triggers></Style></TextBlock.Style>
             </TextBlock>
@@ -112,10 +111,6 @@
             <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Foreground="{DynamicResource Error}" FontSize="12" Margin="0,6,0,0" Visibility="{Binding HasError,Converter={StaticResource BoolVisibility}}"/>
            </StackPanel>
            <WrapPanel Grid.Row="1" Margin="0,6,0,0">
-            <Button x:Name="QueueOpenFolder" Content="{Binding DataContext.OpenFolderLabel,RelativeSource={RelativeSource AncestorType=Window}}"
-                    Command="{Binding DataContext.OpenQueueFolderCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}"
-                    Visibility="{Binding HasCompletedOutput,Converter={StaticResource BoolVisibility}}" IsEnabled="{Binding CanOpenFolder}"
-                    ToolTip="{Binding CompletedFolder}" Style="{StaticResource QueueQuietButton}"/>
             <WrapPanel HorizontalAlignment="Right">
             <Button Content="{Binding RetryAction}" Command="{Binding DataContext.RetryQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Visibility="{Binding CanRetry,Converter={StaticResource BoolVisibility}}" Style="{StaticResource QueueQuietButton}"/>
             <Button Content="{Binding DataContext.RemoveLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RemoveQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" IsEnabled="{Binding CanRemove}" Style="{StaticResource QueueQuietButton}"/>
