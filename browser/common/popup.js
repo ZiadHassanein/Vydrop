@@ -41,3 +41,19 @@ button.addEventListener("click", async () => {
     status.textContent = errorMessage(error, arabic);
   } finally { button.disabled = false; }
 });
+
+const queueButton = document.querySelector("#enqueue");
+if (queueButton?.addEventListener) {
+  queueButton.textContent = arabic ? "إضافة إلى قائمة التنزيل" : "Add to download queue";
+  queueButton.addEventListener("click", async () => {
+    queueButton.disabled = true;
+    status.textContent = text.finding;
+    try {
+      const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+      const found = globalThis.ViFreeVideoDetection.resolveDetails ? await globalThis.ViFreeVideoDetection.resolveDetails(tab) : { url: await globalThis.ViFreeVideoDetection.resolve(tab) };
+      const result = await sendLink(found.url, { enqueue: true, sourcePage: found.sourcePage || tab?.url, mediaId: found.mediaId });
+      status.textContent = result.code === "queued" ? (arabic ? "أُضيف إلى قائمة التنزيل. ابدأه من التطبيق." : "Added to the queue. Start it in the app.") : text.opened;
+    } catch (error) { status.textContent = errorMessage(error, arabic); }
+    finally { queueButton.disabled = false; }
+  });
+}

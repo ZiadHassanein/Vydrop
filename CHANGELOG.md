@@ -4,9 +4,12 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
-## [4.4.6] - 2026-10-25
+## [4.4.7] - 2026-10-25
 
 ### Changed
+- Simplify the extension popup to Open in Vydrop and Add to download queue; remove Test connection, Media-stream discovery and its optional observation permissions.
+- Close a failed in-video format chooser and restore the original action without displaying the Retry/Open fallback panel or sending a download.
+- Bundle Chromium and Firefox companion 1.5.5 with the app update.
 - Keep the on-video download action visible before playback, while buffering or paused, and after the video ends; retain hidden-player, blocking-dialog and active-ad filtering.
 
 ## [4.4.5] - 2026-10-24

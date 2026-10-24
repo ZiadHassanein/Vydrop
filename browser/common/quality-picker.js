@@ -101,7 +101,14 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
           source.textContent = typeof data.source === "string" ? data.source.slice(0, 200) : "";
           try { const url = new URL(data.thumbnail); if (url.protocol === "https:" && !url.username && !url.password && !url.port && !/^(localhost|127\.|0\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[)/iu.test(url.hostname)) { thumbnail.hidden = false; thumbnail.src = url.href; identity.classList.remove("no-image"); } } catch { /* A text-only source is an honest fallback. */ }
           kind = media.videos.length ? "video" : "audio"; options.classList.remove("hidden"); status.textContent = ""; topStatus.textContent = t.ready; topStatus.dataset.ready = "true"; renderFormats();
-        } catch (error) { if (!disposed) { media = null; status.textContent = error?.code === "unsupported" ? t.fallback : t.unavailable; status.dataset.error = "true"; retry.classList.remove("hidden"); launch.disabled = false; } }
+        } catch (error) {
+          if (!disposed) {
+            // A failed in-video lookup returns to the original action without a dead fallback panel.
+            if (!embedded) { close(); return; }
+            media = null; status.textContent = error?.code === "unsupported" ? t.fallback : t.unavailable;
+            status.dataset.error = "true"; retry.classList.remove("hidden"); launch.disabled = false;
+          }
+        }
         finally { loading = false; if (!disposed) position(); }
       }
       async function openApp() {

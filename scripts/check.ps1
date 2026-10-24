@@ -25,7 +25,7 @@ if($LASTEXITCODE -ne 0) { throw 'Closed-app browser download handoff failed.' }
 & node --test (Join-Path $projectRoot 'tests/browser.test.cjs') (Join-Path $projectRoot 'tests/browser-video.test.cjs') (Join-Path $projectRoot 'tests/browser-errors.test.cjs') (Join-Path $projectRoot 'tests/docs.test.cjs') (Join-Path $projectRoot 'tests/localization.test.cjs') (Join-Path $projectRoot 'tests/search-discovery.test.cjs') (Join-Path $projectRoot 'tests/international.test.cjs')
 if($LASTEXITCODE -ne 0) { throw 'Browser companion, documentation or localization checks failed.' }
 & node --test (Join-Path $projectRoot 'tests/browser-improvements.test.cjs') (Join-Path $projectRoot 'tests/browser-playlist.test.cjs')
-if($LASTEXITCODE -ne 0) { throw 'Browser discovery and protocol compatibility checks failed.' }
+if($LASTEXITCODE -ne 0) { throw 'Browser protocol compatibility checks failed.' }
 if($env:VYDROP_PLAYWRIGHT) {
     & node (Join-Path $projectRoot 'tests/browser-overlay-live.cjs')
     if($LASTEXITCODE -ne 0) { throw 'Rendered browser overlay checks failed.' }
@@ -39,10 +39,6 @@ if($env:VYDROP_PLAYWRIGHT) {
     if($LASTEXITCODE -ne 0) { throw 'Dailymotion ad/content selection checks failed.' }
     & node (Join-Path $projectRoot 'tests/browser-quality-live.cjs')
     if($LASTEXITCODE -ne 0) { throw 'Rendered browser quality selection checks failed.' }
-    if($env:VYDROP_EXTENSION) {
-        & node (Join-Path $projectRoot 'tests/browser-discovery-live.cjs')
-        if($LASTEXITCODE -ne 0) { throw 'Packaged MV3 media discovery checks failed.' }
-    }
 } else {
     Write-Output 'Rendered overlay checks are opt-in: set VYDROP_PLAYWRIGHT to an installed Playwright module.'
 }

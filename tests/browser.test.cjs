@@ -133,15 +133,18 @@ if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identit
   for (const browser of ['chromium', 'firefox']) {
     const folder = path.join(process.env.VIFREE_BROWSER_PACKAGE, browser), manifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
     const preview = process.env.VIFREE_BROWSER_CHANNEL !== 'stable';
-    assert.equal(manifest.version, '1.5.4'); assert.equal(manifest.name, preview ? 'Vydrop Preview' : 'Vydrop');
+    assert.equal(manifest.version, '1.5.5'); assert.equal(manifest.name, preview ? 'Vydrop Preview' : 'Vydrop');
     assert.deepEqual([...manifest.permissions].sort(), ['activeTab', 'clipboardWrite', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
     assert.equal(manifest.host_permissions, undefined);
+    assert.equal(manifest.optional_permissions, undefined); assert.equal(manifest.optional_host_permissions, undefined);
+    assert.equal(fs.existsSync(path.join(folder, "media-discovery.js")), false);
+    assert.equal(fs.existsSync(path.join(folder, "popup-discovery.js")), false);
     assert.deepEqual(manifest.content_scripts, [{ matches: ['https://*/*', 'http://*/*'], js: ['connection.js', 'video-detection.js', 'quality-picker.js', 'video-overlay.js'], all_frames: true, run_at: 'document_idle' }]);
     for (const name of ['connection.js', 'video-detection.js', 'quality-picker.js', 'video-overlay.js', 'popup.js', 'background.js']) assert.equal(fs.readFileSync(path.join(folder, name), 'utf8'), fs.readFileSync(path.join(root, 'Browser/common', name), 'utf8'));
     assert.match(fs.readFileSync(path.join(folder, 'popup.html'), 'utf8'), /video-detection\.js/u);
     assert.match(fs.readFileSync(path.join(folder, 'popup.html'), 'utf8'), /quality-picker\.js/u);
     if (browser === 'chromium') assert.equal(manifest.key, fs.readFileSync(path.join(root, 'Browser/public-key.txt'), 'utf8').trim());
-    else { assert.deepEqual(manifest.background.scripts, ['connection.js', 'video-detection.js', 'media-discovery.js', 'background.js']); assert.equal(manifest.browser_specific_settings.gecko.id, preview ? 'vifree-preview@ziadhassanein.github.io' : 'vifree@ziadhassanein.github.io'); }
+    else { assert.deepEqual(manifest.background.scripts, ['connection.js', 'video-detection.js', 'background.js']); assert.equal(manifest.browser_specific_settings.gecko.id, preview ? 'vifree-preview@ziadhassanein.github.io' : 'vifree@ziadhassanein.github.io'); }
   }
 });
 

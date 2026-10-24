@@ -13,11 +13,11 @@ last_reviewed: 2026-10-24
 
 **Vydrop is a free, open-source video and audio downloader for Windows 10/11 x64.** Download the packaged app from the project's GitHub Releases page. The desktop interface supports English and Arabic.
 
-[Download Vydrop 4.4.6 — Complete ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.6/Vydrop-v4.4.6-win-x64.zip) · [Windows installer (optional)](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.6/VydropSetup-v4.4.6-win-x64.exe) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.6)
+[Download Vydrop 4.4.7 — Complete ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.7/Vydrop-v4.4.7-win-x64.zip) · [Windows installer (optional)](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.7/VydropSetup-v4.4.7-win-x64.exe) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.7)
 
 The ZIP contains **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**. Extract the entire archive; opening only the EXE inside the ZIP does not unpack the companion folders.
 
-Both packages include companion **1.5.4** and the latest Reddit player, Twitch clip-format and Dailymotion link fixes. When updating an existing unpacked companion, reload it in your browser's Extensions page and refresh video tabs.
+Both packages include companion **1.5.5** and the latest Reddit player, Twitch clip-format and Dailymotion link fixes. When updating an existing unpacked companion, reload it in your browser's Extensions page and refresh video tabs.
 
 ## Run the extracted app
 
@@ -33,8 +33,8 @@ The companion opens a format and quality menu. Confirm Download to start the cho
 | Item | What you need |
 | --- | --- |
 | Operating system | Windows 10 or Windows 11, x64 |
-| Installer | `VydropSetup-v4.4.6-win-x64.exe` from GitHub Releases |
-| Portable app | `Vydrop-v4.4.6-win-x64.zip`; extract the complete folder |
+| Installer | `VydropSetup-v4.4.7-win-x64.exe` from GitHub Releases |
+| Portable app | `Vydrop-v4.4.7-win-x64.zip`; extract the complete folder |
 | .NET | Included in the package; no separate runtime installation |
 | Media tools | Missing tools are prepared when needed; first use needs an internet connection |
 | Browser companion | Optional Chrome, Edge or Firefox companion, inside the app's **Browser** folder |
@@ -44,7 +44,7 @@ GitHub's **Code → Download ZIP** downloads the source code. Choose the named W
 
 ## Optional: use the Windows installer
 
-1. Run **VydropSetup-v4.4.6-win-x64.exe**. Installation is for your Windows account and does not need administrator rights.
+1. Run **VydropSetup-v4.4.7-win-x64.exe**. Installation is for your Windows account and does not need administrator rights.
 2. Open **Vydrop** from Start. Setup installs the app, creates its uninstaller and registers the browser connection automatically.
 3. To add the optional companion, open **Settings → Browser integration**. Store listings are still pending: choose **choose your browser → Set up**, finish the browser's loading step, then use **Test connection**.
 

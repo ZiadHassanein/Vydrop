@@ -46,8 +46,10 @@ const root = path.resolve(__dirname, '..'), output = path.join(root, 'build/mana
       await dialog.getByRole('button',{name:lang==='ar'?'تنزيل':'Download',exact:true}).click();
       assert.deepEqual(await page.evaluate(()=>sent[0]),{kind:'video',format:'webm',height:480}); count++;
       assert.equal(await dialog.count(),0),'successful delivery closes the chooser';assert.equal(await page.locator('#anchor').evaluate(e=>e===document.activeElement),true);count++;
-      await page.evaluate(()=>{fixtureFailure=true;});await page.locator('#anchor').click();await dialog.getByText(lang==='ar'?'يمكنك اختيار الجودة داخل التطبيق.':'You can choose the quality inside the app.').waitFor();
-      await dialog.getByRole('button',{name:lang==='ar'?'فتح في Vydrop':'Open in Vydrop',exact:true}).click();assert.equal(await page.evaluate(()=>sent.length),2);count++;
+      await page.evaluate(()=>{fixtureFailure=true;});await page.locator('#anchor').click();
+      await page.waitForFunction(()=>!document.querySelector('#vydrop-quality-picker'));
+      assert.equal(await page.evaluate(()=>sent.length),1,'failed format lookup never sends a fallback download');
+      assert.equal(await page.locator('#anchor').evaluate(e=>e===document.activeElement),true);count++;
       await page.close();
     }
     const page=await browser.newPage({viewport:{width:1200,height:800}});
@@ -68,6 +70,14 @@ const root = path.resolve(__dirname, '..'), output = path.join(root, 'build/mana
     assert.equal(forwarded[1].url,'https://cdn.example.com/video.mp4');count++;
     assert.equal(await picker.count(),0);
     const overlayButton=page.locator('#vifree-video-action').getByRole('button');
+    for (const failure of [{ok:false,code:'inspect'},{ok:true,media:{videos:[],audio:[]}},{ok:true,media:{videos:'invalid',audio:[]}}]) {
+      await page.evaluate(failure=>{browser.runtime.sendMessage=async message=>{forwarded.push(message);return failure;};},failure);
+      const before=await page.evaluate(()=>forwarded.length);
+      await overlayButton.click();await page.waitForFunction(()=>!document.querySelector('#vydrop-quality-picker'));
+      assert.equal(await overlayButton.textContent(),'Download by Vydrop');
+      assert.equal(await overlayButton.isEnabled(),true);
+      assert.equal(await page.evaluate(()=>forwarded.length),before+1,'format failures cannot send an open or download command');count++;
+    }
     await page.evaluate(()=>{browser.runtime.sendMessage=message=>new Promise(resolve=>{window.releaseFormats=()=>resolve({ok:true,media:{title:'Late metadata',source:'example.com',videos:[{format:'mp4',heights:[720]}],audio:[]}});});});
     await overlayButton.click();await page.getByRole('dialog').waitFor();
     await page.keyboard.press('Escape');
@@ -83,6 +93,6 @@ const root = path.resolve(__dirname, '..'), output = path.join(root, 'build/mana
     assert.equal(await audioDialog.evaluate(e=>e.scrollWidth<=e.clientWidth && e.scrollHeight<=e.clientHeight+1),true);count++;
     await compact.screenshot({path:path.join(output,'host-audio-forced-colors-390.png')});
     await audioDialog.getByRole('button',{name:'Download',exact:true}).click();assert.deepEqual(await compact.evaluate(()=>audioChoice),{kind:'audio',format:'flac',height:0});await compact.close();
-    console.log(`PASS: ${count} rendered quality menu checks: themes, Arabic, compact bounds, exact output delivery, Escape/focus restoration and legacy fallback.`);
+    console.log(`PASS: ${count} rendered quality menu checks: themes, Arabic, compact bounds, exact output delivery, Escape/focus restoration and silent in-video inspection failures.`);
   } finally {await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,5 +1,4 @@
 if (!globalThis.ViFreeConnection) importScripts("connection.js", "video-detection.js");
-if (typeof importScripts === "function" && !globalThis.VydropMediaDiscovery) importScripts("media-discovery.js");
 const { api, name, sendLink, errorMessage } = globalThis.ViFreeConnection;
 const arabic = /^ar\b/iu.test(api.i18n?.getUILanguage?.() ?? "");
 const text = arabic

@@ -15,8 +15,4 @@ button:disabled { opacity: .6; cursor: wait; }
 .secondary { background: transparent; color: var(--ink); border: 1px solid var(--muted); font-weight: 500; margin-top: 8px; padding: 8px; }
 .secondary:hover { background: color-mix(in srgb, var(--ink) 7%, transparent); filter: none; }
 body { max-height: 580px; overflow-y: auto; scrollbar-color: var(--muted) var(--page); }
-details { margin-top: 16px; border-top: 1px solid var(--muted); padding-top: 12px; }
-summary { cursor: pointer; }
-summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
-#streams .stream { overflow-wrap: anywhere; text-align: start; }
 [hidden] { display: none !important; }
