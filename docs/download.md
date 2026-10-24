@@ -13,11 +13,11 @@ last_reviewed: 2026-10-24
 
 **Vydrop is a free, open-source video and audio downloader for Windows 10/11 x64.** Download the packaged app from the project's GitHub Releases page. The desktop interface supports English and Arabic.
 
-[Download Vydrop 4.4.3 — Complete ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/Vydrop-v4.4.3-win-x64.zip) · [Windows installer (optional)](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.3)
+[Download Vydrop 4.4.4 — Complete ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.4/Vydrop-v4.4.4-win-x64.zip) · [Windows installer (optional)](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.4/VydropSetup-v4.4.4-win-x64.exe) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.4)
 
 The ZIP contains **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**. Extract the entire archive; opening only the EXE inside the ZIP does not unpack the companion folders.
 
-Both packages include companion **1.5.1** and the latest Reddit player, Twitch clip-format and Dailymotion link fixes. When updating an existing unpacked companion, reload it in your browser's Extensions page and refresh video tabs.
+Both packages include companion **1.5.2** and the latest Reddit player, Twitch clip-format and Dailymotion link fixes. When updating an existing unpacked companion, reload it in your browser's Extensions page and refresh video tabs.
 
 ## Run the extracted app
 
@@ -33,8 +33,8 @@ The companion opens a format and quality menu. Confirm Download to start the cho
 | Item | What you need |
 | --- | --- |
 | Operating system | Windows 10 or Windows 11, x64 |
-| Installer | `VydropSetup-v4.4.3-win-x64.exe` from GitHub Releases |
-| Portable app | `Vydrop-v4.4.3-win-x64.zip`; extract the complete folder |
+| Installer | `VydropSetup-v4.4.4-win-x64.exe` from GitHub Releases |
+| Portable app | `Vydrop-v4.4.4-win-x64.zip`; extract the complete folder |
 | .NET | Included in the package; no separate runtime installation |
 | Media tools | Missing tools are prepared when needed; first use needs an internet connection |
 | Browser companion | Optional Chrome, Edge or Firefox companion, inside the app's **Browser** folder |
@@ -44,9 +44,9 @@ GitHub's **Code → Download ZIP** downloads the source code. Choose the named W
 
 ## Optional: use the Windows installer
 
-1. Run **VydropSetup-v4.4.3-win-x64.exe**. Installation is for your Windows account and does not need administrator rights.
+1. Run **VydropSetup-v4.4.4-win-x64.exe**. Installation is for your Windows account and does not need administrator rights.
 2. Open **Vydrop** from Start. Setup installs the app, creates its uninstaller and registers the browser connection automatically.
-3. To add the optional companion, open **Settings → Browser integration**. Store listings are still pending: choose **Manual setup and troubleshooting → Load the local companion**, finish the browser's loading step, then use **Test connection**.
+3. To add the optional companion, open **Settings → Browser integration**. Store listings are still pending: choose **choose your browser → Set up**, finish the browser's loading step, then use **Test connection**.
 
 The installer closes the setup gap on the app side. Your browser still requires approval to load an extension. See the [illustrated extension guide](browser-extension-setup.md).
 
@@ -58,7 +58,7 @@ The official repository is **[ZiadHassanein/Vydrop](https://github.com/ZiadHassa
 
 Downloading a new ZIP does not change a running older copy. Close Vydrop, extract the complete new ZIP into the existing app folder and replace the app files, including the **Browser** folder. Keep your downloaded media and local app-data files. Compatible settings, queue and history remain in their existing storage location. Reload the companion and refresh video tabs. If you use a new folder instead, open **Settings → Browser integration** and reconnect from that copy so the browser opens the new app. Installed copies can alternatively use the new installer.
 
-The built-in app updater updates the desktop application files. If the browser companion still uses an older folder, open **Browser integration** to prepare the matching companion and load/reload the folder shown there. Extracting the full ZIP into the existing folder updates both companion folders together.
+In **Settings**, choose **Check for updates**, then **Install**. The verified update replaces the app and both bundled browser companions together, restarts Vydrop, and preserves compatible settings, queue, history and downloaded media. Reload the extension in the browser and refresh video tabs. If an earlier copy still points to another companion folder, use **Browser integration → Set up** to reconnect the matching files.
 
 Versions through **4.2.1** need one manual download after the repository was renamed from ViFree to Vydrop. Open the new **Vydrop.exe** and update any shortcut that still points to an older copy. Application updates and media-tool updates are separate: **Settings → Update downloader** checks the media tools, not the desktop application package.
 
@@ -69,4 +69,4 @@ Settings and recent-file history use `%LocalAppData%\YouTubeDownloader` for comp
 [Save YouTube audio as MP3](youtube-to-mp3-windows.md) · [Download playlist entries](download-youtube-playlist-windows.md) · [Save subtitles](youtube-subtitles-srt.md) · [About Vydrop](about.md)
 
 
-<figure><img src="images/screenshots/vydrop-light-en-download.png" width="1280" height="761" loading="lazy" alt="Add download opens in the main workspace. These are native 4.4.1 controls with example media."><figcaption>Add download opens in the main workspace. These are native 4.4.1 controls with example media.</figcaption></figure>
+<figure><img src="images/screenshots/vydrop-light-en-download.png" width="1280" height="761" loading="lazy" alt="Add download opens in the main workspace. These are native 4.4.4 controls with example media."><figcaption>Add download opens in the main workspace. These are native 4.4.4 controls with example media.</figcaption></figure>

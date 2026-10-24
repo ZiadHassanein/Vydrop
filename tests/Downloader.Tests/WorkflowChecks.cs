@@ -62,6 +62,9 @@ internal static class WorkflowChecks
         var v = provider.Inspect(vimeo);
         var nonYoutube = new DownloadOptions { Url = vimeo, Folder = Path.Combine(root, "Vimeo"), Height = 360, Selection = v.Qualities.Single().Selection, Captions = new("en", false, CaptionFormat.Srt) };
         var nonYoutubeArgs = Arguments.ForDownload(tools, nonYoutube);
+        var parallel = nonYoutube.Snapshot(); parallel.Connections = 8;
+        var parallelArgs = Arguments.ForDownload(tools, parallel);
+        Check(parallelArgs[parallelArgs.IndexOf("--concurrent-fragments") + 1] == "8" && nonYoutube.Connections == 1, "Eight fragment connections reach the downloader without changing an existing request");
         Check(nonYoutubeArgs.Last() == vimeo && nonYoutubeArgs[^2] == "--", "Non-YouTube URL reaches download arguments without command injection");
         result = provider.DownloadItem(nonYoutube);
         Check(MediaFiles.IsCompleted(nonYoutube.Folder, result.FilePath, nonYoutube) && File.Exists(Path.ChangeExtension(result.FilePath, null) + ".en.srt"), "Vimeo fixture passes inspection, download, media validation and subtitle export");

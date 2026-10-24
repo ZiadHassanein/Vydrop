@@ -47,7 +47,22 @@ internal static class BrowserFormatChecks
                 if (!fallback.Accepted || fallback.Code != "opened-legacy") throw new Exception("An older desktop falsely reported automatic downloading.");
                 Console.WriteLine("PASS: Confirmed download falls back to manual open for an older desktop; selection support=" + supportsChoice);
             }
-
+            foreach (bool legacy in new[] { false, true })
+            {
+                var scopeServer = Task.Run(async () =>
+                {
+                    using var pipe = new System.IO.Pipes.NamedPipeServerStream(BrowserLinkTransport.PipeName, System.IO.Pipes.PipeDirection.InOut, 1, System.IO.Pipes.PipeTransmissionMode.Byte, System.IO.Pipes.PipeOptions.Asynchronous | System.IO.Pipes.PipeOptions.CurrentUserOnly);
+                    await pipe.WaitForConnectionAsync(deadline.Token);
+                    using var message = await BrowserProtocol.ReadAsync(pipe, deadline.Token);
+                    if (!BrowserProtocol.ReadRequest(message.RootElement).WholePlaylist) throw new Exception("The pipe lost the explicit playlist scope.");
+                    if (legacy) await BrowserProtocol.WriteAsync(pipe, new { ok = true }, deadline.Token);
+                    else await BrowserProtocol.WriteAsync(pipe, new { ok = false, code = "invalid", protocol = 2 }, deadline.Token);
+                }, deadline.Token);
+                var scoped = await BrowserHost.DeliverRequestAsync(new(2, "download", "https://www.youtube.com/playlist?list=PLFixture", "whole_playlist", Output: new("video", "mp4", 720), WholePlaylist: true), () => { }, deadline.Token);
+                await scopeServer;
+                if (scoped.Accepted || scoped.Code != "unsupported") throw new Exception("An older desktop silently discarded the whole-playlist scope.");
+                Console.WriteLine("PASS: Whole-playlist scope survives the pipe and cannot downgrade on an older desktop; legacy=" + legacy);
+            }
         }
         finally { BrowserLinkTransport.PipeNameOverride = previous; }
     }
@@ -73,6 +88,19 @@ internal static class BrowserFormatChecks
         using var missingChoice = JsonDocument.Parse("""{"version":2,"type":"download","requestId":"start_2","url":"https://example.com/video.mp4"}""");
         bool missingRejected = false; try { BrowserProtocol.ReadRequest(missingChoice.RootElement); } catch (InvalidDataException) { missingRejected = true; }
         Check(missingRejected, "Immediate downloading requires an explicit validated output choice");
+        const string playlist = """{"version":2,"type":"download","requestId":"playlist","url":"https://www.youtube.com/watch?v=jNQXAC9IVRw&list=PLFixture","scope":"playlist","output":{"kind":"video","format":"mp4","height":720}}""";
+        using var scope = JsonDocument.Parse(playlist);
+        Check(BrowserProtocol.ReadRequest(scope.RootElement).WholePlaylist, "A validated playlist request retains its explicit whole-playlist scope");
+        foreach (string invalid in new[] {
+            playlist.Replace("\"playlist\",\"output\"", "\"unknown\",\"output\"", StringComparison.Ordinal),
+            playlist.Replace("&list=PLFixture", "", StringComparison.Ordinal),
+            playlist.Replace("\"download\"", "\"inspect\"", StringComparison.Ordinal),
+            playlist.Replace("\"scope\":\"playlist\"", "\"scope\":true", StringComparison.Ordinal) })
+        {
+            using var bad = JsonDocument.Parse(invalid);
+            bool rejected = false; try { BrowserProtocol.ReadRequest(bad.RootElement); } catch (InvalidDataException) { rejected = true; }
+            Check(rejected, "Untrusted scope cannot start a playlist without a valid playlist URL, supported action and scope");
+        }
         var media = new VideoInfo { Title = new string('x', 900), HasAudio = true, Qualities = new() { new() { Resolution = 720, SelectionKey = "private-selector" }, new() { Resolution = 720 }, new() { Resolution = -1 } } };
         string json = JsonSerializer.Serialize(BrowserMediaFormats.From(media));
         using var formats = JsonDocument.Parse(json);

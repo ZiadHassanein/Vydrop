@@ -2,7 +2,7 @@ using System.Buffers.Binary;
 using System.Text.Json;
 
 namespace YouTubeDownloader;
-public sealed record BrowserRequest(int Version, string Type, string Url = null, string RequestId = null, string SourcePage = null, string MediaId = null, BrowserOutputChoice Output = null);
+public sealed record BrowserRequest(int Version, string Type, string Url = null, string RequestId = null, string SourcePage = null, string MediaId = null, BrowserOutputChoice Output = null, bool WholePlaylist = false);
 public sealed record BrowserOutputChoice(string Kind, string Format, int Height = 0);
 public sealed record BrowserReceipt(bool Accepted, string Code, string Message = null);
 public static class BrowserProtocol
@@ -42,7 +42,7 @@ public static class BrowserProtocol
         if (message.ValueKind != JsonValueKind.Object || message.EnumerateObject().Select(p => p.Name).Distinct(StringComparer.Ordinal).Count() != message.EnumerateObject().Count()) throw new InvalidDataException("The browser message is invalid.");
         if (!message.TryGetProperty("version", out var version) || !version.TryGetInt32(out int number)) throw new InvalidDataException("The browser message is not supported.");
         if (number == 1) return new(1, "open-link", ReadUrl(message));
-        if (number != 2 || message.EnumerateObject().Any(p => p.Name is not ("version" or "type" or "url" or "requestId" or "sourcePage" or "mediaId" or "output"))) throw new InvalidDataException("The browser message is not supported.");
+        if (number != 2 || message.EnumerateObject().Any(p => p.Name is not ("version" or "type" or "url" or "requestId" or "sourcePage" or "mediaId" or "output" or "scope"))) throw new InvalidDataException("The browser message is not supported.");
         if (message.EnumerateObject().Any(p => p.Name is not ("version" or "output") && p.Value.ValueKind != JsonValueKind.String)) throw new InvalidDataException("The browser fields must be strings.");
         static string Text(JsonElement root, string key) => root.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
         string type = Text(message, "type"), id = Text(message, "requestId"), mediaId = Text(message, "mediaId");
@@ -70,6 +70,8 @@ public static class BrowserProtocol
             choice = new(kind, format, pixels);
         }
         if (type == "download" && choice == null) throw new InvalidDataException("The output choice is invalid.");
-        return new(2, type, url, id, page, mediaId, choice);
+        string scope = Text(message, "scope");
+        if (scope is not (null or "video" or "playlist") || scope == "playlist" && (type == "inspect" || MediaLink.Resolve(url).PlaylistUrl == null)) throw new InvalidDataException("The download scope is invalid.");
+        return new(2, type, url, id, page, mediaId, choice, scope == "playlist");
     }
 }

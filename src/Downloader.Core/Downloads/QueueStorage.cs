@@ -147,11 +147,12 @@ public sealed partial class DownloadQueue
             try { Persist(); } catch { entry.UpdateOptions(previous); throw; }
         }
     }
-    public bool RefreshSource(string page, string url, string? mediaId)
+    public bool RefreshSource(string page, string url, string? mediaId, bool? playlist = null)
     {
         lock (gate)
         {
-            var waiting = entries.Where(e => e.State == QueueState.AwaitingSource && e.Options.SourcePage == page).ToArray();
+            var waiting = entries.Where(e => e.State == QueueState.AwaitingSource && e.Options.SourcePage == page &&
+                (!playlist.HasValue || (e.Options.PlaylistRequested || e.Options.Playlist != null) == playlist.Value)).ToArray();
             if (waiting.Length == 0) return false;
             var entry = waiting.FirstOrDefault(e => !string.IsNullOrEmpty(e.Options.MediaId) && e.Options.MediaId == mediaId) ?? throw new ArgumentException("Choose the same video to refresh this download.");
             var options = entry.Options;

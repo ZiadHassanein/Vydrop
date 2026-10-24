@@ -40,7 +40,7 @@ internal sealed class DirectRangeDownloader : IDisposable
     internal Task<string> TryDownloadAsync(DownloadOptions options, IProgress<DownloadProgress> progress, CancellationToken token) => TryDownloadAsync(options, progress, null, token);
     internal async Task<string> TryDownloadAsync(DownloadOptions options, IProgress<DownloadProgress> progress, Action<string> validate, CancellationToken token)
     {
-        if (!options.DirectFileAcceleration || options.Connections is not (2 or 4) || options.JobId == Guid.Empty || options.Audio || options.PlaylistItem || options.Captions != null || options.VideoContainer != VideoContainer.Mp4 || !new Uri(options.Url).AbsolutePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase)) return null;
+        if (!options.DirectFileAcceleration || options.Connections is not (2 or 4 or 8) || options.JobId == Guid.Empty || options.Audio || options.PlaylistItem || options.Captions != null || options.VideoContainer != VideoContainer.Mp4 || !new Uri(options.Url).AbsolutePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase)) return null;
         using var probeTimeout = CancellationTokenSource.CreateLinkedTokenSource(token); probeTimeout.CancelAfter(TimeSpan.FromSeconds(20));
         using var probe = await RequestAsync(options.Url, 0, 0, null, probeTimeout.Token).ConfigureAwait(false);
         var range = probe.Content.Headers.ContentRange;

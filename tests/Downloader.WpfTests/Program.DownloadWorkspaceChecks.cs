@@ -37,6 +37,9 @@ internal static partial class Program
             var primaryBounds = primary.TransformToAncestor(form).TransformBounds(new Rect(primary.RenderSize));
             var secondaryBounds = secondary.TransformToAncestor(form).TransformBounds(new Rect(secondary.RenderSize));
             Check(!primaryBounds.IntersectsWith(secondaryBounds), "Primary Download and secondary queue actions never overlap");
+            var actionBounds = form.FormActions.TransformToAncestor(form).TransformBounds(new Rect(form.FormActions.RenderSize));
+            Check(Math.Abs(primaryBounds.Left + primaryBounds.Width / 2 - actionBounds.Left - actionBounds.Width / 2) <= 1, "Download remains centered independently of the queue action");
+            Check(language == "ar" ? secondaryBounds.Right > primaryBounds.Right : secondaryBounds.Left < primaryBounds.Left, "Add to queue stays nearest the sidebar in either language");
             Check(form.FormContentPanel.ActualWidth > 0 && primaryBounds.Bottom <= window.Viewport.ViewportHeight + 1,
                 "The main download action is reachable without scrolling at normal height");
             CheckButtonHitAreas(window);

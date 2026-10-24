@@ -115,6 +115,65 @@ test('Dailymotion player-only frames use the browser-supplied containing video p
     assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: frameUrl, frameUrl, tabUrl }), frameUrl);
 });
 
+test('Dailymotion resolves the explicitly clicked player alongside hidden ad videos', () => {
+  const video = el('video', { src: 'blob:https://geo.dailymotion.com/fixture-player' });
+  const { context } = fixture('https://geo.dailymotion.com/player/xtv3w.html?',
+    el('main', {}, el('div', { class: 'player video_player' }, el('div', { class: 'video_view' }, video)),
+      el('div', { class: 'ad-container' }, el('video', { paused: true, style: { display: 'none' } }),
+        el('div', { style: { display: 'none' } }, el('video', { paused: true }), el('video', { paused: true })))));
+  const found = context.ViFreeVideoDetection.inspectVideoPage(video.currentSrc, true, video);
+  assert.equal(found.url, 'https://geo.dailymotion.com/player/xtv3w.html?');
+  assert.equal(found.reason, 'frame');
+});
+
+test('Dailymotion keeps its watch-page handoff when ads or navigation replace the selected video node', () => {
+  const previous = el('video', { src: 'blob:https://geo.dailymotion.com/previous' });
+  const { context } = fixture('https://geo.dailymotion.com/player/xtv3w.html?', el('video', { src: 'blob:https://geo.dailymotion.com/current' }));
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage(previous.currentSrc, true, previous).reason, 'frame');
+  assert.equal(fixture('https://geo.dailymotion.com/player/xtv3w.html?').detect().reason, 'frame');
+  assert.equal(fixture('https://geo.dailymotion.com/player/xtv3w.html?video=x73dk0q').detect().url, 'https://www.dailymotion.com/video/x73dk0q', 'an explicit embedded video ID still takes precedence');
+  for (const url of ['https://geo.dailymotion.com.evil.example/player/xtv3w.html?', 'https://geo.dailymotion.com/other/xtv3w.html?'])
+    assert.notEqual(fixture(url).detect().reason, 'frame', 'the frame fallback is restricted to the known Dailymotion player');
+});
+
+test('Dailymotion rejects selected ad players and never forwards an ad stream as the content video', async () => {
+  const ad = el('video', { src: 'https://ads.example/advertisement.mp4' });
+  const { context } = fixture('https://geo.dailymotion.com/player/xtv3w.html?', el('div', { class: 'ad-container' }, ad));
+  const found = context.ViFreeVideoDetection.inspectVideoPage(ad.currentSrc, true, ad);
+  assert.equal(found.url, ''); assert.equal(found.reason, 'advertisement');
+  const frameUrl = 'https://geo.dailymotion.com/player/xtv3w.html?';
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: ad.currentSrc, frameUrl, tabUrl: 'https://www.dailymotion.com/video/x73dk0q' }), 'https://www.dailymotion.com/video/x73dk0q', 'even an older content script cannot send its ad stream instead of the watch page');
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: ad.currentSrc, frameUrl: frameUrl + 'video=x73dk0q', tabUrl: 'https://publisher.example/article' }), 'https://www.dailymotion.com/video/x73dk0q', 'embedded content uses its explicit video ID');
+  for (const tabUrl of ['https://publisher.example/article', undefined])
+    assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: ad.currentSrc, frameUrl, tabUrl }), frameUrl, 'an unknown content ID never falls back to the ad stream');
+});
+
+test('The selected JW Player uses its main source configuration instead of an ad or unsupported embed URL', () => {
+  const media = 'https://cdn.example/content/master.m3u8?token=fixture';
+  const video = el('video', { src: 'https://ads.example/commercial.mp4' });
+  const { detect } = fixture('https://arabhd.onl/embed-example123.html',
+    el('div', { class: 'jwplayer', id: 'vplayer' }, video),
+    el('script', { textContent: 'jwplayer("unrelated").setup({sources:[{file:"https://ads.example/other.mp4"}]});' }),
+    el('script', { textContent: `jwplayer("vplayer").setup({sources:[{file:"${media}"}],advertising:{tag:"https://ads.example/vast.mp4"}});` }));
+  const found = detect(video.currentSrc);
+  assert.equal(found.url, media); assert.equal(found.mediaId, 'example123');
+  assert.equal(found.sourcePage, 'https://arabhd.onl/embed-example123.html');
+});
+
+test('Packed player source data is bounded and decoded without executing page scripts', () => {
+  const media = 'https://cdn.example/main/master.m3u8';
+  const payload = '0("1").2({3:[{4:"5"}]});globalThis.pageCodeRan=true;';
+  const packed = `eval(function(p,a,c,k,e,d){throw new Error("must not execute");}('${payload}',36,6,'jwplayer|vplayer|setup|sources|file|${media}'.split('|')))`;
+  const { context, detect } = fixture('https://arabhd.onl/embed-example123.html', el('div', { class: 'jwplayer', id: 'vplayer' }, el('video')), el('script', { textContent: packed }));
+  assert.equal(detect().url, media); assert.equal(context.pageCodeRan, undefined);
+  for (const invalid of [packed.replace(',36,6,', ',99,6,'), packed.replace(',36,6,', ',36,999999,'), ' '.repeat(65537) + packed]) {
+    const result = fixture('https://arabhd.onl/embed-example123.html', el('div', { class: 'jwplayer', id: 'vplayer' }, el('video')), el('script', { textContent: invalid })).detect();
+    assert.notEqual(result.url, media);
+  }
+  const protectedVideo = fixture('https://arabhd.onl/embed-example123.html', el('div', { class: 'jwplayer', id: 'vplayer' }, el('video', { mediaKeys: {} })), el('script', { textContent: packed })).detect();
+  assert.notEqual(protectedVideo.url, media);
+});
+
 test('TikTok current feed wrapper identifies the playing video behind a blob URL', () => {
   const { detect } = fixture('https://www.tiktok.com/en/', tiktok('7000000000000000001', 'playing'), tiktok('7000000000000000002', 'paused', { paused: true }));
   assert.equal(detect().url, 'https://www.tiktok.com/@playing/video/7000000000000000001');

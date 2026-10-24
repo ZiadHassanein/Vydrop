@@ -16,12 +16,16 @@ PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
-WizardStyle=modern dynamic
-WizardSizePercent=110
+WizardStyle=modern dynamic windows11 hidebevels
+WizardSizePercent=100
+WizardSmallImageFile={#RepoRoot}\assets\browser-icon-128.png
+WizardImageFile={#RepoRoot}\assets\installer\panel-light.bmp
+WizardImageFileDynamicDark={#RepoRoot}\assets\installer\panel-dark.bmp
+WizardImageStretch=yes
 SetupIconFile={#RepoRoot}\assets\app.ico
 UninstallDisplayIcon={app}\Vydrop.exe
-AppMutex={#AppMutex}
-CloseApplications=no
+CloseApplications=yes
+CloseApplicationsFilter=Vydrop.exe
 RestartApplications=no
 DisableProgramGroupPage=yes
 DisableDirPage=auto
@@ -61,20 +65,14 @@ Root: HKCU32; Subkey: "Software\Mozilla\NativeMessagingHosts\{#HostName}"; Value
 Root: HKCU64; Subkey: "Software\Mozilla\NativeMessagingHosts\{#HostName}"; ValueType: string; ValueData: "{app}\Integration\{#HostName}.firefox.json"
 
 [Run]
-Filename: "{app}\Vydrop.exe"; Parameters: "{code:BrowserLaunchParameters}"; Description: "{cm:OpenVydrop}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Vydrop.exe"; Description: "{cm:OpenVydrop}"; Flags: nowait postinstall skipifsilent
 
 [CustomMessages]
 english.OpenVydrop=Open Vydrop
 arabic.OpenVydrop=فتح Vydrop
 
-english.BrowserSetupTitle=Browser integration
-english.BrowserSetupDescription=Download from your browser with Vydrop.
-english.BrowserSetupHint=Choose a browser to finish connecting after installation. Vydrop sets up the app connection automatically; you approve the extension in your browser.
-english.BrowserSetupLater=Set up later
-arabic.BrowserSetupTitle=ربط المتصفح
-arabic.BrowserSetupDescription=نزّل من متصفحك باستخدام Vydrop.
-arabic.BrowserSetupHint=اختر المتصفح لإكمال الربط بعد التثبيت. يجهّز Vydrop اتصال التطبيق تلقائيًا؛ وتوافق على الإضافة داخل متصفحك.
-arabic.BrowserSetupLater=الإعداد لاحقًا
+english.CloseVydrop=Close Vydrop, then click Retry. Your settings and downloads are kept.
+arabic.CloseVydrop=أغلق Vydrop ثم اضغط إعادة المحاولة. ستبقى إعداداتك وتنزيلاتك محفوظة.
 
 [UninstallDelete]
 Type: files; Name: "{app}\Integration\{#HostName}.chromium.json"
@@ -82,7 +80,7 @@ Type: files; Name: "{app}\Integration\{#HostName}.firefox.json"
 Type: dirifempty; Name: "{app}\Integration"
 
 [Code]
-#include "browser-setup.iss"
+#include "app-lifecycle.iss"
 
 function JsonString(Value: String): String;
 begin

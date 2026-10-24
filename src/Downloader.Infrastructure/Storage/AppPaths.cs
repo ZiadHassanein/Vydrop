@@ -5,7 +5,22 @@ namespace YouTubeDownloader;
 public static class AppPaths
 {
     // These legacy directories retain existing preferences, history and verified media tools.
-    public static string UserData => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ReleaseChannel.IsPreview ? "ViFreePreview" : "YouTubeDownloader");
+    public static string UserData
+    {
+        get
+        {
+#if VIFREE_PREVIEW
+            // Preview lifecycle tests must never borrow the user's existing preview queue.
+            string isolated = Environment.GetEnvironmentVariable("VYDROP_PREVIEW_DATA_ROOT");
+            if (!string.IsNullOrWhiteSpace(isolated))
+            {
+                if (!Path.IsPathFullyQualified(isolated) || isolated.StartsWith(@"\\", StringComparison.Ordinal)) throw new ArgumentException("Choose a folder on this computer.");
+                return Path.GetFullPath(isolated);
+            }
+#endif
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ReleaseChannel.IsPreview ? "ViFreePreview" : "YouTubeDownloader");
+        }
+    }
 
     public static string Downloads
     {

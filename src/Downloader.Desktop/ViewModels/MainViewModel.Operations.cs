@@ -269,7 +269,7 @@ public sealed partial class MainViewModel
     }
 
     private static bool SamePlaylist(DownloadOptions left, DownloadOptions right) =>
-        left.Playlist == null ? right.Playlist == null : right.Playlist != null &&
+        left.Playlist == null ? right.Playlist == null && left.PlaylistRequested == right.PlaylistRequested : right.Playlist != null &&
         left.Playlist.Entries.Select(entry => entry.Id).SequenceEqual(right.Playlist.Entries.Select(entry => entry.Id));
 
     private QueueEntry FindQueuedDownload(DownloadOptions request)

@@ -50,18 +50,19 @@ internal static partial class Program
             Check(model.QueueAttempts == totalAttempts && new SettingsRepository(root).Load().QueueAttempts == totalAttempts, "The selected retry count preserves total-attempt storage semantics: " + totalAttempts);
         }
         model.QueueAttempts = 2;
-        var connections = (ComboBox)WpfTree.Find(view, "ConnectionsInput"); connections.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, 4);
+        var connections = (ComboBox)WpfTree.Find(view, "ConnectionsInput"); connections.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, 8);
+        Check(new SettingsRepository(root).Load().Connections == 8, "Eight download connections persist across app restarts");
         model.SpeedLimitKiB = 512; model.DirectFileAcceleration = true;
         var receipt = model.ReceiveBrowserRequest(new(2, "enqueue", "https://youtu.be/jNQXAC9IVRw", "settings_clarity")); model.DismissNoticeCommand.Execute(null);
         var added = model.Queue.Entries[^1].Options;
-        Check(receipt.Accepted && added.Connections == 4 && added.BytesPerSecond == 512 * 1024 && added.MaximumAttempts == 2 && added.DirectFileAcceleration, "New downloads receive the same parts, bytes-per-second cap, total attempts and MP4 preference through the existing protocol");
+        Check(receipt.Accepted && added.Connections == 8 && added.BytesPerSecond == 512 * 1024 && added.MaximumAttempts == 2 && added.DirectFileAcceleration, "New downloads receive eight connections and the saved limits through the existing protocol");
         Check(original.Options.Connections == 1 && original.Options.BytesPerSecond == 0 && original.Options.MaximumAttempts == 2 && !original.Options.DirectFileAcceleration, "Changing preferences leaves already queued download options unchanged");
         model.SettingsVisible = true;
         foreach (string language in new[] { "en", "ar" }) foreach (bool dark in new[] { true, false }) foreach (double width in new[] { 1280d, 760d })
         {
             model.SelectLanguageCommand.Execute(language); if (model.IsDark != dark) model.ThemeCommand.Execute(null);
             window.Width = width; window.Height = width == 760 ? 640 : 800; await Task.Delay(100); window.UpdateLayout();
-            Check(model.QueueAttempts == 2 && model.DownloadConnections == 4 && ((KeyValuePair<int, string>)retries.SelectedItem).Key == 2, "Locale and layout changes preserve retry/parts selections");
+            Check(model.QueueAttempts == 2 && model.DownloadConnections == 8 && ((KeyValuePair<int, string>)retries.SelectedItem).Key == 2, "Locale and layout changes preserve retry/parts selections");
             Check(Descendants<TextBlock>(connections).Any(text => text.Text == ((KeyValuePair<int, string>)connections.SelectedItem).Value) && Descendants<TextBlock>(retries).Any(text => text.Text == ((KeyValuePair<int, string>)retries.SelectedItem).Value), "Rendered selections show only their translated labels, without internal keys or brackets");
             foreach (bool limited in new[] { false, true })
             {

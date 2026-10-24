@@ -4,7 +4,21 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.4] - 2026-10-24
+
 ### Changed
+- Update the app and both browser companions together with verified staging, rollback, preserved settings and downloads, and compatibility with the previous desktop-only updater.
+- Remove browser selection from the installer, add branded artwork, and close a running app through its normal queue-saving shutdown path. Older versions receive a short retry message.
+- Simplify Browser integration with shared animated browser tabs and collapsed connection help.
+- Add companion 1.5.2's explicit single-video/whole-playlist choice, retaining existing native protocols and extension identities.
+- Keep Dailymotion's containing watch-page handoff available when ads or navigation replace the clicked video element.
+- Hide the download action on Dailymotion ad players and resolve content from its watch/embedded video ID instead of transient advertising streams.
+- Resolve a selected JW Player's bounded public source configuration, including packed configuration strings, so supported video manifests can be inspected when the embed page itself is unsupported.
+- Start the on-video action reliably in Chrome frames that expose a null custom-element registry.
+- Name playlist folders after their real titles; migrate legacy ID folders and completion records without replacing media or merging different playlists.
+- Center Download, place Cancel beside it, move Add to queue toward the sidebar, and add a localized Back button to Subtitles.
+- Allow language switching during downloads without resetting progress or changing the active output request.
+- Offer eight download connections for supported fragment and direct-range downloads while keeping existing defaults and queued jobs unchanged.
 - Make the complete Windows ZIP the primary GitHub and website download, keeping the installer as an optional alternative and clarifying app/extension upgrades for existing users.
 
 ## [4.4.3] - 2026-10-23

@@ -25,6 +25,11 @@ public partial class DownloadFormView : UserControl
         ArrangeField(FormatRow, FormatCaption, FormatPicker, stacked);
         ArrangeField(OutputControls, QualityCaption, QualityControls, stacked);
         ArrangeField(FolderAnchor, FolderCaption, FolderControls, stacked);
+        bool compactActions = ActualWidth - 48 < 600;
+        Grid.SetColumnSpan(AddToQueueButton, compactActions ? 3 : 1);
+        Grid.SetRow(DownloadAction, compactActions ? 1 : 0);
+        Grid.SetRow(FormCancel, compactActions ? 1 : 0);
+        AddToQueueButton.Margin = new Thickness(0, 0, 0, compactActions ? 8 : 0);
     }
 
     private static void ArrangeField(Grid row, TextBlock label, FrameworkElement field, bool stacked)

@@ -42,7 +42,8 @@ public sealed partial class DownloadQueue
         lock (gate)
         {
             if (entries.Count >= Capacity) throw new InvalidOperationException("The queue can hold at most 100 downloads. Remove finished items first.");
-            if (entries.Any(e => e.State is QueueState.Pending or QueueState.Preparing or QueueState.Downloading && e.Url == options.Url && e.Options.Folder == options.Folder && OutputProfiles.Key(e.Options) == OutputProfiles.Key(options)))
+            if (entries.Any(e => e.State is QueueState.Pending or QueueState.Preparing or QueueState.Downloading && e.Url == options.Url && e.Options.Folder == options.Folder &&
+                (e.Options.PlaylistRequested || e.Options.Playlist != null) == (options.PlaylistRequested || options.Playlist != null) && OutputProfiles.Key(e.Options) == OutputProfiles.Key(options)))
                 throw new InvalidOperationException("This download is already in the queue.");
             entry = new(options, title);
             entry.UpdateOptions(WithJobIdentity(entry.Options, entry.Id));

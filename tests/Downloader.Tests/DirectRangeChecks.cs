@@ -38,7 +38,7 @@ internal static class DirectRangeChecks
     {
         byte[] bytes = new byte[2 * 1024 * 1024]; new Random(42).NextBytes(bytes);
         DownloadOptions Options(string folder, int workers = 2) => new() { Url = "https://media.example.com/movie.mp4", Folder = folder, JobId = Guid.NewGuid(), StableOutputName = "Fixture", DirectFileAcceleration = true, Connections = workers, Height = 720 };
-        foreach (int workers in new[] { 2, 4 })
+        foreach (int workers in new[] { 2, 4, 8 })
         {
             var server = new Server(bytes); using var client = new HttpClient(server); using var engine = new DirectRangeDownloader(client);
             var options = Options(Path.Combine(root, "range-" + workers), workers);
@@ -67,7 +67,7 @@ internal static class DirectRangeChecks
         }
         var resumeServer = new Server(bytes); using (var client = new HttpClient(resumeServer)) using (var engine = new DirectRangeDownloader(client))
         {
-            var options = Options(Path.Combine(root, "pause")); using var stop = new CancellationTokenSource(); bool cancelled = false;
+            var options = Options(Path.Combine(root, "pause"), 8); using var stop = new CancellationTokenSource(); bool cancelled = false;
             try { await engine.TryDownloadAsync(options, new InlineProgress(_ => stop.Cancel()), stop.Token); } catch (OperationCanceledException) { cancelled = true; }
             long partial = Directory.GetFiles(options.Folder, "*.part", SearchOption.AllDirectories).Sum(f => new FileInfo(f).Length);
             string file = await engine.TryDownloadAsync(options, null, CancellationToken.None);
@@ -82,7 +82,7 @@ internal static class DirectRangeChecks
         }
         using (var client = new HttpClient(new Server(bytes))) using (var engine = new DirectRangeDownloader(client))
         {
-            var options = Options(Path.Combine(root, "limit"), 4); options.BytesPerSecond = bytes.Length;
+            var options = Options(Path.Combine(root, "limit"), 8); options.BytesPerSecond = bytes.Length;
             var watch = System.Diagnostics.Stopwatch.StartNew();
             await engine.TryDownloadAsync(options, null, CancellationToken.None);
             Check(watch.Elapsed.TotalSeconds >= .85, "Parallel workers share one rate limit rather than multiplying the configured speed");

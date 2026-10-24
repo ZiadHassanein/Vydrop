@@ -1,4 +1,4 @@
-param([string]$Version='4.4.3',[switch]$Preview,[string]$CompilerPath,[switch]$UseExistingPackage,[string]$OutputDirectory,[switch]$RequireStoreListings)
+param([string]$Version='4.4.4',[switch]$Preview,[string]$CompilerPath,[switch]$UseExistingPackage,[string]$OutputDirectory,[switch]$RequireStoreListings)
 $ErrorActionPreference='Stop'
 $taskRepo=Split-Path -Parent $PSScriptRoot
 if($Version -notmatch '^\d+\.\d+\.\d+(?:-preview\.\d+)?$' -or $Version.Contains('-preview.') -ne $Preview.IsPresent) {throw 'Choose a matching stable or preview version/channel.'}
@@ -14,6 +14,10 @@ if(!$UseExistingPackage){& (Join-Path $PSScriptRoot 'package.ps1') -Version $Ver
 $taskManifest=Get-Content -LiteralPath (Join-Path $taskPackage 'package.json') -Raw|ConvertFrom-Json
 if($taskManifest.Version -ne $Version -or $taskManifest.BrowserStoresHash -ne (Get-FileHash -LiteralPath (Join-Path $taskRepo 'browser/store-listings.json')).Hash){throw 'Rebuild the app with the current version and browser-store configuration.'}
 foreach($taskFile in $taskManifest.Files.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $taskPackage $taskFile.Name)).Hash -ne $taskFile.Value){throw 'Package integrity check failed.'}}
+if($null -eq $taskManifest.BrowserFiles){throw 'Rebuild the complete app and extension package.'}
+foreach($taskFile in $taskManifest.BrowserFiles.PSObject.Properties){
+    if($taskFile.Name -cnotmatch '^Browser/(?:(?:chromium|firefox)/[A-Za-z0-9_-][A-Za-z0-9._-]{0,100}|README\.md|LICENSE\.txt)$' -or (Get-FileHash -LiteralPath (Join-Path $taskPackage $taskFile.Name)).Hash -ne $taskFile.Value){throw 'Browser package integrity check failed.'}
+}
 if(!$CompilerPath){$CompilerPath=Join-Path $taskRepo 'build/tools/inno-6.7.3/ISCC.exe'}
 if(!(Test-Path -LiteralPath $CompilerPath)) {
     $taskTools=Join-Path $taskRepo 'build/tools'; New-Item -ItemType Directory -Path $taskTools -Force|Out-Null

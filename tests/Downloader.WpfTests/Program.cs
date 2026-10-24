@@ -100,6 +100,12 @@ internal static partial class Program
                     Console.WriteLine(count + " WPF motion-polish checks passed.");
                     return;
                 }
+                if (args.Contains("--browser-playlists"))
+                {
+                    await CheckBrowserPlaylists(model, provider, root);
+                    Console.WriteLine(count + " WPF browser-playlist checks passed.");
+                    return;
+                }
                 if (args.Contains("--resume-progress"))
                 {
                     await CheckResumeProgress(window, model, provider, root, captures);
@@ -633,6 +639,7 @@ internal static partial class Program
         public int DownloadDelayMilliseconds = 10000;
         public Func<DownloadOptions, CancellationToken, IProgress<DownloadProgress>, DownloadResult> DownloadHandler;
         public int DownloadCalls;
+        public int PlaylistInspections;
         public bool FailDispose;
         public List<CaptionChoice> CaptionTracks = new();
         public Action<CancellationToken> InspectionHook;
@@ -679,9 +686,12 @@ internal static partial class Program
                 }
             };
         }
-        public PlaylistInfo InspectPlaylist(string url, CancellationToken token, IProgress<DownloadProgress> progress = null) => new()
+        public PlaylistInfo InspectPlaylist(string url, CancellationToken token, IProgress<DownloadProgress> progress = null)
         {
-            Id = "PLFixture",
+            PlaylistInspections++;
+            return new()
+        {
+            Id = VideoLink.Parse(url).PlaylistId,
             Url = url,
             IsMix = VideoLink.Parse(url).IsMix,
             ThumbnailUrl = ThumbnailAddress,
@@ -696,6 +706,7 @@ internal static partial class Program
                 }
             }
         };
+        }
         public DownloadResult DownloadItem(DownloadOptions options, CancellationToken token, IProgress<DownloadProgress> progress = null)
         {
             DownloadCalls++;

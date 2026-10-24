@@ -4,9 +4,15 @@ $Installer=(Resolve-Path -LiteralPath $Installer).Path
 $TestDirectory=[IO.Path]::GetFullPath($TestDirectory)
 if([IO.Path]::GetFileName($Installer) -notmatch '^VydropSetup-v[\d.]+-preview\.\d+-win-x64\.exe$'){throw 'Only preview installers are allowed in this lifecycle test.'}
 if(Test-Path -LiteralPath $TestDirectory){throw 'Choose a fresh test directory; existing files are never replaced by this test.'}
-if(Get-Process -Name Vydrop -ErrorAction SilentlyContinue){throw 'Close Vydrop before testing; existing instances are never stopped.'}
+function Test-TaskPreviewRunning {
+    $taskMutex=$null
+    try {return [Threading.Mutex]::TryOpenExisting('Local\ViFree.Preview.Desktop',[ref]$taskMutex)}
+    finally {if($taskMutex){$taskMutex.Dispose()}}
+}
+if(Test-TaskPreviewRunning){throw 'Close the preview before testing; existing preview instances are never stopped.'}
 $taskUninstall='Software\Microsoft\Windows\CurrentVersion\Uninstall\Vydrop.Preview.Desktop_is1'
-$taskData=Join-Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)) 'ViFreePreview'
+$taskData=$TestDirectory+'.user-data'
+if(Test-Path -LiteralPath $taskData){throw 'Choose a fresh test directory with no existing test profile.'}
 foreach($taskName in @('queue.json','queue.json.backup')){if(Test-Path -LiteralPath (Join-Path $taskData $taskName)){throw 'An existing preview queue must not be disturbed.'}}
 $taskPaths=@('Software\Google\Chrome\NativeMessagingHosts\com.vifree.preview','Software\Microsoft\Edge\NativeMessagingHosts\com.vifree.preview','Software\Mozilla\NativeMessagingHosts\com.vifree.preview')
 $taskSnapshots=@(); $taskSettings=@{}; $taskHost=$null; $taskUi=$null
@@ -34,6 +40,8 @@ foreach($taskView in @([Microsoft.Win32.RegistryView]::Registry32,[Microsoft.Win
     } finally {$taskUser.Dispose()}
 }
 foreach($taskName in @('settings.json','settings.json.backup','Browser/verified-connection.json')){$taskFile=Join-Path $taskData $taskName;$taskSettings[$taskName]=if(Test-Path -LiteralPath $taskFile){[IO.File]::ReadAllBytes($taskFile)}else{$null}}
+$taskOriginalPreviewRoot=$env:VYDROP_PREVIEW_DATA_ROOT
+$env:VYDROP_PREVIEW_DATA_ROOT=$taskData
 New-Item -ItemType Directory -Path $TestDirectory|Out-Null
 $taskExe=Join-Path $TestDirectory 'Vydrop.exe'; $taskUninstaller=Join-Path $TestDirectory 'unins000.exe'
 try {
@@ -45,7 +53,10 @@ try {
     foreach($taskSnapshot in $taskSnapshots){$taskUser=[Microsoft.Win32.RegistryKey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::CurrentUser,$taskSnapshot.view);try{$taskKey=$taskUser.OpenSubKey($taskSnapshot.path);try{Assert-Task ($taskKey.GetValue('') -eq $taskExpected[[array]::IndexOf($taskPaths,$taskSnapshot.path)]) ('Native connection registered in '+$taskSnapshot.view+': '+$taskSnapshot.path)}finally{$taskKey.Dispose()}}finally{$taskUser.Dispose()}}
     $taskChromium=Get-Content -LiteralPath $taskExpected[0] -Raw|ConvertFrom-Json; $taskFirefox=Get-Content -LiteralPath $taskExpected[2] -Raw|ConvertFrom-Json
     Assert-Task ($taskChromium.path -eq $taskExe -and $taskChromium.allowed_origins -contains 'chrome-extension://cpoiefoeogidkjcgbacikpcdjkjeekcf/' -and $taskFirefox.path -eq $taskExe -and $taskFirefox.allowed_extensions -contains 'vifree-preview@ziadhassanein.github.io') 'Generated manifests preserve identities and use the actual installed executable'
-    Assert-Task (!(Get-Process -Name Vydrop -ErrorAction SilentlyContinue)) 'Silent installation does not launch Vydrop'
+    Assert-Task (!(Test-TaskPreviewRunning)) 'Silent installation does not launch the preview or interfere with the stable app'
+    $taskLegacyMutex=[Threading.Mutex]::new($false,'Local\ViFree.Preview.Desktop')
+    try {Assert-Task ((Run-TaskSetup) -ne 0) 'An older app without graceful-close support receives a retry message before replacement'}
+    finally {$taskLegacyMutex.Dispose()}
     $taskSentinel=Join-Path $TestDirectory 'unrelated-user-file.txt';[IO.File]::WriteAllText($taskSentinel,'retain me')
     Assert-Task ((Run-TaskSetup) -eq 0 -and [IO.File]::ReadAllText($taskSentinel) -eq 'retain me') 'In-place upgrade preserves unrelated files'
     $taskReport.install=$true;$taskReport.upgrade=$true;$taskReport.nativeRegistrations=6
@@ -64,10 +75,11 @@ try {
     Assert-Task ($null -ne $taskUi) 'Actual installed desktop window appears after cold start'
     $taskQueue=Get-Content -LiteralPath (Join-Path $taskData 'queue.json') -Raw|ConvertFrom-Json
     Assert-Task ($taskQueue.Jobs.Count -eq 1 -and $taskQueue.Jobs[0].Options.Url -eq $taskUrl -and $taskQueue.Jobs[0].State -eq 0) 'Cold-start link is durably pending and does not download automatically'
-    Assert-Task ((Run-TaskSetup) -ne 0) 'Upgrade refuses to replace the running app'
     $taskHost.StandardInput.Close();Assert-Task ($taskHost.WaitForExit(5000)) 'Native host exits cleanly';$taskHost.Dispose();$taskHost=$null
-    $null=$taskUi.CloseMainWindow();Assert-Task ($taskUi.WaitForExit(10000)) 'Test app closes cleanly';$taskUi=$null
-    $taskReport.coldStart=$true;$taskReport.pendingWithoutDownload=$true;$taskReport.runningAppGuard=$true
+    Assert-Task ((Run-TaskSetup) -eq 0 -and $taskUi.WaitForExit(10000)) 'Upgrade gracefully closes the running preview and completes without forcing termination';$taskUi=$null
+    $taskRetained=Get-Content -LiteralPath (Join-Path $taskData 'queue.json') -Raw|ConvertFrom-Json
+    Assert-Task ($taskRetained.Jobs.Count -eq 1 -and $taskRetained.Jobs[0].Options.Url -eq $taskUrl) 'A running-app upgrade preserves its persisted queue'
+    $taskReport.coldStart=$true;$taskReport.pendingWithoutDownload=$true;$taskReport.runningAppGuard=$true;$taskReport.gracefulUpgrade=$true
     if($PlaywrightPath) {
         $taskOriginalPlaywright=$env:VYDROP_PLAYWRIGHT
         try {
@@ -91,6 +103,7 @@ try {
     $taskReport.uninstall=$true;$taskReport.ownershipCleanup=$true;$taskReport.userDataPreserved=$true;$taskReport.result='PASS'
     [IO.File]::WriteAllText(($TestDirectory+'.verification.json'),($taskReport|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
 } finally {
+    $env:VYDROP_PREVIEW_DATA_ROOT=$taskOriginalPreviewRoot
     if($taskHost){$taskHost.StandardInput.Close();if(!$taskHost.WaitForExit(3000)){$taskHost.Kill()};$taskHost.Dispose()}
     if(!$taskUi){$taskUi=Get-Process -Name Vydrop -ErrorAction SilentlyContinue|Where-Object {$_.Path -eq $taskExe -and $_.MainWindowHandle -ne 0}|Select-Object -First 1}
     if($taskUi){$null=$taskUi.CloseMainWindow();if(!$taskUi.WaitForExit(10000)){throw 'The test app is still open; preserve its state.'}}

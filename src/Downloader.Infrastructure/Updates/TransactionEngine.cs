@@ -11,6 +11,7 @@ internal sealed class UpdateJournal
     public long ParentStart, CandidateStart, HelperStart;
     public Dictionary<string, bool> Existed = new();
     public Dictionary<string, string> BackupHashes = new();
+    public string[] Files;
 }
 
 internal static class UpdateTransaction
@@ -25,11 +26,12 @@ internal static class UpdateTransaction
     internal static string RootOverride { get; set; }
     private static string Root => RootOverride ?? Path.Combine(AppPaths.UserData, "Updates");
     internal static string RecoveryMessage { get; private set; }
+    internal static bool IsUpdateStartup => acknowledgement != null;
 
     internal static void Launch(string stage, string target, int parentPid)
     {
         var manifest = AppUpdates.ValidatePackage(stage, Version.Parse(FileVersionInfo.GetVersionInfo(Path.Combine(stage, "Vydrop.exe")).FileVersion));
-        PreflightTarget(target);
+        PreflightTarget(target, AppUpdates.PayloadFiles(manifest));
         using var parent = Process.GetProcessById(parentPid);
         var journal = new UpdateJournal
         {
@@ -40,7 +42,8 @@ internal static class UpdateTransaction
             Version = manifest.Version,
             ParentPid = parentPid,
             ParentStart = parent.StartTime.ToUniversalTime().Ticks,
-            Phase = "prepared"
+            Phase = "prepared",
+            Files = AppUpdates.PayloadFiles(manifest)
         };
         string path = Path.Combine(stage, "transaction.json");
         Write(path, journal);
@@ -49,15 +52,16 @@ internal static class UpdateTransaction
         StartHelper(helper, "--apply-update", path);
     }
 
-    internal static void PreflightTarget(string target)
+    internal static void PreflightTarget(string target, IEnumerable<string> files = null)
     {
         string directory = Path.GetDirectoryName(Path.GetFullPath(target));
         string probe = Path.Combine(directory, ".update-write-" + Guid.NewGuid().ToString("N"));
         try
         {
-            foreach (string name in AppUpdates.PackageFiles)
+            foreach (string name in files ?? AppUpdates.PackageFiles)
             {
                 string file = name == "Vydrop.exe" ? Path.GetFullPath(target) : Path.Combine(directory, name);
+                CheckRegularPath(file);
                 if (!File.Exists(file))
                     continue;
                 var attributes = File.GetAttributes(file);
@@ -92,6 +96,13 @@ internal static class UpdateTransaction
 
     [DllImport("kernel32.dll", EntryPoint = "CreateFileW", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern SafeFileHandle CreateFile(string name, uint access, uint sharing, IntPtr security, uint creation, uint flags, IntPtr template);
+
+    internal static void CheckRegularPath(string path)
+    {
+        for (string current = Path.GetFullPath(path); current != null; current = Path.GetDirectoryName(current))
+            if ((File.Exists(current) || Directory.Exists(current)) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
+                throw new UnauthorizedAccessException("Update files must use regular local folders.");
+    }
     private static void StartHelper(string helper, string command, string path)
     {
         var start = new ProcessStartInfo(helper)
@@ -210,13 +221,18 @@ internal static class UpdateTransaction
 
     internal static void Apply(string path, UpdateJournal journal, Action startAndConfirm, Action stopAndConfirm = null, Action releaseAfterCommit = null)
     {
-        AppUpdates.ValidatePackage(journal.Stage, Version.Parse(journal.Version));
+        var manifest = AppUpdates.ValidatePackage(journal.Stage, Version.Parse(journal.Version));
+        journal.Files ??= AppUpdates.PayloadFiles(manifest);
+        ValidateFiles(journal.Files);
+        if (!journal.Files.Order().SequenceEqual(AppUpdates.PayloadFiles(manifest).Order()))
+            throw new InvalidDataException("The update payload changed after preparation.");
+        PreflightTarget(journal.Target, journal.Files);
         Directory.CreateDirectory(journal.Backup);
         bool replacementsStarted = false;
         try
         {
             // All backups are durable before the first target changes.
-            foreach (string name in AppUpdates.PackageFiles)
+            foreach (string name in journal.Files)
             {
                 Fault?.Invoke("backup-" + name);
                 string target = Target(journal, name);
@@ -234,7 +250,7 @@ internal static class UpdateTransaction
             journal.Phase = "replacing";
             Write(path, journal);
             replacementsStarted = true;
-            foreach (string name in AppUpdates.PackageFiles)
+            foreach (string name in journal.Files)
             {
                 Fault?.Invoke("replace-" + name);
                 AtomicCopy(Path.Combine(journal.Stage, name), Target(journal, name));
@@ -288,6 +304,9 @@ internal static class UpdateTransaction
 
     private static void AtomicCopy(string source, string target)
     {
+        CheckRegularPath(source);
+        CheckRegularPath(target);
+        Directory.CreateDirectory(Path.GetDirectoryName(target));
         string temp = target + ".update-" + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
@@ -314,7 +333,7 @@ internal static class UpdateTransaction
     private static void Rollback(string path, UpdateJournal journal)
     {
         // Validate every backup before restoring any target.
-        foreach (string name in AppUpdates.PackageFiles)
+        foreach (string name in journal.Files ?? AppUpdates.PackageFiles)
         {
             if (!journal.Existed.TryGetValue(name, out bool existed))
                 throw new InvalidDataException("Incomplete update recovery record.");
@@ -322,9 +341,10 @@ internal static class UpdateTransaction
                 throw new InvalidDataException("An update backup is damaged.");
         }
 
-        foreach (string name in AppUpdates.PackageFiles)
+        foreach (string name in journal.Files ?? AppUpdates.PackageFiles)
         {
             Fault?.Invoke("restore-" + name);
+            CheckRegularPath(Target(journal, name));
             if (journal.Existed[name])
                 AtomicCopy(Path.Combine(journal.Backup, name), Target(journal, name));
             else if (File.Exists(Target(journal, name)))
@@ -377,7 +397,9 @@ internal static class UpdateTransaction
             ValidateJournal(args[1], journal);
             if (!string.Equals(Path.GetFullPath(Environment.ProcessPath), journal.Target, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("The startup confirmation target is invalid.");
-            AppUpdates.ValidatePackage(Path.GetDirectoryName(journal.Target), Version.Parse(journal.Version));
+            // The pre-bundle helper only copied the four desktop files. The new app restores
+            // its embedded companions before acknowledging that first compatible upgrade.
+            AppUpdates.ValidatePackage(Path.GetDirectoryName(journal.Target), Version.Parse(journal.Version), journal.Files != null);
             acknowledgement = args[1];
         }
 
@@ -479,6 +501,14 @@ internal static class UpdateTransaction
         string root = Path.GetFullPath(Root).TrimEnd('\\') + "\\";
         if (journal == null || !Guid.TryParseExact(journal.Id, "N", out _) || !Path.GetFullPath(path).StartsWith(root, StringComparison.OrdinalIgnoreCase) || Path.GetFileName(path) != "transaction.json" || Path.GetDirectoryName(Path.GetFullPath(path)) != Path.GetFullPath(journal.Stage) || journal.Backup != Path.Combine(journal.Stage, "previous") || !Path.IsPathFullyQualified(journal.Target) || !journal.Target.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("The update transaction is invalid.");
+        if (journal.Files != null) ValidateFiles(journal.Files);
+    }
+
+    private static void ValidateFiles(string[] files)
+    {
+        if (files.Length is < 4 or > 84 || files.Distinct(StringComparer.OrdinalIgnoreCase).Count() != files.Length ||
+            AppUpdates.PackageFiles.Any(name => !files.Contains(name)) || files.Any(name => !AppUpdates.PackageFiles.Contains(name) && !AppUpdates.IsBrowserFile(name)))
+            throw new InvalidDataException("The update file list is invalid.");
     }
 
     private static UpdateJournal Read(string path) => Json.Deserialize<UpdateJournal>(File.ReadAllText(path));
@@ -497,14 +527,21 @@ internal static class UpdateTransaction
 
     private static void CleanupBackup(UpdateJournal journal)
     {
-        foreach (string name in AppUpdates.PackageFiles)
+        foreach (string name in journal.Files ?? AppUpdates.PackageFiles)
         {
             string backup = Path.Combine(journal.Backup, name);
             if (File.Exists(backup))
                 File.Delete(backup);
         }
 
-        if (Directory.Exists(journal.Backup))
-            Directory.Delete(journal.Backup);
+        // Only remove empty directories owned by this backup; never traverse unrelated files.
+        foreach (string name in (journal.Files ?? AppUpdates.PackageFiles).Select(Path.GetDirectoryName).Where(name => !string.IsNullOrEmpty(name)).Distinct().OrderByDescending(name => name.Length))
+        {
+            string directory = Path.Combine(journal.Backup, name);
+            if (Directory.Exists(directory) && !Directory.EnumerateFileSystemEntries(directory).Any()) Directory.Delete(directory);
+        }
+        string browser = Path.Combine(journal.Backup, "Browser");
+        if (Directory.Exists(browser) && !Directory.EnumerateFileSystemEntries(browser).Any()) Directory.Delete(browser);
+        if (Directory.Exists(journal.Backup) && !Directory.EnumerateFileSystemEntries(journal.Backup).Any()) Directory.Delete(journal.Backup);
     }
 }

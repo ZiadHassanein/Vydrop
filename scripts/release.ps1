@@ -41,7 +41,7 @@ Vydrop is a free Windows video and audio downloader for YouTube and 1,000+ publi
 
 Extract the complete ZIP, which includes **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**, then open **Vydrop.exe**. The Windows installer is an optional alternative. Windows 10/11 x64; .NET is bundled and missing media tools are prepared automatically.
 
-The installer registers the browser connection for your account. Browser-store listings are still pending: use **Settings → Browser integration → Manual setup and troubleshooting → Load the local companion**, finish the browser loading step, then use **Test connection**. Browser approval is required.
+The installer registers the browser connection for your account. Browser-store listings are still pending: open **Browser integration**, choose your browser and click **Set up**. Finish loading the companion in your browser, then use **Test connection** in its popup. App updates include the companion files; reload the extension after updating. Browser approval is required.
 
 ## Changes in $version
 
@@ -62,11 +62,11 @@ $releaseNotes
 - Public media from YouTube, TikTok, Facebook, Vimeo and other yt-dlp-supported sites, plus compatible direct media links. Private, sign-in-only and DRM content is unsupported.
 - Queue, playlist selection and available SRT/VTT subtitles.
 - English/Arabic and light/dark themes.
-- Browser companion 1.5.1 inside Browser: Reddit shadow-player detection, Twitch clip and Dailymotion watch-page links, in-player format/quality choices, confirmed download starts, closed-app launching, connection testing and optional media discovery. Earlier companion/native-host identities and version-1 fallback remain compatible.
+- Browser companion 1.5.2 inside Browser: explicit video/playlist scope, Dailymotion main-video routing and detected-ad filtering, supported public JW Player source configuration, in-player format/quality choices, connection testing and optional media discovery. Existing companion/native-host identities and version-1 single-video fallback remain compatible.
 - Automatic daily verified yt-dlp/Deno checks and one compatible update-and-retry.
 - Settings keeps video errors in the download screen; manual app updates use this repository.
 
-**Upgrading:** close the old app, then run the installer. For a portable copy, extract the complete new ZIP into a permanent writable folder. Stable settings, queue, history and verified media tools retain their compatible storage location; preview state stays separate. If a portable app moved, reconnect it from Browser integration and reload/load its Browser companion. Versions through 4.2.1 require one manual desktop download after the repository rename.
+**Upgrading:** use Settings → Check for updates → Install to update the app and both companion folders together. Reload the browser extension after updating. Alternatively, run the new installer or close the portable app and extract the complete new ZIP into its permanent folder. Stable settings, queue, history and verified media tools retain their compatible storage location; preview state stays separate. If a portable app moved, reconnect it from Browser integration and reload/load its Browser companion. Versions through 4.2.1 require one manual desktop download after the repository rename.
 
 The installer and app are not Authenticode-signed. GitHub's asset digests and these SHA-256 values identify the published files:
 

@@ -33,7 +33,7 @@ public static class BrowserHost
                     using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(3));
                     var health = await BrowserLinkTransport.TrySendRequestAsync(request, 500, deadline.Token).ConfigureAwait(false);
                     if (health?.Accepted == true) BrowserHealth.Record(Environment.ProcessPath);
-                    response = new { ok = true, code = "ready", protocol = 2, requestId, appRunning = health?.Accepted == true, capabilities = new[] { "ping", "enqueue", "source-context", "formats", "output-selection", "start-download" } };
+                    response = new { ok = true, code = "ready", protocol = 2, requestId, appRunning = health?.Accepted == true, capabilities = new[] { "ping", "enqueue", "source-context", "formats", "output-selection", "start-download", "playlist-download" } };
                 }
                 else if (request.Type == "inspect")
                 {
@@ -79,6 +79,7 @@ public static class BrowserHost
             if (!useLegacy)
             {
                 var (receipt, legacyListener) = await BrowserLinkTransport.TrySendCompatibleRequestAsync(request, 250, token).ConfigureAwait(false);
+                if (request.WholePlaylist && (legacyListener || receipt is { Accepted: false, Code: "invalid" })) return new(false, "unsupported");
                 if ((request.Output != null || request.Type == "download") && receipt is { Accepted: false, Code: "invalid" })
                 {
                     // Early v2 desktops reject unknown fields but still support link delivery.

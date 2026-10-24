@@ -12,7 +12,7 @@ internal static partial class Program
         var button = (Button)WpfTree.Find(action, "DownloadButton");
         var video = (FrameworkElement)WpfTree.Find(action, "CheckingVideo");
         var scan = (TranslateTransform)action.FindName("CheckScanOffset");
-        var cancel = (Button)WpfTree.Find(action, "ActionCancel");
+        var cancel = (Button)WpfTree.Find(window.DownloadForm, "FormCancel");
         var progress = (ScaleTransform)button.Template.FindName("ProgressScale", button);
         var inline = (FrameworkElement)WpfTree.Find(window, "InlineActivity");
         var completed = (FrameworkElement)WpfTree.Find(window, "CompleteCheck");
@@ -46,6 +46,8 @@ internal static partial class Program
                         Check(video.FlowDirection == FlowDirection.LeftToRight && model.DownloadActionLabel == (language == "ar" ? "جارٍ فحص الفيديو" : "Checking video"),
                             "The checking action localizes its label without reversing the video scanner");
                         Check(cancel.IsVisible && cancel.IsEnabled, "Checking retains an available Cancel action");
+                        Rect cancelBounds = Bounds(cancel);
+                        Check(Math.Abs(cancelBounds.Top + cancelBounds.Height / 2 - before.Top - before.Height / 2) <= 1 && !cancelBounds.IntersectsWith(before), "Cancel sits beside the centered Download button without overlap");
                         await Task.Delay(300);
                         Check(Bounds(button) == before && Math.Abs(before.Width - action.Width) <= 1 && Math.Abs(before.Height - button.Height) <= 1,
                             "Checking motion preserves the configured inline action bounds");

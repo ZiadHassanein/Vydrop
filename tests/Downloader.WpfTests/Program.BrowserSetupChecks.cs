@@ -64,7 +64,13 @@ internal static partial class Program
                             var viewport = (ScrollViewer)WpfTree.Find(dialog, "SetupViewport");
                             var footer = (FrameworkElement)WpfTree.Find(dialog, "SetupFooter");
                             Check(fixture.Calls == 0 && !model.IsConnected && dialog.FlowDirection == main.ContentDirection && Equals(dialog.Background, owner.Background), "Opening setup follows language/theme and does not register, launch or copy anything");
-                            Check(((ComboBox)WpfTree.Find(dialog, "SetupBrowserPicker")).IsKeyboardFocused, "Setup starts with the browser selector focused for keyboard access");
+                            Check(((System.Windows.Controls.Primitives.ToggleButton)WpfTree.Find(dialog, "SetupChrome")).IsKeyboardFocused, "Setup starts with the selected browser tab focused for keyboard access");
+                            foreach (string name in new[] { "Edge", "Firefox", "Firefox", "Chrome" })
+                            {
+                                model.SelectBrowserCommand.Execute(name); dialog.UpdateLayout();
+                                var selected = (System.Windows.Controls.Primitives.ToggleButton)WpfTree.Find(dialog, "Setup" + name);
+                                Check(selected.IsChecked == true && fixture.Calls == 0, "Selecting a browser tab changes no files, registration, clipboard or browser windows: " + name);
+                            }
                             var manual = (Expander)WpfTree.Find(dialog, "SetupManual");
                             Check(!manual.IsExpanded && ((Button)WpfTree.Find(dialog, "SetupStart")).IsVisible, "Setup offers one primary action and keeps manual troubleshooting collapsed");
                             manual.IsExpanded = true;
@@ -102,15 +108,16 @@ internal static partial class Program
                             fixture.Failure = "copy";
                             fixture.Trace.Clear();
                             model.StartSetupCommand.Execute(null);
-                            Check(fixture.Trace.SequenceEqual(new[] { "enable", "copy" }) && model.IsConnected && model.HasError,
-                                "A clipboard failure stops before browser launch and retains the verified connection");
+                            Check(fixture.Trace.SequenceEqual(new[] { "enable", "copy", "open" }) && fixture.Opened == SetupBrowser.Chrome && model.IsConnected && model.HasError && manual.IsExpanded &&
+                                model.Message == Texts.For(arabic ? "ar" : "en", "Extensions page opened. Copy the extension path from Connection help to finish setup."),
+                                "A clipboard failure still opens the selected browser and reveals the selectable path with translated recovery");
                             model.CopyPathCommand.Execute(null);
                             Check(model.HasError && !model.Message.Contains("Fixture-only", StringComparison.Ordinal) && model.Message == Texts.For(arabic ? "ar" : "en", "Could not copy to the clipboard. Select the address or path and copy it manually."), "Clipboard failures have translated manual-copy recovery");
                             fixture.Failure = "open";
                             fixture.Trace.Clear();
                             model.StartSetupCommand.Execute(null);
                             Check(fixture.Trace.SequenceEqual(new[] { "enable", "copy", "open" }) && model.IsConnected && model.HasError &&
-                                model.Message == Texts.For(arabic ? "ar" : "en", "App connected and extension path copied, but the browser could not open. Copy its address from Manual setup and troubleshooting."),
+                                model.Message == Texts.For(arabic ? "ar" : "en", "Could not open this browser. Copy its address below and paste it into the browser address bar."),
                                 "Browser failure reports the completed steps and exposes manual recovery without claiming installation");
                             model.OpenPageCommand.Execute(null);
                             Check(model.HasError && model.Message == Texts.For(arabic ? "ar" : "en", "Could not open this browser. Copy its address below and paste it into the browser address bar."), "A missing browser retains a selectable address and translated recovery");
@@ -154,7 +161,7 @@ internal static partial class Program
                             model.EnableCommand.Execute(null);
                             main.SelectLanguageCommand.Execute(arabic ? "en" : "ar");
                             await Task.Delay(60);
-                            Check(dialog.FlowDirection == main.ContentDirection && model.Heading == Texts.For(main.IsArabic ? "ar" : "en", "Browser extension setup") && model.Message == Texts.For(main.IsArabic ? "ar" : "en", "Browser connection enabled. Load the companion extension to send links."), "An open browser section and its feedback follow a language change: " + $"language={main.IsArabic}, direction={dialog.FlowDirection}/{main.ContentDirection}, heading={model.Heading}, message={model.Message}");
+                            Check(dialog.FlowDirection == main.ContentDirection && model.Heading == Texts.For(main.IsArabic ? "ar" : "en", "Browser integration") && model.Message == Texts.For(main.IsArabic ? "ar" : "en", "Browser connection enabled. Load the companion extension to send links."), "An open browser section and its feedback follow a language change: " + $"language={main.IsArabic}, direction={dialog.FlowDirection}/{main.ContentDirection}, heading={model.Heading}, message={model.Message}");
                             model.GuideCommand.Execute(null);
                             Check(fixture.ArabicGuide == main.IsArabic, "The guide uses the current language after switching within the section");
                             main.SelectLanguageCommand.Execute(arabic ? "ar" : "en");

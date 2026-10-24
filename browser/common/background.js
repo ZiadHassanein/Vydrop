@@ -31,8 +31,10 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
         const media = await globalThis.ViFreeConnection.inspectLink(url);
         respond({ ok: true, media, url }); return;
       }
-      const result = await sendLink(url, { sourcePage: message.sourcePage || (url === message.url ? sender.tab.url || sender.url : message.url), output: message.output, startDownload: Boolean(message.output) });
-      respond({ ok: true, url, code: result.code });
+      const target = message.playlist ? globalThis.ViFreeVideoDetection.playlistFor(url, sender.tab.url) : url;
+      if (!target) throw Object.assign(new Error("This video has no matching playlist on the current page."), { code: "invalid" });
+      const result = await sendLink(target, { sourcePage: message.sourcePage || (url === message.url ? sender.tab.url || sender.url : message.url), mediaId: message.mediaId, output: message.output, startDownload: Boolean(message.output), playlist: Boolean(message.playlist) });
+      respond({ ok: true, url: target, code: result.code });
     }, error => respond({ ok: false, code: error.code, message: error.message }))
     .catch(error => respond({ ok: false, code: error.code, message: error.message }));
   return true;

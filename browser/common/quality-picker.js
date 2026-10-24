@@ -1,13 +1,15 @@
 (() => {
   let active;
   globalThis.VydropQualityPicker = {
-    open({ anchor, arabic = false, inspect, send, embedded = false, onClose, onResult, preview }) {
+    open({ anchor, arabic = false, inspect, send, embedded = false, onClose, onResult, preview, playlistAvailable = false }) {
       active?.();
       const t = arabic ? {
         heading: "تنزيل بواسطة Vydrop", loading: "جارٍ فحص الصيغ المتاحة…", video: "فيديو", audio: "صوت", format: "الصيغة", quality: "الجودة", download: "تنزيل", queued: "أُضيف إلى قائمة تنزيل Vydrop.", open: "فتح في Vydrop", close: "إغلاق", automatic: "تلقائي · بجودة المصدر", size: "الحجم غير متاح قبل التنزيل", ready: "الصيغ جاهزة", hint: "يستخدم مجلد التنزيل المحفوظ في Vydrop.", legacy: "تم الفتح في إصدار Vydrop الأقدم. راجع التنزيل وابدأه هناك.", success: "أُرسل التنزيل إلى Vydrop.", fallback: "يمكنك اختيار الجودة داخل التطبيق.", unavailable: "تعذّر جلب الصيغ. افتح الفيديو داخل Vydrop أو حاول مجددًا.", retry: "حاول مجددًا"
       } : {
         heading: "Download by Vydrop", loading: "Checking available formats…", video: "Video", audio: "Audio", format: "Format", quality: "Quality", download: "Download", queued: "Added to the Vydrop queue.", open: "Open in Vydrop", close: "Close", automatic: "Automatic · source quality", size: "Size unavailable before downloading", ready: "Formats ready", hint: "Uses your saved Vydrop download folder.", legacy: "Opened in older Vydrop. Review and start it there.", success: "Download sent to Vydrop.", fallback: "You can choose the quality inside the app.", unavailable: "Could not load formats. Open this video in Vydrop or try again.", retry: "Try again"
       };
+      Object.assign(t, arabic ? { scope: "نطاق التنزيل", single: "هذا الفيديو", playlist: "قائمة التشغيل كاملة", playlistDownload: "تنزيل قائمة التشغيل", playlistHint: "ينزّل الفيديوهات المتاحة بهذه الإعدادات.", upTo: "حتى " } :
+        { scope: "Download scope", single: "This video", playlist: "Whole playlist", playlistDownload: "Download playlist", playlistHint: "Downloads available videos using these settings.", upTo: "Up to " });
       const previousHeight = document.body.style.minHeight;
       if (embedded) document.body.style.minHeight = "520px";
       const host = document.createElement("div"); host.id = "vydrop-quality-picker";
@@ -21,7 +23,7 @@
 .top{display:flex;align-items:center;gap:12px;background:#3b1b2c;color:#fff4fa;padding:13px 20px;min-height:64px}.wordmark{width:128px;height:34px;object-fit:contain;flex:none}.top-status{flex:1;text-align:end;font-size:12px;color:#ddc2d2}.top-status[data-ready=true]{color:#fff4fa}.close{display:grid;place-items:center;background:none;color:inherit;border:0;padding:5px;min-width:32px;min-height:32px}.body{padding:22px}
 .identity{display:grid;grid-template-columns:116px minmax(0,1fr);gap:16px;align-items:center;margin-bottom:22px}.identity img{width:116px;aspect-ratio:16/10;object-fit:cover;border-radius:5px}.identity.no-image{grid-template-columns:1fr}.source{color:var(--muted);font-size:12px;overflow-wrap:anywhere;margin-top:7px}.title{font-size:18px;font-weight:650;line-height:1.4;margin:0;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 button{font:inherit;color:inherit;min-height:42px;border:1px solid var(--border);border-radius:5px;background:transparent;padding:9px 12px;cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.55;cursor:default}
-.tabs{display:flex;border:1px solid var(--border);border-radius:6px;padding:3px;margin-bottom:22px;gap:3px}.tabs button{flex:1;border:0;border-radius:3px;background:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:39px;padding:7px}.tabs button[aria-pressed=true]{background:var(--selected);color:var(--accent);font-weight:650}
+.tabs{display:flex;border:1px solid var(--border);border-radius:6px;padding:3px;margin-bottom:22px;gap:3px}.tabs button{flex:1;border:0;border-radius:3px;background:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:39px;padding:7px}.tabs button[aria-pressed=true],.tabs button[aria-checked=true]{background:var(--selected);color:var(--accent);font-weight:650}
 label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:18px}.formats button,.choices button{background:var(--field);padding:12px;min-height:49px;display:flex;align-items:center;gap:10px;font-weight:600;text-align:start;min-width:0}.formats button::before,.choices button::before{content:"";flex:none;width:17px;height:17px;border:1.5px solid var(--border);border-radius:50%;background:var(--field)}.formats button[aria-checked=true],.choices button[aria-checked=true]{background:var(--selected);border-color:var(--accent);color:var(--accent)}.formats button[aria-checked=true]::before,.choices button[aria-checked=true]::before{border:5px solid var(--accent);box-shadow:inset 0 0 0 2px var(--field)}.choices button{min-height:53px}.choices small{font-size:10px;font-weight:500;color:var(--muted);margin-inline-start:auto}
 .summary{border-top:1px solid var(--divider);padding-top:15px;margin-top:2px}.selection{font-size:14px;font-weight:650}.muted{color:var(--muted);font-size:12px;margin:4px 0 0}.launch{background:#c72d49;color:#fff;border-color:#c72d49;width:100%;font-weight:650;clip-path:polygon(12px 0,100% 0,100% 100%,0 100%,0 12px);min-height:48px;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px}.launch:focus-visible{clip-path:none}.hint{text-align:center;margin-top:11px}.status{margin:0 0 14px;overflow-wrap:anywhere;font-size:13px}.status:empty{display:none}.status[data-error=true]{color:var(--accent)}.retry{margin-bottom:14px}.hidden{display:none!important}svg{flex:none}
 @media(max-width:420px){.body{padding:18px}.top{padding:12px 18px}.identity{grid-template-columns:100px minmax(0,1fr);gap:12px}.identity img{width:100px}.title{font-size:17px}.formats button,.choices button{padding:11px}.top-status{font-size:11px}}
@@ -44,6 +46,11 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
       if (wordmarkUrl) { wordmark.src = wordmarkUrl; wordmark.alt = "Vydrop"; wordmark.addEventListener("error", () => wordmark.replaceWith(logo), { once: true }); }
       const topStatus = el("span", "top-status"), closeButton = button("", "close", close); closeButton.append(icon("M6 6L18 18M18 6L6 18")); closeButton.setAttribute("aria-label", t.close); const top = el("div", "top"); top.append(wordmark, topStatus, closeButton);
       const body = el("div", "body"), title = el("h2", "title"), status = el("p", "status", t.loading); status.setAttribute("role", "status");
+      const scopePicker = el("div", playlistAvailable ? "tabs" : "hidden"); radioGroup(scopePicker, t.scope);
+      const singleScope = button(t.single, "", () => chooseScope("video")), playlistScope = button(t.playlist, "", () => chooseScope("playlist"));
+      for (const option of [singleScope, playlistScope]) { option.setAttribute("role", "radio"); scopePicker.append(option); }
+      selectRadio(scopePicker, singleScope);
+      const playlistHint = el("p", "muted hidden", t.playlistHint);
       const options = el("div", "hidden"), tabs = el("div", "tabs"), formatLabel = el("label", "", t.format), format = el("div", "formats"), qualityLabel = el("label", "", t.quality), choices = el("div", "choices");
       format.id = "vydrop-format"; radioGroup(format, t.format); radioGroup(choices, t.quality);
       const video = button(t.video, "", () => chooseKind("video")), audio = button(t.audio, "", () => chooseKind("audio")); video.prepend(icon("M3 5H16V19H3ZM16 9L22 6V18L16 15")); audio.prepend(icon("M3 10V14M7 6V18M12 3V21M17 7V17M21 10V14")); tabs.append(video, audio);
@@ -53,16 +60,23 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
       thumbnail.alt = ""; thumbnail.referrerPolicy = "no-referrer"; thumbnail.crossOrigin = "anonymous"; thumbnail.hidden = true;
       thumbnail.addEventListener("error", () => { thumbnail.hidden = true; identity.classList.add("no-image"); });
       mediaText.append(title, source); identity.append(thumbnail, mediaText);
-      body.append(identity, status, options, retry, launch, el("p", "muted hint", t.hint)); panel.append(top, body); shadow.append(panel);
+      body.append(identity, scopePicker, playlistHint, status, options, retry, launch, el("p", "muted hint", t.hint)); panel.append(top, body); shadow.append(panel);
       const parent = document.fullscreenElement || document.documentElement; parent.append(host);
-      let media, kind = "video", selectedHeight = 0, disposed = false, loading = false;
+      let media, kind = "video", scope = "video", selectedHeight = 0, disposed = false, loading = false;
       function position() { const rect = anchor?.getBoundingClientRect(); const x = rect ? Math.min(innerWidth - panel.offsetWidth - 12, Math.max(12, rect.right - panel.offsetWidth)) : 12; panel.style.left = `${x}px`; panel.style.top = `${rect ? Math.min(Math.max(12, rect.bottom + 8), Math.max(12, innerHeight - panel.offsetHeight - 12)) : 12}px`; }
       function close() { if (embedded) document.body.style.minHeight = previousHeight; disposed = true; host.remove(); document.removeEventListener("pointerdown", outside, true); document.removeEventListener("keydown", keys, true); removeEventListener("resize", position); removeEventListener("scroll", position, true); anchor?.focus(); if (active === close) active = null; onClose?.(); }
       function outside(event) { if (!event.composedPath().includes(host) && !event.composedPath().includes(anchor)) close(); }
       function keys(event) { if (event.key === "Escape") { close(); event.stopPropagation(); event.preventDefault(); } if (event.key === "Tab") { const all = [...shadow.querySelectorAll('button:not(:disabled):not([tabindex="-1"])')].filter(n => n.getClientRects().length); const current = shadow.activeElement; if (event.shiftKey && current === all[0]) { all.at(-1).focus(); event.preventDefault(); } else if (!event.shiftKey && current === all.at(-1)) { all[0].focus(); event.preventDefault(); } } }
       document.addEventListener("pointerdown", outside, true); document.addEventListener("keydown", keys, true); addEventListener("resize", position); addEventListener("scroll", position, true); active = close;
       function chooseKind(value) { kind = value; renderFormats(); }
-      function updateSummary() { selection.textContent = format.value.toUpperCase() + " · " + (kind === "video" ? selectedHeight + "p" : t.automatic); }
+      function chooseScope(value) {
+        scope = value === "playlist" && playlistAvailable ? "playlist" : "video";
+        selectRadio(scopePicker, scope === "playlist" ? playlistScope : singleScope);
+        playlistHint.classList.toggle("hidden", scope !== "playlist");
+        launch.lastChild.textContent = media ? scope === "playlist" ? t.playlistDownload : t.download : t.open;
+        if (media) updateSummary(); position();
+      }
+      function updateSummary() { selection.textContent = format.value.toUpperCase() + " · " + (kind === "video" ? (scope === "playlist" ? t.upTo : "") + selectedHeight + "p" : t.automatic); }
       function renderFormats() {
         video.disabled = !media.videos.length; audio.disabled = !media.audio.length;
         video.setAttribute("aria-pressed", String(kind === "video")); audio.setAttribute("aria-pressed", String(kind === "audio"));
@@ -74,7 +88,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
         choices.replaceChildren(); const heights = kind === "video" ? media.videos.find(v => v.format === format.value)?.heights || [] : [0];
         selectedHeight = heights.find(h => h <= 1080) ?? heights[0] ?? 0;
         for (const height of heights) { const label = height ? `${height}p` : t.automatic; const choice = button(label, "", () => { selectedHeight = height; selectRadio(choices, choice); updateSummary(); }); choice.setAttribute("role", "radio"); choice.setAttribute("aria-label", label); choice.setAttribute("aria-checked", String(height === selectedHeight)); choice.tabIndex = height === selectedHeight ? 0 : -1; if (height >= 720) choice.append(el("small", "", height >= 4320 ? "8K" : height >= 2160 ? "4K" : "HD")); choices.append(choice); }
-        launch.disabled = !format.value || !heights.length; launch.lastChild.textContent = t.download; updateSummary(); position();
+        launch.disabled = !format.value || !heights.length; launch.lastChild.textContent = scope === "playlist" ? t.playlistDownload : t.download; updateSummary(); position();
       }
       async function load() {
         if (loading) return; loading = true; launch.disabled = true; options.classList.add("hidden"); retry.classList.add("hidden"); status.textContent = t.loading; status.dataset.error = "false"; topStatus.textContent = ""; media = null;
@@ -92,7 +106,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
       }
       async function openApp() {
         launch.disabled = true;
-        try { const result = await send(media ? { kind, format: format.value, height: kind === "video" ? selectedHeight : 0 } : undefined); if (disposed) return; status.dataset.error = "false"; status.textContent = result?.code === "opened-legacy" ? t.legacy : result?.code === "queued" ? t.queued : t.success; onResult?.(result); if (media && result?.code !== "opened-legacy") close(); }
+        try { const result = await send(media ? { kind, format: format.value, height: kind === "video" ? selectedHeight : 0 } : undefined, scope); if (disposed) return; status.dataset.error = "false"; status.textContent = result?.code === "opened-legacy" ? t.legacy : result?.code === "queued" ? t.queued : t.success; onResult?.(result); if (media && result?.code !== "opened-legacy") close(); }
         catch (error) { if (!disposed) { status.dataset.error = "true"; status.textContent = globalThis.ViFreeConnection.errorMessage(error, arabic); } }
         finally { if (!disposed) { launch.disabled = false; position(); } }
       }

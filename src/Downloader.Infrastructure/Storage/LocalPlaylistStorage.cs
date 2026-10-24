@@ -21,15 +21,21 @@ public sealed class LocalPlaylistStorage : IPlaylistStorage
             throw new ArgumentException("Choose a folder on this computer.");
         string safeId = new string(options.Playlist.Id.Where(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_').Take(96).ToArray());
         if (safeId.Length == 0) throw new ArgumentException("Invalid playlist identity.");
-        return Path.Combine(root, "Playlist [" + safeId + "]");
+        string title = Arguments.StableTitle(string.IsNullOrWhiteSpace(options.Playlist.Title) ? "Playlist" : options.Playlist.Title);
+        if (System.Text.RegularExpressions.Regex.IsMatch(title, @"^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\.|$)", System.Text.RegularExpressions.RegexOptions.IgnoreCase)) title = "_" + title;
+        return Path.Combine(root, title);
     }
 
     public PlaylistSession Open(DownloadOptions options)
     {
-        string folder = OutputFolder(options);
+        string suggested = OutputFolder(options);
+        string state = directory ?? options.ResumeDirectory ?? PlaylistRecords.DefaultDirectory;
+        var location = PlaylistLocation.Resolve(options, suggested, state);
+        string folder = location.Folder;
         Directory.CreateDirectory(folder);
         string profile = OutputProfiles.Key(options);
-        var records = PlaylistRecords.Open(folder, profile, directory ?? options.ResumeDirectory);
+        PlaylistRecords.ImportMovedFolder(location.PreviousFolder, folder, profile, state);
+        var records = PlaylistRecords.Open(folder, profile, state);
         return new PlaylistSession
         {
             Folder = folder,

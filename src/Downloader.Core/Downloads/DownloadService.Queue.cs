@@ -15,7 +15,7 @@ public sealed partial class DownloadService
             if (options.Playlist == null && options.Selection == null)
             {
                 var targets = ResolveTargets(options.Url);
-                if (targets.VideoUrl == null)
+                if (options.PlaylistRequested || targets.VideoUrl == null)
                     options.Playlist = await InspectPlaylistAsync(options.Url, progress, token).ConfigureAwait(false);
                 else
                 {

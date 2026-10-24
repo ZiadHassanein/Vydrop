@@ -23,9 +23,11 @@ internal static partial class Program
                 model.VttCaptions = true;
                 await CheckCaptionSearch(view, model, captures, (arabic ? "ar" : "en") + (dark ? "-dark" : "-light"));
                 Capture(owner, System.IO.Path.Combine(captures, "subtitle-section-" + arabic + "-" + dark + ".png"));
-                ((Button)WpfTree.Find(view, "DoneButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                var back = (Button)WpfTree.Find(view, "BackButton");
+                Check(back.IsVisible && back.IsEnabled && System.Windows.Automation.AutomationProperties.GetName(back) == (arabic ? "رجوع" : "Back"), "Subtitles has an accessible localized Back button");
+                ((Button)WpfTree.Find(view, dark ? "BackButton" : "DoneButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 await Task.Delay(80);
-                Check(model.AddDownloadVisible && !model.HasWorkspacePage && model.VttCaptions, "Done returns to Add download and preserves subtitle choices");
+                Check(model.AddDownloadVisible && !model.HasWorkspacePage && model.VttCaptions && model.Url == "https://youtu.be/jNQXAC9IVRw", "Back and Done return to Add download while preserving the link and subtitle choices");
             });
         }
         model.AddQueueCommand.Execute(null);

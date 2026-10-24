@@ -93,6 +93,7 @@
     return [document, ...roots].flatMap(root => Array.from(root.querySelectorAll("video")).slice(0, 100)).slice(0, 100);
   }
   function bounds(video) {
+    if (video.closest('.ad-container,.dm-sdk-ima-slot')) return null;
     const r = video.getBoundingClientRect();
     if (r.width < 80 || r.height < 60 || r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) return null;
     const paint = getComputedStyle(video);
@@ -167,11 +168,12 @@
       let found;
       try { found = await globalThis.ViFreeVideoDetection.inspectVideoPage(source, true, pendingVideo); }
       catch { throw Object.assign(new Error("Page inspection failed."), { code: "inspect" }); }
-      if (!found?.url) throw Object.assign(new Error("No unambiguous video link."), { code: found?.reason === "ambiguous" ? "ambiguous" : "missing" });
+      if (!found?.url) throw Object.assign(new Error("No unambiguous video link."), { code: ["ambiguous", "advertisement"].includes(found?.reason) ? found.reason : "missing" });
       if (globalThis.VydropQualityPicker) {
         label.textContent = text.open;
 
         globalThis.VydropQualityPicker.open({ anchor: button, arabic,
+          playlistAvailable: Boolean(globalThis.ViFreeVideoDetection.playlistFor?.(found.url, location.href)),
           onClose: () => { if (!button.dataset.state) label.textContent = text.open; schedule(); },
           onResult: result => {
             label.textContent = result?.code === "queued" ? (arabic ? "في قائمة Vydrop" : "Queued in Vydrop") : text.opened;
@@ -185,8 +187,8 @@
             if (!response?.ok) throw Object.assign(new Error("inspect"), { code: response?.code || "inspect" });
             return response.media;
           },
-          send: async output => {
-            const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, output });
+          send: async (output, scope) => {
+            const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, mediaId: found.mediaId, output, playlist: scope === "playlist" });
             if (!response?.ok) throw Object.assign(new Error("open"), { code: response?.code || "failed" });
             return response;
           }
@@ -196,7 +198,7 @@
       let copied = false;
       try { await navigator.clipboard.writeText(found.url); copied = true; } catch { /* Opening the app remains useful when clipboard access is unavailable. */ }
       label.textContent = text.opening;
-      const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage });
+      const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, mediaId: found.mediaId });
       if (!response?.ok) throw Object.assign(new Error("Video delivery failed."), { code: response?.code });
       if (response.url && response.url !== found.url) {
         try { await navigator.clipboard.writeText(response.url); copied = true; } catch { copied = false; }
@@ -224,6 +226,6 @@
   addEventListener("scroll", schedule, { passive: true, capture: true });
   addEventListener("resize", schedule, { passive: true });
   button.addEventListener("blur", schedule);
-  if (typeof customElements !== "undefined") void customElements.whenDefined("shreddit-player").then(schedule);
+  if (globalThis.customElements?.whenDefined) void globalThis.customElements.whenDefined("shreddit-player").then(schedule);
   schedule();
 })();

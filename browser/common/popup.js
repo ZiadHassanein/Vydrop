@@ -23,10 +23,12 @@ button.addEventListener("click", async () => {
   try {
     const [tab] = await api.tabs.query({ active: true, currentWindow: true });
     const url = await globalThis.ViFreeVideoDetection.resolve(tab);
+    const playlist = globalThis.ViFreeVideoDetection.playlistFor?.(url, tab?.url) || "";
     if (globalThis.VydropQualityPicker) {
       globalThis.VydropQualityPicker.open({ anchor: button, arabic, embedded: true,
+        playlistAvailable: Boolean(playlist),
         inspect: () => globalThis.ViFreeConnection.inspectLink(url),
-        send: output => sendLink(url, { sourcePage: tab?.url, output, startDownload: Boolean(output) })
+        send: (output, scope) => sendLink(scope === "playlist" ? playlist : url, { sourcePage: tab?.url, output, startDownload: Boolean(output), playlist: scope === "playlist" })
       });
       status.textContent = ""; return;
     }

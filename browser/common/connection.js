@@ -10,6 +10,7 @@ globalThis.ViFreeConnection = (() => {
       invalid: "Choose a public video link.",
       missing: "Could not find this video's link. Open the video itself or use Share → Copy link.",
       ambiguous: "More than one video is visible. Open the video you want, then try again.",
+      advertisement: "This is an advertisement. Wait for the main video, then try again.",
       inspect: "Could not inspect this page. Reload the extension and page, then try again.",
       busy: `${name} is busy. Finish or cancel the current download, then try again.`,
       unavailable: `Open ${name} and enable Browser integration, then try again.`,
@@ -20,6 +21,7 @@ globalThis.ViFreeConnection = (() => {
       invalid: "اختر رابط فيديو متاحًا للعامة.",
       missing: "تعذّر العثور على رابط هذا الفيديو. افتح الفيديو نفسه أو استخدم مشاركة ثم نسخ الرابط.",
       ambiguous: "يظهر أكثر من فيديو. افتح الفيديو المطلوب ثم حاول مجددًا.",
+      advertisement: "هذا إعلان. انتظر بدء الفيديو الأساسي ثم حاول مجددًا.",
       inspect: "تعذّر فحص هذه الصفحة. أعد تحميل الإضافة والصفحة ثم حاول مجددًا.",
       busy: `${name} مشغول. أنهِ التنزيل الحالي أو ألغِه، ثم حاول مجددًا.`,
       unavailable: `افتح ${name} وفعّل الربط بالمتصفح، ثم حاول مجددًا.`,
@@ -85,8 +87,10 @@ globalThis.ViFreeConnection = (() => {
     if (api.runtime.connectNative) {
       let health;
       try { health = await request2("ping"); } catch { /* The legacy host may close after rejecting v2. */ }
+      if (context.playlist && !health?.capabilities?.includes("playlist-download")) throw fail("Update Vydrop to download a whole playlist.", "unsupported");
       if (health?.ok && health.protocol === 2) {
         const fields = { url: url.href };
+        if (context.playlist) fields.scope = "playlist";
         if (context.sourcePage) fields.sourcePage = validUrl(context.sourcePage).href;
         const asset = context.mediaId || url.pathname.match(/^\/playlist\/vid\/v2\/([A-Za-z0-9_-]+)\/mp4-/u)?.[1];
         if (/^[A-Za-z0-9_-]{1,128}$/u.test(asset ?? "")) fields.mediaId = asset;
@@ -95,6 +99,7 @@ globalThis.ViFreeConnection = (() => {
         response = await request2(startSupported ? "download" : context.enqueue ? "enqueue" : "open-link", fields);
       }
     }
+    if (context.playlist && !response) throw fail("Update Vydrop to download a whole playlist.", "unsupported");
     try { response ??= await api.runtime.sendNativeMessage(host, { version: 1, type: "open-link", url: url.href }); }
     catch { throw fail(`Open ${name} and enable Browser integration, then try again.`, "unavailable"); }
     if (!response?.ok) throw fail("The native host rejected this link.", Object.hasOwn(messages.en, response?.code) ? response.code : "failed");

@@ -198,6 +198,7 @@ public sealed partial class MainViewModel
         var request = OutputRequest();
         request.Url = downloads.Normalize(Url, WholePlaylist);
         request.Playlist = WholePlaylist ? playlistInfo : null;
+        request.PlaylistRequested = WholePlaylist;
         if (request.Captions != null) request.Captions = request.Captions with { Required = !WholePlaylist };
         request = request.Snapshot();
         if (request.Playlist != null && selectedPlaylistIds != null)

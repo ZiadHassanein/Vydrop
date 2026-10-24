@@ -20,22 +20,24 @@ public sealed partial class MainViewModel
         if (noticeAnchor == "library" && noticeHeading == "Added to queue") NoticeVisible = false;
     }
 
-    private BrowserReceipt AcceptBrowserDownload(BrowserRequest request, string link)
+    private BrowserReceipt AcceptBrowserDownload(BrowserRequest request, string link, bool playlist)
     {
         if (browserClosing) return new(false, "busy");
         if (request.Output == null) return new(false, "invalid");
         ObserveQueueStop();
         var options = OutputRequest();
         options.Url = link; options.Selection = null; options.QualityKey = null;
+        options.PlaylistRequested = playlist;
+        options.Playlist = null;
         options.Captions = null; options.AudioSource = null; options.StableOutputName = null;
         options.ThumbnailUrl = options.Uploader = null; options.Duration = 0;
         options.SourcePage = request.SourcePage; options.MediaId = request.MediaId;
         ApplyBrowserOutput(options, request.Output);
         var existing = FindQueuedDownload(options);
         var awaiting = request.SourcePage == null ? null : Queue.Entries.FirstOrDefault(e =>
-            e.State == QueueState.AwaitingSource && e.Options.SourcePage == request.SourcePage && e.Options.MediaId == request.MediaId);
+            e.State == QueueState.AwaitingSource && (e.Options.PlaylistRequested || e.Options.Playlist != null) == playlist && e.Options.SourcePage == request.SourcePage && e.Options.MediaId == request.MediaId);
         QueueEntry job;
-        if (awaiting != null && Queue.RefreshSource(request.SourcePage, link, request.MediaId))
+        if (awaiting != null && Queue.RefreshSource(request.SourcePage, link, request.MediaId, playlist))
         {
             var refreshed = awaiting.Options; ApplyBrowserOutput(refreshed, request.Output);
             Queue.CapturePreparedOptions(refreshed); Queue.Retry(awaiting.Id); job = awaiting;

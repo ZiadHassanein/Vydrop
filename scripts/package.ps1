@@ -1,4 +1,4 @@
-param([string]$Version='4.4.3', [switch]$Preview, [string]$CertificateThumbprint, [uri]$TimestampServer)
+param([string]$Version='4.4.4', [switch]$Preview, [string]$CertificateThumbprint, [uri]$TimestampServer)
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path -Parent $PSScriptRoot
 $env:DOTNET_CLI_HOME=Join-Path $projectRoot 'build/dotnet-home'
@@ -17,7 +17,7 @@ Windows 10/11 x64. Extract this ZIP into a writable folder and open Vydrop.exe.
 No separate .NET runtime, installer, WinGet or tool setup script is needed.
 On the first pasted link, the app checks compatible installed media tools and privately prepares only missing tools. Internet access and approximately 400 MB of free space may be required. Progress appears in the app. Global installations are never modified.
 Downloader and Deno updates are checked automatically once daily when you use a link. Verified updates retain the previous version. Compatible extractor/runtime failures receive one automatic update/retry; access blocks are not retried. No account, API key or paid service is needed.
-App version updates are manual: open Settings, choose Check for updates and then Install when a newer verified desktop package is available. Copies of ViFree or YouTube Downloader require one manual ZIP download to switch to Vydrop. Existing preferences and downloaded files are retained.
+App updates: open Settings, choose Check for updates, then Install. The verified ZIP updates the app and both browser extension folders together and restarts Vydrop. Settings, queue, history and downloaded media are retained. Reload the browser extension after updating. Firefox temporary add-ons must be loaded again after a browser restart. Copies of ViFree or YouTube Downloader require one manual ZIP download to switch to Vydrop. Existing preferences and downloaded files are retained.
 Preferences and queue jobs are saved locally in LocalAppData/YouTubeDownloader. Queue links and their source pages remain in queue.json and its recovery backup until removed/replaced. Interrupted jobs wait for your action; scheduled jobs require Vydrop to remain open. Existing settings and media are retained.
 If upgrading from v3.x or a preview, close the older app and extract this ZIP into a new writable folder once. Future v4 updates are available through Settings > Check for updates.
 The optional Browser folder contains Chrome/Edge and Firefox companions. Ordinary app use needs no extension. Read Browser/README.md to enable it; browser installation is an optional user action.
@@ -42,8 +42,12 @@ $instructions += "`r`n`r`n" + [IO.File]::ReadAllText((Join-Path $projectRoot 'LI
 $files=@('Vydrop.exe','README.txt','THIRD-PARTY-NOTICES.txt')
 if($CertificateThumbprint) { & (Join-Path $PSScriptRoot 'sign-desktop.ps1') -PackageDirectory $package -CertificateThumbprint $CertificateThumbprint -TimestampServer $TimestampServer }
 & (Join-Path $PSScriptRoot 'package-browser.ps1') -OutputDirectory (Join-Path $package 'Browser') -Preview:$Preview -NoArchive | Out-Null
-$manifest=@{Version=$Version;Architecture='win-x64';BrowserStoresHash=(Get-FileHash -LiteralPath (Join-Path $projectRoot 'browser/store-listings.json') -Algorithm SHA256).Hash;Files=@{}}
+$manifest=@{Version=$Version;Architecture='win-x64';BrowserStoresHash=(Get-FileHash -LiteralPath (Join-Path $projectRoot 'browser/store-listings.json') -Algorithm SHA256).Hash;Files=@{};BrowserFiles=@{}}
 foreach($name in $files) { $manifest.Files[$name]=(Get-FileHash -LiteralPath (Join-Path $package $name) -Algorithm SHA256).Hash }
+foreach($entry in Get-ChildItem -LiteralPath (Join-Path $package 'Browser') -File -Recurse) {
+    $name=[IO.Path]::GetRelativePath($package,$entry.FullName).Replace('\','/')
+    $manifest.BrowserFiles[$name]=(Get-FileHash -LiteralPath $entry.FullName -Algorithm SHA256).Hash
+}
 [IO.File]::WriteAllText((Join-Path $package 'package.json'),($manifest | ConvertTo-Json -Depth 4),[Text.UTF8Encoding]::new($false))
 $zip=Join-Path $projectRoot "dist/Vydrop-v$Version-win-x64.zip"
 $zipTemporary=$zip+'.'+[Guid]::NewGuid().ToString('N')+'.tmp'

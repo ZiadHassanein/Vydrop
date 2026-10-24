@@ -79,7 +79,7 @@ public static class Arguments
         if (options.Audio && !OutputProfiles.SupportsAudioBitrate(options.AudioEncoding, options.AudioBitrate))
             throw new ArgumentException("Choose a supported audio quality.");
         var args = Common(tools);
-        if (options.Connections is not (1 or 2 or 4) || options.BytesPerSecond < 0 || options.BytesPerSecond > 1024L * 1024 * 1024 || options.MaximumAttempts is < 1 or > 5)
+        if (options.Connections is not (1 or 2 or 4 or 8) || options.BytesPerSecond < 0 || options.BytesPerSecond > 1024L * 1024 * 1024 || options.MaximumAttempts is < 1 or > 5)
             throw new ArgumentException("Choose supported download limits.");
         args.AddRange(new[] { "--concurrent-fragments", options.Connections.ToString(CultureInfo.InvariantCulture) });
         if (options.BytesPerSecond > 0) args.AddRange(new[] { "--limit-rate", options.BytesPerSecond.ToString(CultureInfo.InvariantCulture) });

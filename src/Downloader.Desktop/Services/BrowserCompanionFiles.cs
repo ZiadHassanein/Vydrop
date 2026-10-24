@@ -10,7 +10,7 @@ internal sealed class BrowserCompanionFiles
     private static readonly string[] RequiredFiles =
     ["manifest.json", "connection.js", "video-detection.js", "quality-picker.js", "video-overlay.js", "background.js", "popup.js", "popup-discovery.js", "media-discovery.js", "popup.html", "popup.css", "brand-logo-dark.svg", "icon.png", "icon16.png", "icon48.png"];
     private readonly Dictionary<string, byte[]> files = new(StringComparer.Ordinal);
-    private readonly string externalRoot, recoveryRoot;
+    private readonly string externalRoot, recoveryRoot, cacheRoot;
     internal bool CanPrepare => files.Count > 0;
 
     internal BrowserCompanionFiles(string appDirectory, string dataDirectory, byte[] archive = null)
@@ -21,7 +21,8 @@ internal sealed class BrowserCompanionFiles
             using var resource = typeof(BrowserCompanionFiles).Assembly.GetManifestResourceStream("YouTubeDownloader.BrowserCompanion");
             using var buffer = new MemoryStream(); resource?.CopyTo(buffer); archive = buffer.ToArray();
         }
-        recoveryRoot = Path.Combine(Path.GetFullPath(dataDirectory), "BrowserCompanion", Convert.ToHexString(SHA256.HashData(archive))[..24]);
+        cacheRoot = Path.Combine(Path.GetFullPath(dataDirectory), "BrowserCompanion");
+        recoveryRoot = Path.Combine(cacheRoot, Convert.ToHexString(SHA256.HashData(archive))[..24]);
         try
         {
             using var zip = new ZipArchive(new MemoryStream(archive), ZipArchiveMode.Read);
@@ -54,6 +55,53 @@ internal sealed class BrowserCompanionFiles
         return browser == SetupBrowser.Firefox ? Path.Combine(folder, "manifest.json") : folder;
     }
     internal bool HasExtension(SetupBrowser browser) => Complete(externalRoot, browser) || Complete(recoveryRoot, browser);
+
+    internal void RecoverInterruptedUpdate()
+    {
+        CompanionFileTransaction.Recover(externalRoot);
+        foreach (string root in RecoveryCopies()) CompanionFileTransaction.Recover(root);
+    }
+
+    internal void UpdateInstalledCopies()
+    {
+        if (!CanPrepare) throw new InvalidDataException("Companion files are unavailable.");
+        // Keep the actual loaded path stable, including copies recovered by earlier releases.
+        CompanionFileTransaction.Apply(externalRoot, files);
+        foreach (string root in RecoveryCopies())
+        {
+            var present = files.Where(file => !file.Key.Contains('/') || Directory.Exists(Path.Combine(root, file.Key.Split('/')[0]))).ToDictionary();
+            CompanionFileTransaction.Apply(root, present);
+        }
+    }
+
+    private IEnumerable<string> RecoveryCopies()
+    {
+        if (!Directory.Exists(cacheRoot)) yield break;
+        CompanionFileTransaction.Regular(cacheRoot);
+        foreach (string root in Directory.EnumerateDirectories(cacheRoot).Take(64))
+        {
+            string name = Path.GetFileName(root);
+            if (!System.Text.RegularExpressions.Regex.IsMatch(name, "^[A-Fa-f0-9]{24}$")) continue;
+            CompanionFileTransaction.Regular(root);
+            bool owned = false;
+            foreach (string folder in new[] { "chromium", "firefox" })
+            {
+                string path = Path.Combine(root, folder, "manifest.json");
+                CompanionFileTransaction.Regular(path);
+                if (!File.Exists(path) || new FileInfo(path).Length > 64 * 1024) continue;
+                try
+                {
+                    using var manifest = JsonDocument.Parse(File.ReadAllBytes(path));
+                    using var expected = JsonDocument.Parse(files[folder + "/manifest.json"]);
+                    owned |= manifest.RootElement.GetProperty("name").GetString() == expected.RootElement.GetProperty("name").GetString() &&
+                        (folder == "chromium" ? manifest.RootElement.GetProperty("key").GetString() == expected.RootElement.GetProperty("key").GetString() :
+                        manifest.RootElement.GetProperty("browser_specific_settings").GetProperty("gecko").GetProperty("id").GetString() == expected.RootElement.GetProperty("browser_specific_settings").GetProperty("gecko").GetProperty("id").GetString());
+                }
+                catch (Exception error) when (error is JsonException or KeyNotFoundException or InvalidOperationException) { }
+            }
+            if (owned || File.Exists(Path.Combine(root, ".vydrop-companion-update", "journal.json"))) yield return root;
+        }
+    }
     private static string Folder(SetupBrowser browser) => browser == SetupBrowser.Firefox ? "firefox" : "chromium";
     private bool Complete(string root, SetupBrowser browser)
     {

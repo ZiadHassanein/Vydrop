@@ -16,6 +16,8 @@ public sealed class PackageManifest
     public string Version;
     public string Architecture;
     public Dictionary<string, string> Files = new();
+    // Separate from Files so installed v4 updaters can still validate the desktop payload.
+    public Dictionary<string, string> BrowserFiles;
 }
 
 public static class AppUpdates
@@ -118,21 +120,50 @@ public static class AppUpdates
         Directory.CreateDirectory(stage);
         string archive = Path.Combine(stage, "update.zip");
         await client.DownloadAsync(release.PackageUrl, Repository + "/releases/download/", archive, 256L * 1024 * 1024, hash, null, null, token).ConfigureAwait(false);
-        SafeArchives.Extract(archive, stage, PackageFiles.ToDictionary(f => f, f => f), 400L * 1024 * 1024, token);
+        ExtractPackage(archive, stage, token);
         ValidatePackage(stage, release.Version);
         return stage;
     }
 
-    internal static PackageManifest ValidatePackage(string directory, Version version)
+    internal static void ExtractPackage(string archive, string stage, CancellationToken token)
+    {
+        SafeArchives.Extract(archive, stage, PackageFiles.ToDictionary(f => f, f => f), 400L * 1024 * 1024, token);
+        var manifest = Json.Deserialize<PackageManifest>(File.ReadAllText(Path.Combine(stage, "package.json")));
+        ValidateBrowserFiles(manifest?.BrowserFiles);
+        if (manifest?.BrowserFiles == null) return; // Older desktop-only package.
+        foreach (var group in manifest.BrowserFiles.Keys.GroupBy(Path.GetDirectoryName))
+            SafeArchives.Extract(archive, Path.Combine(stage, group.Key), group.ToDictionary(f => f, Path.GetFileName), 400L * 1024 * 1024, token);
+    }
+
+    internal static bool IsBrowserFile(string name) => Regex.IsMatch(name ?? "", "^Browser/(?:chromium/|firefox/)?[A-Za-z0-9_-][A-Za-z0-9._-]{0,100}$") &&
+        (name.StartsWith("Browser/chromium/", StringComparison.Ordinal) || name.StartsWith("Browser/firefox/", StringComparison.Ordinal) || name is "Browser/README.md" or "Browser/LICENSE.txt");
+
+    private static void ValidateBrowserFiles(Dictionary<string, string> files)
+    {
+        if (files == null) return;
+        if (files.Count is < 2 or > 80 || !files.ContainsKey("Browser/chromium/manifest.json") || !files.ContainsKey("Browser/firefox/manifest.json") ||
+            files.Keys.Any(name => !IsBrowserFile(name)) || files.Keys.Distinct(StringComparer.OrdinalIgnoreCase).Count() != files.Count)
+            throw new InvalidDataException("The browser update manifest is invalid.");
+    }
+
+    internal static string[] PayloadFiles(PackageManifest manifest) => PackageFiles.Concat(manifest.BrowserFiles?.Keys ?? Enumerable.Empty<string>()).ToArray();
+
+    internal static PackageManifest ValidatePackage(string directory, Version version, bool validateBrowser = true)
     {
         var manifest = Json.Deserialize<PackageManifest>(File.ReadAllText(Path.Combine(directory, "package.json")));
         if (manifest == null || manifest.Architecture != "win-x64" || !Version.TryParse(manifest.Version, out var declared) || Compare(declared) != Compare(version) || manifest.Files == null || !manifest.Files.Keys.Order().SequenceEqual(PackageFiles.Where(f => f != "package.json").Order()))
             throw new InvalidDataException("The update manifest is invalid.");
-        foreach (var entry in manifest.Files)
+        ValidateBrowserFiles(manifest.BrowserFiles);
+        long browserBytes = 0;
+        foreach (var entry in manifest.Files.Concat(validateBrowser && manifest.BrowserFiles != null ? manifest.BrowserFiles : Enumerable.Empty<KeyValuePair<string, string>>()))
         {
             if (!Regex.IsMatch(entry.Value ?? "", "^[A-Fa-f0-9]{64}$"))
                 throw new InvalidDataException("The update file checksum is invalid.");
-            using var file = File.OpenRead(Path.Combine(directory, entry.Key));
+            string path = Path.Combine(directory, entry.Key);
+            UpdateTransaction.CheckRegularPath(path);
+            using var file = File.OpenRead(path);
+            if (IsBrowserFile(entry.Key) && ((browserBytes += file.Length) > 12 * 1024 * 1024 || file.Length > 4 * 1024 * 1024))
+                throw new InvalidDataException("The browser update is too large.");
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(file)), entry.Value, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("The update files failed their integrity check.");
         }
@@ -163,6 +194,7 @@ public static class AppUpdates
     }
 
     public static string RecoveryMessage => UpdateTransaction.RecoveryMessage;
+    public static bool IsUpdateStartup => UpdateTransaction.IsUpdateStartup;
 
     public static void AcknowledgeStartup() => UpdateTransaction.Acknowledge();
 }

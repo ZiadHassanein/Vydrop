@@ -96,6 +96,17 @@ internal static partial class Program
         companion.Prepare(SetupBrowser.Firefox);
         Check(companion.HasExtension(SetupBrowser.Firefox) && companion.ExtensionPath(SetupBrowser.Firefox).EndsWith("manifest.json", StringComparison.Ordinal), "Firefox recovery exposes its verified manifest file");
         Check(new BrowserCompanionFiles(app, data).HasExtension(SetupBrowser.Chrome), "Prepared companions remain available after reopening the app");
+        string oldCachePath = chrome;
+        File.WriteAllText(script, "old cached extension");
+        string settings = Path.Combine(data, "settings.json"); File.WriteAllText(settings, "keep preferences");
+        CompanionFileTransaction.Fault = name => { if (name == "firefox/quality-picker.js") throw new IOException("Injected companion update failure"); };
+        bool failed = false;
+        try { companion.UpdateInstalledCopies(); } catch (IOException) { failed = true; }
+        finally { CompanionFileTransaction.Fault = null; }
+        Check(failed && !File.Exists(Path.Combine(app, "Browser/chromium/connection.js")) && File.ReadAllText(script) == "old cached extension", "Legacy companion refresh rolls back partial replacement before acknowledging an app upgrade");
+        companion.UpdateInstalledCopies();
+        Check(File.ReadAllText(Path.Combine(oldCachePath, "quality-picker.js")) == expected && companion.HasExtension(SetupBrowser.Firefox) && File.Exists(Path.Combine(app, "Browser/firefox/quality-picker.js")), "An older updater receives both embedded companions and refreshes the existing loaded cache path");
+        Check(File.Exists(sentinel) && File.ReadAllText(settings) == "keep preferences", "Companion migration preserves user files and preferences");
         using var buffer = new MemoryStream();
         using (var zip = new ZipArchive(buffer, ZipArchiveMode.Create, true))
         {

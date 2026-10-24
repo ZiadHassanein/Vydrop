@@ -77,6 +77,7 @@ globalThis.ViFreeVideoDetection = (() => {
       } catch { return ""; }
     }
     function visible(video) {
+      if (video.closest('.ad-container,.dm-sdk-ima-slot')) return null;
       let box = video.getBoundingClientRect(), style = getComputedStyle(video);
       if (style.display === "none" || style.visibility === "hidden") return null;
       for (let ancestor = parent(video), depth = 0; ancestor && ancestor !== document.body && depth < 40; ancestor = parent(ancestor), depth++) {
@@ -98,6 +99,38 @@ globalThis.ViFreeVideoDetection = (() => {
       if (!pip && (box.width < 80 || box.height < 60 || width * height < 2400)) return null;
       const playing = !video.paused && !video.ended && video.readyState >= 2;
       return { video, score: (pip ? 20000 : 0) + (playing ? 10000 : 0) + Math.min(width * height, 500000) / 1000 + width * height / Math.max(1, box.width * box.height) * 50 };
+    }
+    function playerMedia(video) {
+      if (video?.mediaKeys) return "";
+      const id = video?.closest('.jwplayer')?.id;
+      if (!/^[\w-]{1,80}$/u.test(id ?? "")) return "";
+      const urls = new Set(); let total = 0;
+      const unquote = value => value.replace(/\\(x[0-9a-f]{2}|u[0-9a-f]{4}|[\s\S])/giu, (_, escape) =>
+        escape[0] === 'x' || escape[0] === 'u' ? String.fromCharCode(parseInt(escape.slice(1), 16)) : ({ n: '\n', r: '\r', t: '\t' })[escape] ?? escape);
+      for (const script of Array.from(document.querySelectorAll('script')).slice(0, 32)) {
+        if (script.getAttribute('src')) continue;
+        let config = script.textContent ?? '';
+        if (config.length > 65536 || (total += config.length) > 262144) continue;
+        // Decode the bounded string/token table used by this public player.
+        // This parses data only; no page JavaScript is evaluated or executed.
+        const packed = config.match(/\}\(\s*'((?:\\.|[^'\\])*)'\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*'((?:\\.|[^'\\])*)'\.split\('\|'\)/su);
+        if (packed) {
+          const radix = Number(packed[2]), count = Number(packed[3]), words = unquote(packed[4]).split('|');
+          if (radix < 2 || radix > 36 || count > 512 || words.length !== count) continue;
+          const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'.slice(0, radix);
+          config = unquote(packed[1]).replace(/\b[0-9a-z]+\b/giu, token =>
+            [...token.toLowerCase()].every(char => alphabet.includes(char)) ? words[parseInt(token, radix)] || token : token);
+        }
+        for (const setup of config.matchAll(/jwplayer\s*\(\s*(["'])([\w-]{1,80})\1\s*\)\s*\.\s*setup\s*\(\s*\{\s*(?:["']sources["']|sources)\s*:\s*\[([^\]]{1,8192})\]/gu)) {
+          if (setup[2] !== id) continue;
+          for (const source of setup[3].matchAll(/(?:["']file["']|\bfile)\s*:\s*(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)')/gu)) {
+            const raw = unquote(source[1] ?? source[2]);
+            const url = !/[\u0000-\u001f\u007f]/u.test(raw) && publicUrl(raw);
+            if (url && /\.(?:m3u8|mp4|webm)$/iu.test(new URL(url).pathname)) urls.add(url);
+          }
+        }
+      }
+      return urls.size === 1 ? [...urls][0] : '';
     }
     function linkedInAsset(video) {
       const posters = [video?.poster ?? ""];
@@ -218,6 +251,12 @@ globalThis.ViFreeVideoDetection = (() => {
       return "";
     }
     if (!publicUrl(location.href)) return { url: "", reason: "unsupported" };
+    if (selectedVideo?.closest('.ad-container,.dm-sdk-ima-slot')) return { url: "", reason: "advertisement" };
+    // The click belongs to Dailymotion's player frame, whose video node can be
+    // replaced during ads/navigation. Let the background use the browser's
+    // current containing watch URL instead of depending on that transient node.
+    if (platform(location.href) === "dailymotion" && location.hostname === "geo.dailymotion.com" && /^\/player\/[\w-]+\.html$/u.test(new URL(location.href).pathname) && !permalink(location.href))
+      return { url: publicUrl(location.href), reason: "frame" };
     if (platform(location.href) === "linkedin" && typeof assetHint === "string" && /^[A-Za-z0-9_-]{8,100}$/u.test(assetHint)) {
       const url = linkedInMedia(null, assetHint);
       return { url, reason: url ? "source" : "missing-link" };
@@ -240,14 +279,15 @@ globalThis.ViFreeVideoDetection = (() => {
       }
       if (!platform(location.href)) {
         const video = ranked[0].video;
+        const configured = playerMedia(video);
+        if (configured) return { url: configured, reason: "source", sourcePage: publicUrl(location.href),
+          mediaId: new URL(location.href).pathname.match(/^\/embed-([\w-]{1,80})\.html$/u)?.[1] };
         const source = publicUrl(video.currentSrc || video.src);
         if (source) return { url: source, reason: "source" };
         const wrapped = publicUrl(video.closest("a[href]")?.href);
         if (wrapped && wrapped !== publicUrl(location.href) && new URL(wrapped).pathname !== "/") return { url: wrapped, reason: "player" };
         if (allVideos.length === 1) return { url: publicUrl(location.href), reason: "page" };
       }
-      if (platform(location.href) === "dailymotion" && location.hostname === "geo.dailymotion.com" && /^\/player\/[\w-]+\.html$/u.test(new URL(location.href).pathname) && !permalink(location.href))
-        return { url: publicUrl(location.href), reason: "frame" };
     }
     const current = permalink(location.href);
     if (current) return { url: current, reason: "page" };
@@ -281,12 +321,20 @@ globalThis.ViFreeVideoDetection = (() => {
     // frame URL may contain only a player ID. The browser supplies the actual
     // containing tab URL, which must be a matching public Dailymotion video.
     try {
-      const frame = new URL(found.frameUrl), tab = new URL(found.tabUrl);
-      if (found.url === frame.href && frame.protocol === "https:" && frame.hostname === "geo.dailymotion.com" &&
-        !frame.username && !frame.password && !frame.port && /^\/player\/[\w-]+\.html$/u.test(frame.pathname) &&
-        tab.protocol === "https:" && /(^|\.)dailymotion\.com$/u.test(tab.hostname) && !tab.username && !tab.password && !tab.port) {
-        const video = tab.pathname.match(/^\/video\/([a-z0-9]+)(?:_[^/]*)?\/?$/iu)?.[1];
-        if (video) return `https://www.dailymotion.com/video/${video}`;
+      const frame = new URL(found.frameUrl);
+      if (frame.protocol === "https:" && frame.hostname === "geo.dailymotion.com" &&
+        !frame.username && !frame.password && !frame.port && /^\/player\/[\w-]+\.html$/u.test(frame.pathname)) {
+        const embedded = frame.searchParams.getAll('video');
+        if (embedded.length === 1 && /^[a-z0-9]+$/iu.test(embedded[0])) return `https://www.dailymotion.com/video/${embedded[0]}`;
+        let tab;
+        try { tab = new URL(found.tabUrl); } catch { /* An unidentifiable player cannot supply a media URL. */ }
+        if (tab?.protocol === "https:" && /(^|\.)dailymotion\.com$/u.test(tab.hostname) && !tab.username && !tab.password && !tab.port) {
+          const video = tab.pathname.match(/^\/video\/([a-z0-9]+)(?:_[^/]*)?\/?$/iu)?.[1];
+          if (video) return `https://www.dailymotion.com/video/${video}`;
+        }
+        // Never forward a transient ad/CDN source from this player. Without a
+        // known content ID, leave only the player URL for normal unsupported handling.
+        return frame.href;
       }
     } catch { /* Other sites continue through ordinary source resolution. */ }
     if (!found?.linkedinAsset || !found.sourcePage) return found?.url ?? "";
@@ -362,7 +410,19 @@ globalThis.ViFreeVideoDetection = (() => {
       ? fail("More than one video is visible. Open the video you want, then try again.", "ambiguous")
       : fail("Could not find this video's link. Open the video itself or use Share → Copy link.", "missing");
   }
-  return { resolve, resolveSource, inspectVideoPage };
+  function playlistFor(videoValue, pageValue) {
+    try {
+      const video = new URL(videoValue), page = new URL(pageValue);
+      const trusted = url => url.protocol === "https:" && !url.username && !url.password && !url.port &&
+        /^(?:(?:www|m|music)\.)?(?:youtube\.com|youtu\.be|youtube-nocookie\.com)$/u.test(url.hostname);
+      const id = url => url.hostname === "youtu.be" ? url.pathname.slice(1) : url.pathname === "/watch" ? url.searchParams.get("v") : url.pathname.match(/^\/(?:shorts|embed)\/([\w-]+)$/u)?.[1];
+      const videoId = id(video), list = page.searchParams.get("list");
+      if (!trusted(video) || !trusted(page) || !/^[\w-]{11}$/u.test(videoId ?? "") || id(page) !== videoId ||
+          page.searchParams.getAll("list").length !== 1 || !/^[\w-]{10,128}$/u.test(list ?? "")) return "";
+      return list.startsWith("RD") ? `https://www.youtube.com/watch?v=${videoId}&list=${list}&start_radio=1` : `https://www.youtube.com/playlist?list=${list}`;
+    } catch { return ""; }
+  }
+  return { resolve, resolveSource, inspectVideoPage, playlistFor };
 })();
 
 if (typeof document !== "undefined") {

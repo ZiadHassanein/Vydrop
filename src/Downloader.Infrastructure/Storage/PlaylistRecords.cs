@@ -48,6 +48,22 @@ internal sealed class PlaylistRecords
         return Load(folder, profile, directory);
     }
 
+    internal static void ImportMovedFolder(string previous, string folder, string profile, string directory)
+    {
+        if (previous == null || File.Exists(RecordPath(folder, profile, directory))) return;
+        var completed = Read(RecordPath(previous, profile, directory));
+        if (completed == null) return;
+        var records = Load(folder, profile, directory);
+        foreach (var entry in completed)
+        {
+            if (string.IsNullOrWhiteSpace(entry.Value)) continue;
+            string relative = Path.GetRelativePath(previous, entry.Value);
+            if (Path.IsPathRooted(relative) || relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal)) continue;
+            records.Completed[entry.Key] = Path.Combine(folder, relative);
+        }
+        records.Save(); // Old records are retained for recovery and older versions.
+    }
+
     private static PlaylistRecords Load(string folder, string profile, string directory)
     {
         var records = new PlaylistRecords(RecordPath(folder, profile, directory));

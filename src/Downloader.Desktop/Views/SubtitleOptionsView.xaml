@@ -44,7 +44,12 @@
  </UserControl.Resources>
  <Grid x:Name="OptionsContent" Margin="28,24" KeyboardNavigation.TabNavigation="Continue">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-  <TextBlock Text="{Binding OptionsLabel}" FontSize="23" FontWeight="SemiBold" Margin="0,0,0,24"/>
+  <StackPanel Margin="0,0,0,24">
+   <Button x:Name="BackButton" Click="DoneClicked" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Margin="0,0,0,10" AutomationProperties.Name="{Binding BackLabel}">
+    <StackPanel Orientation="Horizontal"><Path Data="M14,5 L7,12 L14,19 M7,12 L22,12" Style="{StaticResource LineIcon}" Width="18" Height="18" Margin="0,0,8,0"/><TextBlock Text="{Binding BackLabel}"/></StackPanel>
+   </Button>
+   <TextBlock Text="{Binding OptionsLabel}" FontSize="23" FontWeight="SemiBold"/>
+  </StackPanel>
   <ScrollViewer x:Name="OptionsViewport" Grid.Row="1" Style="{StaticResource InsetScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
    <StackPanel>
     <StackPanel IsEnabled="{Binding IsIdle}">

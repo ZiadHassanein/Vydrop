@@ -16,6 +16,7 @@ public sealed class DownloadOptions
     [JsonIgnore] public MediaSelection Selection;
     public PlaylistInfo Playlist;
     public bool PlaylistItem;
+    public bool PlaylistRequested;
     public Guid JobId;
     public string StableOutputName, SourcePage, MediaId;
     public string ThumbnailUrl, Uploader;
@@ -31,7 +32,7 @@ public sealed class DownloadOptions
     {
         Url = Url, Folder = Folder, QualityKey = QualityKey, FormatSelector = FormatSelector, FreshMetadata = FreshMetadata,
         Audio = Audio, AudioBitrate = AudioBitrate, AudioEncoding = AudioEncoding, VideoContainer = VideoContainer, AudioSource = AudioSource,
-        Height = Height, Captions = Captions, Selection = Selection, PlaylistItem = PlaylistItem,
+        Height = Height, Captions = Captions, Selection = Selection, PlaylistItem = PlaylistItem, PlaylistRequested = PlaylistRequested,
         ResumeDirectory = ResumeDirectory,
         JobId = JobId, StableOutputName = StableOutputName, SourcePage = SourcePage, MediaId = MediaId, PartialGeneration = PartialGeneration,
         ThumbnailUrl = ThumbnailUrl, Uploader = Uploader, Duration = Duration,

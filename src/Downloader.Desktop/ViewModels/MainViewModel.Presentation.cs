@@ -93,18 +93,20 @@ public sealed partial class MainViewModel
     {
         SettingsCommand = new RelayCommand(() => SettingsVisible = !SettingsVisible);
         NewDownloadCommand = new RelayCommand(ShowAddDownload);
-        SelectLanguageCommand = new RelayCommand<string>(SetLanguage, language => (language is "en" or "ar") && IsIdle);
-        ToggleLanguageCommand = new RelayCommand(() => SetLanguage(IsArabic ? "en" : "ar"), () => IsIdle);
+        SelectLanguageCommand = new RelayCommand<string>(SetLanguage, language => language is "en" or "ar");
+        ToggleLanguageCommand = new RelayCommand(() => SetLanguage(IsArabic ? "en" : "ar"));
     }
 
     private void SetLanguage(string language)
     {
-        if (!IsIdle || language == state.Language || language is not ("en" or "ar")) return;
+        if (language == state.Language || language is not ("en" or "ar")) return;
         state.Language = language;
         RefreshQualities();
         NotifyPresentation();
         Save();
     }
+
+    public string BackLabel => T("Back");
 
     internal void RefreshThemeBindings()
     {

@@ -6,6 +6,8 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 2 && args[0] == "--bundle-updates") { BundledUpdateChecks.Run(args[1]); return 0; }
+            if (args.Length == 1 && args[0] == "--playlist-folders") { PlaylistFolderChecks.Run(); return 0; }
             if (args.Length == 1 && args[0] == "--twitch-clips") { TwitchClipChecks.Run(); return 0; }
             if (args.Length == 2 && args[0] == "--twitch-clips-live") return await TwitchClipChecks.Live(args[1]);
             if (args.Length == 1 && args[0] == "--browser-stores") { BrowserStoreChecks.Run(); BrowserRegistrationChecks.Run(); return 0; }
@@ -26,6 +28,8 @@ internal static class Program
                 return 1;
             await ReliabilityChecks.Run(args[0]);
             await BoundaryChecks.Run(args[0]);
+            BundledUpdateChecks.Run(args[0]);
+            PlaylistFolderChecks.Run();
             await ServiceChecks.Run();
             await QueueConcurrencyChecks.Run();
             await QueueResumeProgressChecks.Run();

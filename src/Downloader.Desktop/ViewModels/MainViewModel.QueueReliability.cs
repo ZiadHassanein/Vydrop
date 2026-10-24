@@ -13,9 +13,9 @@ public sealed partial class MainViewModel
     public IRelayCommand<Guid> RefreshQueueSourceCommand { get; private set; }
     public IRelayCommand ScheduleQueueCommand { get; private set; }
     public IRelayCommand ClearScheduleCommand { get; private set; }
-    public IReadOnlyList<KeyValuePair<int, string>> ConnectionOptions => new KeyValuePair<int, string>[] { new(1, T("1 part (default)")), new(2, T("2 parts")), new(4, T("4 parts")) };
+    public IReadOnlyList<KeyValuePair<int, string>> ConnectionOptions => new KeyValuePair<int, string>[] { new(1, T("1 part (default)")), new(2, T("2 parts")), new(4, T("4 parts")), new(8, T("8 parts")) };
     public IReadOnlyList<KeyValuePair<int, string>> RetryOptions => new KeyValuePair<int, string>[] { new(1, T("No retries")), new(2, T("Retry once")), new(3, T("Retry twice")), new(4, T("Retry 3 times")), new(5, T("Retry 4 times")) };
-    public int DownloadConnections { get => state.Connections is 2 or 4 ? state.Connections : 1; set { if (value is not (1 or 2 or 4)) return; state.Connections = value; Save(); OnPropertyChanged(); } }
+    public int DownloadConnections { get => state.Connections is 2 or 4 or 8 ? state.Connections : 1; set { if (value is not (1 or 2 or 4 or 8)) return; state.Connections = value; Save(); OnPropertyChanged(); } }
     private int lastSpeedLimitKiB = 1024;
     private bool customSpeedLimit;
     private static readonly int[] SpeedPresets = { 512, 1024, 2048, 5120, 10240 };
@@ -147,16 +147,20 @@ public sealed partial class MainViewModel
         if (request.RequestId != null && browserReceipts.TryGetValue(request.RequestId, out var previous)) return previous.Request == request ? previous.Receipt : new(false, "invalid");
         try
         {
-            string link = downloads.Normalize(request.Url, false);
+            var targets = downloads.ResolveTargets(request.Url);
+            bool playlist = request.WholePlaylist || targets.VideoUrl == null && targets.PlaylistUrl != null;
+            string link = downloads.Normalize(request.Url, playlist);
             BrowserReceipt receipt;
-            if (request.Type == "download") receipt = AcceptBrowserDownload(request, link);
-            else if (request.SourcePage != null && Queue.RefreshSource(request.SourcePage, link, request.MediaId)) receipt = new(true, "refreshed");
+            if (request.Type == "download") receipt = AcceptBrowserDownload(request, link, playlist);
+            else if (request.SourcePage != null && Queue.RefreshSource(request.SourcePage, link, request.MediaId, playlist)) receipt = new(true, "refreshed");
             else if (!IsIdle || request.Type == "enqueue")
             {
-                var existing = Queue.Entries.FirstOrDefault(e => e.Url == link && e.State is QueueState.Pending or QueueState.Paused or QueueState.Interrupted);
+                var existing = Queue.Entries.FirstOrDefault(e => e.Url == link && (e.Options.PlaylistRequested || e.Options.Playlist != null) == playlist && e.State is QueueState.Pending or QueueState.Paused or QueueState.Interrupted);
                 if (existing == null)
                 {
                     var options = OutputRequest(); options.Url = link; options.Selection = null; options.QualityKey = null; options.StableOutputName = null;
+                    options.PlaylistRequested = playlist;
+                    options.Playlist = null;
                     options.SourcePage = request.SourcePage; options.MediaId = request.MediaId;
                     options.ThumbnailUrl = options.Uploader = null; options.Duration = 0;
                     ApplyBrowserOutput(options, request.Output);
@@ -165,7 +169,7 @@ public sealed partial class MainViewModel
                 ShowNotice("Added to queue", "Open the queue to review and start this download.", false, "library");
                 receipt = new(true, "queued");
             }
-            else { Url = link; pendingBrowserOutput = request.Output; incomingSourcePage = request.SourcePage; incomingMediaId = request.MediaId; ShowAddDownload(); if (checkedUrl == link) ApplyPendingBrowserOutput(); receipt = new(true, "opened"); }
+            else { Url = link; if (playlist) WholePlaylist = true; pendingBrowserOutput = request.Output; incomingSourcePage = request.SourcePage; incomingMediaId = request.MediaId; ShowAddDownload(); if (checkedUrl == link) ApplyPendingBrowserOutput(); receipt = new(true, "opened"); }
             if (request.RequestId != null)
             {
                 if (browserReceipts.Count >= 128) browserReceipts.Remove(browserReceipts.Keys.First());

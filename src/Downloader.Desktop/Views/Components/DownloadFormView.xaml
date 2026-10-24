@@ -92,12 +92,18 @@
   <StackPanel x:Name="FolderNoticeHost" FlowDirection="LeftToRight"/>
   <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Margin="0,24,0,0" Padding="0,18,0,0">
    <Grid x:Name="FormActions">
-    <Grid.Style><Style TargetType="Grid"><Setter Property="HorizontalAlignment" Value="Right"/><Style.Triggers><DataTrigger Binding="{Binding IsArabic}" Value="True"><Setter Property="HorizontalAlignment" Value="Left"/></DataTrigger></Style.Triggers></Style></Grid.Style>
-    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <Button x:Name="AddToQueueButton" Command="{Binding AddQueueCommand}" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Padding="12,6" MinHeight="44" VerticalAlignment="Top" AutomationProperties.Name="{Binding AddQueueLabel}" ToolTip="{Binding QueueShortcutHint}">
      <StackPanel Orientation="Horizontal"><local:QueueFeedbackView x:Name="QueueFeedback" Revision="{Binding QueueAdditionVersion}" Margin="0,0,8,0"/><TextBlock Text="{Binding AddQueueLabel}"/></StackPanel>
     </Button>
-    <local:DownloadActionView x:Name="DownloadAction" Grid.Column="1" Width="200" Margin="12,0,0,0"/>
+    <local:DownloadActionView x:Name="DownloadAction" Grid.Column="1" Width="200"/>
+    <Button x:Name="FormCancel" Grid.Column="2" Content="{Binding CancelLabel}" Command="{Binding CancelCommand}" AutomationProperties.Name="{Binding CancelLabel}" HorizontalAlignment="Left" Height="44" Margin="12,4,0,0" Padding="12,6" VerticalAlignment="Top">
+     <Button.Style><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers>
+      <DataTrigger Binding="{Binding DownloadActionState}" Value="{x:Static local:DownloadActionState.Downloading}"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+      <DataTrigger Binding="{Binding IsCheckingMedia}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+     </Style.Triggers></Style></Button.Style>
+    </Button>
    </Grid>
   </Border>
  </StackPanel>

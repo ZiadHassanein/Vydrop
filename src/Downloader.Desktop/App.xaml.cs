@@ -5,6 +5,8 @@ public partial class App : Application
 {
     private Mutex instance;
     private CancellationTokenSource browserLifetime;
+    private EventWaitHandle installClose;
+    private RegisteredWaitHandle installCloseWait;
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -29,6 +31,12 @@ public partial class App : Application
         }
 
         ThemeResources.Apply(true);
+        if (!smoke)
+        {
+            var companion = new BrowserCompanionFiles(AppContext.BaseDirectory, AppPaths.UserData);
+            companion.RecoverInterruptedUpdate();
+            if (AppUpdates.IsUpdateStartup) companion.UpdateInstalledCopies();
+        }
         if (smoke)
         {
             string root = Path.GetFullPath(e.Args[1]);
@@ -43,6 +51,15 @@ public partial class App : Application
         else
             MainWindow = new MainWindow();
         MainWindow.Show();
+        if (!smoke)
+        {
+            installClose = new EventWaitHandle(false, EventResetMode.AutoReset,
+                (ReleaseChannel.IsPreview ? "Local\\ViFree.Preview.Desktop" : "Local\\YouTubeDownloader.Desktop") + ".InstallClose");
+            installCloseWait = ThreadPool.RegisterWaitForSingleObject(installClose, (_, _) =>
+            {
+                if (!Dispatcher.HasShutdownStarted) _ = Dispatcher.BeginInvoke(new Action(() => MainWindow.Close()));
+            }, null, Timeout.Infinite, false);
+        }
         if ((e.Args.Length is 1 or 2) && e.Args[0] == "--browser-setup")
             _ = Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(() =>
             {
@@ -65,6 +82,8 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        installCloseWait?.Unregister(null);
+        installClose?.Dispose();
         instance?.Dispose();
         browserLifetime?.Cancel();
         browserLifetime?.Dispose();
