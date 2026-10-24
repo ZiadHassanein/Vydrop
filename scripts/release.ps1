@@ -37,9 +37,9 @@ if (!$releaseNotes) { throw 'The tagged version needs a changelog section before
 $body = @"
 Vydrop is a free Windows video and audio downloader for YouTube and 1,000+ public sites supported by yt-dlp, with English and Arabic interfaces.
 
-**[Download for Windows — Installer]($installerUrl)** · **[Portable ZIP]($url)**
+**[Download for Windows — Complete ZIP]($url)** · **[Windows installer (optional)]($installerUrl)**
 
-Run the installer and open **Vydrop** from Start. Alternatively, extract the complete portable ZIP and open **Vydrop.exe**. Windows 10/11 x64; .NET is bundled and missing media tools are prepared automatically.
+Extract the complete ZIP, which includes **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**, then open **Vydrop.exe**. The Windows installer is an optional alternative. Windows 10/11 x64; .NET is bundled and missing media tools are prepared automatically.
 
 The installer registers the browser connection for your account. Browser-store listings are still pending: use **Settings → Browser integration → Manual setup and troubleshooting → Load the local companion**, finish the browser loading step, then use **Test connection**. Browser approval is required.
 

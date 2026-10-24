@@ -7,7 +7,7 @@ alternate: true
 english: /
 arabic: /ar/
 home: true
-last_reviewed: 2026-10-23
+last_reviewed: 2026-10-24
 ---
 
 # Vydrop: free video and audio downloader for Windows
@@ -17,12 +17,14 @@ last_reviewed: 2026-10-23
 Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp, with English and Arabic interfaces.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/Vydrop-v4.4.3-win-x64.zip">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">Download Vydrop</span><span class="download-meta">Windows 10/11 x64 · v4.4.3 · Setup</span></span>
+    <span class="download-copy"><span class="download-title">Download Vydrop ZIP</span><span class="download-meta">Windows 10/11 x64 · v4.4.3 · ZIP</span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads" height="20"></a>
 </div>
+
+Includes **Vydrop.exe** and the **Browser** folder with Chromium and Firefox companion 1.5.1. Extract the complete ZIP before opening the app. [Windows installer (optional)](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe).
 
 ## At a glance
 
@@ -42,7 +44,7 @@ Read the [US English](en-us/index.md), [Arabic](ar/index.md), [French](fr/index.
 
 New to the app? Read the [official download, installation and update guide](download.md). If you downloaded GitHub's source ZIP, this guide shows which release asset contains the ready-to-run Windows app.
 
-1. Run the Windows installer and open **Vydrop** from Start. For the portable ZIP, extract the complete folder and open **Vydrop.exe**. The .NET runtime is bundled.
+1. Extract the complete ZIP, keep its **Browser** folder and open **Vydrop.exe**. The .NET runtime is bundled. The Windows installer is an optional alternative.
 2. Paste a video's own link or a public playlist link. Review the detected title and available quality.
 3. Choose **Video** or **Audio**, the output format, and your save folder. Select **Subtitles** if captions are available.
 4. Choose **Download** to follow the transfer in **Queue**. Open completed files from **Library**, or use **History** for the last five completed downloads.

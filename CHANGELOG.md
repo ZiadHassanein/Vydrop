@@ -4,6 +4,9 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+### Changed
+- Make the complete Windows ZIP the primary GitHub and website download, keeping the installer as an optional alternative and clarifying app/extension upgrades for existing users.
+
 ## [4.4.3] - 2026-10-23
 
 ### Updated

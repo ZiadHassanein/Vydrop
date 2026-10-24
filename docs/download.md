@@ -1,29 +1,32 @@
 ---
 title: "Download Vydrop for Windows: Install and Update"
-description: "Download the official Vydrop Windows installer or portable ZIP. Check requirements, browser setup and safe updates from GitHub Releases."
+description: "Download the complete Vydrop Windows ZIP with the app and browser extensions, or the optional installer. Check setup and safe updates."
 lang: en
 dir: ltr
 alternate: true
 english: /download.html
 arabic: /ar/download.html
-last_reviewed: 2026-10-23
+last_reviewed: 2026-10-24
 ---
 
 # Download and install Vydrop for Windows
 
 **Vydrop is a free, open-source video and audio downloader for Windows 10/11 x64.** Download the packaged app from the project's GitHub Releases page. The desktop interface supports English and Arabic.
 
-[Download Vydrop 4.4.3 — Windows installer](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe) · [Portable ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/Vydrop-v4.4.3-win-x64.zip) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.3)
+[Download Vydrop 4.4.3 — Complete ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/Vydrop-v4.4.3-win-x64.zip) · [Windows installer (optional)](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.3)
+
+The ZIP contains **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**. Extract the entire archive; opening only the EXE inside the ZIP does not unpack the companion folders.
 
 Both packages include companion **1.5.1** and the latest Reddit player, Twitch clip-format and Dailymotion link fixes. When updating an existing unpacked companion, reload it in your browser's Extensions page and refresh video tabs.
 
-## Install Vydrop
+## Run the extracted app
 
-1. Run **VydropSetup-v4.4.3-win-x64.exe**. Installation is for your Windows account and does not need administrator rights.
-2. Open **Vydrop** from Start. Setup installs the app, creates its uninstaller and registers the browser connection automatically.
-3. To add the optional companion, open **Settings → Browser integration**. Store listings are still pending: choose **Manual setup and troubleshooting → Load the local companion**, finish the browser's loading step, then use **Test connection**.
+1. Extract the complete ZIP to a permanent writable folder, such as **Documents\Vydrop**.
+2. Open **Vydrop.exe** from the extracted folder. Keep **Browser** beside it if you want browser integration.
+3. Paste a public video's own link. Wait for its title and available quality, choose Video or Audio, then choose **Download**.
+4. For browser handoff, follow the [illustrated extension guide](browser-extension-setup.md).
 
-The installer closes the setup gap on the app side. Your browser still requires approval to load an extension. See the [illustrated extension guide](browser-extension-setup.md).
+The companion opens a format and quality menu. Confirm Download to start the chosen output in your saved folder; older app versions open a review screen. Vydrop does not import browser cookies or unlock private or DRM-protected media. See [supported sites and limitations](supported-sites.md).
 
 ## Choose the application package
 
@@ -39,14 +42,13 @@ The installer closes the setup gap on the app side. Your browser still requires 
 
 GitHub's **Code → Download ZIP** downloads the source code. Choose the named Windows ZIP under **Releases → Assets** for the ready-to-run app. There is no native macOS or Linux package in this release.
 
-## Run the extracted app
+## Optional: use the Windows installer
 
-1. Extract the complete ZIP to a permanent writable folder, such as **Documents\Vydrop**.
-2. Open **Vydrop.exe** from the extracted folder. Keep **Browser** beside it if you want browser integration.
-3. Paste a public video's own link. Wait for its title and available quality, choose Video or Audio, then choose **Download**.
-4. For browser handoff, follow the [illustrated extension guide](browser-extension-setup.md).
+1. Run **VydropSetup-v4.4.3-win-x64.exe**. Installation is for your Windows account and does not need administrator rights.
+2. Open **Vydrop** from Start. Setup installs the app, creates its uninstaller and registers the browser connection automatically.
+3. To add the optional companion, open **Settings → Browser integration**. Store listings are still pending: choose **Manual setup and troubleshooting → Load the local companion**, finish the browser's loading step, then use **Test connection**.
 
-The companion opens a format and quality menu. Confirm Download to start the chosen output in your saved folder; older app versions open a review screen. Vydrop does not import browser cookies or unlock private or DRM-protected media. See [supported sites and limitations](supported-sites.md).
+The installer closes the setup gap on the app side. Your browser still requires approval to load an extension. See the [illustrated extension guide](browser-extension-setup.md).
 
 ## Check the publisher and package
 
@@ -54,9 +56,11 @@ The official repository is **[ZiadHassanein/Vydrop](https://github.com/ZiadHassa
 
 ## Update an existing copy
 
-Close Vydrop, then run the new installer to update an installed copy. For a portable copy, extract the complete new ZIP and run its executable. Existing settings, queue and history remain in their compatible storage location. If you move a portable copy, open **Settings → Browser integration** and reconnect from that copy; reload the companion from its Browser folder.
+Downloading a new ZIP does not change a running older copy. Close Vydrop, extract the complete new ZIP into the existing app folder and replace the app files, including the **Browser** folder. Keep your downloaded media and local app-data files. Compatible settings, queue and history remain in their existing storage location. Reload the companion and refresh video tabs. If you use a new folder instead, open **Settings → Browser integration** and reconnect from that copy so the browser opens the new app. Installed copies can alternatively use the new installer.
 
-Versions through **4.2.1** need one manual download after the repository was renamed from ViFree to Vydrop. Application updates and media-tool updates are separate: **Settings → Update downloader** checks the media tools, not the desktop application package.
+The built-in app updater updates the desktop application files. If the browser companion still uses an older folder, open **Browser integration** to prepare the matching companion and load/reload the folder shown there. Extracting the full ZIP into the existing folder updates both companion folders together.
+
+Versions through **4.2.1** need one manual download after the repository was renamed from ViFree to Vydrop. Open the new **Vydrop.exe** and update any shortcut that still points to an older copy. Application updates and media-tool updates are separate: **Settings → Update downloader** checks the media tools, not the desktop application package.
 
 Settings and recent-file history use `%LocalAppData%\YouTubeDownloader` for compatibility. Your media files remain in your chosen save folder. See [troubleshooting](troubleshooting.md) if the app cannot check a video or the companion shows Try again.
 

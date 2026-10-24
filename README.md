@@ -1,7 +1,9 @@
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand-logo-dark.svg"><img src="assets/brand-logo-light.svg" width="238" alt="Vydrop video downloader logo"></picture></p>
 
 <p align="center">
-  <a href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe"><img src="assets/download-windows.svg" width="210" alt="Download Vydrop v4.4.3 for Windows — Installer"></a>
+  <a href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/Vydrop-v4.4.3-win-x64.zip"><img src="assets/download-windows.svg" width="210" alt="Download Vydrop v4.4.3 ZIP for Windows — App and extensions"></a>
+  <br>
+  <a href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe">Windows installer (optional)</a>
   <br><br>
   <a href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads"></a>
 </p>
@@ -29,7 +31,7 @@ Website guides: [English (US)](docs/en-us/index.md) · [Français](docs/fr/index
 
 Vydrop 4.4.3 bundles companion **1.5.1** with Reddit shadow-player detection, reliable Twitch clip formats and Dailymotion watch-page links. It also includes the latest UI, queue recovery, paused-download resume and scheduling fixes. Existing settings, queue format and older browser companions remain compatible.
 
-The Windows installer is now included. It registers the app connection automatically. Browser-store listings remain pending; load the bundled companion from **Manual setup and troubleshooting → Load the local companion** until those listings are approved. A [portable ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/Vydrop-v4.4.3-win-x64.zip) is also available.
+The main download is the **complete ZIP**, containing **Vydrop.exe**, **Browser/chromium** and **Browser/firefox** with companion **1.5.1**. Extract the entire folder before opening the app. The [Windows installer](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe) is optional and registers the app connection automatically. Browser-store listings remain pending; load the bundled companion from **Manual setup and troubleshooting → Load the local companion** until those listings are approved.
 
 **Vydrop 4.4.3** separates completed files in **Library** from unfinished work in **Queue**, with independent searches, relevant filters and pause/resume controls. The neutral graphite interface has consistent native icons, full-surface clickable buttons and an Add download tab that fits the available space. Contact links are in Settings. The installer offers browser setup; companion **1.5.1** retains its in-player quality menu and explicitly confirmed downloads, including when the app is closed. Existing settings, queue/history data and older companion transports remain compatible.
 
@@ -40,7 +42,7 @@ The Windows installer is now included. It registers the app connection automatic
 
 | Channel | Version | What to use |
 | --- | --- | --- |
-| Latest stable release | Vydrop 4.4.3 | The Windows installer linked above; the portable ZIP is also available. |
+| Latest stable release | Vydrop 4.4.3 | The complete ZIP linked above; the Windows installer is optional. |
 | Included companion | Vydrop 1.5.1 | Chrome, Edge and Firefox folders inside Browser. |
 
 This is the official repository for Vydrop source code, Windows downloads, release notes and support. The source is MIT licensed.
@@ -101,8 +103,8 @@ Keep the extracted folder, allow access to the desired websites and refresh open
 
 ## Getting started
 
-1. Download and run the [official Windows installer](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe), then open **Vydrop** from Start. Alternatively, extract the complete [portable ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/Vydrop-v4.4.3-win-x64.zip) and open **Vydrop.exe**. Target platform: Windows 10/11 x64; the .NET runtime is bundled.
-2. Choose **Add download**, paste a video or playlist link, select output, quality and a save folder, then click **Download**. The library shows the new transfer and its controls.
+1. Download the [complete ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/Vydrop-v4.4.3-win-x64.zip), extract the entire folder and open **Vydrop.exe**. Keep **Browser/chromium** and **Browser/firefox** beside the app. The [Windows installer](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe) is an optional alternative. Target platform: Windows 10/11 x64; the .NET runtime is bundled.
+2. Choose **Add download**, paste a video or playlist link, select output, quality and a save folder, then click **Download**. Queue shows the new transfer and its controls.
 3. Choose the Video/Audio format buttons and **Subtitles** for captions. Use **Choose videos** for playlist entries and **Queue** for multiple links.
 
 Internet access is required for downloads and missing-tool preparation. No account, API key or paid service is required. Only save media you have permission to download; DRM-protected and sign-in-only content is unsupported.
@@ -187,7 +189,7 @@ The check command includes core, infrastructure, WPF, checking-feedback, isolate
 
 **Vydrop** برنامج مجاني ومفتوح المصدر من تطوير **زياد حسنين**، لتنزيل الفيديو والصوت من الصفحات العامة في يوتيوب وتيك توك وفيسبوك وVimeo وأكثر من ١٠٠٠ موقع مدعوم عبر yt-dlp، إضافة إلى روابط الوسائط المباشرة. يدعم العربية والإنجليزية والمظهرين الفاتح والداكن، مع قائمة تنزيلات واختيار فيديوهات القائمة وحفظ الترجمة المتاحة.
 
-الإصدار الحالي هو **Vydrop 4.4.3**، ويتضمن مُثبّت ويندوز يجهّز ربط التطبيق تلقائيًا، وتحسينات لإرسال الفيديو من المتصفح، وحفظ قائمة التنزيلات واستئنافها وجدولتها، وأيقونات أوضح وواجهة محسّنة بالعربية والإنجليزية مع الحفاظ على الإعدادات والسجل والتوافق السابق. تتضمن الحزمة إضافة المتصفح **1.5.1**. [نزّل مُثبّت ويندوز](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe) أو [ملف ZIP المحمول](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/Vydrop-v4.4.3-win-x64.zip). شغّل المُثبّت، أو فكّ ZIP كاملًا وافتح **Vydrop.exe**. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. اختر متصفحك من إعدادات الربط وأكمل تحميل الإضافة من مجلد Browser الجديد. راجع [دليل تفعيل Chrome وEdge وFirefox بالصور](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html). تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو وجودة المصدر.
+الإصدار الحالي هو **Vydrop 4.4.3**، ويتضمن مُثبّت ويندوز يجهّز ربط التطبيق تلقائيًا، وتحسينات لإرسال الفيديو من المتصفح، وحفظ قائمة التنزيلات واستئنافها وجدولتها، وأيقونات أوضح وواجهة محسّنة بالعربية والإنجليزية مع الحفاظ على الإعدادات والسجل والتوافق السابق. تتضمن الحزمة إضافة المتصفح **1.5.1**. [نزّل ملف ZIP الكامل](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/Vydrop-v4.4.3-win-x64.zip)، وفكّه كاملًا ثم افتح **Vydrop.exe** مع الاحتفاظ بمجلد **Browser** وإضافتَي Chromium وFirefox. يتوفر [مُثبّت ويندوز اختياري](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.3/VydropSetup-v4.4.3-win-x64.exe). تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. اختر متصفحك من إعدادات الربط وأكمل تحميل الإضافة من مجلد Browser الجديد. راجع [دليل تفعيل Chrome وEdge وFirefox بالصور](https://ziadhassanein.github.io/Vydrop/ar/browser-extension-setup.html). تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو وجودة المصدر.
 
 ### أسئلة شائعة
 
