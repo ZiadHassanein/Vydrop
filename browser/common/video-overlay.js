@@ -92,8 +92,8 @@
     }
     return [document, ...roots].flatMap(root => Array.from(root.querySelectorAll("video")).slice(0, 100)).slice(0, 100);
   }
-  function bounds(video) {
-    if (video.closest('.ad-container,.dm-sdk-ima-slot')) return null;
+  function bounds(video, includeAdvertisement = false) {
+    if (!includeAdvertisement && video.closest('.ad-container,.dm-sdk-ima-slot')) return null;
     const r = video.getBoundingClientRect();
     if (r.width < 80 || r.height < 60 || r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) return null;
     const paint = getComputedStyle(video);
@@ -116,14 +116,19 @@
   function refresh() {
     scheduled = false;
     if (document.hidden || document.pictureInPictureElement) { host.style.setProperty("display", "none", "important"); return; }
-    let video = busy && playing(pendingVideo) ? pendingVideo : null;
-    if (!video) {
-      const candidates = videosInPage().filter(v => !v.paused && !v.ended && v.readyState >= 2)
-        .map(video => ({ video, rect: bounds(video) })).filter(v => v.rect)
-        .sort((a, b) => visibleArea(b.rect) - visibleArea(a.rect));
-      video = candidates[0]?.video;
-    }
-    const rect = video && bounds(video);
+    const videos = videosInPage();
+    // A paused content player can remain painted underneath an active ad.
+    // Keep that ad from revealing the content action until playback returns.
+    const advertisements = videos.filter(video => playing(video) && video.closest('.ad-container,.dm-sdk-ima-slot'))
+      .map(video => bounds(video, true)).filter(Boolean);
+    const candidates = videos.map(video => ({ video, rect: bounds(video) })).filter(item => item.rect &&
+      !advertisements.some(ad => Math.min(ad.right, item.rect.right) > Math.max(ad.left, item.rect.left) &&
+        Math.min(ad.bottom, item.rect.bottom) > Math.max(ad.top, item.rect.top)))
+      .sort((a, b) => Number(playing(b.video)) - Number(playing(a.video)) || visibleArea(b.rect) - visibleArea(a.rect));
+    // Visibility depends on the player being on screen, including its poster,
+    // paused and ended states. Do not wait for media bytes or playback to start.
+    const selected = busy && candidates.find(item => item.video === pendingVideo) || candidates[0];
+    const video = selected?.video, rect = selected?.rect;
     const fullscreen = document.fullscreenElement;
     if (!video || !rect || !video.isConnected || fullscreen?.tagName === "VIDEO" || fullscreen && !fullscreen.contains(video)) {
       host.style.setProperty("display", "none", "important"); return;

@@ -62,7 +62,7 @@ $releaseNotes
 - Public media from YouTube, TikTok, Facebook, Vimeo and other yt-dlp-supported sites, plus compatible direct media links. Private, sign-in-only and DRM content is unsupported.
 - Queue, playlist selection and available SRT/VTT subtitles.
 - English/Arabic and light/dark themes.
-- Browser companion 1.5.3 inside Browser: selected Reddit master playlists with verified audio, LinkedIn feed-to-public-embed lookup, explicit video/playlist scope, Dailymotion main-video routing and detected-ad filtering, in-player format/quality choices, connection testing and optional media discovery. Existing companion/native-host identities and version-1 single-video fallback remain compatible.
+- Browser companion 1.5.4 inside Browser: selected Reddit master playlists with verified audio, LinkedIn feed-to-public-embed lookup, explicit video/playlist scope, Dailymotion main-video routing and detected-ad filtering, in-player format/quality choices, connection testing and optional media discovery. Existing companion/native-host identities and version-1 single-video fallback remain compatible.
 - Automatic daily verified yt-dlp/Deno checks and one compatible update-and-retry.
 - Settings keeps video errors in the download screen; manual app updates use this repository.
 

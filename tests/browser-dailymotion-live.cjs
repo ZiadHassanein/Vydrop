@@ -27,10 +27,10 @@ const root = path.resolve(__dirname, '..');
     await frame.evaluate(() => {
       // Chrome content-script frames can expose a null custom-element registry.
       Object.defineProperty(window, 'customElements', { value: null, configurable: true });
-      window.adPlaying = true;
+      window.adPlaying = true; window.contentPaused = false;
       for (const video of document.querySelectorAll('video')) Object.defineProperties(video, {
         readyState: { get: () => 4 }, ended: { get: () => false },
-        paused: { get: () => video.id === 'advertisement' ? !adPlaying : adPlaying },
+        paused: { get: () => video.id === 'advertisement' ? !adPlaying : adPlaying || contentPaused },
         currentSrc: { get: () => video.id === 'advertisement' ? 'https://ads.example/commercial.mp4' : 'blob:https://geo.dailymotion.com/content' }
       });
       window.browser = { runtime: { getManifest: () => ({ name: 'Vydrop' }), sendMessage: value => window.sendFixtureMessage(value) } };
@@ -47,6 +47,9 @@ const root = path.resolve(__dirname, '..');
     await picker.getByRole('button', { name: 'Download', exact: true }).click();
     assert.equal(delivered.length, 1); assert.equal(delivered[0].url, watch);
     assert.equal(delivered[0].output.output.height, 720);
+    await frame.evaluate(() => { contentPaused = true; document.querySelector('#content').dispatchEvent(new Event('pause')); });
+    await button.waitFor({ state: 'visible' });
+    assert.equal(delivered.length, 1, 'pausing keeps the action visible without starting another download');
     await frame.evaluate(() => { adPlaying = true; document.querySelector('#content').dispatchEvent(new Event('pause')); document.querySelector('#advertisement').dispatchEvent(new Event('playing')); });
     await button.waitFor({ state: 'hidden' });
     assert.equal(delivered.length, 1, 'returning ads cannot create another request');

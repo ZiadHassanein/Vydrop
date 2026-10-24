@@ -1,6 +1,6 @@
 # Browser store publication handoff
 
-Prepared October 24, 2026 for companion 1.5.3. Packages are upload candidates, not approved or signed extensions. Public release links remain unchanged.
+Prepared October 25, 2026 for companion 1.5.4. Packages are upload candidates, not approved or signed extensions. Public release links remain unchanged.
 
 ## Automatic setup prerequisite
 

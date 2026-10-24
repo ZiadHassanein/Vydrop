@@ -4,6 +4,11 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.6] - 2026-10-25
+
+### Changed
+- Keep the on-video download action visible before playback, while buffering or paused, and after the video ends; retain hidden-player, blocking-dialog and active-ad filtering.
+
 ## [4.4.5] - 2026-10-24
 
 ### Fixed

@@ -29,19 +29,18 @@ const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:751722773
       const page = await context.newPage();
       await page.goto(url);
       await page.evaluate(() => {
-        globalThis.testReady = 1; globalThis.testPaused = false; globalThis.testSent = [];
+        globalThis.testReady = 0; globalThis.testPaused = true; globalThis.testEnded = false; globalThis.testSent = [];
         const video = document.querySelector('video');
-        Object.defineProperties(video, { readyState: { get: () => testReady }, paused: { get: () => testPaused }, currentSrc: { get: () => 'blob:synthetic-player' } });
+        Object.defineProperties(video, { readyState: { get: () => testReady }, paused: { get: () => testPaused }, ended: { get: () => testEnded }, currentSrc: { get: () => 'blob:synthetic-player' } });
         globalThis.testResponse = { ok: true };
-        globalThis.browser = { runtime: { sendMessage: async value => { testSent.push(value); return testResponse; } } };
+        globalThis.browser = { runtime: { sendMessage: async value => { testSent.push(value); if (globalThis.testResponseWait) await testResponseWait; return testResponse; } } };
         Object.defineProperty(navigator, 'clipboard', { value: { writeText: async value => { globalThis.testCopied = value; } }, configurable: true });
       });
       for (const file of ['connection.js', 'video-detection.js', 'video-overlay.js']) await page.addScriptTag({ path: path.join(root, 'browser/common', file) });
       const button = page.locator('#vifree-video-action').getByRole('button');
-      assert.equal(await button.isVisible(), false);
-      // No mutation, scrolling or resizing: only the post-buffering media event can reveal it.
-      await page.evaluate(() => { testReady = 4; document.querySelector('video').dispatchEvent(new Event('playing', { bubbles: false })); });
       await button.waitFor({ state: 'visible' });
+      assert.equal(await page.evaluate(() => testReady), 0, 'the poster has an action before any media loads');
+      assert.equal(await page.evaluate(() => testPaused), true, 'playback is not needed to show or use the action');
       const box = await button.boundingBox(), videoBox = await page.locator('video').boundingBox();
       assert.ok(box.x >= videoBox.x && box.y >= videoBox.y && box.x + box.width <= videoBox.x + videoBox.width && box.y + box.height <= videoBox.y + videoBox.height, 'button stays inside the video');
       assert.ok(Math.abs(box.x + box.width - videoBox.x - videoBox.width + 10) < 2 && Math.abs(box.y - videoBox.y - 10) < 2, 'button anchors to the video top-right inset');
@@ -56,6 +55,21 @@ const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:751722773
       const sent = await page.evaluate(() => ({ url: testSent[0].url, copied: testCopied }));
       const expected = site === 'youtube' ? url : activity;
       assert.equal(sent.url, expected); assert.equal(sent.copied, expected);
+      if (site === 'youtube' && !theater && !crowdedHeader) {
+        const before = await page.evaluate(() => testSent.length);
+        await page.evaluate(() => { globalThis.testResponseWait = new Promise(resolve => { globalThis.testReleaseResponse = resolve; }); });
+        await button.click();
+        await page.waitForFunction(before => testSent.length === before + 1, before);
+        await page.evaluate(() => { testPaused = true; document.querySelector('video').dispatchEvent(new Event('pause')); });
+        await button.waitFor({ state: 'visible' });
+        assert.equal(await button.isDisabled(), true, 'a paused player retains its pending download action');
+        await page.evaluate(() => { testResponseWait = null; testReleaseResponse(); });
+        await page.waitForFunction(() => !document.querySelector('#vifree-video-action').shadowRoot.querySelector('button').disabled);
+      }
+      await page.evaluate(() => { testPaused = false; testReady = 1; document.querySelector('video').dispatchEvent(new Event('play')); });
+      await button.waitFor({ state: 'visible' });
+      await page.evaluate(() => { testReady = 4; document.querySelector('video').dispatchEvent(new Event('playing')); });
+      await button.waitFor({ state: 'visible' });
       assert.match(await page.locator('#vifree-video-action').locator('[role="status"]').textContent(), /Link copied and video opened|تم نسخ الرابط وفتح الفيديو/u);
       if (site === 'linkedin' && lang === 'en') {
         await page.evaluate(() => { testResponse = { ok: false, code: 'busy' }; });
@@ -109,7 +123,17 @@ const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:751722773
         assert.ok((await button.boundingBox()).width > 100, 'the full label returns when space is available');
       }
       await page.evaluate(() => { testPaused = true; document.querySelector('video').dispatchEvent(new Event('pause')); });
+      await button.waitFor({ state: 'visible' });
+      const pausedBox = await button.boundingBox();
+      assert.ok(Math.abs(pausedBox.x + pausedBox.width - box.x - box.width) < 2 && Math.abs(pausedBox.y - box.y) < 2, 'pausing keeps the action in the same position');
+      await page.evaluate(() => { testEnded = true; document.querySelector('video').dispatchEvent(new Event('ended')); });
+      await button.waitFor({ state: 'visible' });
+      await page.evaluate(() => { testReady = 0; document.querySelector('video').dispatchEvent(new Event('emptied')); });
+      await button.waitFor({ state: 'visible' });
+      await page.evaluate(() => { document.querySelector('video').style.display = 'none'; document.querySelector('video').dispatchEvent(new Event('loadedmetadata')); });
       await button.waitFor({ state: 'hidden' });
+      await page.evaluate(() => { document.querySelector('video').style.display = 'block'; document.querySelector('video').dispatchEvent(new Event('loadedmetadata')); });
+      await button.waitFor({ state: 'visible' });
       if (site === 'youtube' && lang === 'en' && !theater && !crowdedHeader) {
         const samples = await page.evaluate(async () => {
           const fixture = document.createElement('section');
@@ -136,7 +160,7 @@ const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:751722773
         samples.sort((a, b) => a - b);
         console.log(`MEASURE: 100-player overlay, ${samples.length} callbacks: p95=${samples[Math.floor(samples.length * .95)].toFixed(2)}ms, max=${samples.at(-1).toFixed(2)}ms`);
       }
-      console.log(`PASS: ${site}/${lang}/${width}${theater ? '/theater' : ''}${crowdedHeader ? '/crowded-header' : ''}: delayed playback, inside top-right placement, exact-player click and pause`); passed++;
+      console.log(`PASS: ${site}/${lang}/${width}${theater ? '/theater' : ''}${crowdedHeader ? '/crowded-header' : ''}: unplayed/paused/ended visibility, inside top-right placement and exact-player click`); passed++;
       await context.close();
     }
     console.log(`${passed} headless overlay scenarios passed; native delivery was simulated.`);
