@@ -4,6 +4,18 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.5] - 2026-10-24
+
+### Fixed
+- Download the selected Reddit main video through its public master playlist when post metadata is blocked, preserving its canonical post and asset identity.
+- Measure missing Reddit audio facts and select the verified audio rendition by ID so video downloads retain sound.
+- Resolve LinkedIn feed cards without visible post links through their own post menu and public embed, matching the selected video's exact poster asset instead of a neighboring feed item.
+- Keep toolbar and context-menu source identity, existing companion permissions, native-host identities and legacy single-video compatibility.
+
+### Updated
+- Bundle companion 1.5.3 for Chromium and Firefox. Install through the built-in updater to update the app and both companion folders while preserving settings, queue, history and media; reload the browser extension afterward.
+
+
 ## [4.4.4] - 2026-10-24
 
 ### Changed

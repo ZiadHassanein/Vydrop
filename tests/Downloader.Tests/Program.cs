@@ -6,6 +6,13 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 3 && args[0] == "--update-release")
+            {
+                var release = AppUpdates.Parse(File.ReadAllText(args[1]), Version.Parse(args[2])) ?? throw new Exception("No newer stable update is available.");
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { result = "PASS", version = release.Version.ToString(), package = release.PackageName, url = release.PackageUrl, sha256 = release.PackageHash }));
+                return 0;
+            }
+            if (args.Length == 3 && args[0] == "--social-video-live") return await SocialVideoLiveChecks.Run(args[1], args[2]);
             if (args.Length == 2 && args[0] == "--bundle-updates") { BundledUpdateChecks.Run(args[1]); return 0; }
             if (args.Length == 1 && args[0] == "--playlist-folders") { PlaylistFolderChecks.Run(); return 0; }
             if (args.Length == 1 && args[0] == "--twitch-clips") { TwitchClipChecks.Run(); return 0; }
@@ -38,6 +45,7 @@ internal static class Program
             await WorkflowChecks.Run(args[0]);
             OutputProfileChecks.Run(args[0]);
             TwitchClipChecks.Run();
+            RedditMediaChecks.Run();
             await AutomaticToolChecks.Run(args[0]);
             await ReviewRegressionChecks.Run(args[0]);
             BrowserRegistrationChecks.Run();

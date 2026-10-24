@@ -497,3 +497,54 @@ test('LinkedIn cleanup leaves a temporary tab alone if the user navigated it els
   assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: linkedInActivity, sourcePage: linkedInGroupFeed, linkedinAsset: linkedInAsset }), linkedInMedia);
   assert.equal(removed, false);
 });
+
+
+const redditMaster = 'https://v.redd.it/selected123/HLSPlaylist.m3u8?f=sd';
+test('Reddit uses the selected main master playlist with source identity and separate audio intact', () => {
+  const one = reddit('abc123', { src: redditMaster.replace('selected123', 'neighbor123') });
+  const own = reddit('def456', { src: redditMaster });
+  const { context } = fixture('https://www.reddit.com/r/videos/', one, own);
+  const found = context.ViFreeVideoDetection.inspectVideoPage('', true, own.shadowRoot.querySelectorAll('video')[0]);
+  assert.equal(found.url, redditMaster);
+  assert.equal(found.sourcePage, 'https://www.reddit.com/comments/def456/');
+  assert.equal(found.mediaId, 'selected123');
+});
+test('Reddit never substitutes a rendition, untrusted host, comment or protected player for the main manifest', () => {
+  for (const src of [redditMaster.replace('HLSPlaylist', 'CMAF_720'), redditMaster.replace('v.redd.it', 'v.redd.it.evil.example'), redditMaster.replace('https:', 'http:'), redditMaster.replace('v.redd.it', 'user:secret@v.redd.it'), redditMaster.replace('v.redd.it', 'v.redd.it:8443')])
+    assert.equal(fixture('https://www.reddit.com/', reddit('abc123', { src })).detect().url, 'https://www.reddit.com/comments/abc123/');
+  const own = reddit('abc123', { src: redditMaster }); own.shadowRoot.querySelectorAll('video')[0].mediaKeys = {};
+  assert.equal(fixture('https://www.reddit.com/', own).detect().reason, 'player');
+  const comment = reddit('abc123', { src: redditMaster, 'comment-id': 't1_other' });
+  assert.equal(fixture('https://www.reddit.com/', comment).detect().url, '');
+  assert.equal(fixture('https://www.reddit.com/', reddit('abc123', { src: redditMaster, 'post-promoted': '' })).detect().reason, 'advertisement');
+});
+test('Reddit toolbar and context handoffs preserve the selected asset and canonical post', async () => {
+  const { context } = fixture('https://www.reddit.com/');
+  const found = { url: redditMaster, reason: 'source', sourcePage: 'https://www.reddit.com/comments/abc123/', mediaId: 'selected123' };
+  context.ViFreeConnection = { api: { scripting: { executeScript: async () => [{ frameId: 0, result: found }] } } };
+  assert.equal(await context.ViFreeVideoDetection.resolve({ id: 7, url: 'https://www.reddit.com/' }), redditMaster);
+  const details = await context.ViFreeVideoDetection.resolveDetails({ id: 7, url: 'https://www.reddit.com/' });
+  assert.equal(details.sourcePage, found.sourcePage); assert.equal(details.mediaId, found.mediaId);
+});
+test('LinkedIn public embed data matches only the requested asset and selects the reported highest bitrate', () => {
+  const low = linkedInMedia.replace('mp4-720p', 'mp4-640p');
+  const sources = JSON.stringify([{ src: low, type: 'video/mp4', 'data-bitrate': 100 }, { src: linkedInMedia, type: 'video/mp4', 'data-bitrate': 200 }]);
+  const video = el('video', { 'data-sources': sources, poster: linkedInPoster });
+  // The synthetic selector is extended here only to model attribute existence.
+  const original = video.matches.bind(video); video.matches = selector => selector === 'video[data-sources]' || original(selector);
+  const { context } = fixture('https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7519664336286650368/', video);
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, null, linkedInAsset).url, linkedInMedia);
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, null, 'OtherAsset').url, '');
+  video.mediaKeys = {};
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, null, linkedInAsset).url, '');
+});
+test('LinkedIn selected embed lookup accepts ugcPost without inventing an activity ID', async () => {
+  const page = 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7519664336286650368/';
+  const { context } = fixture('https://www.linkedin.com/feed/'); let opened;
+  context.ViFreeConnection = { api: { tabs: {
+    create: async options => { opened = options.url; return { id: 99 }; },
+    sendMessage: async () => ({ url: linkedInMedia, pageUrl: page }), remove: async () => {}
+  } } };
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: page, sourcePage: page, linkedinAsset: linkedInAsset }), linkedInMedia);
+  assert.equal(opened, page);
+});

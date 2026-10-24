@@ -33,6 +33,8 @@ if($env:VYDROP_PLAYWRIGHT) {
     if($LASTEXITCODE -ne 0) { throw 'Rendered browser popup checks failed.' }
     & node (Join-Path $projectRoot 'tests/browser-playlist-live.cjs')
     if($LASTEXITCODE -ne 0) { throw 'Rendered playlist scope checks failed.' }
+    & node (Join-Path $projectRoot 'tests/browser-social-live.cjs')
+    if($LASTEXITCODE -ne 0) { throw 'Selected social video source checks failed.' }
     & node (Join-Path $projectRoot 'tests/browser-dailymotion-live.cjs')
     if($LASTEXITCODE -ne 0) { throw 'Dailymotion ad/content selection checks failed.' }
     & node (Join-Path $projectRoot 'tests/browser-quality-live.cjs')

@@ -14,9 +14,9 @@ local_guide: true
 
 # Vydrop: descargar vídeos y audio en Windows
 
-[Descargar Vydrop para Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.4/Vydrop-v4.4.4-win-x64.zip) · Windows 10/11 x64 · v4.4.4
+[Descargar Vydrop para Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.5/Vydrop-v4.4.5-win-x64.zip) · Windows 10/11 x64 · v4.4.5
 
-Vydrop 4.4.4, de Ziad Hassanein, es un programa gratuito y de código abierto para guardar vídeos públicos y audio. Usa yt-dlp para sitios compatibles, como YouTube, TikTok, Facebook o Vimeo. La descarga depende del acceso público al vídeo y de los formatos que facilite la fuente.
+Vydrop 4.4.5, de Ziad Hassanein, es un programa gratuito y de código abierto para guardar vídeos públicos y audio. Usa yt-dlp para sitios compatibles, como YouTube, TikTok, Facebook o Vimeo. La descarga depende del acceso público al vídeo y de los formatos que facilite la fuente.
 
 ## Abrir el programa en Windows
 
@@ -44,7 +44,7 @@ Un bitrate mayor no recupera detalles que no existen en la fuente. El programa u
 
 <h2 id="extension">Activar la extensión en el navegador</h2>
 
-En Vydrop, abre **Browser integration → choose your browser → Set up**. Después instala la extensión 1.5.2 incluida en la carpeta **Browser** del ZIP extraído:
+En Vydrop, abre **Browser integration → choose your browser → Set up**. Después instala la extensión 1.5.3 incluida en la carpeta **Browser** del ZIP extraído:
 
 - **Chrome:** abre chrome://extensions, activa el modo de desarrollador y carga la carpeta **Browser/chromium** sin comprimir.
 - **Edge:** abre edge://extensions, activa el modo de desarrollador y carga la misma carpeta.

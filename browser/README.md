@@ -1,8 +1,8 @@
 # Vydrop browser companion
 
-## Companion 1.5.2
+## Companion 1.5.3
 
-Companion 1.5.2 fixes detection of Reddit's open-shadow players and preserves Twitch clip and Dailymotion watch-page links. Twitch clips with missing stream metadata also need the updated desktop build. App updates now refresh matching extension files, including previously recovered local copies. Reload the extension and refresh video tabs after an app update. Extension IDs, permissions and the version-1 native-host fallback are unchanged.
+Companion 1.5.3 sends the selected Reddit main player's public master playlist, keeping video and audio together with Vydrop 4.4.5. For LinkedIn feed cards without a visible post link, it briefly opens that card's post menu, reads its public embed reference and closes the menu. The public embed's media must match that video's exact poster asset. Existing IDs, permissions and the version-1 native-host fallback are unchanged. App updates refresh both companion folders; reload the extension and refresh video tabs afterward.
 
 The Windows installer registers the native connection automatically for the current user. Finish browser setup inside **Browser integration** after installation. When official store listings are configured, **Add to Chrome/Edge/Firefox** opens the selected store; approve the browser confirmation and use **Test connection**. Store listings are not published yet, so the current companion uses the local loading steps. Preview builds retain a separate connection and use the local preview companion.
 
@@ -18,7 +18,7 @@ To prepare unsigned store-root archives, use `scripts/package-browser.ps1 -Store
 
 ## Local setup and player behavior
 
-Optional Chrome/Edge and Firefox companions are included in the app ZIP under `Browser`. Normal app downloads need no extension. Companion 1.5.2 places **Download by Vydrop** inside the playing video's top-right corner. On a YouTube video opened in a playlist, choose This video or Whole playlist. Choose Video or Audio, format and quality, then explicitly press Download to start it in the saved app folder. The toolbar popup provides the same choices. Whole-playlist downloads require the updated desktop app; an older host shows an update message instead of silently downloading only the current video. Single-video sending remains compatible with older hosts.
+Optional Chrome/Edge and Firefox companions are included in the app ZIP under `Browser`. Normal app downloads need no extension. Companion 1.5.3 places **Download by Vydrop** inside the playing video's top-right corner. On a YouTube video opened in a playlist, choose This video or Whole playlist. Choose Video or Audio, format and quality, then explicitly press Download to start it in the saved app folder. The toolbar popup provides the same choices. Whole-playlist downloads require the updated desktop app; an older host shows an update message instead of silently downloading only the current video. Single-video sending remains compatible with older hosts.
 
 **New to the extension? Follow the illustrated [Chrome](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#chrome), [Edge](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#edge) or [Firefox](https://ziadhassanein.github.io/Vydrop/browser-extension-setup.html#firefox) guide**, with English and Arabic instructions. The regular **Vydrop** companion connects to the regular app. A separately built **Vydrop Preview** companion uses the preview channel.
 

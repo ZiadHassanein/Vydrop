@@ -135,8 +135,9 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
             return new VideoInfo { Title = Value(data, "title"), Collection = PlaylistMetadata.Read(url, data) };
         if (DirectMediaMetadata.NeedsProbe(data, url))
             DirectMediaMetadata.Apply(data, ProbeMedia(url, token));
-        foreach (var format in LinkedInMediaMetadata.ProbeFormats(data, url).Concat(TwitchClipMetadata.ProbeFormats(data, url)))
+        foreach (var format in LinkedInMediaMetadata.ProbeFormats(data, url).Concat(TwitchClipMetadata.ProbeFormats(data, url)).Concat(RedditMediaMetadata.ProbeFormats(data, url)))
             DirectMediaMetadata.ApplyFormat(data, format, ProbeMedia(Value(format, "url"), token));
+        string measuredAudio = RedditMediaMetadata.AudioFormat(data, url);
         var info = new VideoInfo
         {
             Title = Value(data, "title"),
@@ -144,7 +145,7 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
             ThumbnailUrl = Value(data, "thumbnail"),
             Duration = Number(data, "duration"),
             Live = Value(data, "is_live") == "True",
-            Qualities = AvailableFormats.Read(data),
+            Qualities = AvailableFormats.Read(data, VideoContainer.Mp4, measuredAudio),
             HasAudio = AvailableFormats.HasAudio(data),
             AudioSource = AudioMetadata.Read(data),
             Captions = CaptionMetadata.Read(data)
@@ -152,7 +153,7 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
         choices.Clear();
         foreach (var container in Enum.GetValues<VideoContainer>())
         {
-            if (container != VideoContainer.Mp4) info.AlternativeQualities[container] = AvailableFormats.Read(data, container);
+            if (container != VideoContainer.Mp4) info.AlternativeQualities[container] = AvailableFormats.Read(data, container, RedditMediaMetadata.AudioFormat(data, url, container));
             foreach (var quality in info.QualitiesFor(container))
             {
                 quality.SelectionKey = Guid.NewGuid().ToString("N");

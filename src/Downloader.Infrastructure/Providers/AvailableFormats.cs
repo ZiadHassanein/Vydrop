@@ -16,8 +16,11 @@ public static class AvailableFormats
         public double Fps, Bitrate;
     }
 
-    public static List<VideoQuality> Read(Dictionary<string, object> info, VideoContainer container = VideoContainer.Mp4)
+    public static List<VideoQuality> Read(Dictionary<string, object> info, VideoContainer container = VideoContainer.Mp4) => Read(info, container, null);
+
+    internal static List<VideoQuality> Read(Dictionary<string, object> info, VideoContainer container, string measuredAudioFormat)
     {
+        if (measuredAudioFormat != null && !Regex.IsMatch(measuredAudioFormat, @"^[A-Za-z0-9_.-]{1,128}$")) throw new ArgumentException("The video's format information is invalid. Check the video again.");
         object formats;
         var sources = new List<Source>();
         if (!info.TryGetValue("formats", out formats) || !(formats is IEnumerable))
@@ -51,7 +54,11 @@ public static class AvailableFormats
                 else
                 {
                     if (!compatibleAudio) continue;
-                    if (container == VideoContainer.WebM)
+                    // The extractor can omit a codec even when a measured audio
+                    // rendition exists. Its explicit ID survives a fresh extraction;
+                    // a codec filter would incorrectly remove that same stream.
+                    if (measuredAudioFormat != null) alternatives.Add(source.Id + "+" + measuredAudioFormat);
+                    else if (container == VideoContainer.WebM)
                     {
                         alternatives.Add(source.Id + "+bestaudio[acodec^=opus]");
                         alternatives.Add(source.Id + "+bestaudio[acodec^=vorbis]");
@@ -81,7 +88,7 @@ public static class AvailableFormats
         VideoContainer.WebM => WebMVideoCodecs.Any(prefix => codec.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)),
         _ => Mp4VideoCodecs.Any(prefix => codec.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
     };
-    private static bool CompatibleAudio(string codec, VideoContainer container) => codec is not ("" or "none") && (container switch
+    internal static bool CompatibleAudio(string codec, VideoContainer container) => codec is not ("" or "none") && (container switch
     {
         VideoContainer.Mkv => true,
         VideoContainer.WebM => codec.StartsWith("opus", StringComparison.OrdinalIgnoreCase) || codec.StartsWith("vorbis", StringComparison.OrdinalIgnoreCase),

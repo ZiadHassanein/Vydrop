@@ -47,7 +47,8 @@ api.runtime.onInstalled.addListener(async () => {
 });
 api.contextMenus.onClicked.addListener(async (info, tab) => {
   try {
-    await sendLink(await globalThis.ViFreeVideoDetection.resolve(tab, info));
+    const found = globalThis.ViFreeVideoDetection.resolveDetails ? await globalThis.ViFreeVideoDetection.resolveDetails(tab, info) : { url: await globalThis.ViFreeVideoDetection.resolve(tab, info) };
+    await sendLink(found.url, { sourcePage: found.sourcePage || tab?.url, mediaId: found.mediaId });
     await api.action.setBadgeText({ text: "OK", tabId: tab?.id });
     await api.action.setBadgeBackgroundColor({ color: "#CB2D42", tabId: tab?.id });
     await api.action.setTitle({ title: text.video, tabId: tab?.id });

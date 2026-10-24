@@ -46,8 +46,8 @@ globalThis.ViFreeVideoDetection = (() => {
         }
         if (platform(url.href) === "linkedin") {
           const path = decodeURIComponent(url.pathname);
-          const activity = path.match(/^\/feed\/update\/urn:li:activity:(\d{8,25})\/?$/u);
-          if (activity) return `https://www.linkedin.com/feed/update/urn:li:activity:${activity[1]}/`;
+          const activity = path.match(/^\/(?:embed\/)?feed\/update\/urn:li:(activity|ugcPost|share):(\d{8,25})\/?$/u);
+          if (activity) return `https://www.linkedin.com/${url.pathname.startsWith("/embed/") ? "embed/" : ""}feed/update/urn:li:${activity[1]}:${activity[2]}/`;
           const highlighted = url.searchParams.getAll("highlightedUpdateUrn");
           const sharedActivity = highlighted.length === 1 && highlighted[0].match(/^urn:li:activity:(\d{8,25})$/u);
           if ((/^\/feed\/update\/urn:li:groupPost:\d+-\d+\/?$/u.test(path) || /^\/groups\/\d+\/?$/u.test(path)) && sharedActivity)
@@ -132,6 +132,67 @@ globalThis.ViFreeVideoDetection = (() => {
       }
       return urls.size === 1 ? [...urls][0] : '';
     }
+    function redditMedia(video, post) {
+      if (platform(location.href) !== "reddit" || video.mediaKeys) return null;
+      for (let node = parent(video), depth = 0; node && depth < 12; node = parent(node), depth++) {
+        if (node.getAttribute("comment-id") !== null || node.getAttribute("post-promoted") !== null) return null;
+        if (!node.matches("shreddit-player")) continue;
+        const id = node.getAttribute("post-id")?.match(/^t3_([a-z0-9]{1,12})$/iu)?.[1];
+        if (!id || post !== `https://www.reddit.com/comments/${id}/`) return null;
+        const value = node.getAttribute("src") ?? "";
+        if (value.length > 8192 || /[\u0000-\u0020\u007f]/u.test(value)) return null;
+        try {
+          const url = new URL(value);
+          const asset = url.pathname.match(/^\/([a-z0-9]{5,32})\/HLSPlaylist\.m3u8$/u)?.[1];
+          if (url.protocol === "https:" && url.hostname === "v.redd.it" && !url.username && !url.password && !url.port && asset)
+            return { url: url.href, reason: "source", sourcePage: post, mediaId: asset };
+        } catch { /* Only the selected main player's public master manifest qualifies. */ }
+        return null;
+      }
+      return null;
+    }
+    async function linkedInMenu(video, asset) {
+      const card = video.closest('[role="listitem"],.feed-shared-update-v2,article');
+      if (!card || !asset || video.mediaKeys) return null;
+      const buttons = Array.from(card.querySelectorAll('button[aria-expanded]')).filter(button =>
+        button.querySelectorAll('svg[id="ellipses-horizontal-fill-small"]').length === 1 && Boolean(button.compareDocumentPosition(video) & 4));
+      if (buttons.length !== 1) return null;
+      const button = buttons[0];
+      // Do not dismiss or replace a menu the user already opened.
+      if (button.getAttribute('aria-expanded') !== 'false' || document.querySelectorAll('[data-menu-portal-anchor] [aria-owns]').length) return null;
+      let ownedMenu = "";
+      button.click();
+      try {
+        const deadline = Date.now() + 4000;
+        while (Date.now() < deadline && card.contains(button) && button.getAttribute('aria-expanded') === 'true') {
+          const portal = button.parentElement?.querySelector('[data-menu-portal-anchor] [aria-owns]');
+          const id = portal?.getAttribute('aria-owns');
+          const menu = id && document.getElementById(id);
+          if (menu?.getAttribute('role') === 'menu') {
+            ownedMenu = id;
+            const targets = new Set();
+            for (const link of Array.from(menu.querySelectorAll('a[href]')).slice(0, 30)) {
+              try {
+                const url = new URL(link.href);
+                if (url.protocol !== 'https:' || url.hostname !== 'www.linkedin.com' || url.username || url.password || url.port ||
+                    url.pathname !== '/preload/embed-modal/' || url.searchParams.getAll('targetUrn').length !== 1 || url.searchParams.get('hasLinkedInVideo') !== 'true') continue;
+                const urn = url.searchParams.get('targetUrn');
+                if (/^urn:li:(?:activity|ugcPost|share):\d{8,25}$/u.test(urn)) targets.add(urn);
+              } catch { /* Ignore unrelated menu destinations. */ }
+            }
+            if (targets.size === 1) {
+              const url = `https://www.linkedin.com/embed/feed/update/${[...targets][0]}/`;
+              return { url, reason: "player", sourcePage: url, linkedinAsset: asset };
+            }
+          }
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      } finally {
+        const current = button.parentElement?.querySelector('[data-menu-portal-anchor] [aria-owns]')?.getAttribute('aria-owns');
+        if (card.contains(button) && button.getAttribute('aria-expanded') === 'true' && (!ownedMenu || current === ownedMenu)) button.click();
+      }
+      return null;
+    }
     function linkedInAsset(video) {
       const posters = [video?.poster ?? ""];
       for (const image of Array.from(video?.parentElement?.querySelectorAll("img") ?? []).slice(0, 10))
@@ -163,6 +224,21 @@ globalThis.ViFreeVideoDetection = (() => {
       // LinkedIn's blob player keeps progressive MP4s in DOM JSON. Match the
       // selected poster's exact asset ID; never borrow another post's stream.
       const choices = new Map();
+      // Public embeds expose bounded JSON on the actual video element.
+      // Match the requested feed poster's asset before accepting any source.
+      for (const node of (video ? [video] : Array.from(document.querySelectorAll('video[data-sources]')).slice(0, 20))) {
+        if (node.mediaKeys) continue;
+        const raw = node.getAttribute('data-sources') ?? '';
+        if (!raw || raw.length > 65536) continue;
+        let streams;
+        try { streams = JSON.parse(raw); } catch { continue; }
+        if (!Array.isArray(streams)) continue;
+        for (const stream of streams.slice(0, 20)) {
+          if (stream.type !== 'video/mp4') continue;
+          const url = source(stream.src, asset);
+          if (url) choices.set(url, { url, area: 0, bitrate: Number(stream['data-bitrate']) || 0 });
+        }
+      }
       let total = 0, visited = 0;
       for (const code of Array.from(document.querySelectorAll("code")).slice(0, 80)) {
         const text = code.textContent ?? "";
@@ -273,9 +349,16 @@ globalThis.ViFreeVideoDetection = (() => {
       if (media) return { url: media, reason: "source", sourcePage: localLink(ranked[0].video, videos.map(item => item.video)) || permalink(location.href) };
       const local = localLink(ranked[0].video, videos.map(item => item.video));
       if (advertisement) return { url: "", reason: "advertisement" };
+      const reddit = local && redditMedia(ranked[0].video, local);
+      if (reddit) return reddit;
       if (local) {
         const asset = platform(location.href) === "linkedin" && !ranked[0].video.mediaKeys && linkedInAsset(ranked[0].video);
-        return asset ? { url: local, reason: "player", linkedinAsset: asset, sourcePage: linkedInSourcePage || local } : { url: local, reason: "player" };
+        const identified = asset ? { url: local, reason: "player", linkedinAsset: asset, sourcePage: linkedInSourcePage || local } : { url: local, reason: "player" };
+        return asset && materializeLinks ? linkedInMenu(ranked[0].video, asset).then(found => found ?? identified) : identified;
+      }
+      if (materializeLinks && platform(location.href) === "linkedin" && !ranked[0].video.mediaKeys) {
+        const asset = linkedInAsset(ranked[0].video);
+        if (asset) return linkedInMenu(ranked[0].video, asset).then(found => found ?? { url: "", reason: "missing-link" });
       }
       if (!platform(location.href)) {
         const video = ranked[0].video;
@@ -340,7 +423,7 @@ globalThis.ViFreeVideoDetection = (() => {
     if (!found?.linkedinAsset || !found.sourcePage) return found?.url ?? "";
     let post, page;
     try { post = new URL(found.url); page = new URL(found.sourcePage); } catch { return found.url; }
-    const activity = post.pathname.match(/^\/feed\/update\/(urn:li:activity:\d{8,25})\/$/u)?.[1];
+    const activity = post.pathname.match(/^\/(?:embed\/)?feed\/update\/(urn:li:(?:activity|ugcPost|share):\d{8,25})\/$/u)?.[1];
     if (!activity || !/^[A-Za-z0-9_-]{8,100}$/u.test(found.linkedinAsset) ||
       [post, page].some(u => u.protocol !== "https:" || u.hostname !== "www.linkedin.com" || u.username || u.password || u.port) ||
       !(page.href === post.href || /^\/groups\/\d+\/?$/u.test(page.pathname) && page.searchParams.getAll("highlightedUpdateUrn").length === 1 && page.searchParams.get("highlightedUpdateUrn") === activity)) return found.url;
@@ -381,35 +464,43 @@ globalThis.ViFreeVideoDetection = (() => {
     }
     return found.url;
   }
-  async function resolve(tab, info = {}) {
-    if (info.linkUrl) return info.linkUrl;
+  async function resolveDetails(tab, info = {}) {
+    if (info.linkUrl) return { url: info.linkUrl };
     const platform = socialPlatform(tab?.url ?? "");
-    if (!platform) return tab?.url ?? "";
+    if (!platform) return { url: tab?.url ?? "" };
     const { api } = globalThis.ViFreeConnection;
     const fail = (message, code) => Object.assign(new Error(message), { code });
     if (!Number.isInteger(tab?.id)) throw fail("Open the video in a browser tab, then try again.", "inspect");
     let results;
-    try { results = await api.scripting.executeScript({ target: { tabId: tab.id }, func: inspectVideoPage, args: [info.srcUrl ?? ""] }); }
+    try { results = await api.scripting.executeScript({ target: { tabId: tab.id }, func: inspectVideoPage, args: [info.srcUrl ?? "", platform === "linkedin"] }); }
     catch { throw fail("Could not inspect this page. Reload the extension and page, then try again.", "inspect"); }
     let found = results?.find(result => result.frameId === 0)?.result;
-    if (platform === "facebook" && found?.reason === "missing-link") {
+    if (["facebook", "linkedin"].includes(platform) && found?.reason === "missing-link") {
       try {
         results = await api.scripting.executeScript({ target: { tabId: tab.id }, func: inspectVideoPage, args: [info.srcUrl ?? "", true] });
         found = results?.find(result => result.frameId === 0)?.result;
       } catch { throw fail("Could not inspect this page. Reload the extension and page, then try again.", "inspect"); }
     }
-    if (found?.url && socialPlatform(found.url) === platform) return resolveSource(found);
+    if (found?.url && socialPlatform(found.url) === platform) return { ...found, url: await resolveSource(found) };
+    if (platform === "reddit" && found?.reason === "source") {
+      try {
+        const media = new URL(found.url);
+        if (media.protocol === "https:" && media.hostname === "v.redd.it" && !media.username && !media.password && !media.port &&
+            /^\/[a-z0-9]{5,32}\/HLSPlaylist\.m3u8$/u.test(media.pathname)) return found;
+      } catch { /* Only the selected Reddit master can replace its post link. */ }
+    }
     if (platform === "linkedin" && found?.reason === "source") {
       try {
         const media = new URL(found.url);
         if (media.protocol === "https:" && !media.username && !media.password && !media.port && media.hostname.endsWith(".licdn.com") &&
-          /^\/playlist\/vid\/v2\/[A-Za-z0-9_-]+\/mp4-/u.test(media.pathname)) return media.href;
+          /^\/playlist\/vid\/v2\/[A-Za-z0-9_-]+\/mp4-/u.test(media.pathname)) return { ...found, url: media.href };
       } catch { /* Only LinkedIn's matched progressive media can replace its post link. */ }
     }
     throw found?.reason === "ambiguous"
       ? fail("More than one video is visible. Open the video you want, then try again.", "ambiguous")
       : fail("Could not find this video's link. Open the video itself or use Share → Copy link.", "missing");
   }
+  async function resolve(tab, info = {}) { return (await resolveDetails(tab, info)).url; }
   function playlistFor(videoValue, pageValue) {
     try {
       const video = new URL(videoValue), page = new URL(pageValue);
@@ -422,7 +513,7 @@ globalThis.ViFreeVideoDetection = (() => {
       return list.startsWith("RD") ? `https://www.youtube.com/watch?v=${videoId}&list=${list}&start_radio=1` : `https://www.youtube.com/playlist?list=${list}`;
     } catch { return ""; }
   }
-  return { resolve, resolveSource, inspectVideoPage, playlistFor };
+  return { resolve, resolveDetails, resolveSource, inspectVideoPage, playlistFor };
 })();
 
 if (typeof document !== "undefined") {

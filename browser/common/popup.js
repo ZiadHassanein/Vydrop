@@ -22,18 +22,20 @@ button.addEventListener("click", async () => {
   status.textContent = text.finding;
   try {
     const [tab] = await api.tabs.query({ active: true, currentWindow: true });
-    const url = await globalThis.ViFreeVideoDetection.resolve(tab);
+    const found = globalThis.ViFreeVideoDetection.resolveDetails ? await globalThis.ViFreeVideoDetection.resolveDetails(tab) : { url: await globalThis.ViFreeVideoDetection.resolve(tab) };
+    const url = found.url;
+    const source = { sourcePage: found.sourcePage || tab?.url, mediaId: found.mediaId };
     const playlist = globalThis.ViFreeVideoDetection.playlistFor?.(url, tab?.url) || "";
     if (globalThis.VydropQualityPicker) {
       globalThis.VydropQualityPicker.open({ anchor: button, arabic, embedded: true,
         playlistAvailable: Boolean(playlist),
         inspect: () => globalThis.ViFreeConnection.inspectLink(url),
-        send: (output, scope) => sendLink(scope === "playlist" ? playlist : url, { sourcePage: tab?.url, output, startDownload: Boolean(output), playlist: scope === "playlist" })
+        send: (output, scope) => sendLink(scope === "playlist" ? playlist : url, { ...source, output, startDownload: Boolean(output), playlist: scope === "playlist" })
       });
       status.textContent = ""; return;
     }
     status.textContent = text.opening;
-    const response = await sendLink(url, { sourcePage: tab?.url });
+    const response = await sendLink(url, source);
     status.textContent = response.code === "queued" ? (arabic ? "أُضيف إلى قائمة التنزيل. راجعه في التطبيق قبل البدء." : "Added to the queue. Review it in the app before starting.") : text.opened;
   } catch (error) {
     status.textContent = errorMessage(error, arabic);
