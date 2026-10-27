@@ -17,9 +17,9 @@ last_reviewed: 2026-10-24
 Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp, with English and Arabic interfaces.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.9/Vydrop-v4.4.9-win-x64.zip">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.10/Vydrop-v4.4.10-win-x64.zip">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">Download Vydrop ZIP</span><span class="download-meta">Windows 10/11 x64 · v4.4.9 · ZIP</span></span>
+    <span class="download-copy"><span class="download-title">Download Vydrop ZIP</span><span class="download-meta">Windows 10/11 x64 · v4.4.10 · ZIP</span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads" height="20"></a>
 </div>
@@ -111,4 +111,4 @@ No. Vydrop needs no account, API key or paid subscription. It contacts media sit
 
 ### What happens when a website changes?
 
-Vydrop checks for verified yt-dlp and Deno updates once daily when you use a link and can try one compatible update-and-retry. A site may still require an upstream fix. Use Settings → Update downloader for a manual check; application updates are separate.
+Vydrop checks for verified yt-dlp and Deno updates once daily when starting a download and can try one compatible update-and-retry. A site may still require an upstream fix. Use Settings → Update downloader for a manual check; application updates are separate.

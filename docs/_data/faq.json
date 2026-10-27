@@ -26,7 +26,7 @@
     },
     {
       "question": "What happens when a website changes?",
-      "answer": "Vydrop checks for verified yt-dlp and Deno updates once daily when you use a link and can try one compatible update-and-retry. A site may still require an upstream fix. Use Settings → Update downloader for a manual check; application updates are separate."
+      "answer": "Vydrop checks for verified yt-dlp and Deno updates once daily when starting a download and can try one compatible update-and-retry. A site may still require an upstream fix. Use Settings → Update downloader for a manual check; application updates are separate."
     }
   ],
   "ar": [
@@ -56,7 +56,7 @@
     },
     {
       "question": "ماذا يحدث عندما يغيّر موقع طريقة عمله؟",
-      "answer": "يفحص Vydrop تحديثات yt-dlp وDeno المتحقق منها مرة يوميًا عند استخدام رابط، وقد يحدّث الأدوات ويعيد المحاولة مرة واحدة عند خطأ متوافق. قد يظل الحل بحاجة إلى إصلاح من المطوّرين الأصليين. للفحص اليدوي اختر الإعدادات ثم تحديث أداة التنزيل؛ تحديث التطبيق منفصل."
+      "answer": "يفحص Vydrop تحديثات yt-dlp وDeno المتحقق منها مرة يوميًا عند بدء التنزيل، وقد يحدّث الأدوات ويعيد المحاولة مرة واحدة عند خطأ متوافق. قد يظل الحل بحاجة إلى إصلاح من المطوّرين الأصليين. للفحص اليدوي اختر الإعدادات ثم تحديث أداة التنزيل؛ تحديث التطبيق منفصل."
     }
   ],
   "fr": [

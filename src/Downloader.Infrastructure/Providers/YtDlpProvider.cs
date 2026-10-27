@@ -11,6 +11,11 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
     private readonly WindowsProcessRunner runner = new WindowsProcessRunner();
     private readonly Dictionary<string, MediaSelection> choices = new();
     private readonly object gate = new object ();
+    private readonly Dictionary<string, (ToolSet Tools, DateTimeOffset Created, VideoInfo Media, long Order)> inspections = new();
+    private long inspectionOrder;
+    internal Func<DateTimeOffset> InspectionClock { get; set; } = () => DateTimeOffset.UtcNow;
+    internal void UsePreparedTools(ToolSet prepared) => tools = prepared ?? throw new ArgumentNullException(nameof(prepared));
+
     private volatile bool cancelled;
     private readonly bool checkAutomaticUpdates = true;
     public YtDlpProvider(DependencyManager dependencies, MediaLinkRouter links = null, bool checkAutomaticUpdates = true)
@@ -54,10 +59,15 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
         return links.Resolve(input);
     }
 
+    public async Task EnsureInspectionReadyAsync(IProgress<DownloadProgress> progress, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (!IsReady) tools = await dependencies.EnsureAsync(progress, token).ConfigureAwait(false);
+    }
+
     public async Task EnsureReadyAsync(IProgress<DownloadProgress> progress, CancellationToken token)
     {
-        if (!IsReady)
-            tools = await dependencies.EnsureAsync(progress, token).ConfigureAwait(false);
+        await EnsureInspectionReadyAsync(progress, token).ConfigureAwait(false);
         if (checkAutomaticUpdates && automaticUpdates != null)
             tools = await automaticUpdates.CheckDailyAsync(tools, progress, token).ConfigureAwait(false);
     }
@@ -122,7 +132,45 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
     }
 
     public VideoInfo Inspect(string url, CancellationToken token = default(CancellationToken), IProgress<DownloadProgress> progress = null)
-        => Recover(() => InspectCore(url, token, progress), progress, token);
+    {
+        token.ThrowIfCancellationRequested();
+        url = Normalize(url, false);
+        var now = InspectionClock();
+        lock (gate)
+        {
+            if (IsReady && inspections.TryGetValue(url, out var cached) && cached.Tools == tools &&
+                now - cached.Created is var age && age >= TimeSpan.Zero && age < TimeSpan.FromSeconds(45))
+            {
+                var copy = CopyInspection(cached.Media);
+                choices.Clear();
+                foreach (var quality in Enum.GetValues<VideoContainer>().SelectMany(copy.QualitiesFor))
+                    if (quality.SelectionKey != null && quality.Selection != null) choices[quality.SelectionKey] = quality.Selection;
+                return copy;
+            }
+        }
+        var media = Recover(() => InspectCore(url, token, progress), progress, token);
+        token.ThrowIfCancellationRequested();
+        if (!media.Live && media.Collection == null && (media.Qualities.Count > 0 || media.HasAudio))
+            lock (gate)
+            {
+                if (!inspections.ContainsKey(url) && inspections.Count >= 8) inspections.Remove(inspections.MinBy(entry => entry.Value.Order).Key);
+                inspections[url] = (tools, InspectionClock(), CopyInspection(media), ++inspectionOrder);
+            }
+        return media;
+    }
+
+    private static VideoInfo CopyInspection(VideoInfo media)
+    {
+        static List<VideoQuality> Qualities(IEnumerable<VideoQuality> source) => source.Select(q => new VideoQuality
+        { Resolution = q.Resolution, SelectionKey = q.SelectionKey, Selection = q.Selection, Selector = q.Selector }).ToList();
+        return new VideoInfo
+        {
+            Title = media.Title, Uploader = media.Uploader, ThumbnailUrl = media.ThumbnailUrl, Duration = media.Duration,
+            Live = media.Live, HasAudio = media.HasAudio, AudioSource = media.AudioSource,
+            Captions = media.Captions.ToList(), Qualities = Qualities(media.Qualities),
+            AlternativeQualities = media.AlternativeQualities.ToDictionary(entry => entry.Key, entry => Qualities(entry.Value))
+        };
+    }
 
     private VideoInfo InspectCore(string url, CancellationToken token, IProgress<DownloadProgress> progress)
     {
@@ -192,7 +240,11 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
     }
 
     public DownloadResult DownloadItem(DownloadOptions options, CancellationToken token = default(CancellationToken), IProgress<DownloadProgress> progress = null)
-        => Recover(() => DownloadItemCore(options, token, progress), progress, token);
+    {
+        // Preview reuse must never suppress a download's existing source/quality revalidation.
+        lock (gate) inspections.Remove(Normalize(options.Url, false));
+        return Recover(() => DownloadItemCore(options, token, progress), progress, token);
+    }
 
     private T Recover<T>(Func<T> action, IProgress<DownloadProgress> progress, CancellationToken token) => automaticUpdates == null ? action() :
         automaticUpdates.RunAsync(action, () => tools, value => tools = value, progress, token).GetAwaiter().GetResult();

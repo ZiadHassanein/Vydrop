@@ -42,7 +42,7 @@ public sealed partial class DownloadService : IDisposable
     {
         var canonical = provider.Normalize(url, false);
         using var operation = Operations.Begin(OperationState.Preparing, token);
-        await provider.EnsureReadyAsync(BoundProgress(operation.Id, p => preparation?.Report(p)), operation.Token).ConfigureAwait(false);
+        await provider.EnsureInspectionReadyAsync(BoundProgress(operation.Id, p => preparation?.Report(p)), operation.Token).ConfigureAwait(false);
         Operations.SetState(operation.Id, OperationState.Inspecting);
         return await Task.Run(() => provider.Inspect(canonical, operation.Token, BoundProgress(operation.Id, p => Progress?.Invoke(p))), operation.Token).ConfigureAwait(false);
     }
@@ -51,7 +51,7 @@ public sealed partial class DownloadService : IDisposable
     {
         var canonical = provider.Normalize(url, true);
         using var operation = Operations.Begin(OperationState.Preparing, token);
-        await provider.EnsureReadyAsync(BoundProgress(operation.Id, p => preparation?.Report(p)), operation.Token).ConfigureAwait(false);
+        await provider.EnsureInspectionReadyAsync(BoundProgress(operation.Id, p => preparation?.Report(p)), operation.Token).ConfigureAwait(false);
         Operations.SetState(operation.Id, OperationState.Inspecting);
         return await Task.Run(() => provider.InspectPlaylist(canonical, operation.Token, BoundProgress(operation.Id, p => Progress?.Invoke(p))), operation.Token).ConfigureAwait(false);
     }

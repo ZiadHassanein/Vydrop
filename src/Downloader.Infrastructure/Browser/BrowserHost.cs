@@ -18,7 +18,8 @@ public static class BrowserHost
         var input = Console.OpenStandardInput(); var output = Console.OpenStandardOutput();
         // Reuse verified tools between explicit format checks. Daily maintenance remains on the download path.
         var dependencies = new DependencyManager();
-        using var inspector = new DownloadService(new YtDlpProvider(dependencies, checkAutomaticUpdates: false), new LocalPlaylistStorage());
+        var provider = new YtDlpProvider(dependencies, checkAutomaticUpdates: false);
+        using var inspector = new DownloadService(provider, new LocalPlaylistStorage());
         // Short-lived ports support several explicit actions; idle hosts exit without starting the desktop UI.
         for (int count = 0; count < 100; count++)
         {
@@ -39,7 +40,7 @@ public static class BrowserHost
                 else if (request.Type == "inspect")
                 {
                     timeout.CancelAfter(TimeSpan.FromSeconds(75));
-                    var preparation = await PrepareInspectionAsync(request, dependencies, Launch, timeout.Token).ConfigureAwait(false);
+                    var preparation = inspector.IsReady ? null : await PrepareInspectionAsync(request, dependencies, Launch, timeout.Token, provider.UsePreparedTools).ConfigureAwait(false);
                     if (preparation != null)
                         response = new { ok = false, code = preparation.Code, protocol = 2, requestId };
                     else
@@ -80,11 +81,12 @@ public static class BrowserHost
             if (!IsAllowedCaller(args)) return;
         }
     }
-    internal static async Task<BrowserReceipt> PrepareInspectionAsync(BrowserRequest request, DependencyManager dependencies, Action launch, CancellationToken token)
+    internal static async Task<BrowserReceipt> PrepareInspectionAsync(BrowserRequest request, DependencyManager dependencies, Action launch, CancellationToken token, Action<ToolSet> prepared = null)
     {
         // A fresh PC may need hundreds of MB of tools. Prepare them in the visible desktop
         // workflow, never behind the browser's short native-message inspection deadline.
-        if (await Task.Run(() => dependencies.Discover(token), token).ConfigureAwait(false) != null) return null;
+        var available = await Task.Run(() => dependencies.Discover(token), token).ConfigureAwait(false);
+        if (available != null) { prepared?.Invoke(available); return null; }
         using var delivery = CancellationTokenSource.CreateLinkedTokenSource(token);
         delivery.CancelAfter(TimeSpan.FromSeconds(15));
         var receipt = await DeliverRequestAsync(request with { Type = "open-link" }, launch, delivery.Token).ConfigureAwait(false);

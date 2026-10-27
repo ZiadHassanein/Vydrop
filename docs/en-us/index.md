@@ -14,9 +14,9 @@ local_guide: true
 
 # Vydrop: a free video downloader for Windows
 
-[Download Vydrop for Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.9/Vydrop-v4.4.9-win-x64.zip) · Windows 10/11 x64 · v4.4.9
+[Download Vydrop for Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.10/Vydrop-v4.4.10-win-x64.zip) · Windows 10/11 x64 · v4.4.10
 
-Vydrop 4.4.9 is a free, open-source video and audio downloader by Ziad Hassanein. This guide uses US English. The desktop app runs on Windows 10 or 11, x64, and its interface supports English and Arabic. The same official download is used worldwide.
+Vydrop 4.4.10 is a free, open-source video and audio downloader by Ziad Hassanein. This guide uses US English. The desktop app runs on Windows 10 or 11, x64, and its interface supports English and Arabic. The same official download is used worldwide.
 
 ## Get the portable Windows app
 
@@ -82,4 +82,4 @@ No. Vydrop needs no account, API key or paid subscription. It contacts media sit
 
 ### What happens when a website changes?
 
-Vydrop checks for verified yt-dlp and Deno updates once daily when you use a link and can try one compatible update-and-retry. A site may still require an upstream fix. Use Settings → Update downloader for a manual check; application updates are separate.
+Vydrop checks for verified yt-dlp and Deno updates once daily when starting a download and can try one compatible update-and-retry. A site may still require an upstream fix. Use Settings → Update downloader for a manual check; application updates are separate.

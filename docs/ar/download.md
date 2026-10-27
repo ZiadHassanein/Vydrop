@@ -13,7 +13,7 @@ last_reviewed: 2026-10-24
 
 **Vydrop برنامج مجاني ومفتوح المصدر لتنزيل الفيديو والصوت على Windows 10/11 x64.** نزّل حزمة التطبيق الجاهزة من إصدارات المشروع على GitHub. واجهة التطبيق متاحة بالعربية والإنجليزية.
 
-[تنزيل Vydrop 4.4.9 — ملف ZIP الكامل](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.9/Vydrop-v4.4.9-win-x64.zip) · [ملاحظات الإصدار](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.9)
+[تنزيل Vydrop 4.4.10 — ملف ZIP الكامل](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.10/Vydrop-v4.4.10-win-x64.zip) · [ملاحظات الإصدار](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.10)
 
 يحتوي ZIP على **Vydrop.exe** ومجلدَي **Browser/chromium** و**Browser/firefox**. فكّ الأرشيف كاملًا؛ فتح ملف EXE من داخل ZIP وحده لا يفكّ مجلدات الإضافة.
 
@@ -33,7 +33,7 @@ last_reviewed: 2026-10-24
 | المطلوب | التفاصيل |
 | --- | --- |
 | نظام التشغيل | Windows 10 أو Windows 11 بمعمارية x64 |
-| النسخة المحمولة | `Vydrop-v4.4.9-win-x64.zip`؛ فكّ المجلد كاملًا |
+| النسخة المحمولة | `Vydrop-v4.4.10-win-x64.zip`؛ فكّ المجلد كاملًا |
 | بيئة .NET | مضمّنة؛ لا تحتاج تثبيتًا منفصلًا |
 | أدوات الوسائط | تُجهّز الأدوات الناقصة عند الحاجة؛ الاستخدام الأول يحتاج اتصالًا بالإنترنت |
 | إضافة المتصفح | اختيارية لـChrome وEdge وFirefox، داخل مجلد **Browser** المرفق |

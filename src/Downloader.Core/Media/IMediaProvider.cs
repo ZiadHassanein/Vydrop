@@ -6,6 +6,7 @@ public interface IMediaProvider : IDisposable
     bool IsReady { get; }
 
     Task EnsureReadyAsync(IProgress<DownloadProgress> progress, CancellationToken token);
+    Task EnsureInspectionReadyAsync(IProgress<DownloadProgress> progress, CancellationToken token) => EnsureReadyAsync(progress, token);
     string Normalize(string url, bool playlist);
     MediaTargets ResolveTargets(string input);
     VideoInfo Inspect(string url, CancellationToken token, IProgress<DownloadProgress> progress = null);

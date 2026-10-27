@@ -20,7 +20,7 @@ Paste its own public link into Vydrop. Successful inspection shows the title and
 
 Private videos, sign-in-only pages and DRM-protected streams are unsupported. An extension button does not establish anonymous download access. Available resolution, audio quality and captions depend on the source. Live streams may need to finish first.
 
-Vydrop checks verified yt-dlp and Deno updates once daily when a link is used, retaining a previous tool selection for recovery. A website change can still require an upstream fix. For a manual check, use **Settings → Update downloader**; this does not update the desktop application.
+Vydrop checks verified yt-dlp and Deno updates once daily when starting a download, retaining a previous tool selection for recovery. A website change can still require an upstream fix. For a manual check, use **Settings → Update downloader**; this does not update the desktop application.
 
 ![Native Vydrop interface: review format and quality before downloading](images/screenshots/vydrop-dark-en-download.png)
 

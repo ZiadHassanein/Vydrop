@@ -14,9 +14,9 @@ local_guide: true
 
 # Vydrop : télécharger des vidéos et de l’audio sur Windows
 
-[Télécharger Vydrop pour Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.9/Vydrop-v4.4.9-win-x64.zip) · Windows 10/11 x64 · v4.4.9
+[Télécharger Vydrop pour Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.10/Vydrop-v4.4.10-win-x64.zip) · Windows 10/11 x64 · v4.4.10
 
-Vydrop 4.4.9 est un logiciel libre et gratuit de Ziad Hassanein pour enregistrer des vidéos publiques et leur audio sur Windows 10 ou 11 x64. Il prend en charge YouTube, TikTok, Facebook, Vimeo et d’autres sites compatibles avec yt-dlp. Le téléchargement dépend de l’accès au média et des formats disponibles.
+Vydrop 4.4.10 est un logiciel libre et gratuit de Ziad Hassanein pour enregistrer des vidéos publiques et leur audio sur Windows 10 ou 11 x64. Il prend en charge YouTube, TikTok, Facebook, Vimeo et d’autres sites compatibles avec yt-dlp. Le téléchargement dépend de l’accès au média et des formats disponibles.
 
 ## Installer et lancer Vydrop
 

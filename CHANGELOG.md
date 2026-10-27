@@ -4,6 +4,14 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.10] - 2026-10-27
+
+### Improved
+- Reuse successful non-live video previews for up to 45 seconds across at most eight sources, with isolated metadata copies and retained exact quality choices.
+- Keep routine daily updater requests off the video/playlist preview path; actual downloads retain daily maintenance and compatible extractor-error recovery.
+- Reuse the native host's already-verified tools without repeating discovery or validation between checks.
+- Retain cancellation, cache expiry and eviction, immediate refresh after a download attempt, fresh download validation, automatic browser connection and complete-ZIP-only distribution.
+
 ## [4.4.9] - 2026-10-27
 
 ### Changed
