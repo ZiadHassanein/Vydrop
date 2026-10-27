@@ -405,6 +405,12 @@ globalThis.ViFreeVideoDetection = (() => {
     // containing tab URL, which must be a matching public Dailymotion video.
     try {
       const frame = new URL(found.frameUrl);
+      // AnaFast's CDN links are temporary and can reject the browser-issued
+      // signature outside that playback session. Re-extract this exact public
+      // player so yt-dlp obtains fresh main-video URLs and request context.
+      if (frame.protocol === "https:" && frame.hostname === "anafast.space" &&
+        !frame.username && !frame.password && !frame.port && /^\/embed-[a-z0-9]{12}\.html$/u.test(frame.pathname))
+        return frame.origin + frame.pathname;
       if (frame.protocol === "https:" && frame.hostname === "geo.dailymotion.com" &&
         !frame.username && !frame.password && !frame.port && /^\/player\/[\w-]+\.html$/u.test(frame.pathname)) {
         const embedded = frame.searchParams.getAll('video');

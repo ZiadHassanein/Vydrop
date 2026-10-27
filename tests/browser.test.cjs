@@ -133,7 +133,7 @@ if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identit
   for (const browser of ['chromium', 'firefox']) {
     const folder = path.join(process.env.VIFREE_BROWSER_PACKAGE, browser), manifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
     const preview = process.env.VIFREE_BROWSER_CHANNEL !== 'stable';
-    assert.equal(manifest.version, '1.5.8'); assert.equal(manifest.name, preview ? 'Vydrop Preview' : 'Vydrop');
+    assert.equal(manifest.version, '1.5.9'); assert.equal(manifest.name, preview ? 'Vydrop Preview' : 'Vydrop');
     assert.deepEqual([...manifest.permissions].sort(), ['alarms', 'activeTab', 'clipboardWrite', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
     assert.equal(manifest.host_permissions, undefined);
     assert.equal(manifest.optional_permissions, undefined); assert.equal(manifest.optional_host_permissions, undefined);

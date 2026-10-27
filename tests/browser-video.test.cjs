@@ -160,6 +160,26 @@ test('The selected JW Player uses its main source configuration instead of an ad
   assert.equal(found.sourcePage, 'https://arabhd.onl/embed-example123.html');
 });
 
+test('AnaFast embedded playback resolves through its public player page instead of a temporary CDN stream', async () => {
+  const page = 'https://anafast.space/embed-j14ddsm8ejnx.html';
+  const stream = 'https://cdn.example/main/master.m3u8?token=expired';
+  const video = el('video');
+  const { context, detect } = fixture(page,
+    el('div', { class: 'jwplayer', id: 'vplayer' }, video),
+    el('script', { textContent: `jwplayer("vplayer").setup({sources:[{file:"${stream}"}]});` }));
+  const found = detect();
+  assert.equal(found.url, stream, 'the content script still identifies the selected main source');
+  const resolve = context.ViFreeVideoDetection.resolveSource;
+  for (const url of [found.url, 'https://ads.example/commercial.mp4', page])
+    assert.equal(await resolve({ url, frameUrl: page, tabUrl: 'https://v2.kirmizi.cfd/episode/example/' }), page,
+      'native inspection and download obtain a fresh main stream through the exact browser-supplied embed');
+  assert.equal(await resolve({ url: stream, frameUrl: page + '?tracking=fixture' }), page, 'irrelevant frame query data is omitted');
+  for (const frameUrl of ['http://anafast.space/embed-j14ddsm8ejnx.html', 'https://anafast.space.evil.example/embed-j14ddsm8ejnx.html',
+    'https://user@anafast.space/embed-j14ddsm8ejnx.html', 'https://anafast.space:444/embed-j14ddsm8ejnx.html',
+    'https://anafast.space/embed-invalid.html', 'https://arabhd.onl/embed-j14ddsm8ejnx.html'])
+    assert.equal(await resolve({ url: stream, frameUrl }), stream, 'unverified hosts and player shapes retain their original routing');
+});
+
 test('Packed player source data is bounded and decoded without executing page scripts', () => {
   const media = 'https://cdn.example/main/master.m3u8';
   const payload = '0("1").2({3:[{4:"5"}]});globalThis.pageCodeRan=true;';

@@ -4,6 +4,12 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.13] - 2026-10-27
+
+### Fixed
+- Bundle browser companion 1.5.9. AnaFast embeds, including Kirmizi episode players, now send their original public player page to Vydrop instead of a temporary CDN link that can return HTTP 403 outside the browser playback session.
+- Re-extract fresh main-video links for both format selection and downloading. Other embedded players retain their existing source routing; browser permissions and app data locations are unchanged.
+
 ## [4.4.12] - 2026-10-27
 
 ### Fixed

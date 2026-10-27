@@ -12,9 +12,9 @@ arabic: /ar/browser-extension-setup.html
 
 Use the optional companion to send the video you are watching to the desktop app, then review it before downloading. Setup is free. You can also paste a link directly into the app.
 
-**Use the matching package:** [Vydrop 4.4.12 for Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.12/Vydrop-v4.4.12-win-x64.zip) includes companion **Vydrop 1.5.8**. Open **Vydrop.exe** and use its included **Browser** folder. Open the app once to register its connection automatically, then load or reload the matching companion.
+**Use the matching package:** [Vydrop 4.4.13 for Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.13/Vydrop-v4.4.13-win-x64.zip) includes companion **Vydrop 1.5.9**. Open **Vydrop.exe** and use its included **Browser** folder. Open the app once to register its connection automatically, then load or reload the matching companion.
 
-**Reddit and LinkedIn:** companion 1.5.8 uses the selected Reddit main video's public playlist, including audio. On newer LinkedIn feed cards it reads that card's own post menu and matches its public embed media to the selected video image. Protected or unavailable streams still cannot be downloaded.
+**Reddit and LinkedIn:** companion 1.5.9 uses the selected Reddit main video's public playlist, including audio. On newer LinkedIn feed cards it reads that card's own post menu and matches its public embed media to the selected video image. Protected or unavailable streams still cannot be downloaded.
 
 [Published downloads](https://github.com/ZiadHassanein/Vydrop/releases/latest) · [Chrome](#chrome) · [Edge](#edge) · [Firefox](#firefox) · [Troubleshooting](#troubleshooting) · [العربية](#arabic)
 
@@ -64,7 +64,7 @@ The native app setup, Chrome and video-to-app steps below use **real screenshots
 
 ## 1. Extract and keep the app folder
 
-The Chrome screenshots show companion 1.3.5. The included 1.5.8 companion uses the same setup controls; confirm the new version after loading or reloading it.
+The Chrome screenshots show companion 1.3.5. The included 1.5.9 companion uses the same setup controls; confirm the new version after loading or reloading it.
 
 Extract the app ZIP into a permanent writable folder, such as **Documents\Vydrop**. Open **Vydrop.exe** from that folder and keep **Browser** beside it. Keep the extracted files after setup.
 
@@ -72,7 +72,7 @@ Extract the app ZIP into a permanent writable folder, such as **Documents\Vydrop
 
 ## 2. Connect the app and choose your browser
 
-In Vydrop 4.4.12, open **Settings → Browser integration**, choose your browser, then choose **Set up Chrome**, **Set up Edge** or **Set up Firefox**. The connection is registered automatically when the app starts. This action copies the matching extension path and opens the browser's setup page. Paste the copied path when the browser asks you to select the extension. Keep setup open until you finish loading it, then refresh your video page.
+In Vydrop 4.4.13, open **Settings → Browser integration**, choose your browser, then choose **Set up Chrome**, **Set up Edge** or **Set up Firefox**. The connection is registered automatically when the app starts. This action copies the matching extension path and opens the browser's setup page. Paste the copied path when the browser asks you to select the extension. Keep setup open until you finish loading it, then refresh your video page.
 
 ![Native Vydrop setup window with browser selection, Set up Chrome and connection status](images/screenshots/guided-setup-en.png)
 
@@ -112,7 +112,7 @@ The screenshot shows an older folder example. **Paste the path copied by Set up 
 
 ### Check that Vydrop is enabled
 
-Look for the **Vydrop 1.5.8** card and keep its switch on. In **Details → Site access**, allow your desired websites; **On all sites** enables detection across supported sites. Optionally pin the companion from Chrome's Extensions menu.
+Look for the **Vydrop 1.5.9** card and keep its switch on. In **Details → Site access**, allow your desired websites; **On all sites** enables detection across supported sites. Optionally pin the companion from Chrome's Extensions menu.
 
 {% include setup-shot.html id="enabled" %}
 
@@ -184,7 +184,7 @@ The companion locates visible players and sends a public link after your click. 
 
 <div dir="rtl" lang="ar" markdown="1">
 
-الإضافة اختيارية ومجانية. شرح إعداد التطبيق وChrome وإرسال الفيديو أعلاه يستخدم لقطات حقيقية، بينما صور Edge وFirefox رسومات توضيحية. يتضمن إصدار **Vydrop 4.4.12** إضافة **Vydrop 1.5.8**. فكّ ضغط حزمة البرنامج وافتح **Vydrop.exe**. [افتح الشرح العربي الكامل بالصور](ar/browser-extension-setup.md).
+الإضافة اختيارية ومجانية. شرح إعداد التطبيق وChrome وإرسال الفيديو أعلاه يستخدم لقطات حقيقية، بينما صور Edge وFirefox رسومات توضيحية. يتضمن إصدار **Vydrop 4.4.13** إضافة **Vydrop 1.5.9**. فكّ ضغط حزمة البرنامج وافتح **Vydrop.exe**. [افتح الشرح العربي الكامل بالصور](ar/browser-extension-setup.md).
 
 1. **فك الضغط:** احتفظ بمجلد البرنامج في مكان دائم، وبمجلد **Browser** بجوار الملف التنفيذي.
 2. **فعّل الاتصال:** اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال** وانتظر رسالة التأكيد.
@@ -202,13 +202,13 @@ The companion locates visible players and sends a public link after your click. 
 
 ## Automatic extension updates
 
-Companion **1.5.8 or later reloads automatically** after app updates, usually within a minute while idle. It waits for active browser actions and verifies the complete local bundle first. If upgrading from companion **1.5.6 or earlier, reload once** to activate this feature. Refresh open video tabs afterward; their playback is never interrupted by an automatic page refresh. Keep the loaded companion in the app-managed folder. Firefox temporary add-ons still need loading again after a browser restart.
+Companion **1.5.9 or later reloads automatically** after app updates, usually within a minute while idle. It waits for active browser actions and verifies the complete local bundle first. If upgrading from companion **1.5.6 or earlier, reload once** to activate this feature. Refresh open video tabs afterward; their playback is never interrupted by an automatic page refresh. Keep the loaded companion in the app-managed folder. Firefox temporary add-ons still need loading again after a browser restart.
 
 
 ## Fixed extension folder and update cleanup
 
 **If Reload still shows an old extension version:** Chrome is reading its previously selected folder. In Vydrop, open **Browser integration → Chrome/Edge → Set up**, choose **Load unpacked** in that browser, and select the **copied folder** once. New setup uses `%LocalAppData%\YouTubeDownloader\BrowserCompanion\Current\chromium`; Firefox uses `Current\firefox\manifest.json`. This folder stays fixed across app moves and updates. Loading the old ZIP’s folder again will keep that old copy. The bundled `Browser` folder remains included, but the app-managed folder is recommended for ongoing updates.
 
-Companion **1.5.8** reports its loaded version separately for Chrome, Edge and Firefox when an explicit browser action checks the app connection. Setup shows a reported old version or an unconfirmed version honestly; it does not treat files on disk as proof of what the browser loaded. Older hosts retain their original health-message format.
+Companion **1.5.9** reports its loaded version separately for Chrome, Edge and Firefox when an explicit browser action checks the app connection. Setup shows a reported old version or an unconfirmed version honestly; it does not treat files on disk as proof of what the browser loaded. Older hosts retain their original health-message format.
 
 Successful updates remove retired media-discovery scripts and clean completed updater staging after the updater helper exits. Settings, queue, history, partial downloads and saved videos retain their existing locations. Unfinished recovery and running updater helpers are kept.

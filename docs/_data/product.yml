@@ -1,5 +1,5 @@
-version: "4.4.12"
+version: "4.4.13"
 repository: "https://github.com/ZiadHassanein/Vydrop"
-download: "https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.12/Vydrop-v4.4.12-win-x64.zip"
-portable_download: "https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.12/Vydrop-v4.4.12-win-x64.zip"
+download: "https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.13/Vydrop-v4.4.13-win-x64.zip"
+portable_download: "https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.13/Vydrop-v4.4.13-win-x64.zip"
 author: "Ziad Hassanein"
