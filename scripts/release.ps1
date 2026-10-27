@@ -33,7 +33,7 @@ Vydrop is a free Windows video and audio downloader for YouTube and 1,000+ publi
 
 Extract the complete ZIP, which includes **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**, then open **Vydrop.exe**. Windows 10/11 x64; .NET is bundled and missing media tools are prepared automatically.
 
-Opening Vydrop once registers the browser connection for your account automatically. Browser-store listings are still pending: open **Browser integration**, choose your browser and click **Set up**. Finish loading the companion in your browser, then refresh your video page. App updates include the companion files, which reload automatically from companion 1.5.11 onward. Older companions need one reload to enable automatic reload. Refresh open video tabs. Browser approval is required.
+Opening Vydrop once registers the browser connection for your account automatically. Browser-store listings are still pending: open **Browser integration**, choose your browser and click **Set up**. Finish loading the companion in your browser, then refresh your video page. App updates include the companion files, which reload automatically from companion 1.5.7 onward. Older companions need one reload to enable automatic reload. Refresh open video tabs. Browser approval is required.
 
 ## Changes in $version
 
@@ -54,7 +54,7 @@ $releaseNotes
 - Public media from YouTube, TikTok, Facebook, Vimeo and other yt-dlp-supported sites, plus compatible direct media links. Private, sign-in-only and DRM content is unsupported.
 - Queue, playlist selection and available SRT/VTT subtitles.
 - English/Arabic and light/dark themes.
-- Browser companion 1.5.11 inside Browser: selected Reddit master playlists with verified audio, LinkedIn feed-to-public-embed lookup, explicit video/playlist scope, Dailymotion main-video routing and detected-ad filtering, always-visible video actions, in-player format/quality choices, a two-action popup and silent failed in-video lookups. Existing companion/native-host identities and version-1 single-video fallback remain compatible.
+- Browser companion 1.5.12 inside Browser: selected Reddit master playlists with verified audio, LinkedIn feed-to-public-embed lookup, explicit video/playlist scope, Dailymotion main-video routing and detected-ad filtering, always-visible video actions, in-player format/quality choices, a two-action popup and silent failed in-video lookups. Existing companion/native-host identities and version-1 single-video fallback remain compatible.
 - Automatic daily verified yt-dlp/Deno checks and one compatible update-and-retry.
 - Settings keeps video errors in the download screen; manual app updates use this repository.
 

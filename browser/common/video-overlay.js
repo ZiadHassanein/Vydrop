@@ -90,7 +90,12 @@
       for (const event of mediaEvents) root.addEventListener(event, schedule, true);
       watchedRoots.set(root, observer);
     }
-    return [document, ...roots].flatMap(root => Array.from(root.querySelectorAll("video")).slice(0, 100)).slice(0, 100);
+    const videos = [document, ...roots].flatMap(root => Array.from(root.querySelectorAll("video")).slice(0, 100)).slice(0, 100);
+    if (/^https:\/\/w\.anaplayer\.online\/albaplayer\/[a-z0-9-]{1,160}\//u.test(location.href)) {
+      const frame = Array.from(document.querySelectorAll("iframe")).find(node => node.id === "iframe");
+      if (frame && globalThis.ViFreeVideoDetection.inspectVideoPage("", false, frame)?.reason === "mirror") videos.push(frame);
+    }
+    return videos;
   }
   function bounds(video, includeAdvertisement = false) {
     if (!includeAdvertisement && video.closest('.ad-container,.dm-sdk-ima-slot')) return null;
@@ -196,12 +201,12 @@
           },
           preview: { title: document.title, thumbnail: pendingVideo?.poster, source: location.hostname },
           inspect: async () => {
-            const response = await api.runtime.sendMessage({ version: 1, type: "vydrop-inspect-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, mediaId: found.mediaId });
+            const response = await api.runtime.sendMessage({ version: 1, type: "vydrop-inspect-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, mirrorPage: found.mirrorPage, mediaId: found.mediaId });
             if (!response?.ok) throw Object.assign(new Error("inspect"), { code: response?.code || "inspect" });
             return response.media;
           },
           send: async (output, scope) => {
-            const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, mediaId: found.mediaId, output, playlist: scope === "playlist" });
+            const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, mirrorPage: found.mirrorPage, mediaId: found.mediaId, output, playlist: scope === "playlist" });
             if (!response?.ok) throw Object.assign(new Error("open"), { code: response?.code || "failed" });
             return response;
           }
@@ -211,7 +216,7 @@
       let copied = false;
       try { await navigator.clipboard.writeText(found.url); copied = true; } catch { /* Opening the app remains useful when clipboard access is unavailable. */ }
       label.textContent = text.opening;
-      const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, mediaId: found.mediaId });
+      const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, mirrorPage: found.mirrorPage, mediaId: found.mediaId });
       if (!response?.ok) throw Object.assign(new Error("Video delivery failed."), { code: response?.code });
       if (response.url && response.url !== found.url) {
         try { await navigator.clipboard.writeText(response.url); copied = true; } catch { copied = false; }

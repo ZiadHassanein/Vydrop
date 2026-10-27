@@ -1,7 +1,7 @@
 namespace YouTubeDownloader;
 public static class BrowserIdentity
 {
-    public const string CompanionVersion = "1.5.11";
+    public const string CompanionVersion = "1.5.12";
     // Retain installed companion IDs and native host names through the Vydrop rebrand.
     public static string HostName => ReleaseChannel.IsPreview ? "com.vifree.preview" : "com.vifree";
     // Public development-extension identity; no signing secret is shipped.

@@ -345,6 +345,32 @@ globalThis.ViFreeVideoDetection = (() => {
     }
     if (!publicUrl(location.href)) return { url: "", reason: "unsupported" };
     if (selectedVideo?.closest('.ad-container,.dm-sdk-ima-slot')) return { url: "", reason: "advertisement" };
+    // The episode wrapper stays usable even when its selected mirror has no
+    // video element. Only its named main iframe can supply this episode.
+    const wrapper = new URL(location.href);
+    if (wrapper.protocol === "https:" && wrapper.hostname === "w.anaplayer.online" &&
+        !wrapper.username && !wrapper.password && !wrapper.port && /^\/albaplayer\/[a-z0-9-]{1,160}\/$/u.test(wrapper.pathname)) {
+      const frame = Array.from(document.querySelectorAll("iframe")).find(node => node.id === "iframe");
+      let player;
+      try { player = new URL(frame?.src); } catch { /* A missing main iframe cannot identify an episode. */ }
+      const known = player?.protocol === "https:" && !player.username && !player.password && !player.port &&
+        (/^(?:cdnplus\.sbs|mp4plus\.space|anafast\.space|vidoba\.space|vidspeed\.space)$/u.test(player.hostname) && /^\/embed-[a-z0-9]{12}\.html$/u.test(player.pathname) ||
+          player.hostname === "ok.ru" && /^\/videoembed\/\d{1,25}$/u.test(player.pathname));
+      if (known && (!selectedVideo || selectedVideo === frame)) {
+        let mirrorPage = "";
+        for (const link of Array.from(document.querySelectorAll("a[href]")).slice(0, 100)) {
+          if (link.textContent.trim() !== "AnaFast" || !link.closest(".aplr-menu")) continue;
+          try {
+            const mirror = new URL(link.href, wrapper.href);
+            if (mirror.origin === wrapper.origin && mirror.pathname === wrapper.pathname && !mirror.username && !mirror.password &&
+                !mirror.hash && [...mirror.searchParams.keys()].length === 1 && mirror.searchParams.getAll("serv").length === 1 &&
+                /^\d{1,2}$/u.test(mirror.searchParams.get("serv"))) mirrorPage = mirror.href;
+          } catch { /* Unrelated navigation is not an episode mirror. */ }
+        }
+        return { url: player.origin + player.pathname, reason: "mirror", sourcePage: wrapper.href, mirrorPage };
+      }
+    }
+
     // The click belongs to Dailymotion's player frame, whose video node can be
     // replaced during ads/navigation. Let the background use the browser's
     // current containing watch URL instead of depending on that transient node.
@@ -416,7 +442,52 @@ globalThis.ViFreeVideoDetection = (() => {
     }
     catch { return ""; }
   }
+  async function resolveEpisodeMirror(found) {
+    let frame, mirror;
+    try { frame = new URL(found.frameUrl); mirror = new URL(found.mirrorPage); } catch { return found.url; }
+    if (frame.protocol !== "https:" || frame.hostname !== "w.anaplayer.online" || frame.username || frame.password || frame.port ||
+        !/^\/albaplayer\/[a-z0-9-]{1,160}\/$/u.test(frame.pathname) || mirror.origin !== frame.origin || mirror.pathname !== frame.pathname ||
+        mirror.username || mirror.password || mirror.hash || [...mirror.searchParams.keys()].length !== 1 ||
+        mirror.searchParams.getAll("serv").length !== 1 || !/^\d{1,2}$/u.test(mirror.searchParams.get("serv"))) return found.url;
+    try {
+      const selected = new URL(found.url);
+      if (selected.protocol === "https:" && selected.hostname === "anafast.space" && !selected.username && !selected.password && !selected.port &&
+          /^\/embed-[a-z0-9]{12}\.html$/u.test(selected.pathname)) return selected.origin + selected.pathname;
+    } catch { /* Resolve the same-episode alternative below. */ }
+    const api = globalThis.ViFreeConnection?.api;
+    if (!api?.tabs?.create || !api.tabs.sendMessage || !api.tabs.remove) return found.url;
+    let tab;
+    try {
+      // A normal inactive page uses the existing content-script permissions.
+      // No browser cookies, host permission expansion or page scripts are read.
+      tab = await api.tabs.create({ url: mirror.href, active: false });
+      const deadline = Date.now() + 12000;
+      while (Date.now() < deadline) {
+        try {
+          const result = await api.tabs.sendMessage(tab.id, { type: "vydrop-player-source" }, { frameId: 0 });
+          const source = new URL(result?.url);
+          if (result.pageUrl === mirror.href && source.protocol === "https:" && source.hostname === "anafast.space" &&
+              !source.username && !source.password && !source.port && /^\/embed-[a-z0-9]{12}\.html$/u.test(source.pathname))
+            return source.origin + source.pathname;
+        } catch { /* Wait for this wrapper's main iframe, never for an advertisement. */ }
+        await new Promise(resolve => setTimeout(resolve, 250));
+      }
+    } catch { /* Keep the selected main-player URL if the same-episode mirror is unavailable. */ }
+    finally {
+      if (Number.isInteger(tab?.id)) {
+        let current;
+        try {
+          current = (await api.tabs.get?.(tab.id))?.url;
+          if (!current) current = (await api.tabs.sendMessage(tab.id, { type: "vydrop-player-source" }, { frameId: 0 }))?.pageUrl;
+        } catch { /* Do not close a page whose current location cannot be confirmed. */ }
+        if (current === mirror.href) await api.tabs.remove(tab.id).catch(() => {});
+      }
+    }
+    return found.url;
+  }
+
   async function resolveSource(found) {
+    if (found?.mirrorPage) return resolveEpisodeMirror(found);
     // Dailymotion configures its cross-origin player through messages; its
     // frame URL may contain only a player ID. The browser supplies the actual
     // containing tab URL, which must be a matching public Dailymotion video.
@@ -542,6 +613,11 @@ globalThis.ViFreeVideoDetection = (() => {
 if (typeof document !== "undefined") {
   const api = globalThis.browser ?? globalThis.chrome;
   api?.runtime?.onMessage?.addListener((message, sender, respond) => {
+    if (message?.type === "vydrop-player-source" && sender.id === api.runtime.id) {
+      const found = globalThis.ViFreeVideoDetection.inspectVideoPage();
+      respond({ url: found?.reason === "mirror" ? found.url : "", pageUrl: location.href });
+      return false;
+    }
     if (message?.type !== "vifree-linkedin-source" || sender.id !== api.runtime.id ||
       !/^https:\/\/www\.linkedin\.com\//u.test(location.href) || !/^[A-Za-z0-9_-]{8,100}$/u.test(message.asset ?? "")) return false;
     respond({ ...globalThis.ViFreeVideoDetection.inspectVideoPage("", false, null, message.asset), pageUrl: location.href });

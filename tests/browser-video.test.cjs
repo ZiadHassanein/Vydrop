@@ -584,3 +584,51 @@ test('LinkedIn selected embed lookup accepts ugcPost without inventing an activi
   assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: page, sourcePage: page, linkedinAsset: linkedInAsset }), linkedInMedia);
   assert.equal(opened, page);
 });
+
+
+test('Kirmizi identifies only its named main iframe and the same-episode AnaFast mirror without playback', () => {
+  const page = 'https://w.anaplayer.online/albaplayer/muhtemel-ask-2026-s01e19/?serv=1';
+  const source = 'https://cdnplus.sbs/embed-yy13dbq8cxw1.html';
+  const mirror = page.replace('serv=1', 'serv=3');
+  const main = el('iframe', { id: 'iframe', src: source });
+  const menu = el('ul', { class: 'aplr-menu' }, el('a', { href: mirror, textContent: 'AnaFast' }));
+  const { context, detect } = fixture(page, main, menu, el('iframe', { src: 'https://ads.example/advertisement' }));
+  assert.equal(detect().url, source); assert.equal(detect().mirrorPage, mirror);
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage(source, true, main).reason, 'mirror');
+  assert.notEqual(context.ViFreeVideoDetection.inspectVideoPage('', true, el('iframe')).reason, 'mirror');
+  for (const target of ['https://evil.example/albaplayer/muhtemel-ask-2026-s01e19/?serv=3', mirror.replace('s01e19', 's01e18'), mirror + '&serv=4', mirror + '&other=1']) {
+    menu.children[0].attrs.href = target; assert.equal(detect().mirrorPage, '', 'foreign episodes and ambiguous query data cannot provide a mirror');
+  }
+  for (const unsafe of [page.replace('https:', 'http:'), page.replace('w.anaplayer.online', 'w.anaplayer.online.evil.example'), page.replace('https://', 'https://user@'), page.replace('online/', 'online:444/')])
+    assert.notEqual(fixture(unsafe, main, menu).detect().reason, 'mirror');
+  main.src = 'https://ads.example/embed-yy13dbq8cxw1.html'; assert.notEqual(detect().reason, 'mirror');
+});
+
+test('Kirmizi background lookup resolves the same episode and closes only its inactive tab', async () => {
+  const page = 'https://w.anaplayer.online/albaplayer/muhtemel-ask-2026-s01e19/?serv=1';
+  const mirrorPage = page.replace('serv=1', 'serv=3');
+  const source = 'https://cdnplus.sbs/embed-yy13dbq8cxw1.html';
+  const player = 'https://anafast.space/embed-j14ddsm8ejnx.html';
+  const created = [], removed = [];
+  const { context } = fixture(page);
+  context.ViFreeConnection = { api: { tabs: {
+    create: async options => { created.push(options); return { id: 71 }; },
+    sendMessage: async (id, message, options) => {
+      assert.equal(id, 71); assert.equal(message.type, 'vydrop-player-source'); assert.equal(options.frameId, 0);
+      return { url: player + '?tracking=discard', pageUrl: mirrorPage };
+    }, get: async () => ({}), remove: async id => { removed.push(id); }
+  } } };
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: source, frameUrl: page, mirrorPage }), player);
+  assert.equal(created.length, 1); assert.equal(created[0].active, false); assert.equal(created[0].url, mirrorPage); assert.deepEqual(removed, [71]);
+  created.length = 0; removed.length = 0;
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: player, frameUrl: page, mirrorPage }), player);
+  assert.equal(created.length, 0, 'already selected AnaFast does not open another page');
+  for (const bad of [mirrorPage.replace('s01e19', 's01e18'), mirrorPage.replace('w.anaplayer.online', 'evil.example'), mirrorPage + '&serv=4', mirrorPage + '#other'])
+    assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: source, frameUrl: page, mirrorPage: bad }), source);
+  assert.equal(created.length, 0, 'invalid requests never open a tab');
+  context.ViFreeConnection.api.tabs.get = async () => ({ url: 'https://example.com/user-navigation' });
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: source, frameUrl: page, mirrorPage }), player);
+  assert.equal(removed.length, 0, 'user navigation is retained');
+  context.ViFreeConnection.api.tabs.create = async () => { throw new Error('closed browser'); };
+  assert.equal(await context.ViFreeVideoDetection.resolveSource({ url: source, frameUrl: page, mirrorPage }), source);
+});

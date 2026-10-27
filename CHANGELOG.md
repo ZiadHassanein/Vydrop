@@ -4,6 +4,13 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.16] - 2026-10-27
+
+### Fixed
+- Bundle Chromium and Firefox companion 1.5.12. Keep the Kirmizi episode download action available when its selected server iframe is empty or unavailable.
+- Resolve the AnaFast mirror advertised by that same episode player using an inactive browser tab. Restrict mirror navigation to the original player path, discard transient media/ad URLs, and close only the lookup tab if it has not been navigated elsewhere.
+- Preserve existing TikTok, Reddit, LinkedIn, Dailymotion and short-form video handling, app settings, history, queue and saved media.
+
 ## [4.4.15] - 2026-10-27
 
 ### Fixed
