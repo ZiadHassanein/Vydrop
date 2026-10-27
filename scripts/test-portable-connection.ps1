@@ -36,10 +36,25 @@ function Check-TaskRegistration([string]$Path) {
   }
 }
 try {
-  Start-TaskApp $Executable;Check-TaskRegistration $Executable;Close-TaskApp
+  Start-TaskApp $Executable;Check-TaskRegistration $Executable
+  $taskCompanion=Join-Path $taskData 'BrowserCompanion/Current/chromium/manifest.json'
+  Assert-Task (Test-Path -LiteralPath $taskCompanion) 'Normal portable startup prepares the fixed extension folder'
+  $taskCompanionVersion=(Get-Content -LiteralPath $taskCompanion -Raw|ConvertFrom-Json).version
+  $taskCompanionTime=(Get-Item -LiteralPath $taskCompanion).LastWriteTimeUtc
+  $taskHistory=Join-Path $taskData 'history-preservation.fixture.json';[IO.File]::WriteAllText($taskHistory,'{"saved":["keep this completed download"]}')
+  $taskStageId=[guid]::NewGuid().ToString('N');$taskStage=Join-Path $taskData ('Updates/'+$taskStageId)
+  New-Item -ItemType Directory -Path $taskStage -Force | Out-Null
+  [IO.File]::WriteAllText((Join-Path $taskStage 'transaction.json'),(@{Id=$taskStageId;Target=$Executable;Stage=$taskStage;Backup=(Join-Path $taskStage 'previous');Version='4.4.12';Phase='committed';HelperPid=0;HelperStart=0}|ConvertTo-Json))
+  [IO.File]::WriteAllText((Join-Path $taskStage 'update.zip'),'completed app-owned download')
+  for($taskWait=0;$taskWait -lt 150 -and (Test-Path -LiteralPath $taskStage);$taskWait++){Start-Sleep -Milliseconds 100}
+  Assert-Task (!(Test-Path -LiteralPath $taskStage)) 'The running app clears completed update staging after startup'
+  Assert-Task ([IO.File]::ReadAllText($taskHistory) -eq '{"saved":["keep this completed download"]}') 'Completed update cleanup preserves local history content'
+  Close-TaskApp
   $taskMovedDirectory=Join-Path $TestRoot 'moved';New-Item -ItemType Directory -Path $taskMovedDirectory|Out-Null
   $taskMoved=Join-Path $taskMovedDirectory 'Vydrop.exe';Copy-Item -LiteralPath $Executable -Destination $taskMoved
-  Start-TaskApp $taskMoved;Check-TaskRegistration $taskMoved;Close-TaskApp
+  Start-TaskApp $taskMoved;Check-TaskRegistration $taskMoved
+  Assert-Task ((Get-Content -LiteralPath $taskCompanion -Raw|ConvertFrom-Json).version -eq $taskCompanionVersion -and (Get-Item -LiteralPath $taskCompanion).LastWriteTimeUtc -eq $taskCompanionTime) 'Moving the app retains the same verified extension files and path'
+  Close-TaskApp
   $taskMarker=Join-Path $taskData 'Browser/automatic-connection.disabled';[IO.File]::WriteAllText($taskMarker,'disabled')
   foreach($taskSnapshot in $taskSnapshots){$taskUser=[Microsoft.Win32.RegistryKey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::CurrentUser,$taskSnapshot.view);try{$taskKey=$taskUser.OpenSubKey($taskSnapshot.path,$true);try{if($taskKey){$taskValue=$taskKey.GetValue('');if($taskValue -and !$taskValue.StartsWith($taskData+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Refusing to change a registration outside this owned test profile.'};$taskKey.DeleteValue('',$false)}}finally{if($taskKey){$taskKey.Dispose()}}}finally{$taskUser.Dispose()}}
   Start-TaskApp $taskMoved

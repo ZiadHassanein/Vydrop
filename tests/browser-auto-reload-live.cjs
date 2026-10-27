@@ -24,12 +24,12 @@ async function descriptor(folder){const manifest=JSON.parse(await fs.readFile(pa
   try{
     const setup=await context.newPage();await setup.goto("chrome://extensions");const devMode=setup.locator("extensions-toolbar #devMode");if(!await devMode.evaluate(node=>node.checked))await devMode.click();await setup.close();
     let worker=context.serviceWorkers()[0]||await context.waitForEvent('serviceworker');await ready(worker);
-    const original=await worker.evaluate(()=>chrome.runtime.getManifest().version);assert.equal(original,'1.5.7');
+    const original=await worker.evaluate(()=>chrome.runtime.getManifest().version);assert.match(original,/^\d+\.\d+\.\d+$/u);const nextVersion=original.split('.').map((part,index)=>index===2?String(Number(part)+1):part).join('.');
     const id=new URL(worker.url()).host;
     const page=await context.newPage();await page.goto(`chrome-extension://${id}/popup.html`);
     await page.evaluate(()=>{globalThis.updateLease=chrome.runtime.connect({name:'vydrop-update-active'});});
     const oldConnection=await fs.readFile(path.join(extension,'connection.js'));
-    const manifest=JSON.parse(await fs.readFile(path.join(extension,'manifest.json')));manifest.version='1.5.8';await fs.writeFile(path.join(extension,'manifest.json'),JSON.stringify(manifest));
+    const manifest=JSON.parse(await fs.readFile(path.join(extension,'manifest.json')));manifest.version=nextVersion;await fs.writeFile(path.join(extension,'manifest.json'),JSON.stringify(manifest));
     await fs.appendFile(path.join(extension,'connection.js'),'\n// Isolated updated bundle fixture.\n');await descriptor(extension);
     const newConnection=await fs.readFile(path.join(extension,'connection.js'));await fs.writeFile(path.join(extension,'connection.js'),oldConnection);
     await page.evaluate(()=>{updateLease.disconnect();});await wait(100);await worker.evaluate(()=>VydropAutoReload.check());
@@ -41,10 +41,10 @@ async function descriptor(folder){const manifest=JSON.parse(await fs.readFile(pa
     await page.evaluate(()=>{updateLease.disconnect();});await page.close();await wait(100);
     // Fire the real registered browser alarm; the production repeating alarm runs every minute.
     await worker.evaluate(()=>chrome.alarms.create('vydrop-companion-update',{when:Date.now()+500}));
-    worker=await refreshed(context,id,'1.5.8');
-    assert.equal(await worker.evaluate(()=>chrome.runtime.getManifest().version),'1.5.8');
-    console.log('PASS: browser alarm automatically reloads the complete unpacked extension from 1.5.7 to 1.5.8');
-    await worker.evaluate(()=>VydropAutoReload.check());await wait(750);assert.equal(await worker.evaluate(()=>chrome.runtime.getManifest().version),'1.5.8');
+    worker=await refreshed(context,id,nextVersion);
+    assert.equal(await worker.evaluate(()=>chrome.runtime.getManifest().version),nextVersion);
+    console.log('PASS: browser alarm automatically reloads the complete unpacked extension to its complete updated version');
+    await worker.evaluate(()=>VydropAutoReload.check());await wait(750);assert.equal(await worker.evaluate(()=>chrome.runtime.getManifest().version),nextVersion);
     console.log('PASS: reloaded background is healthy without a reload loop');
     manifest.version=original;await fs.writeFile(path.join(extension,'manifest.json'),JSON.stringify(manifest));await fs.writeFile(path.join(extension,'connection.js'),oldConnection);await descriptor(extension);
     await worker.evaluate(()=>chrome.alarms.create('vydrop-companion-update',{when:Date.now()+500}));worker=await refreshed(context,id,original);

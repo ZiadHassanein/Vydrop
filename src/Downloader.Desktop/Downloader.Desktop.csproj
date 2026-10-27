@@ -20,7 +20,7 @@
     <BundledBrowserPreviewArgument Condition="'$(ViFreePreview)' == 'true'">-Preview</BundledBrowserPreviewArgument>
   </PropertyGroup>
   <ItemGroup>
-    <BundledBrowserInput Include="../../browser/common/*;../../browser/README.md;../../browser/public-key.txt;../../scripts/package-browser.ps1;../../LICENSE;../../assets/brand-logo-dark.svg;../../assets/browser-icon-*.png"/>
+    <BundledBrowserInput Include="../../browser/common/*;../../browser/README.md;../../browser/public-key.txt;../../scripts/package-browser.ps1;../Downloader.Infrastructure/Browser/BrowserIdentity.cs;../../LICENSE;../../assets/brand-logo-dark.svg;../../assets/browser-icon-*.png"/>
     <EmbeddedResource Include="$(BundledBrowserArchive)" LogicalName="YouTubeDownloader.BrowserCompanion"/>
   </ItemGroup>
   <Target Name="PrepareBundledBrowser" BeforeTargets="AssignTargetPaths" Inputs="@(BundledBrowserInput)" Outputs="$(BundledBrowserArchive)">

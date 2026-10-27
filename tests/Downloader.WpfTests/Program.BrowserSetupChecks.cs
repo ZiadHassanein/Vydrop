@@ -8,6 +8,9 @@ internal static partial class Program
     private sealed class SetupFixture : IBrowserSetupActions
     {
         public bool IsConnected { get; private set; }
+        public bool IsVerified { get; set; }
+        internal readonly Dictionary<SetupBrowser, string> Versions = new();
+        public string CompanionVersion(SetupBrowser browser) => Versions.GetValueOrDefault(browser);
         internal bool FilesPresent = true;
         public bool CanPrepareExtension { get; set; }
         public void PrepareExtension(SetupBrowser browser) { Action("prepare"); FilesPresent = true; }
@@ -71,6 +74,17 @@ internal static partial class Program
                                 var selected = (System.Windows.Controls.Primitives.ToggleButton)WpfTree.Find(dialog, "Setup" + name);
                                 Check(selected.IsChecked == true && fixture.Calls == 0, "Selecting a browser tab changes no files, registration, clipboard or browser windows: " + name);
                             }
+                            Check(model.ReportedExtensionVersion == null && !model.HasOldExtension && model.ExtensionVersionStatus == Texts.For(arabic ? "ar" : "en", "Extension {0} is ready to load. Browser version is unconfirmed.").Replace("{0}", BrowserIdentity.CompanionVersion, StringComparison.Ordinal), "An unreported browser version is clearly unconfirmed instead of claiming that files on disk are loaded");
+                            fixture.Versions[SetupBrowser.Chrome] = "1.5.5";
+                            model.RefreshVerification();
+                            Check(model.HasOldExtension && model.StartSetupLabel == Texts.For(arabic ? "ar" : "en", "Update extension") && model.ExtensionVersionStatus.Contains("1.5.5", StringComparison.Ordinal), "An old loaded companion gets an update action and its actual reported version");
+                            fixture.Versions[SetupBrowser.Chrome] = BrowserIdentity.CompanionVersion;
+                            model.RefreshVerification();
+                            Check(!model.HasOldExtension && model.ExtensionVersionStatus.Contains(BrowserIdentity.CompanionVersion, StringComparison.Ordinal), "A matching browser handshake confirms the current extension version");
+                            model.SelectedBrowser = SetupBrowser.Edge;
+                            Check(model.ReportedExtensionVersion == null && !model.HasOldExtension, "A Chrome version cannot claim that the Edge extension is current");
+                            model.SelectedBrowser = SetupBrowser.Chrome;
+                            fixture.Versions.Clear(); model.RefreshVerification();
                             var manual = (Expander)WpfTree.Find(dialog, "SetupManual");
                             Check(!manual.IsExpanded && ((Button)WpfTree.Find(dialog, "SetupStart")).IsVisible, "Setup offers one primary action and keeps manual troubleshooting collapsed");
                             manual.IsExpanded = true;

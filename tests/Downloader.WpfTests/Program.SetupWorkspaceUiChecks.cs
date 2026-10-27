@@ -96,6 +96,16 @@ internal static partial class Program
         companion.Prepare(SetupBrowser.Firefox);
         Check(companion.HasExtension(SetupBrowser.Firefox) && companion.ExtensionPath(SetupBrowser.Firefox).EndsWith("manifest.json", StringComparison.Ordinal), "Firefox recovery exposes its verified manifest file");
         Check(new BrowserCompanionFiles(app, data).HasExtension(SetupBrowser.Chrome), "Prepared companions remain available after reopening the app");
+        Check(chrome == Path.Combine(data, "BrowserCompanion", "Current", "chromium"), "Setup always selects the fixed per-user extension folder instead of the app or a versioned cache");
+        var movedApp = new BrowserCompanionFiles(Path.Combine(root, "moved-app"), data);
+        movedApp.UpdateManagedCopies();
+        Check(movedApp.ExtensionPath(SetupBrowser.Chrome) == chrome && !Directory.Exists(Path.Combine(root, "moved-app")), "Moving or copying the app preserves the loaded extension path without writing beside the app");
+        string oldRecovery = Path.Combine(data, "BrowserCompanion", "AABBCCDDEEFF001122334455", "chromium");
+        Directory.CreateDirectory(oldRecovery);
+        File.WriteAllText(Path.Combine(oldRecovery, "manifest.json"), File.ReadAllText(Path.Combine(chrome, "manifest.json")).Replace("1.5.8", "1.5.5", StringComparison.Ordinal));
+        File.WriteAllText(Path.Combine(oldRecovery, "connection.js"), "old extension");
+        movedApp.UpdateManagedCopies();
+        Check(File.ReadAllText(Path.Combine(oldRecovery, "connection.js")) == File.ReadAllText(Path.Combine(chrome, "connection.js")), "Normal app startup also refreshes owned legacy cache folders for manually copied app updates");
         string oldCachePath = chrome;
         File.WriteAllText(script, "old cached extension");
         string settings = Path.Combine(data, "settings.json"); File.WriteAllText(settings, "keep preferences");
@@ -107,6 +117,16 @@ internal static partial class Program
         companion.UpdateInstalledCopies();
         Check(File.ReadAllText(Path.Combine(oldCachePath, "quality-picker.js")) == expected && companion.HasExtension(SetupBrowser.Firefox) && File.Exists(Path.Combine(app, "Browser/firefox/quality-picker.js")), "An older updater receives both embedded companions and refreshes the existing loaded cache path");
         Check(File.Exists(sentinel) && File.ReadAllText(settings) == "keep preferences", "Companion migration preserves user files and preferences");
+        string retired = Path.Combine(chrome, "media-discovery.js"); File.WriteAllText(retired, "old browser script");
+        string otherRetired = Path.Combine(chrome, "popup-discovery.js"); File.WriteAllText(otherRetired, "old popup script");
+        File.WriteAllText(script, "previous valid script");
+        CompanionFileTransaction.Fault = name => { if (name == "remove-chromium/popup-discovery.js") throw new IOException("Injected removal failure"); };
+        failed = false;
+        try { companion.UpdateManagedCopies(); } catch (IOException) { failed = true; }
+        finally { CompanionFileTransaction.Fault = null; }
+        Check(failed && File.ReadAllText(retired) == "old browser script" && File.ReadAllText(otherRetired) == "old popup script" && File.ReadAllText(script) == "previous valid script", "Interrupted cleanup restores removed files and the previous companion together");
+        companion.UpdateManagedCopies();
+        Check(!File.Exists(retired) && !File.Exists(otherRetired) && File.ReadAllText(script) == expected && File.Exists(sentinel) && File.ReadAllText(settings) == "keep preferences", "Successful companion cleanup removes only retired scripts while preserving user files and preferences");
         using var buffer = new MemoryStream();
         using (var zip = new ZipArchive(buffer, ZipArchiveMode.Create, true))
         {

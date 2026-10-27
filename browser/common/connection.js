@@ -94,6 +94,13 @@ globalThis.ViFreeConnection = (() => {
       clearTimeout(idle); idle = setTimeout(closePort, type === "inspect" ? 90000 : 30000);
     });
   }
+  async function ping() {
+    const version = api.runtime.getManifest?.().version;
+    if (!/^\d{1,5}(?:\.\d{1,5}){2,3}$/u.test(version ?? "")) return request2("ping");
+    const companionBrowser = api.runtime.getBrowserInfo ? "Firefox" : /Edg\//u.test(globalThis.navigator?.userAgent ?? "") ? "Edge" : "Chrome";
+    const response = await request2("ping", { companionVersion: version, companionBrowser });
+    return !response?.ok && response?.code === "invalid" ? request2("ping") : response;
+  }
   function validUrl(value) {
     if (typeof value !== "string" || value.length > 8192 || /[\u0000-\u001f\u007f]/u.test(value)) throw fail(messages.en.invalid, "invalid");
     let url;
@@ -106,7 +113,7 @@ globalThis.ViFreeConnection = (() => {
     let response, choiceSupported = false, startSupported = false;
     if (api.runtime.connectNative) {
       let health;
-      try { health = await request2("ping"); } catch { /* The legacy host may close after rejecting v2. */ }
+      try { health = await ping(); } catch { /* The legacy host may close after rejecting v2. */ }
       if (context.playlist && !health?.capabilities?.includes("playlist-download")) throw fail("Update Vydrop to download a whole playlist.", "unsupported");
       if (health?.ok && health.protocol === 2) {
         const fields = { url: url.href };
@@ -133,7 +140,7 @@ globalThis.ViFreeConnection = (() => {
     if (inspectionCache.size >= 8) inspectionCache.delete(inspectionCache.keys().next().value);
     const entry = { pending: true, time: now };
     entry.promise = (async () => {
-      const health = await request2("ping");
+      const health = await ping();
       if (!health?.ok || !health.capabilities?.includes("formats")) throw fail(messages.en.unsupported, "unsupported");
       const fields = { url: url.href };
       if (context.sourcePage) fields.sourcePage = validUrl(context.sourcePage).href;
@@ -146,5 +153,5 @@ globalThis.ViFreeConnection = (() => {
     try { const media = await entry.promise; entry.pending = false; entry.time = Date.now(); return media; }
     catch (error) { if (inspectionCache.get(url.href) === entry) inspectionCache.delete(url.href); throw error; }
   }
-  return { api, name, sendLink, inspectLink, errorMessage, holdReload, hasPendingRequests: () => reloadHolds > 0, testConnection: () => request2("ping") };
+  return { api, name, sendLink, inspectLink, errorMessage, holdReload, hasPendingRequests: () => reloadHolds > 0, testConnection: ping };
 })();

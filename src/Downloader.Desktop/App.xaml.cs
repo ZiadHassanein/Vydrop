@@ -34,8 +34,16 @@ public partial class App : Application
         if (!smoke)
         {
             var companion = new BrowserCompanionFiles(AppContext.BaseDirectory, AppPaths.UserData);
-            companion.RecoverInterruptedUpdate();
-            if (AppUpdates.IsUpdateStartup) companion.UpdateInstalledCopies();
+            try
+            {
+                companion.RecoverInterruptedUpdate();
+                if (AppUpdates.IsUpdateStartup) companion.UpdateInstalledCopies();
+                else companion.UpdateManagedCopies();
+            }
+            catch (Exception error) when (!AppUpdates.IsUpdateStartup && error is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+            {
+                // Downloads remain usable; Browser integration can retry local preparation.
+            }
             BrowserRegistration.EnsureAutomatic(Environment.ProcessPath);
         }
         if (smoke)
@@ -71,6 +79,7 @@ public partial class App : Application
             }));
         if (!smoke)
         {
+            _ = AppUpdates.CleanupCompletedAsync();
             browserLifetime = new();
             _ = BrowserLinkTransport.ListenRequestsAsync(request => Dispatcher.Invoke(() =>
             {

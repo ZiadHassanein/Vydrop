@@ -40,13 +40,17 @@ internal static class CompanionFileTransaction
         Cleanup(work, journal.Entries);
     }
 
-    internal static void Apply(string root, IReadOnlyDictionary<string, byte[]> files)
+    internal static void Apply(string root, IReadOnlyDictionary<string, byte[]> files, IReadOnlyCollection<string> retired = null)
     {
-        if (files.Count > 80 || files.Keys.Any(name => !ValidName(name))) throw new InvalidDataException("Invalid companion file list.");
+        retired ??= Array.Empty<string>();
+        if (files.Count + retired.Count > 80 || files.Keys.Concat(retired).Any(name => !ValidName(name)) || retired.Any(files.ContainsKey)) throw new InvalidDataException("Invalid companion file list.");
         Recover(root);
         var changed = files.Where(file => !Matches(Path.Combine(root, file.Key), file.Value)).ToArray();
-        if (changed.Length == 0) return;
-        var entries = changed.Select(file => new Entry(file.Key, File.Exists(Path.Combine(root, file.Key)), File.Exists(Path.Combine(root, file.Key)) ? Hash(Path.Combine(root, file.Key)) : null)).ToArray();
+        var removed = retired.Where(name => File.Exists(Path.Combine(root, name))).Distinct(StringComparer.Ordinal).ToArray();
+        if (changed.Length == 0 && removed.Length == 0) return;
+        foreach (string name in removed) Regular(Path.Combine(root, name));
+        var entries = changed.Select(file => new Entry(file.Key, File.Exists(Path.Combine(root, file.Key)), File.Exists(Path.Combine(root, file.Key)) ? Hash(Path.Combine(root, file.Key)) : null))
+            .Concat(removed.Select(name => new Entry(name, true, Hash(Path.Combine(root, name))))).ToArray();
         string work = Path.Combine(root, Work), record = Path.Combine(work, "journal.json");
         Regular(record);
         Directory.CreateDirectory(work);
@@ -62,6 +66,12 @@ internal static class CompanionFileTransaction
             {
                 Fault?.Invoke(file.Key);
                 Write(Path.Combine(root, file.Key), file.Value);
+            }
+            foreach (string name in removed)
+            {
+                Fault?.Invoke("remove-" + name);
+                Regular(Path.Combine(root, name));
+                File.Delete(Path.Combine(root, name));
             }
             Write(record, JsonSerializer.SerializeToUtf8Bytes(new Journal(true, entries)));
         }
@@ -97,7 +107,9 @@ internal static class CompanionFileTransaction
     }
     private static string Hash(string path)
     {
+        Regular(path);
         using var stream = File.OpenRead(path);
+        if (stream.Length > 4 * 1024 * 1024) throw new InvalidDataException("Invalid companion backup.");
         return Convert.ToHexString(SHA256.HashData(stream));
     }
     internal static void Regular(string path)

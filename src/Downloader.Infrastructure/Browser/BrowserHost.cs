@@ -34,8 +34,8 @@ public static class BrowserHost
                 {
                     using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(3));
                     var health = await BrowserLinkTransport.TrySendRequestAsync(request, 500, deadline.Token).ConfigureAwait(false);
-                    if (health?.Accepted == true) BrowserHealth.Record(Environment.ProcessPath);
-                    response = new { ok = true, code = "ready", protocol = 2, requestId, appRunning = health?.Accepted == true, capabilities = new[] { "ping", "enqueue", "source-context", "formats", "output-selection", "start-download", "playlist-download" } };
+                    if (health?.Accepted == true) BrowserHealth.Record(Environment.ProcessPath, request.CompanionVersion, request.CompanionBrowser);
+                    response = new { ok = true, code = "ready", protocol = 2, requestId, appRunning = health?.Accepted == true, expectedCompanionVersion = CompanionVersion, capabilities = new[] { "ping", "enqueue", "source-context", "formats", "output-selection", "start-download", "playlist-download" } };
                 }
                 else if (request.Type == "inspect")
                 {

@@ -4,6 +4,17 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.12] - 2026-10-27
+
+### Fixed
+- Use one per-user BrowserCompanion/Current folder for extension setup, independently of the app path or archive version. Normal app startup and app updates synchronize this folder and already-owned legacy recovery copies.
+- Bundle companion 1.5.8 and report its loaded version per browser during explicit health checks. Old or unconfirmed extensions receive honest setup guidance; older native hosts retain their original health format.
+- Explain that Reload cannot switch an unpacked extension to a different folder. The repair is to load the path copied by Browser integration once; future updates retain that path.
+
+### Cleanup
+- Remove retired media-discovery scripts transactionally, restoring them if a companion update fails.
+- Prune completed app-update staging after the helper exits, retaining running helpers and unresolved recovery. Preserve settings, history, queue, partial downloads, saved media and unrelated companion files.
+
 ## [4.4.11] - 2026-10-27
 
 ### Added

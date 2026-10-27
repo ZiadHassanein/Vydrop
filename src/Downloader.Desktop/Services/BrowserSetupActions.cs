@@ -10,6 +10,7 @@ internal interface IBrowserSetupActions
 {
     bool IsConnected { get; }
     bool IsVerified => false;
+    string CompanionVersion(SetupBrowser browser) => null;
     string StoreAddress(SetupBrowser browser) => "";
     void OpenStore(SetupBrowser browser) => throw new InvalidOperationException();
     string ExtensionPath(SetupBrowser browser);
@@ -28,6 +29,7 @@ internal sealed class BrowserSetupActions : IBrowserSetupActions
 {
     public bool IsConnected => BrowserRegistration.IsEnabled(Environment.ProcessPath);
     public bool IsVerified => IsConnected && BrowserHealth.IsRecentlyVerified(Environment.ProcessPath);
+    public string CompanionVersion(SetupBrowser browser) => IsConnected ? BrowserHealth.CompanionVersion(Environment.ProcessPath, browser.ToString()) : null;
     public string StoreAddress(SetupBrowser browser) => BrowserStores.Current.Address(browser.ToString());
     public void OpenStore(SetupBrowser browser)
     {

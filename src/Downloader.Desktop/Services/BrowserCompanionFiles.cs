@@ -9,8 +9,9 @@ internal sealed class BrowserCompanionFiles
 {
     private static readonly string[] RequiredFiles =
     ["manifest.json", "auto-reload.js", "companion-update.json", "connection.js", "video-detection.js", "quality-picker.js", "video-overlay.js", "background.js", "popup.js", "popup.html", "popup.css", "brand-logo-dark.svg", "icon.png", "icon16.png", "icon48.png"];
+    private static readonly string[] RetiredFiles = ["chromium/media-discovery.js", "chromium/popup-discovery.js", "firefox/media-discovery.js", "firefox/popup-discovery.js"];
     private readonly Dictionary<string, byte[]> files = new(StringComparer.Ordinal);
-    private readonly string externalRoot, recoveryRoot, cacheRoot;
+    private readonly string externalRoot, managedRoot, cacheRoot;
     internal bool CanPrepare => files.Count > 0;
 
     internal BrowserCompanionFiles(string appDirectory, string dataDirectory, byte[] archive = null)
@@ -22,7 +23,7 @@ internal sealed class BrowserCompanionFiles
             using var buffer = new MemoryStream(); resource?.CopyTo(buffer); archive = buffer.ToArray();
         }
         cacheRoot = Path.Combine(Path.GetFullPath(dataDirectory), "BrowserCompanion");
-        recoveryRoot = Path.Combine(cacheRoot, Convert.ToHexString(SHA256.HashData(archive))[..24]);
+        managedRoot = Path.Combine(cacheRoot, "Current");
         try
         {
             using var zip = new ZipArchive(new MemoryStream(archive), ZipArchiveMode.Read);
@@ -50,15 +51,15 @@ internal sealed class BrowserCompanionFiles
 
     internal string ExtensionPath(SetupBrowser browser)
     {
-        string root = Complete(externalRoot, browser) ? externalRoot : recoveryRoot;
-        string folder = Path.Combine(root, Folder(browser));
+        string folder = Path.Combine(managedRoot, Folder(browser));
         return browser == SetupBrowser.Firefox ? Path.Combine(folder, "manifest.json") : folder;
     }
-    internal bool HasExtension(SetupBrowser browser) => Complete(externalRoot, browser) || Complete(recoveryRoot, browser);
+    internal bool HasExtension(SetupBrowser browser) => Complete(managedRoot, browser);
 
     internal void RecoverInterruptedUpdate()
     {
         CompanionFileTransaction.Recover(externalRoot);
+        CompanionFileTransaction.Recover(managedRoot);
         foreach (string root in RecoveryCopies()) CompanionFileTransaction.Recover(root);
     }
 
@@ -66,11 +67,19 @@ internal sealed class BrowserCompanionFiles
     {
         if (!CanPrepare) throw new InvalidDataException("Companion files are unavailable.");
         // Keep the actual loaded path stable, including copies recovered by earlier releases.
-        CompanionFileTransaction.Apply(externalRoot, files);
+        CompanionFileTransaction.Apply(externalRoot, files, RetiredFiles);
+        UpdateManagedCopies();
+    }
+
+    // This location stays the same across app versions, copied EXEs and moves.
+    internal void UpdateManagedCopies()
+    {
+        if (!CanPrepare) throw new InvalidDataException("Companion files are unavailable.");
+        CompanionFileTransaction.Apply(managedRoot, files, RetiredFiles);
         foreach (string root in RecoveryCopies())
         {
             var present = files.Where(file => !file.Key.Contains('/') || Directory.Exists(Path.Combine(root, file.Key.Split('/')[0]))).ToDictionary();
-            CompanionFileTransaction.Apply(root, present);
+            CompanionFileTransaction.Apply(root, present, RetiredFiles);
         }
     }
 
@@ -124,19 +133,8 @@ internal sealed class BrowserCompanionFiles
         if (HasExtension(browser)) return;
         if (!CanPrepare) throw new InvalidDataException("Companion files are unavailable.");
         string prefix = Folder(browser) + "/";
-        foreach (var file in files.Where(file => !file.Key.Contains('/') || file.Key.StartsWith(prefix, StringComparison.Ordinal)))
-        {
-            string path = Path.GetFullPath(Path.Combine(recoveryRoot, file.Key.Replace('/', Path.DirectorySeparatorChar)));
-            if (!path.StartsWith(recoveryRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException();
-            string parent = Path.GetDirectoryName(path);
-            for (var directory = new DirectoryInfo(parent); directory != null && directory.FullName.StartsWith(recoveryRoot, StringComparison.OrdinalIgnoreCase); directory = directory.Parent)
-                if (directory.Exists && (directory.Attributes & FileAttributes.ReparsePoint) != 0) throw new IOException("The companion folder must be a regular local folder.");
-            Directory.CreateDirectory(parent);
-            if (Matches(path, file.Value)) continue;
-            string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-            try { File.WriteAllBytes(temporary, file.Value); File.Move(temporary, path, true); }
-            finally { if (File.Exists(temporary)) File.Delete(temporary); }
-        }
+        var selected = files.Where(file => !file.Key.Contains('/') || file.Key.StartsWith(prefix, StringComparison.Ordinal)).ToDictionary();
+        CompanionFileTransaction.Apply(managedRoot, selected, RetiredFiles.Where(name => name.StartsWith(prefix, StringComparison.Ordinal)).ToArray());
         if (!HasExtension(browser)) throw new IOException("Companion preparation could not be verified.");
     }
 }

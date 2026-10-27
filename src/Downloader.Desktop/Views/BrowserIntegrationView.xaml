@@ -37,7 +37,7 @@
      <StackPanel.Style><Style TargetType="StackPanel"><Style.Triggers>
       <DataTrigger Binding="{Binding ShowMissingFiles}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
      </Style.Triggers></Style></StackPanel.Style>
-    <TextBlock Text="{Binding VerificationStatus}" FontWeight="SemiBold" AutomationProperties.LiveSetting="Polite" Margin="0,6,0,0" Visibility="{Binding IsConnected,Converter={StaticResource BoolVisibility}}"/>
+    <TextBlock x:Name="SetupExtensionVersion" Text="{Binding ExtensionVersionStatus}" FontWeight="SemiBold" AutomationProperties.LiveSetting="Polite" Margin="0,6,0,0" Visibility="{Binding IsConnected,Converter={StaticResource BoolVisibility}}"/>
     <TextBlock Text="{Binding VerificationHint}" Style="{StaticResource SetupHint}" Margin="0,4,0,4" Visibility="{Binding IsConnected,Converter={StaticResource BoolVisibility}}"/>
     <TextBlock Text="{Binding ManualStepsLabel}" Style="{StaticResource SetupHeading}" Margin="0,12,0,8"/>
     <TextBlock Text="{Binding BrowserSteps}" TextWrapping="Wrap"/>

@@ -64,9 +64,19 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public bool IsVerified => actions.IsVerified;
     public string VerificationStatus => t(IsVerified ? "Browser connection verified" : "Browser connection not tested yet");
     public string VerificationHint => TestHint;
-    public string UpdateHint => t("App updates include both extensions. They reload automatically. Refresh open video tabs.");
-    internal void RefreshVerification() { OnPropertyChanged(nameof(IsVerified)); OnPropertyChanged(nameof(VerificationStatus)); }
-    public string KeepFolderHint => t("Open Vydrop once after moving it to reconnect automatically.");
+    public string UpdateHint => t("If Reload shows an old version, use Load unpacked with the copied folder once.");
+    private static string ExpectedExtensionVersion => BrowserIdentity.CompanionVersion;
+    public string ReportedExtensionVersion => actions.CompanionVersion(SelectedBrowser);
+    public bool HasOldExtension => Version.TryParse(ReportedExtensionVersion, out var version) && version < Version.Parse(ExpectedExtensionVersion);
+    public string ExtensionVersionStatus => string.Format(System.Globalization.CultureInfo.CurrentCulture,
+        t(ReportedExtensionVersion == null ? "Extension {0} is ready to load. Browser version is unconfirmed." : HasOldExtension ? "Browser extension {1} is old. Load {0} from the copied folder." : "Browser extension {0} is up to date."), ExpectedExtensionVersion, ReportedExtensionVersion);
+    internal void RefreshVerification()
+    {
+        OnPropertyChanged(nameof(IsVerified)); OnPropertyChanged(nameof(VerificationStatus));
+        OnPropertyChanged(nameof(ReportedExtensionVersion)); OnPropertyChanged(nameof(HasOldExtension));
+        OnPropertyChanged(nameof(ExtensionVersionStatus)); OnPropertyChanged(nameof(StartSetupLabel));
+    }
+    public string KeepFolderHint => t("This extension folder stays the same when Vydrop moves or updates.");
     public string EnableLabel => t(IsConnected ? "Reconnect app" : "Enable connection");
     public string DisableLabel => t("Disable connection");
     public string OpenPageLabel => t("Open extensions page");
@@ -78,7 +88,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public string FirefoxHint => t("Firefox removes this temporary add-on when it restarts. Load it again next session.");
     public string TestHint => t("Refresh a video page and click its Vydrop button. Choose the format and quality, then Download.");
     public string GuideLabel => t("View illustrated guide");
-    public string StartSetupLabel => ShowMissingFiles ? GuideLabel : UseStoreSetup ? string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Add to {0}"), SelectedBrowser) : string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Set up {0}"), SelectedBrowser);
+    public string StartSetupLabel => HasOldExtension && !UseStoreSetup ? t("Update extension") : ShowMissingFiles ? GuideLabel : UseStoreSetup ? string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Add to {0}"), SelectedBrowser) : string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Set up {0}"), SelectedBrowser);
     public string StartSetupHint => ShowMissingFiles ? MissingFilesHint : t(UseStoreSetup
         ? "Add the extension from the official store."
         : "Load the extension in your browser. Its folder is copied for you.");

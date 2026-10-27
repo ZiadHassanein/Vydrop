@@ -20,6 +20,8 @@ internal static class UpdateTransaction
     {
         MaxJsonLength = 128 * 1024
     };
+    private static readonly string[] StageArtifacts = ["update.zip", "update-helper.exe"];
+    private static readonly string[] StageFolders = ["Browser", "previous/Browser", "previous"];
     private static string acknowledgement;
     internal static Action<string> Fault { get; set; }
     internal static TimeSpan StartupTimeout { get; set; } = TimeSpan.FromSeconds(30);
@@ -459,7 +461,9 @@ internal static class UpdateTransaction
         return false;
     }
 
-    private static void PruneStages()
+    internal static void CleanupCompletedStages() => PruneStages(completedOnly: true);
+
+    private static void PruneStages(bool completedOnly = false)
     {
         try
         {
@@ -470,11 +474,13 @@ internal static class UpdateTransaction
                 {
                     string path = Path.Combine(directory, "transaction.json");
                     if (string.Equals(path, acknowledgement, StringComparison.OrdinalIgnoreCase) || ToolUpdateStore.IsLink(directory)) continue;
+                    UpdateJournal cleanup = null;
                     if (File.Exists(path))
                     {
                         if (ToolUpdateStore.IsLink(path)) continue;
                         var journal = Read(path);
                         ValidateJournal(path, journal);
+                        if (completedOnly && (journal.Phase != "committed" || !string.Equals(Path.GetFileName(directory), journal.Id, StringComparison.OrdinalIgnoreCase))) continue;
                         if (journal.Phase == "prepared")
                         {
                             // A preparation whose install never started is abandoned once it is a week old.
@@ -485,15 +491,46 @@ internal static class UpdateTransaction
                         else if (journal.Phase is not ("committed" or "rolled-back")) continue;
                         using var helper = FindProcess(journal.HelperPid, journal.HelperStart);
                         if (helper != null && !helper.HasExited) continue;
+                        cleanup = journal;
                     }
-                    else if (!Guid.TryParseExact(Path.GetFileName(directory), "N", out _) ||
+                    else if (completedOnly || !Guid.TryParseExact(Path.GetFileName(directory), "N", out _) ||
                         Directory.GetLastWriteTimeUtc(directory) >= DateTime.UtcNow.AddDays(-7)) continue;
-                    OwnedDirectoryCleanup.TryDelete(Root, directory);
+                    CleanupStage(directory, cleanup);
                 }
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception or System.Text.Json.JsonException) { }
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+    }
+
+    private static void CleanupStage(string directory, UpdateJournal journal)
+    {
+        // An update stage is private, but a saved video or other untracked file can
+        // still land there. Remove only recorded payload and known helper artifacts.
+        string[] payload = journal?.Files ?? AppUpdates.PackageFiles;
+        var owned = payload.Concat(payload.Select(name => Path.Combine("previous", name)))
+            .Concat(StageArtifacts).ToArray();
+        foreach (string name in owned)
+        {
+            string path = Path.Combine(directory, name);
+            CheckRegularPath(path);
+            if (File.Exists(path)) File.Delete(path);
+        }
+        var folders = owned.Select(Path.GetDirectoryName).Where(name => !string.IsNullOrEmpty(name))
+            .Concat(StageFolders).Distinct()
+            .OrderByDescending(name => name.Length);
+        foreach (string name in folders)
+        {
+            string path = Path.Combine(directory, name);
+            CheckRegularPath(path);
+            if (Directory.Exists(path) && !Directory.EnumerateFileSystemEntries(path).Any()) Directory.Delete(path);
+        }
+        string record = Path.Combine(directory, "transaction.json"), ack = record + ".ack";
+        if (Directory.EnumerateFileSystemEntries(directory).Any(path => path != record && path != ack)) return;
+        CheckRegularPath(record); CheckRegularPath(ack);
+        if (File.Exists(record)) File.Delete(record);
+        if (File.Exists(ack)) File.Delete(ack);
+        if (!Directory.EnumerateFileSystemEntries(directory).Any()) Directory.Delete(directory);
     }
 
     private static void ValidateJournal(string path, UpdateJournal journal)

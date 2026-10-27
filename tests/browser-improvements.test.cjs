@@ -119,3 +119,17 @@ test('first-use desktop preparation remains actionable and cannot trigger an aut
   preparing=false;assert.equal((await f.client.inspectLink('https://example.com/fresh')).title,'Ready after setup');
   assert.equal(f.sent.filter(m=>m.type==='inspect').length,2,'setup failure is not cached');
 });
+
+for (const browser of ['Chrome','Edge','Firefox']) test(`loaded companion reports its actual version for ${browser}`,async()=>{
+  const sent=[];let listener;
+  const api={runtime:{getManifest:()=>({name:'Vydrop',version:'1.5.8'}),connectNative:()=>({onMessage:{addListener:fn=>listener=fn},onDisconnect:{addListener(){}},disconnect(){},postMessage:message=>{sent.push(message);queueMicrotask(()=>listener({ok:true,protocol:2,requestId:message.requestId}));}})}};
+  if(browser==='Firefox')api.runtime.getBrowserInfo=async()=>({name:'Firefox'});
+  const context=vm.createContext({browser:api,URL,navigator:{userAgent:browser==='Edge'?'Chrome/130 Edg/130':'Chrome/130'},queueMicrotask,...timers});vm.runInContext(read('connection.js'),context);
+  await context.ViFreeConnection.testConnection();assert.equal(sent.length,1);assert.equal(sent[0].companionVersion,'1.5.8');assert.equal(sent[0].companionBrowser,browser);
+});
+test('a loaded current companion retries the original health envelope for an older native host',async()=>{
+  const sent=[];let listener;
+  const api={runtime:{getManifest:()=>({name:'Vydrop',version:'1.5.8'}),connectNative:()=>({onMessage:{addListener:fn=>listener=fn},onDisconnect:{addListener(){}},disconnect(){},postMessage:message=>{sent.push(message);queueMicrotask(()=>listener({ok:!message.companionVersion,code:message.companionVersion?'invalid':'ready',protocol:2,requestId:message.requestId}));}})}};
+  const context=vm.createContext({browser:api,URL,queueMicrotask,...timers});vm.runInContext(read('connection.js'),context);
+  assert.equal((await context.ViFreeConnection.testConnection()).ok,true);assert.equal(sent.length,2);assert.equal(sent[1].companionVersion,undefined);assert.equal(sent[1].companionBrowser,undefined);
+});

@@ -6,6 +6,7 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 1 && args[0] == "--companion-status") { BrowserCompanionStatusChecks.Run(); return 0; }
             if (args.Length == 3 && args[0] == "--update-release")
             {
                 var release = AppUpdates.Parse(File.ReadAllText(args[1]), Version.Parse(args[2])) ?? throw new Exception("No newer stable update is available.");
@@ -54,6 +55,7 @@ internal static class Program
             await InspectionSpeedChecks.Run(args[0]);
             await BrowserFreshPcChecks.Run();
             BrowserRegistrationChecks.Run();
+            BrowserCompanionStatusChecks.Run();
             BrowserStoreChecks.Run();
             return 0;
         }

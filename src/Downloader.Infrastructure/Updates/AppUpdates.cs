@@ -174,6 +174,17 @@ public static class AppUpdates
         return manifest;
     }
 
+    public static async Task CleanupCompletedAsync()
+    {
+        // The updater helper locks its own staged EXE until it exits. Only committed,
+        // validated transactions with a stopped helper can be removed by this cleanup.
+        for (int attempt = 0; attempt < 6; attempt++)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+            UpdateTransaction.CleanupCompletedStages();
+        }
+    }
+
     public static void InstallAndRestart(string prepared) => UpdateTransaction.Launch(prepared, Environment.ProcessPath, Environment.ProcessId);
     public static bool RunHelper(string[] args)
     {
