@@ -4,6 +4,12 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.9] - 2026-10-27
+
+### Changed
+- Distribute only the complete Windows ZIP, containing the app and Chromium/Firefox companion 1.5.6. Remove separate installer links and installer generation from the release workflow.
+- Require exactly one verified ZIP in release publishing and website deployment. Retain automatic browser connection, visible first-use preparation and built-in updates for existing users.
+
 ## [4.4.8] - 2026-10-27
 
 ### Fixed

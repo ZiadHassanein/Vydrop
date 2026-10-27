@@ -16,13 +16,6 @@ $expectedName = "Vydrop-v$version-win-x64.zip"
 if ($sum.File -ne $expectedName) { throw 'The artifact version does not match the tag.' }
 $zip = Join-Path $root ('dist/' + $expectedName)
 if ((Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash -ne $sum.Hash) { throw 'The tested artifact checksum does not match.' }
-$installerName = "VydropSetup-v$version-win-x64.exe"
-$installer = Join-Path $root ('dist/installers/' + $installerName)
-$installerProof = Get-Content -LiteralPath ($installer + '.json') -Raw | ConvertFrom-Json
-if ($installerProof.file -ne $installerName -or $installerProof.version -ne $version -or $installerProof.channel -ne 'stable' -or
-    (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash -ne $installerProof.sha256) {
-    throw 'The installer does not match the tested stable release.'
-}
 $headers = @{Authorization = 'Bearer ' + $env:GH_RELEASE_TOKEN; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28'}
 $destination = Invoke-RestMethod -Uri "https://api.github.com/repos/$repository" -Headers $headers
 if ($destination.private -or $destination.full_name -ne $repository -or $destination.default_branch -ne 'main') {
@@ -30,18 +23,17 @@ if ($destination.private -or $destination.full_name -ne $repository -or $destina
 }
 $api = "https://api.github.com/repos/$repository/releases"
 $url = "https://github.com/$repository/releases/download/$($env:GITHUB_REF_NAME)/$expectedName"
-$installerUrl = "https://github.com/$repository/releases/download/$($env:GITHUB_REF_NAME)/$installerName"
 $changelog = Get-Content -LiteralPath (Join-Path $root 'CHANGELOG.md') -Raw
 $releaseNotes = [regex]::Match($changelog, "(?ms)^## \[$([regex]::Escape($version))\][^\r\n]*\r?\n(?<notes>.*?)(?=^## \[|\z)").Groups['notes'].Value.Trim()
 if (!$releaseNotes) { throw 'The tagged version needs a changelog section before publication.' }
 $body = @"
 Vydrop is a free Windows video and audio downloader for YouTube and 1,000+ public sites supported by yt-dlp, with English and Arabic interfaces.
 
-**[Download for Windows — Complete ZIP]($url)** · **[Windows installer (optional)]($installerUrl)**
+**[Download for Windows — Complete ZIP]($url)**
 
-Extract the complete ZIP, which includes **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**, then open **Vydrop.exe**. The Windows installer is an optional alternative. Windows 10/11 x64; .NET is bundled and missing media tools are prepared automatically.
+Extract the complete ZIP, which includes **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**, then open **Vydrop.exe**. Windows 10/11 x64; .NET is bundled and missing media tools are prepared automatically.
 
-The installer registers the browser connection for your account. Browser-store listings are still pending: open **Browser integration**, choose your browser and click **Set up**. Finish loading the companion in your browser, then use **Test connection** in its popup. App updates include the companion files; reload the extension after updating. Browser approval is required.
+Opening Vydrop once registers the browser connection for your account automatically. Browser-store listings are still pending: open **Browser integration**, choose your browser and click **Set up**. Finish loading the companion in your browser, then refresh your video page. App updates include the companion files; reload the extension after updating. Browser approval is required.
 
 ## Changes in $version
 
@@ -66,11 +58,10 @@ $releaseNotes
 - Automatic daily verified yt-dlp/Deno checks and one compatible update-and-retry.
 - Settings keeps video errors in the download screen; manual app updates use this repository.
 
-**Upgrading:** use Settings → Check for updates → Install to update the app and both companion folders together. Reload the browser extension after updating. Alternatively, run the new installer or close the portable app and extract the complete new ZIP into its permanent folder. Stable settings, queue, history and verified media tools retain their compatible storage location; preview state stays separate. If a portable app moved, reconnect it from Browser integration and reload/load its Browser companion. Versions through 4.2.1 require one manual desktop download after the repository rename.
+**Upgrading:** use Settings → Check for updates → Install to update the app and both companion folders together. Reload the browser extension after updating. Alternatively, close Vydrop and extract the complete new ZIP into its permanent folder. Stable settings, queue, history and verified media tools retain their compatible storage location; preview state stays separate. If the app moved, open it once to repair the connection automatically. Versions through 4.2.1 require one manual desktop download after the repository rename.
 
-The installer and app are not Authenticode-signed. GitHub's asset digests and these SHA-256 values identify the published files:
+The app is not Authenticode-signed. GitHub's asset digests and these SHA-256 values identify the published files:
 
-- Installer: $($installerProof.sha256.ToLowerInvariant())
 - Portable ZIP: $($sum.Hash.ToLowerInvariant())
 
 By **Ziad Hassanein**. Only save content you have permission to download.
@@ -78,8 +69,7 @@ By **Ziad Hassanein**. Only save content you have permission to download.
 $payload = @{tag_name = $env:GITHUB_REF_NAME; target_commitish = 'main'; name = "Vydrop $($env:GITHUB_REF_NAME)"; body = $body; draft = $true; prerelease = $false} | ConvertTo-Json
 $release = Invoke-RestMethod -Uri $api -Method Post -Headers $headers -ContentType 'application/json' -Body $payload
 $downloads = @(
-    @{Name=$expectedName; Path=$zip; Hash=$sum.Hash; ContentType='application/zip'},
-    @{Name=$installerName; Path=$installer; Hash=$installerProof.sha256; ContentType='application/octet-stream'}
+    @{Name=$expectedName; Path=$zip; Hash=$sum.Hash; ContentType='application/zip'}
 )
 foreach ($download in $downloads) {
     $name = [Uri]::EscapeDataString($download.Name)
@@ -95,8 +85,8 @@ foreach ($download in $downloads) {
     }
 }
 $releaseAssets=Invoke-RestMethod -Uri "$api/$($release.id)/assets" -Headers $headers
-if (@($releaseAssets).Count -ne 2 -or ((@($releaseAssets.name | Sort-Object) -join '|') -ne (@($downloads.Name | Sort-Object) -join '|'))) {
-    throw 'The release must contain exactly the verified installer and portable ZIP.'
+if (@($releaseAssets).Count -ne 1 -or ((@($releaseAssets.name | Sort-Object) -join '|') -ne (@($downloads.Name | Sort-Object) -join '|'))) {
+    throw 'The release must contain exactly the verified complete ZIP.'
 }
 $published = Invoke-RestMethod -Uri "$api/$($release.id)" -Method Patch -Headers $headers -ContentType 'application/json' -Body '{"draft":false,"make_latest":"true"}'
 Write-Output "Published $($published.html_url)"

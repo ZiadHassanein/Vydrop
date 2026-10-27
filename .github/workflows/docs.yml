@@ -66,7 +66,7 @@ jobs:
           for attempt in {1..120}; do
             if curl --silent --show-error --fail --header "Authorization: Bearer $GH_TOKEN" \
               "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/v$VERSION" > "$RUNNER_TEMP/documented-release.json"; then
-              if node -e 'const r=require(process.env.RUNNER_TEMP+"/documented-release.json");const names=[`Vydrop-v${process.env.VERSION}-win-x64.zip`,`VydropSetup-v${process.env.VERSION}-win-x64.exe`];process.exit(r.draft||r.prerelease||!names.every(n=>r.assets.some(a=>a.name===n&&a.state==="uploaded"&&a.digest?.startsWith("sha256:")))?1:0)'; then
+              if node -e 'const r=require(process.env.RUNNER_TEMP+"/documented-release.json");const names=[`Vydrop-v${process.env.VERSION}-win-x64.zip`];process.exit(r.draft||r.prerelease||r.assets.length!==1||!names.every(n=>r.assets.some(a=>a.name===n&&a.state==="uploaded"&&a.digest?.startsWith("sha256:")))?1:0)'; then
                 exit 0
               fi
             fi

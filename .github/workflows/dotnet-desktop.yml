@@ -50,20 +50,15 @@ jobs:
           $env:VIFREE_BROWSER_CHANNEL = 'stable'
           node --test tests/browser.test.cjs tests/browser-improvements.test.cjs
           if ($LASTEXITCODE -ne 0) { throw 'Packaged companion checks failed.' }
-      - name: Build the per-user Windows installer
+      - name: Verify ZIP-only release publishing
         shell: pwsh
-        run: |
-          $version = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.Version
-          ./scripts/build-installer.ps1 -Version $version -UseExistingPackage
-          ./tests/ReleasePublishingChecks.ps1
+        run: ./tests/ReleasePublishingChecks.ps1
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: windows-app
           path: |
             dist/Vydrop-v*-win-x64.zip
             dist/checksums-desktop.json
-            dist/installers/VydropSetup-v*-win-x64.exe
-            dist/installers/VydropSetup-v*-win-x64.exe.json
           if-no-files-found: error
   release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')

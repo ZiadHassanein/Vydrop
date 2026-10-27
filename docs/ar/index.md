@@ -17,14 +17,14 @@ last_reviewed: 2026-10-24
 نزّل من YouTube وTikTok وFacebook وVimeo وأكثر من ١٠٠٠ موقع عبر yt-dlp، بواجهة عربية وإنجليزية.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.8/Vydrop-v4.4.8-win-x64.zip">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.9/Vydrop-v4.4.9-win-x64.zip">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop ZIP</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.4.8 · ZIP</bdi></span></span>
+    <span class="download-copy"><span class="download-title">تنزيل <bdi>Vydrop ZIP</bdi></span><span class="download-meta"><bdi>Windows 10/11 x64 · v4.4.9 · ZIP</bdi></span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="إجمالي تنزيلات إصدارات GitHub" height="20"></a>
 </div>
 
-تتضمن الحزمة **Vydrop.exe** ومجلد **Browser** بإضافتَي Chromium وFirefox بالإصدار 1.5.6. فكّ ملف ZIP كاملًا قبل تشغيل البرنامج. [مُثبّت ويندوز (اختياري)](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.8/VydropSetup-v4.4.8-win-x64.exe).
+تتضمن الحزمة **Vydrop.exe** ومجلد **Browser** بإضافتَي Chromium وFirefox بالإصدار 1.5.6. فكّ ملف ZIP كاملًا قبل تشغيل البرنامج.
 
 ## معلومات أساسية
 
@@ -46,7 +46,7 @@ last_reviewed: 2026-10-24
 
 لو بتستخدم البرنامج لأول مرة، راجع [التنزيل والتشغيل والتحديث من المصدر الرسمي](download.md). يوضّح الدليل الفرق بين كود GitHub المصدري وحزمة ويندوز الجاهزة للتشغيل.
 
-1. فكّ ملف ZIP كاملًا، واحتفظ بمجلد **Browser** ثم افتح **Vydrop.exe**. بيئة .NET مضمّنة، ومُثبّت ويندوز خيار بديل.
+1. فكّ ملف ZIP كاملًا، واحتفظ بمجلد **Browser** ثم افتح **Vydrop.exe**. بيئة .NET مضمّنة، ويتصل التطبيق بالمتصفح تلقائيًا عند فتحه.
 2. الصق رابط الفيديو نفسه أو رابط قائمة عامة، وراجع العنوان والجودة المتاحة.
 3. اختر الفيديو أو الصوت والصيغة ومجلد الحفظ. فعّل **الترجمة** عند توافرها.
 4. اضغط **تنزيل** لمتابعة المهمة في **قائمة التنزيلات**. افتح الملفات المكتملة من **المكتبة**، أو استخدم **السجل** لآخر خمسة تنزيلات مكتملة.

@@ -15,13 +15,13 @@ function Invoke-RestMethod {
  if($Uri.StartsWith('https://uploads.github.com/repos/ZiadHassanein/Vydrop/releases/123/assets?name=')){
   $taskName=[Uri]::UnescapeDataString(($Uri -split 'name=',2)[1])
   $taskDigest='sha256:'+(Get-FileHash -LiteralPath $InFile -Algorithm SHA256).Hash.ToLowerInvariant()
-  if($global:VydropReleasePublicationFixture.TamperInstaller -and $taskName.EndsWith('.exe')){$taskDigest='sha256:bad'}
+  if($global:VydropReleasePublicationFixture.TamperZip -and $taskName.EndsWith('.zip')){$taskDigest='sha256:bad'}
   $taskAsset=@{id=$global:VydropReleasePublicationFixture.Assets.Count+1;name=$taskName;state='uploaded';size=(Get-Item -LiteralPath $InFile).Length;digest=$taskDigest}
   $global:VydropReleasePublicationFixture.Assets.Add($taskAsset);return $taskAsset
  }
  if($Uri -eq 'https://api.github.com/repos/ZiadHassanein/Vydrop/releases/123/assets'){return $global:VydropReleasePublicationFixture.Assets.ToArray()}
  if($Uri -eq 'https://api.github.com/repos/ZiadHassanein/Vydrop/releases/123' -and $Method -eq 'Patch'){
-  if($global:VydropReleasePublicationFixture.Assets.Count -ne 2){throw 'Both assets must precede publication.'}
+  if($global:VydropReleasePublicationFixture.Assets.Count -ne 1){throw 'The complete ZIP must precede publication.'}
   $global:VydropReleasePublicationFixture.Published=$true;return @{html_url='https://github.com/ZiadHassanein/Vydrop/releases/tag/v'+$taskVersion}
  }
  throw ('Unexpected external request in offline test: '+$Uri)
@@ -30,14 +30,14 @@ try {
  $env:GITHUB_EVENT_NAME='push';$env:GITHUB_REF_TYPE='tag';$env:GITHUB_REF_NAME='v'+$taskVersion
  $env:GITHUB_REPOSITORY='ZiadHassanein/Vydrop';$env:GH_RELEASE_TOKEN='offline-test-only'
  foreach($taskTamper in @($false,$true)){
-  $global:VydropReleasePublicationFixture=[pscustomobject]@{Assets=[Collections.Generic.List[object]]::new();Published=$false;TamperInstaller=$taskTamper}
+  $global:VydropReleasePublicationFixture=[pscustomobject]@{Assets=[Collections.Generic.List[object]]::new();Published=$false;TamperZip=$taskTamper}
   $taskFailed=$false
   try{$null=& (Join-Path $taskRepo 'scripts/release.ps1')}catch{
-   if(!$global:VydropReleasePublicationFixture.TamperInstaller -or $_.Exception.Message -notlike '*digest did not match*'){throw}
+   if(!$global:VydropReleasePublicationFixture.TamperZip -or $_.Exception.Message -notlike '*digest did not match*'){throw}
    $taskFailed=$true
   }
-  if(!$global:VydropReleasePublicationFixture.TamperInstaller -and (!$global:VydropReleasePublicationFixture.Published -or $taskFailed)){throw 'Valid artifacts did not publish in the offline simulation.'}
-  if($global:VydropReleasePublicationFixture.TamperInstaller -and ($global:VydropReleasePublicationFixture.Published -or !$taskFailed)){throw 'A mismatched installer was allowed to publish.'}
+  if(!$global:VydropReleasePublicationFixture.TamperZip -and (!$global:VydropReleasePublicationFixture.Published -or $taskFailed)){throw 'Valid artifacts did not publish in the offline simulation.'}
+  if($global:VydropReleasePublicationFixture.TamperZip -and ($global:VydropReleasePublicationFixture.Published -or !$taskFailed)){throw 'A mismatched ZIP was allowed to publish.'}
  }
- Write-Output 'PASS: Publication starts as a draft, verifies both real asset hashes, and refuses a mismatched installer digest.'
+ Write-Output 'PASS: Publication starts as a draft, verifies the complete ZIP hash, and refuses a mismatched ZIP digest.'
 } finally {Remove-Variable -Scope Global -Name VydropReleasePublicationFixture -ErrorAction SilentlyContinue; foreach($taskName in $taskSavedEnvironment.Keys){[Environment]::SetEnvironmentVariable($taskName,$taskSavedEnvironment[$taskName])}}
