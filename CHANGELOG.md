@@ -4,6 +4,13 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.14] - 2026-10-27
+
+### Fixed
+- Bundle companion 1.5.10. LinkedIn feed video lookup now waits for the selected post menu to open asynchronously and recognizes a menu nested inside its portal wrapper.
+- Close only the menu opened by the extension, wait for its asynchronous dismissal, and preserve menus already opened by the user. Retain exact video-poster matching and temporary lookup-tab cleanup.
+- Keep the AnaFast/Kirmizi fix from 4.4.13, existing browser identities and permissions, and all saved app data.
+
 ## [4.4.13] - 2026-10-27
 
 ### Fixed

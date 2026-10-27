@@ -160,36 +160,52 @@ globalThis.ViFreeVideoDetection = (() => {
       const button = buttons[0];
       // Do not dismiss or replace a menu the user already opened.
       if (button.getAttribute('aria-expanded') !== 'false' || document.querySelectorAll('[data-menu-portal-anchor] [aria-owns]').length) return null;
-      let ownedMenu = "";
-      button.click();
+      let ownedMenu = "", expanded = false;
       try {
+        button.click();
         const deadline = Date.now() + 4000;
-        while (Date.now() < deadline && card.contains(button) && button.getAttribute('aria-expanded') === 'true') {
-          const portal = button.parentElement?.querySelector('[data-menu-portal-anchor] [aria-owns]');
-          const id = portal?.getAttribute('aria-owns');
-          const menu = id && document.getElementById(id);
-          if (menu?.getAttribute('role') === 'menu') {
-            ownedMenu = id;
-            const targets = new Set();
-            for (const link of Array.from(menu.querySelectorAll('a[href]')).slice(0, 30)) {
-              try {
-                const url = new URL(link.href);
-                if (url.protocol !== 'https:' || url.hostname !== 'www.linkedin.com' || url.username || url.password || url.port ||
-                    url.pathname !== '/preload/embed-modal/' || url.searchParams.getAll('targetUrn').length !== 1 || url.searchParams.get('hasLinkedInVideo') !== 'true') continue;
-                const urn = url.searchParams.get('targetUrn');
-                if (/^urn:li:(?:activity|ugcPost|share):\d{8,25}$/u.test(urn)) targets.add(urn);
-              } catch { /* Ignore unrelated menu destinations. */ }
+        // React can commit aria-expanded and the menu portal after click() returns.
+        // Wait for this exact button, and stop if its opened menu is dismissed.
+        while (Date.now() < deadline && card.contains(button)) {
+          if (button.getAttribute('aria-expanded') === 'true') {
+            expanded = true;
+            const portal = button.parentElement?.querySelector('[data-menu-portal-anchor] [aria-owns]');
+            const id = portal?.getAttribute('aria-owns');
+            if (id) {
+              if (ownedMenu && ownedMenu !== id) break;
+              ownedMenu = id;
+              const root = document.getElementById(id);
+              const menus = root?.getAttribute('role') === 'menu' ? [root] : Array.from(root?.querySelectorAll('[role="menu"]') ?? []);
+              if (menus.length === 1) {
+                const targets = new Set();
+                for (const link of Array.from(menus[0].querySelectorAll('a[href]')).slice(0, 30)) {
+                  try {
+                    const url = new URL(link.href);
+                    if (url.protocol !== 'https:' || url.hostname !== 'www.linkedin.com' || url.username || url.password || url.port ||
+                        url.pathname !== '/preload/embed-modal/' || url.searchParams.getAll('targetUrn').length !== 1 || url.searchParams.get('hasLinkedInVideo') !== 'true') continue;
+                    const urn = url.searchParams.get('targetUrn');
+                    if (/^urn:li:(?:activity|ugcPost|share):\d{8,25}$/u.test(urn)) targets.add(urn);
+                  } catch { /* Ignore unrelated menu destinations. */ }
+                }
+                if (targets.size === 1) {
+                  const url = `https://www.linkedin.com/embed/feed/update/${[...targets][0]}/`;
+                  return { url, reason: "player", sourcePage: url, linkedinAsset: asset };
+                }
+              }
             }
-            if (targets.size === 1) {
-              const url = `https://www.linkedin.com/embed/feed/update/${[...targets][0]}/`;
-              return { url, reason: "player", sourcePage: url, linkedinAsset: asset };
-            }
-          }
+          } else if (expanded) break;
           await new Promise(resolve => setTimeout(resolve, 100));
         }
       } finally {
-        const current = button.parentElement?.querySelector('[data-menu-portal-anchor] [aria-owns]')?.getAttribute('aria-owns');
-        if (card.contains(button) && button.getAttribute('aria-expanded') === 'true' && (!ownedMenu || current === ownedMenu)) button.click();
+        const current = () => button.parentElement?.querySelector('[data-menu-portal-anchor] [aria-owns]')?.getAttribute('aria-owns');
+        if (card.contains(button) && button.getAttribute('aria-expanded') === 'true' && (!ownedMenu || current() === ownedMenu)) {
+          button.click();
+          // Closing is asynchronous too. Do not return with our menu over the video,
+          // and never toggle again or dismiss a replacement menu owned by the user.
+          const deadline = Date.now() + 1000;
+          while (Date.now() < deadline && card.contains(button) && button.getAttribute('aria-expanded') === 'true' &&
+            (!ownedMenu || current() === ownedMenu)) await new Promise(resolve => setTimeout(resolve, 25));
+        }
       }
       return null;
     }

@@ -30,7 +30,7 @@ const source = file => fs.readFileSync(path.join(root, 'browser/common', file), 
       sendMessage:async(id,message)=>({ ...await temporary.get(id).evaluate(asset=>ViFreeVideoDetection.inspectVideoPage('',false,null,asset),message.asset),pageUrl:temporary.get(id).url()}),
       get:async id=>({url:temporary.get(id).url()}),remove:async id=>{await temporary.get(id).close();temporary.delete(id);}
     }};
-    const background=vm.createContext({ URL,setTimeout,ViFreeConnection:{api,name:'Vydrop',inspectLink:async url=>{inspected.push(url);return{title:'Selected feed video',source:'linkedin.com',videos:[{format:'mp4',heights:[720]}],audio:['m4a']};},sendLink:async(url,details)=>{sent.push({url,details});return{code:'started'};}} });
+    const background=vm.createContext({ URL,setTimeout,ViFreeConnection:{api,name:'Vydrop',holdReload:()=>()=>{},inspectLink:async url=>{inspected.push(url);return{title:'Selected feed video',source:'linkedin.com',videos:[{format:'mp4',heights:[720]}],audio:['m4a']};},sendLink:async(url,details)=>{sent.push({url,details});return{code:'started'};}} });
     for(const file of ['video-detection.js','background.js'])vm.runInContext(source(file),background);
     await context.exposeFunction('sendFixtureMessage', message=>new Promise(resolve=>handler(message,{id:'fixture',frameId:0,url:'https://www.linkedin.com/feed/',tab:{id:7,url:'https://www.linkedin.com/feed/'}},resolve)));
     const page=await context.newPage();await page.goto('https://www.linkedin.com/feed/');
