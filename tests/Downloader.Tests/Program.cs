@@ -50,6 +50,7 @@ internal static class Program
             OutputProfileChecks.Run(args[0]);
             TwitchClipChecks.Run();
             RedditMediaChecks.Run();
+            TwitterMediaChecks.Run();
             await AutomaticToolChecks.Run(args[0]);
             await ReviewRegressionChecks.Run(args[0]);
             await InspectionSpeedChecks.Run(args[0]);

@@ -10,11 +10,11 @@ const detect = page => page.evaluate(() => ViFreeVideoDetection.inspectVideoPage
   const browser = await chromium.launch({ channel: 'msedge', headless: true });
   let count = 0;
   try {
-    for (const mode of ['immediate', 'delayed', 'nested', 'delayed-nested', 'no-embed']) {
+    for (const mode of ['immediate', 'delayed', 'nested', 'delayed-nested', 'delayed-nested-thumbnail', 'no-embed']) {
       const page = await browser.newPage();
       await page.route('**/*', route => route.fulfill({ contentType: 'text/html', body: `<!doctype html><html><style>video{width:620px;height:380px}</style>
         <nav role="menu">Unrelated sidebar</nav><div role="listitem"><div><button id="toggle" aria-expanded="false"><svg id="ellipses-horizontal-fill-small"></svg></button><span data-menu-portal-anchor></span></div>
-        <video></video><div class="vjs-poster"><img src="https://media.licdn.com/dms/image/v2/D4E05AQG-bBKIRvxluQ/videocover-high/fixture"></div></div>
+        <video></video><div class="vjs-poster"><img src="${mode.includes('thumbnail') ? 'https://dms.licdn.com/playlist/vid/v2/D4E05AQG-bBKIRvxluQ/thumbnail-shrink_720_1280/fixture' : 'https://media.licdn.com/dms/image/v2/D4E05AQG-bBKIRvxluQ/videocover-high/fixture'}"></div></div>
         <script>let clicks=0;const mode=${JSON.stringify(mode)};const toggle=document.querySelector('#toggle');
         toggle.onclick=()=>{clicks++;if(toggle.getAttribute('aria-expanded')==='true'){setTimeout(()=>{toggle.setAttribute('aria-expanded','false');document.querySelector('#owned')?.remove();document.querySelector('[data-menu-portal-anchor]').innerHTML='';},30);return;}
         const open=()=>{toggle.setAttribute('aria-expanded','true');document.querySelector('[data-menu-portal-anchor]').innerHTML='<span aria-owns="owned"></span>';const container=document.createElement('div');container.id='owned';

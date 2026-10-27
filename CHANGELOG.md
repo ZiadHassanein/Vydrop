@@ -4,6 +4,13 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.15] - 2026-10-27
+
+### Fixed
+- Bundle companion 1.5.11. Identify LinkedIn home-feed videos whose poster uses a playlist thumbnail URL, as well as the existing videocover URL. Preserve exact media-asset matching and reject ambiguous or untrusted posters.
+- Retain asynchronous post-menu handling and close only the extension-owned menu. Keep the AnaFast/Kirmizi fix and existing app data locations.
+- Measure missing audio metadata in declared progressive X/Twitter media so available audio output choices are retained. Limit probing to public post URLs and verified media hosts.
+
 ## [4.4.14] - 2026-10-27
 
 ### Fixed

@@ -33,4 +33,4 @@ Ordinary Vydrop downloads work without a browser extension. Remove the extension
 Vydrop cannot access DRM-protected content, and signing into a website does not grant the desktop app access to private content. Only save content you have permission to download.
 
 
-Companion 1.5.10 adds its own loaded extension version and browser family (Chrome, Edge or Firefox) to an explicit local health request. The desktop stores a small local version report bound to its executable and build so setup can identify old or unconfirmed companions. No browser profile, browsing history, cookies or account data is read. These reports remain on this PC and are not sent to a developer-operated service.
+Companion 1.5.11 adds its own loaded extension version and browser family (Chrome, Edge or Firefox) to an explicit local health request. The desktop stores a small local version report bound to its executable and build so setup can identify old or unconfirmed companions. No browser profile, browsing history, cookies or account data is read. These reports remain on this PC and are not sent to a developer-operated service.

@@ -411,6 +411,22 @@ test('LinkedIn blob player uses only progressive media matched to its exact post
   const found = fixture('https://www.linkedin.com/feed/', own, linkedInMetadata()).detect();
   assert.equal(found.url, linkedInMedia); assert.equal(found.reason, 'source');
 });
+test('LinkedIn playlist thumbnails identify only their selected video asset', () => {
+  const thumbnail = `https://dms.licdn.com/playlist/vid/v2/${linkedInAsset}/thumbnail-shrink_720_1280/sample/0/image`;
+  for (const src of [thumbnail, thumbnail.replace('thumbnail-shrink', 'thumbnail-cropping'), thumbnail.replace('thumbnail-shrink', 'thumbnail-scale')]) {
+    const player = el('div', {}, el('video'), el('div', { class: 'vjs-poster' }, el('img', { src })));
+    assert.equal(fixture('https://www.linkedin.com/feed/', player, linkedInMetadata()).detect().url, linkedInMedia);
+  }
+  for (const src of [thumbnail.replace(linkedInAsset, 'OtherVideoAsset'), thumbnail.replace('https:', 'http:'),
+    thumbnail.replace('dms.licdn.com', 'dms.licdn.com.evil.example'), thumbnail.replace('dms.licdn.com', 'user:secret@dms.licdn.com'),
+    thumbnail.replace('dms.licdn.com', 'dms.licdn.com:444'), thumbnail.replace('thumbnail-shrink', 'mp4')]) {
+    const player = el('div', {}, el('video'), el('div', { class: 'vjs-poster' }, el('img', { src })));
+    assert.equal(fixture('https://www.linkedin.com/feed/', player, linkedInMetadata()).detect().url, '');
+  }
+  const player = el('div', {}, el('video'), el('div', { class: 'vjs-poster' }, el('img', { src: thumbnail }), el('img', { src: thumbnail.replace(linkedInAsset, 'OtherVideoAsset') })));
+  assert.equal(fixture('https://www.linkedin.com/feed/', player, linkedInMetadata()).detect().url, '', 'ambiguous poster assets never borrow media');
+});
+
 test('LinkedIn chooses the highest reported progressive source without using a path quality label', () => {
   const low = linkedInMedia.replace('mp4-720p', 'mp4-1080p');
   const data = JSON.parse(linkedInMetadata().textContent);

@@ -217,8 +217,9 @@ globalThis.ViFreeVideoDetection = (() => {
       for (const poster of posters) {
         try {
           const url = new URL(poster);
-          const asset = url.pathname.match(/^\/dms\/image\/(?:v2\/)?([A-Za-z0-9_-]+)\/videocover/u)?.[1];
-          if (url.protocol === "https:" && url.hostname.endsWith(".licdn.com") && asset) assets.add(asset);
+          const asset = url.pathname.match(/^\/dms\/image\/(?:v2\/)?([A-Za-z0-9_-]+)\/videocover/u)?.[1] ??
+            url.pathname.match(/^\/playlist\/vid\/v2\/([A-Za-z0-9_-]{8,100})\/thumbnail-[A-Za-z0-9_-]{1,80}\//u)?.[1];
+          if (url.protocol === "https:" && !url.username && !url.password && !url.port && url.hostname.endsWith(".licdn.com") && asset) assets.add(asset);
         } catch { /* An absent poster cannot identify another player's media. */ }
       }
       return assets.size === 1 ? [...assets][0] : "";
