@@ -16,7 +16,7 @@ foreach($taskStore in @('chrome','edge','firefox')) {
         try {
             $taskWriter=[IO.StreamWriter]::new($taskZip.CreateEntry('manifest.json').Open(),[Text.UTF8Encoding]::new($false))
             try { $taskWriter.Write(($taskManifest | ConvertTo-Json -Depth 10)) } finally { $taskWriter.Dispose() }
-            foreach($taskFile in Get-ChildItem -LiteralPath $taskSource -Recurse -File | Where-Object Name -ne 'manifest.json') {
+            foreach($taskFile in Get-ChildItem -LiteralPath $taskSource -Recurse -File | Where-Object { $_.Name -notin @('manifest.json','companion-update.json') }) {
                 $taskEntry=[IO.Path]::GetRelativePath($taskSource,$taskFile.FullName).Replace('\','/')
                 [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($taskZip,$taskFile.FullName,$taskEntry,[IO.Compression.CompressionLevel]::Optimal) | Out-Null
             }

@@ -1,4 +1,4 @@
-param([string]$Version='4.4.10', [switch]$Preview, [string]$CertificateThumbprint, [uri]$TimestampServer)
+param([string]$Version='4.4.11', [switch]$Preview, [string]$CertificateThumbprint, [uri]$TimestampServer)
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path -Parent $PSScriptRoot
 $env:DOTNET_CLI_HOME=Join-Path $projectRoot 'build/dotnet-home'
@@ -17,7 +17,7 @@ Windows 10/11 x64. Extract this ZIP into a writable folder and open Vydrop.exe.
 No separate .NET runtime, WinGet or tool setup script is needed.
 On the first pasted link, the app checks compatible installed media tools and privately prepares only missing tools. Internet access and approximately 400 MB of free space may be required. Progress appears in the app. Global installations are never modified.
 Downloader and Deno updates are checked automatically once daily when starting a download. Verified updates retain the previous version. Compatible extractor/runtime failures receive one automatic update/retry; access blocks are not retried. No account, API key or paid service is needed.
-App updates: open Settings, choose Check for updates, then Install. The verified ZIP updates the app and both browser extension folders together and restarts Vydrop. Settings, queue, history and downloaded media are retained. Reload the browser extension after updating. Firefox temporary add-ons must be loaded again after a browser restart. Copies of ViFree or YouTube Downloader require one manual ZIP download to switch to Vydrop. Existing preferences and downloaded files are retained.
+App updates: open Settings, choose Check for updates, then Install. The verified ZIP updates the app and both browser extension folders together and restarts Vydrop. Settings, queue, history and downloaded media are retained. Companion 1.5.7 or later reloads itself automatically, usually within a minute when idle. When upgrading from an older companion, reload it once to enable this feature. Refresh open video tabs. Firefox temporary add-ons must be loaded again after a browser restart. Copies of ViFree or YouTube Downloader require one manual ZIP download to switch to Vydrop. Existing preferences and downloaded files are retained.
 Preferences and queue jobs are saved locally in LocalAppData/YouTubeDownloader. Queue links and their source pages remain in queue.json and its recovery backup until removed/replaced. Interrupted jobs wait for your action; scheduled jobs require Vydrop to remain open. Existing settings and media are retained.
 If upgrading from v3.x or a preview, close the older app and extract this ZIP into a new writable folder once. Future v4 updates are available through Settings > Check for updates.
 The Browser folder contains Chrome/Edge and Firefox companions. Ordinary app use needs no extension. Read Browser/README.md to enable it; browser installation is an optional user action.

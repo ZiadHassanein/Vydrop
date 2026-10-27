@@ -3,6 +3,7 @@
   globalThis.VydropQualityPicker = {
     open({ anchor, arabic = false, inspect, send, embedded = false, onClose, onResult, onInspectionFailure, preview, playlistAvailable = false }) {
       active?.();
+      const releaseReload = globalThis.ViFreeConnection?.holdReload?.();
       const t = arabic ? {
         heading: "تنزيل بواسطة Vydrop", loading: "جارٍ فحص الصيغ المتاحة…", video: "فيديو", audio: "صوت", format: "الصيغة", quality: "الجودة", download: "تنزيل", queued: "أُضيف إلى قائمة تنزيل Vydrop.", open: "فتح في Vydrop", close: "إغلاق", automatic: "تلقائي · بجودة المصدر", size: "الحجم غير متاح قبل التنزيل", ready: "الصيغ جاهزة", hint: "يستخدم مجلد التنزيل المحفوظ في Vydrop.", legacy: "تم الفتح في إصدار Vydrop الأقدم. راجع التنزيل وابدأه هناك.", success: "أُرسل التنزيل إلى Vydrop.", fallback: "يمكنك اختيار الجودة داخل التطبيق.", unavailable: "تعذّر جلب الصيغ. افتح الفيديو داخل Vydrop أو حاول مجددًا.", retry: "حاول مجددًا"
       } : {
@@ -64,7 +65,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
       const parent = document.fullscreenElement || document.documentElement; parent.append(host);
       let media, kind = "video", scope = "video", selectedHeight = 0, disposed = false, loading = false;
       function position() { const rect = anchor?.getBoundingClientRect(); const x = rect ? Math.min(innerWidth - panel.offsetWidth - 12, Math.max(12, rect.right - panel.offsetWidth)) : 12; panel.style.left = `${x}px`; panel.style.top = `${rect ? Math.min(Math.max(12, rect.bottom + 8), Math.max(12, innerHeight - panel.offsetHeight - 12)) : 12}px`; }
-      function close() { if (embedded) document.body.style.minHeight = previousHeight; disposed = true; host.remove(); document.removeEventListener("pointerdown", outside, true); document.removeEventListener("keydown", keys, true); removeEventListener("resize", position); removeEventListener("scroll", position, true); anchor?.focus(); if (active === close) active = null; onClose?.(); }
+      function close() { releaseReload?.(); if (embedded) document.body.style.minHeight = previousHeight; disposed = true; host.remove(); document.removeEventListener("pointerdown", outside, true); document.removeEventListener("keydown", keys, true); removeEventListener("resize", position); removeEventListener("scroll", position, true); anchor?.focus(); if (active === close) active = null; onClose?.(); }
       function outside(event) { if (!event.composedPath().includes(host) && !event.composedPath().includes(anchor)) close(); }
       function keys(event) { if (event.key === "Escape") { close(); event.stopPropagation(); event.preventDefault(); } if (event.key === "Tab") { const all = [...shadow.querySelectorAll('button:not(:disabled):not([tabindex="-1"])')].filter(n => n.getClientRects().length); const current = shadow.activeElement; if (event.shiftKey && current === all[0]) { all.at(-1).focus(); event.preventDefault(); } else if (!event.shiftKey && current === all.at(-1)) { all[0].focus(); event.preventDefault(); } } }
       document.addEventListener("pointerdown", outside, true); document.addEventListener("keydown", keys, true); addEventListener("resize", position); addEventListener("scroll", position, true); active = close;

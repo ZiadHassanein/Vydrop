@@ -44,9 +44,27 @@ globalThis.ViFreeConnection = (() => {
     pending.clear(); previous?.disconnect();
   }
   // The native host handles requests sequentially. Start each deadline only when it can be served.
-  let requests = Promise.resolve();
+  let requests = Promise.resolve(), reloadHolds = 0;
+  function holdReload() {
+    reloadHolds++;
+    let lease, heartbeat, released = false;
+    // The background tracks its own actions directly; documents hold a port while a chooser/action is active.
+    try {
+      if (typeof document !== "undefined") lease = api.runtime.connect?.({ name: "vydrop-update-active" });
+      lease?.onDisconnect?.addListener(() => { void api.runtime.lastError; globalThis.clearInterval?.(heartbeat); });
+      if (lease?.postMessage) heartbeat = setInterval(() => {
+        try { lease.postMessage({ type: "active" }); } catch { globalThis.clearInterval?.(heartbeat); }
+      }, 20000);
+    } catch { /* The current background may be restarting. */ }
+    return () => {
+      if (released) return;
+      released = true; reloadHolds--; globalThis.clearInterval?.(heartbeat);
+      try { lease?.disconnect(); } catch { /* A closed popup/page already released this lease. */ }
+    };
+  }
   function request2(type, fields = {}) {
-    const next = requests.then(() => requestNow(type, fields));
+    const release = holdReload();
+    const next = requests.then(() => requestNow(type, fields)).finally(release);
     requests = next.catch(() => {});
     return next;
   }
@@ -128,5 +146,5 @@ globalThis.ViFreeConnection = (() => {
     try { const media = await entry.promise; entry.pending = false; entry.time = Date.now(); return media; }
     catch (error) { if (inspectionCache.get(url.href) === entry) inspectionCache.delete(url.href); throw error; }
   }
-  return { api, name, sendLink, inspectLink, errorMessage, testConnection: () => request2("ping") };
+  return { api, name, sendLink, inspectLink, errorMessage, holdReload, hasPendingRequests: () => reloadHolds > 0, testConnection: () => request2("ping") };
 })();

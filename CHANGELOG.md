@@ -4,6 +4,17 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.11] - 2026-10-27
+
+### Added
+- Bundle companion 1.5.7 for Chromium and Firefox, with automatic self-reload after an app update changes the loaded companion folder.
+- Use a local one-minute browser alarm and a complete SHA-256 file inventory. Incomplete copies, changing descriptors and mixed versions defer reload; a coherent rollback can reload its previous version.
+- Defer reload while format choices, source lookup or native delivery are active, including long-lived UI choices across MV3 worker idle periods.
+- Preserve app/extension identity, website access and all local settings. Update checks do not launch the app, access video links, contact a server or refresh browser pages.
+
+### Upgrade note
+- Companions through 1.5.6 must be reloaded once to activate the new controller. Future app updates then reload the companion automatically, usually within a minute when idle. Refresh open video tabs for their content scripts; Firefox temporary loading remains temporary.
+
 ## [4.4.10] - 2026-10-27
 
 ### Improved

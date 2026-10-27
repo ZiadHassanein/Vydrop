@@ -64,7 +64,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public bool IsVerified => actions.IsVerified;
     public string VerificationStatus => t(IsVerified ? "Browser connection verified" : "Browser connection not tested yet");
     public string VerificationHint => TestHint;
-    public string UpdateHint => t("App updates include both extensions. Reload your extension after an update.");
+    public string UpdateHint => t("App updates include both extensions. They reload automatically. Refresh open video tabs.");
     internal void RefreshVerification() { OnPropertyChanged(nameof(IsVerified)); OnPropertyChanged(nameof(VerificationStatus)); }
     public string KeepFolderHint => t("Open Vydrop once after moving it to reconnect automatically.");
     public string EnableLabel => t(IsConnected ? "Reconnect app" : "Enable connection");

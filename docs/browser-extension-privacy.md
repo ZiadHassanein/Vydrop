@@ -18,6 +18,8 @@ The optional companion connects your browser to the Vydrop desktop app on your W
 
 ## Destination and retention
 
+The alarms permission checks the extension’s own local update descriptor approximately once a minute. An updated bundle is hashed locally before the extension reloads itself. These checks do not contact websites or servers, launch Vydrop, read video links or refresh browser tabs.
+
 Vydrop has no analytics, advertising, sale of data, or developer-operated collection service. The extension sends selected URLs to the local desktop app, not to a Vydrop server. Mozilla's consent categories for this local transfer are **browsing activity** and **website content**.
 
 The desktop app contacts the selected media service to inspect or download your requested content, and the usual network information is visible to that service. Desktop tool and app updates contact their documented download providers. The companion does not import your browser account or sign-in cookies.

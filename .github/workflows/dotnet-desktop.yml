@@ -48,7 +48,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Packaged browser host checks failed.' }
           $env:VIFREE_BROWSER_PACKAGE = Join-Path (Get-Location) "dist/Vydrop-$version-win-x64/Browser"
           $env:VIFREE_BROWSER_CHANNEL = 'stable'
-          node --test tests/browser.test.cjs tests/browser-improvements.test.cjs
+          node --test tests/browser.test.cjs tests/browser-improvements.test.cjs tests/browser-auto-reload.test.cjs
           if ($LASTEXITCODE -ne 0) { throw 'Packaged companion checks failed.' }
       - name: Verify ZIP-only release publishing
         shell: pwsh

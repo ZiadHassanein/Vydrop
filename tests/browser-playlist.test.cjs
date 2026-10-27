@@ -17,7 +17,7 @@ test('playlist scope is derived from the matching public video page', () => {
 test('background routes explicit playlist choices while retaining single-video and legacy delivery', async () => {
   let handler; const deliveries = [];
   const api = { runtime: { id: 'fixture', onMessage: { addListener: f => { handler = f; } }, onInstalled: { addListener() {} } }, contextMenus: { onClicked: { addListener() {} } } };
-  const c = context({ ViFreeConnection: { api, name: 'Vydrop', sendLink: async (...args) => { deliveries.push(args); return { code: 'opened-legacy' }; } } });
+  const c = context({ ViFreeConnection: { api, name: 'Vydrop', holdReload: () => () => {}, sendLink: async (...args) => { deliveries.push(args); return { code: 'opened-legacy' }; } } });
   vm.runInContext(script('background.js'), c);
   const sender = { id: 'fixture', tab: { id: 7, url: `${video}&list=${list}` }, frameId: 0, url: `${video}&list=${list}` };
   const message = { version: 1, type: 'vifree-open-video', url: video, playlist: true, output: { kind: 'video', format: 'mp4', height: 720 } };

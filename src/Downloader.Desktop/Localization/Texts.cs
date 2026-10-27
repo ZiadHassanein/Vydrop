@@ -10,7 +10,7 @@ internal static class Texts
         { "8 parts", "٨ أجزاء" },
         { "Connection help", "مساعدة الاتصال" },
         { "Add the extension from the official store.", "أضف الإضافة من المتجر الرسمي." },
-        { "App updates include both extensions. Reload your extension after an update.", "تحديث التطبيق يشمل إضافتي المتصفح. أعد تحميل الإضافة بعد التحديث." },
+        { "App updates include both extensions. They reload automatically. Refresh open video tabs.", "تحديث التطبيق يشمل إضافتي المتصفح ويعيد تحميلهما تلقائيًا. حدّث صفحات الفيديو المفتوحة." },
         { "Unfinished downloads. Finished files move to Library.", "التنزيلات غير المكتملة. تظهر الملفات المكتملة في المكتبة." },
         { "Completed video and audio downloads.", "تنزيلات الفيديو والصوت المكتملة." },
         { "Search queued downloads", "ابحث في قائمة التنزيلات" },

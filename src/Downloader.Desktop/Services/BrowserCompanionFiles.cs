@@ -8,7 +8,7 @@ namespace YouTubeDownloader;
 internal sealed class BrowserCompanionFiles
 {
     private static readonly string[] RequiredFiles =
-    ["manifest.json", "connection.js", "video-detection.js", "quality-picker.js", "video-overlay.js", "background.js", "popup.js", "popup.html", "popup.css", "brand-logo-dark.svg", "icon.png", "icon16.png", "icon48.png"];
+    ["manifest.json", "auto-reload.js", "companion-update.json", "connection.js", "video-detection.js", "quality-picker.js", "video-overlay.js", "background.js", "popup.js", "popup.html", "popup.css", "brand-logo-dark.svg", "icon.png", "icon16.png", "icon48.png"];
     private readonly Dictionary<string, byte[]> files = new(StringComparer.Ordinal);
     private readonly string externalRoot, recoveryRoot, cacheRoot;
     internal bool CanPrepare => files.Count > 0;
