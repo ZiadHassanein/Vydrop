@@ -29,7 +29,7 @@ button.addEventListener("click", async () => {
     if (globalThis.VydropQualityPicker) {
       globalThis.VydropQualityPicker.open({ anchor: button, arabic, embedded: true,
         playlistAvailable: Boolean(playlist),
-        inspect: () => globalThis.ViFreeConnection.inspectLink(url),
+        inspect: () => globalThis.ViFreeConnection.inspectLink(url, source),
         send: (output, scope) => sendLink(scope === "playlist" ? playlist : url, { ...source, output, startDownload: Boolean(output), playlist: scope === "playlist" })
       });
       status.textContent = ""; return;

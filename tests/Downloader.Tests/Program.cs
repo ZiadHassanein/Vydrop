@@ -17,6 +17,7 @@ internal static class Program
             if (args.Length == 1 && args[0] == "--playlist-folders") { PlaylistFolderChecks.Run(); return 0; }
             if (args.Length == 1 && args[0] == "--twitch-clips") { TwitchClipChecks.Run(); return 0; }
             if (args.Length == 2 && args[0] == "--twitch-clips-live") return await TwitchClipChecks.Live(args[1]);
+            if (args.Length == 1 && args[0] == "--browser-fresh-pc") { await BrowserFreshPcChecks.Run(); return 0; }
             if (args.Length == 1 && args[0] == "--browser-stores") { BrowserStoreChecks.Run(); BrowserRegistrationChecks.Run(); return 0; }
             if (args.Length == 1 && args[0] == "--queue-concurrency") { await QueueConcurrencyChecks.Run(); return 0; }
             if (args.Length == 1 && args[0] == "--queue-resume-progress") { await QueueResumeProgressChecks.Run(); return 0; }
@@ -48,6 +49,7 @@ internal static class Program
             RedditMediaChecks.Run();
             await AutomaticToolChecks.Run(args[0]);
             await ReviewRegressionChecks.Run(args[0]);
+            await BrowserFreshPcChecks.Run();
             BrowserRegistrationChecks.Run();
             BrowserStoreChecks.Run();
             return 0;

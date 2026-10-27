@@ -10,6 +10,29 @@ public static class BrowserRegistration
     private static readonly string[] RegistryPaths = { @"Software\Google\Chrome\NativeMessagingHosts\" + HostName, @"Software\Microsoft\Edge\NativeMessagingHosts\" + HostName, @"Software\Mozilla\NativeMessagingHosts\" + HostName };
     private static string ManifestDirectory(string executable) => BrowserStores.IsInstalled(executable) ? Path.Combine(Path.GetDirectoryName(Path.GetFullPath(executable)), "Integration") : DirectoryPath;
 
+    public static bool EnsureAutomatic(string executable)
+        => EnsureAutomatic(executable, AppPaths.UserData, IsEnabled, Enable);
+
+    internal static bool EnsureAutomatic(string executable, string userData, Func<string, bool> connected, Action<string> enable)
+    {
+        try
+        {
+            if (File.Exists(AutomaticOptOut(userData))) return false;
+            if (!connected(executable)) enable(executable);
+            return connected(executable);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or System.Security.SecurityException or ArgumentException)
+        { return false; } // Keep the app usable; Connection help offers explicit repair.
+    }
+
+    private static string AutomaticOptOut(string userData) => Path.Combine(userData, "Browser", "automatic-connection.disabled");
+    internal static void SetAutomaticDisabled(string userData, bool disabled)
+    {
+        string marker = AutomaticOptOut(userData);
+        if (disabled) { Directory.CreateDirectory(Path.GetDirectoryName(marker)); File.WriteAllText(marker, "disabled"); }
+        else if (File.Exists(marker)) File.Delete(marker);
+    }
+
     public static bool IsEnabled(string executable)
     {
         try
@@ -60,9 +83,11 @@ public static class BrowserRegistration
                     using var key = user.CreateSubKey(RegistryPaths[i]);
                     key.SetValue("", i == 2 ? firefoxPath : chromePath, RegistryValueKind.String);
                 }
+        SetAutomaticDisabled(AppPaths.UserData, false);
     }
     public static void Disable()
     {
+        SetAutomaticDisabled(AppPaths.UserData, true);
         foreach (RegistryView view in new[] { RegistryView.Registry32, RegistryView.Registry64 })
             using (var user = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view))
                 foreach (string path in RegistryPaths)
@@ -78,6 +103,7 @@ public static class BrowserRegistration
     }
     public static void Disable(string executable)
     {
+        SetAutomaticDisabled(AppPaths.UserData, true);
         string directory = ManifestDirectory(executable);
         foreach (RegistryView view in new[] { RegistryView.Registry32, RegistryView.Registry64 })
             using (var user = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view))

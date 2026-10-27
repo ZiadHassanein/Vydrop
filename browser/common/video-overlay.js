@@ -180,6 +180,14 @@
         globalThis.VydropQualityPicker.open({ anchor: button, arabic,
           playlistAvailable: Boolean(globalThis.ViFreeVideoDetection.playlistFor?.(found.url, location.href)),
           onClose: () => { if (!button.dataset.state) label.textContent = text.open; schedule(); },
+          onInspectionFailure: error => {
+            if (!["unavailable", "preparing", "unsupported", "busy", "storage"].includes(error?.code)) return;
+            label.textContent = text.open;
+            status.textContent = globalThis.ViFreeConnection.errorMessage(error, arabic);
+            button.title = status.textContent;
+            button.dataset.state = "error";
+            schedule();
+          },
           onResult: result => {
             label.textContent = result?.code === "queued" ? (arabic ? "في قائمة Vydrop" : "Queued in Vydrop") : text.opened;
             button.dataset.state = "success";
@@ -188,7 +196,7 @@
           },
           preview: { title: document.title, thumbnail: pendingVideo?.poster, source: location.hostname },
           inspect: async () => {
-            const response = await api.runtime.sendMessage({ version: 1, type: "vydrop-inspect-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage });
+            const response = await api.runtime.sendMessage({ version: 1, type: "vydrop-inspect-video", url: found.url, linkedinAsset: found.linkedinAsset, sourcePage: found.sourcePage, mediaId: found.mediaId });
             if (!response?.ok) throw Object.assign(new Error("inspect"), { code: response?.code || "inspect" });
             return response.media;
           },

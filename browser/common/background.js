@@ -27,7 +27,7 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
   resolveOnce(message, sender)
     .then(async url => {
       if (message.type === "vydrop-inspect-video") {
-        const media = await globalThis.ViFreeConnection.inspectLink(url);
+        const media = await globalThis.ViFreeConnection.inspectLink(url, { sourcePage: message.sourcePage || sender.tab.url || sender.url, mediaId: message.mediaId });
         respond({ ok: true, media, url }); return;
       }
       const target = message.playlist ? globalThis.ViFreeVideoDetection.playlistFor(url, sender.tab.url) : url;

@@ -13,7 +13,8 @@ globalThis.ViFreeConnection = (() => {
       advertisement: "This is an advertisement. Wait for the main video, then try again.",
       inspect: "Could not inspect this page. Reload the extension and page, then try again.",
       busy: `${name} is busy. Finish or cancel the current download, then try again.`,
-      unavailable: `Open ${name} and enable Browser integration, then try again.`,
+      unavailable: `Open ${name} once to connect automatically, then try again.`,
+      preparing: "Vydrop opened to prepare media tools. Finish there, then try this button again.",
       failed: `Could not send this video to ${name}. Try again, or copy the video link into the app.`
       ,unsupported: "Update Vydrop to use this action.", protected: "This player uses protected media, which Vydrop cannot download.", storage: "Vydrop could not save the queue. Check disk space and folder access."
     },
@@ -24,7 +25,8 @@ globalThis.ViFreeConnection = (() => {
       advertisement: "هذا إعلان. انتظر بدء الفيديو الأساسي ثم حاول مجددًا.",
       inspect: "تعذّر فحص هذه الصفحة. أعد تحميل الإضافة والصفحة ثم حاول مجددًا.",
       busy: `${name} مشغول. أنهِ التنزيل الحالي أو ألغِه، ثم حاول مجددًا.`,
-      unavailable: `افتح ${name} وفعّل الربط بالمتصفح، ثم حاول مجددًا.`,
+      unavailable: `افتح ${name} مرة واحدة للاتصال تلقائيًا، ثم حاول مجددًا.`,
+      preparing: "فُتح Vydrop لتجهيز أدوات الوسائط. أكمل هناك ثم اضغط هذا الزر مجددًا.",
       failed: `تعذّر إرسال الفيديو إلى ${name}. حاول مجددًا أو انسخ رابط الفيديو إلى التطبيق.`
       ,unsupported: "حدّث Vydrop لاستخدام هذا الإجراء.", protected: "يستخدم هذا المشغّل محتوى محميًا لا يستطيع Vydrop تنزيله.", storage: "تعذّر على Vydrop حفظ قائمة التنزيل. تحقق من المساحة المتاحة وأذونات المجلد."
     }
@@ -106,7 +108,7 @@ globalThis.ViFreeConnection = (() => {
     return context.output && (!choiceSupported || context.startDownload && !startSupported) ? { ...response, code: "opened-legacy" } : response;
   }
   const inspectionCache = new Map();
-  async function inspectLink(value) {
+  async function inspectLink(value, context = {}) {
     const url = validUrl(value);
     const now = Date.now(), cached = inspectionCache.get(url.href);
     if (cached && (cached.pending || now - cached.time < 60000)) return cached.promise;
@@ -115,7 +117,10 @@ globalThis.ViFreeConnection = (() => {
     entry.promise = (async () => {
       const health = await request2("ping");
       if (!health?.ok || !health.capabilities?.includes("formats")) throw fail(messages.en.unsupported, "unsupported");
-      const result = await request2("inspect", { url: url.href });
+      const fields = { url: url.href };
+      if (context.sourcePage) fields.sourcePage = validUrl(context.sourcePage).href;
+      if (/^[A-Za-z0-9_-]{1,128}$/u.test(context.mediaId ?? "")) fields.mediaId = context.mediaId;
+      const result = await request2("inspect", fields);
       if (!result?.ok || !result.media) throw fail(messages.en.failed, result?.code || "inspect");
       return result.media;
     })();

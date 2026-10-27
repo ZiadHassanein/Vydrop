@@ -17,7 +17,8 @@ public static class BrowserHost
     {
         var input = Console.OpenStandardInput(); var output = Console.OpenStandardOutput();
         // Reuse verified tools between explicit format checks. Daily maintenance remains on the download path.
-        using var inspector = new DownloadService(new YtDlpProvider(new DependencyManager(), checkAutomaticUpdates: false), new LocalPlaylistStorage());
+        var dependencies = new DependencyManager();
+        using var inspector = new DownloadService(new YtDlpProvider(dependencies, checkAutomaticUpdates: false), new LocalPlaylistStorage());
         // Short-lived ports support several explicit actions; idle hosts exit without starting the desktop UI.
         for (int count = 0; count < 100; count++)
         {
@@ -38,8 +39,22 @@ public static class BrowserHost
                 else if (request.Type == "inspect")
                 {
                     timeout.CancelAfter(TimeSpan.FromSeconds(75));
-                    var media = await inspector.InspectAsync(request.Url, null, timeout.Token).ConfigureAwait(false);
-                    response = new { ok = true, code = "formats", protocol = 2, requestId, media = BrowserMediaFormats.From(media, request.SourcePage ?? request.Url) };
+                    var preparation = await PrepareInspectionAsync(request, dependencies, Launch, timeout.Token).ConfigureAwait(false);
+                    if (preparation != null)
+                        response = new { ok = false, code = preparation.Code, protocol = 2, requestId };
+                    else
+                    {
+                        try
+                        {
+                            var media = await inspector.InspectAsync(request.Url, null, timeout.Token).ConfigureAwait(false);
+                            response = new { ok = true, code = "formats", protocol = 2, requestId, media = BrowserMediaFormats.From(media, request.SourcePage ?? request.Url) };
+                        }
+                        catch (Exception error) when (error is not OutOfMemoryException)
+                        {
+                            // A site/metadata failure is distinct from a missing native connection.
+                            response = new { ok = false, code = "formats", protocol = 2, requestId };
+                        }
+                    }
                 }
                 else
                 {
@@ -65,6 +80,17 @@ public static class BrowserHost
             if (!IsAllowedCaller(args)) return;
         }
     }
+    internal static async Task<BrowserReceipt> PrepareInspectionAsync(BrowserRequest request, DependencyManager dependencies, Action launch, CancellationToken token)
+    {
+        // A fresh PC may need hundreds of MB of tools. Prepare them in the visible desktop
+        // workflow, never behind the browser's short native-message inspection deadline.
+        if (await Task.Run(() => dependencies.Discover(token), token).ConfigureAwait(false) != null) return null;
+        using var delivery = CancellationTokenSource.CreateLinkedTokenSource(token);
+        delivery.CancelAfter(TimeSpan.FromSeconds(15));
+        var receipt = await DeliverRequestAsync(request with { Type = "open-link" }, launch, delivery.Token).ConfigureAwait(false);
+        return receipt.Accepted ? new(true, "preparing") : receipt;
+    }
+
     private static void Launch()
     {
         // Launch the GUI independently: inheriting the native host's redirected

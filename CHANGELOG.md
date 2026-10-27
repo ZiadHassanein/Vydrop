@@ -4,6 +4,17 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.8] - 2026-10-27
+
+### Fixed
+- Register and repair the current user's browser connection automatically on ordinary app startup, including portable first use and changed app paths. Preserve an explicit Disable connection choice.
+- Move fresh-PC media-tool preparation into the visible desktop workflow instead of the browser host's short inspection deadline; retain the selected source context and require an explicit download choice.
+- Show concise English/Arabic guidance for missing native connections, first-use preparation and older hosts, without restoring the failed-format fallback panel.
+- Remove setup guidance pointing to the retired extension Test connection button.
+
+### Updated
+- Bundle Chromium and Firefox companion 1.5.6 in the complete ZIP and installer. Existing users can update the app and both companion folders together, then reload their extension.
+
 ## [4.4.7] - 2026-10-25
 
 ### Changed

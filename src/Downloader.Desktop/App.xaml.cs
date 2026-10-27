@@ -36,6 +36,7 @@ public partial class App : Application
             var companion = new BrowserCompanionFiles(AppContext.BaseDirectory, AppPaths.UserData);
             companion.RecoverInterruptedUpdate();
             if (AppUpdates.IsUpdateStartup) companion.UpdateInstalledCopies();
+            BrowserRegistration.EnsureAutomatic(Environment.ProcessPath);
         }
         if (smoke)
         {

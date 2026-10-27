@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const load = (context, file) => vm.runInContext(fs.readFileSync(path.join(root, 'browser/common', file), 'utf8'), context);
 const video = 'https://example.com/video';
-const codes = ['invalid', 'missing', 'ambiguous', 'inspect', 'busy', 'unavailable', 'failed', 'unknown', undefined];
+const codes = ['invalid', 'missing', 'ambiguous', 'inspect', 'busy', 'unavailable', 'preparing', 'failed', 'unknown', undefined];
 
 for (const language of ['en', 'ar']) for (const surface of ['popup', 'context-menu']) for (const code of codes) {
   test(`${surface} localizes ${code ?? 'legacy code-less'} failure in ${language}`, async () => {

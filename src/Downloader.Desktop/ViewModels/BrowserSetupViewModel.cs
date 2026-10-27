@@ -58,15 +58,15 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public bool HasExtension => actions.HasExtension(SelectedBrowser);
     public string BrowserAddress => BrowserSetupActions.BrowserAddress(SelectedBrowser);
     public string Heading => t("Browser integration");
-    public string Intro => t("Connect your browser to Vydrop.");
+    public string Intro => t("Load the extension once. Vydrop connects automatically.");
     public string BrowserLabel => t("Your browser");
     public string ConnectionStatus => t(IsConnected ? "Connected to this Vydrop app" : "App connection is not enabled");
     public bool IsVerified => actions.IsVerified;
     public string VerificationStatus => t(IsVerified ? "Browser connection verified" : "Browser connection not tested yet");
-    public string VerificationHint => t("Choose Test connection in the extension popup.");
+    public string VerificationHint => TestHint;
     public string UpdateHint => t("App updates include both extensions. Reload your extension after an update.");
     internal void RefreshVerification() { OnPropertyChanged(nameof(IsVerified)); OnPropertyChanged(nameof(VerificationStatus)); }
-    public string KeepFolderHint => t("Keep Vydrop in a permanent folder. Reconnect here if you move it.");
+    public string KeepFolderHint => t("Open Vydrop once after moving it to reconnect automatically.");
     public string EnableLabel => t(IsConnected ? "Reconnect app" : "Enable connection");
     public string DisableLabel => t("Disable connection");
     public string OpenPageLabel => t("Open extensions page");
@@ -81,7 +81,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public string StartSetupLabel => ShowMissingFiles ? GuideLabel : UseStoreSetup ? string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Add to {0}"), SelectedBrowser) : string.Format(System.Globalization.CultureInfo.CurrentCulture, t("Set up {0}"), SelectedBrowser);
     public string StartSetupHint => ShowMissingFiles ? MissingFilesHint : t(UseStoreSetup
         ? "Add the extension from the official store."
-        : "Connect once. The extension folder is copied for you.");
+        : "Load the extension in your browser. Its folder is copied for you.");
     public string ManualStepsLabel => t("Finish in your browser");
     public string BrowserSteps => UseStoreSetup ? t("Choose Add or Get on the official store page, approve the extension, then refresh your video page.") : t(IsFirefox
         ? "Choose This Firefox → Load Temporary Add-on…, paste the copied file path and choose Open."
@@ -149,7 +149,7 @@ internal sealed class BrowserSetupViewModel : ObservableObject
         if (ShowMissingFiles) { GuideCommand.Execute(null); return; }
         if (!UseStoreSetup) { StartLocalSetup(reuseInstalledConnection); return; }
         if (!EnsureConnection(reuseInstalledConnection)) return;
-        Run(() => actions.OpenStore(SelectedBrowser), "Approve the extension in your browser, then choose Test connection in its popup.", "Could not open the store page. Open the illustrated guide for help.");
+        Run(() => actions.OpenStore(SelectedBrowser), "Complete the loading step in your browser, then refresh your video page.", "Could not open the store page. Open the illustrated guide for help.");
     }
 
     private void StartLocalSetup()

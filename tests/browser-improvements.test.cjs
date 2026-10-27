@@ -109,3 +109,13 @@ test('cached inspection expires after sixty seconds and signed source changes do
   now+=1001;await f.client.inspectLink('https://example.com/a?token=1');
   await f.client.inspectLink('https://example.com/a?token=2');assert.equal(f.sent.filter(m=>m.type==='inspect').length,3);
 });
+
+test('first-use desktop preparation remains actionable and cannot trigger an automatic download', async()=>{
+  let preparing=true;
+  const f=connection(m=>({ok:m.type==='ping'||!preparing,protocol:2,requestId:m.requestId,capabilities:['formats'],code:preparing?'preparing':'formats',media:preparing?null:{title:'Ready after setup',videos:[],audio:[]}}));
+  await assert.rejects(f.client.inspectLink('https://example.com/fresh',{sourcePage:'https://example.com/post',mediaId:'fresh_asset'}),e=>e.code==='preparing');
+  assert.equal(f.sent.some(m=>['open-link','download','enqueue'].includes(m.type)),false);
+  assert.equal(f.sent.at(-1).sourcePage,'https://example.com/post');assert.equal(f.sent.at(-1).mediaId,'fresh_asset');
+  preparing=false;assert.equal((await f.client.inspectLink('https://example.com/fresh')).title,'Ready after setup');
+  assert.equal(f.sent.filter(m=>m.type==='inspect').length,2,'setup failure is not cached');
+});

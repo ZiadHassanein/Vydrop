@@ -1,7 +1,7 @@
 (() => {
   let active;
   globalThis.VydropQualityPicker = {
-    open({ anchor, arabic = false, inspect, send, embedded = false, onClose, onResult, preview, playlistAvailable = false }) {
+    open({ anchor, arabic = false, inspect, send, embedded = false, onClose, onResult, onInspectionFailure, preview, playlistAvailable = false }) {
       active?.();
       const t = arabic ? {
         heading: "تنزيل بواسطة Vydrop", loading: "جارٍ فحص الصيغ المتاحة…", video: "فيديو", audio: "صوت", format: "الصيغة", quality: "الجودة", download: "تنزيل", queued: "أُضيف إلى قائمة تنزيل Vydrop.", open: "فتح في Vydrop", close: "إغلاق", automatic: "تلقائي · بجودة المصدر", size: "الحجم غير متاح قبل التنزيل", ready: "الصيغ جاهزة", hint: "يستخدم مجلد التنزيل المحفوظ في Vydrop.", legacy: "تم الفتح في إصدار Vydrop الأقدم. راجع التنزيل وابدأه هناك.", success: "أُرسل التنزيل إلى Vydrop.", fallback: "يمكنك اختيار الجودة داخل التطبيق.", unavailable: "تعذّر جلب الصيغ. افتح الفيديو داخل Vydrop أو حاول مجددًا.", retry: "حاول مجددًا"
@@ -104,8 +104,13 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
         } catch (error) {
           if (!disposed) {
             // A failed in-video lookup returns to the original action without a dead fallback panel.
-            if (!embedded) { close(); return; }
-            media = null; status.textContent = error?.code === "unsupported" ? t.fallback : t.unavailable;
+            if (!embedded) { close(); onInspectionFailure?.(error); return; }
+            if (error?.code === "preparing") {
+              status.textContent = globalThis.ViFreeConnection.errorMessage(error, arabic);
+              status.dataset.error = "false"; return;
+            }
+            media = null; status.textContent = error?.code === "unsupported" ? t.fallback :
+              error?.code === "unavailable" ? globalThis.ViFreeConnection.errorMessage(error, arabic) : t.unavailable;
             status.dataset.error = "true"; retry.classList.remove("hidden"); launch.disabled = false;
           }
         }

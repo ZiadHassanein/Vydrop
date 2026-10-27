@@ -133,7 +133,7 @@ if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identit
   for (const browser of ['chromium', 'firefox']) {
     const folder = path.join(process.env.VIFREE_BROWSER_PACKAGE, browser), manifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
     const preview = process.env.VIFREE_BROWSER_CHANNEL !== 'stable';
-    assert.equal(manifest.version, '1.5.5'); assert.equal(manifest.name, preview ? 'Vydrop Preview' : 'Vydrop');
+    assert.equal(manifest.version, '1.5.6'); assert.equal(manifest.name, preview ? 'Vydrop Preview' : 'Vydrop');
     assert.deepEqual([...manifest.permissions].sort(), ['activeTab', 'clipboardWrite', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
     assert.equal(manifest.host_permissions, undefined);
     assert.equal(manifest.optional_permissions, undefined); assert.equal(manifest.optional_host_permissions, undefined);
@@ -161,6 +161,6 @@ test('popup renders Arabic when the browser interface language is Arabic', async
   assert.equal(documentElement.lang, 'ar'); assert.equal(documentElement.dir, 'rtl');
   assert.match(intro.textContent, /Vydrop/u); assert.equal(button.textContent, 'فتح في Vydrop');
   await click();
-  assert.match(status.textContent, /فعّل الربط بالمتصفح/u);
+  assert.match(status.textContent, /مرة واحدة للاتصال تلقائيًا/u);
   assert.equal(button.disabled, false);
 });

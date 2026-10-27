@@ -78,6 +78,34 @@ const root = path.resolve(__dirname, '..'), output = path.join(root, 'build/mana
       assert.equal(await overlayButton.isEnabled(),true);
       assert.equal(await page.evaluate(()=>forwarded.length),before+1,'format failures cannot send an open or download command');count++;
     }
+    for (const language of ['en','ar']) {
+      // The overlay follows the page language at load, so use its own isolated page for each locale.
+      const setup=await browser.newPage({viewport:{width:390,height:640}});
+      await setup.route('https://example.com/fresh',r=>r.fulfill({contentType:'text/html',body:`<html lang="${language}"><video style="display:block;margin:100px 4px;width:350px;height:220px"></video></html>`}));
+      await setup.goto('https://example.com/fresh');
+      await setup.evaluate(()=>{window.forwarded=[];Object.defineProperties(document.querySelector('video'),{currentSrc:{get:()=> 'https://cdn.example.com/fresh.mp4'}});window.browser={runtime:{getManifest:()=>({name:'Vydrop'}),sendMessage:async m=>{forwarded.push(m);return {ok:false,code:window.failureCode};}}};});
+      for (const file of ['connection.js','video-detection.js','quality-picker.js','video-overlay.js']) await setup.addScriptTag({path:path.join(root,'browser/common',file)});
+      const action=setup.locator('#vifree-video-action').getByRole('button');
+      for (const code of ['unavailable','preparing','unsupported','busy','storage']) {
+        await setup.evaluate(code=>window.failureCode=code,code);
+        await action.click();await setup.waitForFunction(()=>!document.querySelector('#vydrop-quality-picker'));
+        const status=setup.locator('#vifree-video-action').locator('.status');
+        await status.waitFor({state:'visible'});
+        const message=await status.innerText();
+        assert.equal(await action.isEnabled(),true);
+        assert.equal(await setup.getByRole('dialog').count(),0,'setup errors use one short status, without a fallback panel');
+        if(language==='ar')assert.match(message,/[\u0600-\u06ff]/u);else assert.match(message,/Vydrop/u);
+        assert.equal(await status.evaluate(e=>e.getBoundingClientRect().right<=innerWidth),true);
+        assert.equal(await setup.evaluate(()=>forwarded.some(m=>m.type==='vifree-open-video')),false);
+        if(code==='preparing')await setup.screenshot({path:path.join(output,`fresh-pc-${language}.png`)});
+        count++;
+      }
+      // A later successful lookup works without reloading the page.
+      await setup.evaluate(()=>{browser.runtime.sendMessage=async m=>{forwarded.push(m);return {ok:true,media:{title:'Ready after setup',videos:[{format:'mp4',heights:[720]}],audio:[]}};};});
+      await action.click();await setup.getByRole('dialog').getByRole('radio',{name:'720p',exact:true}).waitFor();
+      assert.equal(await setup.locator('#vifree-video-action').locator('.status').innerText(),'');
+      await setup.keyboard.press('Escape');await setup.close();count++;
+    }
     await page.evaluate(()=>{browser.runtime.sendMessage=message=>new Promise(resolve=>{window.releaseFormats=()=>resolve({ok:true,media:{title:'Late metadata',source:'example.com',videos:[{format:'mp4',heights:[720]}],audio:[]}});});});
     await overlayButton.click();await page.getByRole('dialog').waitFor();
     await page.keyboard.press('Escape');
