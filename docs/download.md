@@ -13,7 +13,7 @@ last_reviewed: 2026-10-24
 
 **Vydrop is a free, open-source video and audio downloader for Windows 10/11 x64.** Download the packaged app from the project's GitHub Releases page. The desktop interface supports English and Arabic.
 
-[Download Vydrop 4.4.17 — Complete ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.17/Vydrop-v4.4.17-win-x64.zip) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.17)
+[Download Vydrop 4.4.18 — Complete ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.18/Vydrop-v4.4.18-win-x64.zip) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.18)
 
 The ZIP contains **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**. Extract the entire archive; opening only the EXE inside the ZIP does not unpack the companion folders.
 
@@ -33,7 +33,7 @@ The companion opens a format and quality menu. Confirm Download to start the cho
 | Item | What you need |
 | --- | --- |
 | Operating system | Windows 10 or Windows 11, x64 |
-| Portable app | `Vydrop-v4.4.17-win-x64.zip`; extract the complete folder |
+| Portable app | `Vydrop-v4.4.18-win-x64.zip`; extract the complete folder |
 | .NET | Included in the package; no separate runtime installation |
 | Media tools | Missing tools are prepared when needed; first use needs an internet connection |
 | Browser companion | Optional Chrome, Edge or Firefox companion, inside the app's **Browser** folder |
@@ -60,7 +60,7 @@ Settings and recent-file history use `%LocalAppData%\YouTubeDownloader` for comp
 [Save YouTube audio as MP3](youtube-to-mp3-windows.md) · [Download playlist entries](download-youtube-playlist-windows.md) · [Save subtitles](youtube-subtitles-srt.md) · [About Vydrop](about.md)
 
 
-<figure><img src="images/screenshots/vydrop-light-en-download.png" width="1280" height="761" loading="lazy" alt="Add download opens in the main workspace. These are native 4.4.17 controls with example media."><figcaption>Add download opens in the main workspace. These are native 4.4.17 controls with example media.</figcaption></figure>
+<figure><img src="images/screenshots/vydrop-light-en-download.png" width="1280" height="761" loading="lazy" alt="Add download opens in the main workspace. These are native 4.4.18 controls with example media."><figcaption>Add download opens in the main workspace. These are native 4.4.18 controls with example media.</figcaption></figure>
 
 
 ## Fixed extension folder and update cleanup

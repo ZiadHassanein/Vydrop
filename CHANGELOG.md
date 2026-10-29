@@ -4,6 +4,11 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.18] - 2026-10-29
+
+### Fixed
+- Fill completed download progress bars to the end of their track without a trailing gap; retain the angled edge while downloading.
+
 ## [4.4.17] - 2026-10-29
 
 ### Fixed

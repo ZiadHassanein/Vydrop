@@ -56,7 +56,7 @@ The examples below are explanatory wording, not keyword-volume research or a cla
 
 ## Start with a precise public video link
 
-Download the [official Windows package](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.17/Vydrop-v4.4.17-win-x64.zip), extract the ZIP and open Vydrop.exe. Paste the video's own link, wait for checking inside the Download button, then choose output, quality and destination. A Facebook or TikTok homepage does not identify a specific video.
+Download the [official Windows package](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.18/Vydrop-v4.4.18-win-x64.zip), extract the ZIP and open Vydrop.exe. Paste the video's own link, wait for checking inside the Download button, then choose output, quality and destination. A Facebook or TikTok homepage does not identify a specific video.
 
 The optional [Chrome, Edge and Firefox companion](browser-extension-setup.md) can resolve a detected playing video and send its link to the app. It does not import browser accounts or cookies. You review the result and start the download yourself. Player structure, site changes and public access can still prevent a particular download.
 

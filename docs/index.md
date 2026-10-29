@@ -17,9 +17,9 @@ last_reviewed: 2026-10-24
 Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp, with English and Arabic interfaces.
 
 <div class="download-block">
-  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.17/Vydrop-v4.4.17-win-x64.zip">
+  <a class="download" href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.18/Vydrop-v4.4.18-win-x64.zip">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
-    <span class="download-copy"><span class="download-title">Download Vydrop ZIP</span><span class="download-meta">Windows 10/11 x64 · v4.4.17 · ZIP</span></span>
+    <span class="download-copy"><span class="download-title">Download Vydrop ZIP</span><span class="download-meta">Windows 10/11 x64 · v4.4.18 · ZIP</span></span>
   </a>
   <a class="download-count" href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads" height="20"></a>
 </div>
@@ -30,11 +30,11 @@ Includes **Vydrop.exe** and the **Browser** folder with Chromium and Firefox com
 
 {% include facts.md %}
 
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-manager.png"><img src="images/screenshots/vydrop-light-en-manager.png" width="1280" height="761" alt="Vydrop 4.4.17 Library with completed media, search and a selected-file inspector"></picture><figcaption>Vydrop 4.4.17, captured from the native Windows app with example downloads. No mouse pointer.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-manager.png"><img src="images/screenshots/vydrop-light-en-manager.png" width="1280" height="761" alt="Vydrop 4.4.18 Library with completed media, search and a selected-file inspector"></picture><figcaption>Vydrop 4.4.18, captured from the native Windows app with example downloads. No mouse pointer.</figcaption></figure>
 
 **Library** contains completed video and audio files. **Queue** contains waiting, downloading, paused and failed jobs, with its own search, status filters and start/pause controls. Starting a download opens Queue and selects the transfer; completed files appear in Library. **Add download**, Settings and History use the same workspace.
 
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-queue.png"><img src="images/screenshots/vydrop-light-en-queue.png" width="1280" height="761" loading="lazy" alt="Vydrop 4.4.17 Queue with paused and waiting example jobs, status filters and transfer details"></picture><figcaption>Queue keeps unfinished work separate from completed media. Native app capture with example jobs.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="images/screenshots/vydrop-dark-en-queue.png"><img src="images/screenshots/vydrop-light-en-queue.png" width="1280" height="761" loading="lazy" alt="Vydrop 4.4.18 Queue with paused and waiting example jobs, status filters and transfer details"></picture><figcaption>Queue keeps unfinished work separate from completed media. Native app capture with example jobs.</figcaption></figure>
 
 Each link in **Add to queue** automatically loads its available output formats and qualities. Choose Video or Audio independently for each link; there is no separate format-check button.
 
