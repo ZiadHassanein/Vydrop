@@ -6,6 +6,8 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 2 && args[0] == "--audio-focus-checks") { OutputProfileChecks.Run(args[1]); BrowserActivationChecks.CheckPolicy(); return 0; }
+            if (args.Length == 2 && args[0] == "--audio-artwork") return await AudioArtworkChecks.Run(args[1]);
             if (args.Length == 1 && args[0] == "--companion-status") { BrowserCompanionStatusChecks.Run(); return 0; }
             if (args.Length == 3 && args[0] == "--update-release")
             {
@@ -39,6 +41,7 @@ internal static class Program
                 return 1;
             await ReliabilityChecks.Run(args[0]);
             await BoundaryChecks.Run(args[0]);
+            await BrowserActivationChecks.Run();
             BundledUpdateChecks.Run(args[0]);
             PlaylistFolderChecks.Run();
             await ServiceChecks.Run();

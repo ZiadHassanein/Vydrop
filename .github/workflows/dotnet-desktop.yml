@@ -61,7 +61,7 @@ jobs:
             dist/checksums-desktop.json
           if-no-files-found: error
   release:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'Release v')))
     needs: build
     runs-on: windows-2025
     timeout-minutes: 10
@@ -79,4 +79,5 @@ jobs:
         shell: pwsh
         env:
           GH_RELEASE_TOKEN: ${{ github.token }}
+          GH_RELEASE_COMMIT: ${{ github.event.head_commit.message }}
         run: ./scripts/release.ps1

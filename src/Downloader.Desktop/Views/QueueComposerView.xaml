@@ -11,11 +11,17 @@
   <Style x:Key="QueuePrimaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
    <Setter Property="MinHeight" Value="40"/><Setter Property="Padding" Value="14,6"/><Setter Property="VerticalAlignment" Value="Center"/>
   </Style>
+  <Style x:Key="QueueOutputCaption" TargetType="TextBlock">
+   <Setter Property="FontSize" Value="12"/><Setter Property="Foreground" Value="{DynamicResource Muted}"/><Setter Property="Margin" Value="0,0,0,5"/>
+  </Style>
+  <Style x:Key="QueueOutputCombo" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+   <Setter Property="FontSize" Value="13"/><Setter Property="MinHeight" Value="36"/><Setter Property="Height" Value="36"/>
+  </Style>
  </UserControl.Resources>
  <Grid x:Name="QueueContent" Margin="24,4,24,20" FlowDirection="{Binding ContentDirection}"
        TextBlock.LineHeight="20" TextBlock.LineStackingStrategy="BlockLineHeight" KeyboardNavigation.TabNavigation="Continue">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-  <TextBlock Text="{Binding AddQueueLabel}" FontSize="34" LineHeight="44" FontWeight="SemiBold" Margin="0,0,0,16"/>
+  <TextBlock Text="{Binding AddQueueLabel}" FontSize="26" LineHeight="34" FontWeight="SemiBold" Margin="0,0,0,16"/>
   <ScrollViewer x:Name="QueueViewport" Grid.Row="1" Style="{StaticResource InsetScrollFrame}"
                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
    <StackPanel>
@@ -23,12 +29,13 @@
     <ItemsControl x:Name="QueueInputFields" ItemsSource="{Binding QueueLinkInputs}">
      <ItemsControl.ItemTemplate>
       <DataTemplate>
-       <StackPanel Margin="0,0,0,10">
-        <TextBlock Text="{Binding Label}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,0,0,4"/>
+       <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Divider}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,12">
+       <StackPanel>
+        <TextBlock Text="{Binding Label}" Foreground="{DynamicResource Ink}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,7"/>
         <Grid>
          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
          <TextBox x:Name="QueueLinkField" Text="{Binding Url,UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource LatinFont}"
-                  FlowDirection="LeftToRight" TextWrapping="NoWrap" AcceptsReturn="False" DataObject.Pasting="LinkPasting"
+                  FlowDirection="LeftToRight" TextAlignment="{Binding DataContext.InputTextAlignment,RelativeSource={RelativeSource AncestorType=UserControl}}" TextWrapping="NoWrap" AcceptsReturn="False" DataObject.Pasting="LinkPasting"
                   AutomationProperties.Name="{Binding Label}" AutomationProperties.HelpText="{Binding Error}">
           <TextBox.Style><Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
            <Setter Property="Height" Value="36"/><Setter Property="MinHeight" Value="36"/><Setter Property="Padding" Value="10,4"/>
@@ -36,6 +43,10 @@
            <DataTrigger Binding="{Binding HasError}" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource Error}"/></DataTrigger>
           </Style.Triggers></Style></TextBox.Style>
          </TextBox>
+         <TextBlock Text="{Binding LinkHint}" Foreground="{DynamicResource Muted}" FontSize="13" Margin="10,0" VerticalAlignment="Center" IsHitTestVisible="False"
+                    FlowDirection="LeftToRight" TextAlignment="{Binding DataContext.InputTextAlignment,RelativeSource={RelativeSource AncestorType=UserControl}}" TextTrimming="CharacterEllipsis">
+          <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding Url}" Value=""><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+         </TextBlock>
          <Button Grid.Column="2" Content="{Binding DataContext.PasteLabel,RelativeSource={RelativeSource AncestorType=UserControl}}"
                  Command="{Binding DataContext.PasteQueueLinkCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Click="LinkActionClicked" Style="{StaticResource QueueButton}" MinWidth="60"/>
          <Button Grid.Column="4" Command="{Binding DataContext.RemoveLinkFieldCommand,RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -45,9 +56,34 @@
           <Path Data="{StaticResource CloseIcon}" Style="{StaticResource LineIcon}" Width="14" Height="14"/>
          </Button>
         </Grid>
+        <TextBlock Text="{Binding StatusLabel}" FontSize="12" Foreground="{DynamicResource Muted}" Margin="0,9,0,0" Visibility="{Binding HasPendingOutput,Converter={StaticResource BoolVisibility}}" AutomationProperties.LiveSetting="Polite"/>
+        <WrapPanel Margin="0,9,0,0" Visibility="{Binding HasOutputOptions,Converter={StaticResource BoolVisibility}}">
+         <StackPanel Width="120" Margin="0,0,10,8">
+          <TextBlock Text="{Binding TypeLabel}" Style="{StaticResource QueueOutputCaption}"/>
+          <ComboBox x:Name="QueueMediaType" ItemsSource="{Binding MediaTypes}" SelectedValuePath="Audio" SelectedValue="{Binding Audio,Mode=TwoWay}"
+                    IsEnabled="{Binding CanChooseOutput}" Style="{StaticResource QueueOutputCombo}" AutomationProperties.Name="{Binding TypeAccessibleName}">
+           <ComboBox.ItemTemplate><DataTemplate>
+            <StackPanel Orientation="Horizontal"><Path x:Name="KindIcon" Data="{StaticResource VideoIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="14" Height="14" Margin="0,0,6,0"/><TextBlock Text="{Binding Label}" TextWrapping="NoWrap"/></StackPanel>
+            <DataTemplate.Triggers><DataTrigger Binding="{Binding Audio}" Value="True"><Setter TargetName="KindIcon" Property="Data" Value="{StaticResource AudioIcon}"/></DataTrigger></DataTemplate.Triggers>
+           </DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+         </StackPanel>
+         <StackPanel Width="108" Margin="0,0,10,8">
+          <TextBlock Text="{Binding FormatLabel}" Style="{StaticResource QueueOutputCaption}"/>
+          <ComboBox x:Name="QueueOutputFormat" ItemsSource="{Binding Formats}" SelectedItem="{Binding SelectedFormat,Mode=TwoWay}"
+                    IsEnabled="{Binding CanChooseOutput}" Style="{StaticResource QueueOutputCombo}" AutomationProperties.Name="{Binding FormatAccessibleName}"/>
+         </StackPanel>
+         <StackPanel Width="176" Margin="0,0,10,8">
+          <TextBlock Text="{Binding QualityLabel}" Style="{StaticResource QueueOutputCaption}"/>
+          <ComboBox x:Name="QueueOutputQuality" ItemsSource="{Binding Qualities}" DisplayMemberPath="Label" SelectedValuePath="Key" SelectedValue="{Binding SelectedQualityKey,Mode=TwoWay}"
+                    IsEnabled="{Binding CanChooseQuality}" Style="{StaticResource QueueOutputCombo}" AutomationProperties.Name="{Binding QualityAccessibleName}"/>
+         </StackPanel>
+        </WrapPanel>
+        <TextBlock Text="{Binding OutputHint}" FontSize="12" Foreground="{DynamicResource Muted}" Visibility="{Binding HasOutputHint,Converter={StaticResource BoolVisibility}}"/>
         <TextBlock Text="{Binding Error}" Foreground="{DynamicResource Error}" FontSize="12" Margin="0,6,0,0"
                    Visibility="{Binding HasError,Converter={StaticResource BoolVisibility}}" AutomationProperties.LiveSetting="Polite"/>
        </StackPanel>
+       </Border>
       </DataTemplate>
      </ItemsControl.ItemTemplate>
     </ItemsControl>
@@ -68,19 +104,6 @@
      <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding QueueMessage}" Value=""><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Border.Style>
      <TextBlock Text="{Binding QueueMessage}" Foreground="{DynamicResource Ink}" AutomationProperties.LiveSetting="Polite"/>
     </Border>
-    <Expander Header="{Binding DownloadLimitsLabel}" Foreground="{DynamicResource Ink}" Margin="0,0,0,12"><local:DownloadLimitsView/></Expander>
-    <Expander Header="{Binding ScheduleLabel}" Foreground="{DynamicResource Ink}" Margin="0,0,0,16">
-     <StackPanel Margin="0,8,0,0">
-      <TextBlock Text="{Binding ScheduleSummary}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,8"/>
-      <TextBlock Text="{Binding ScheduleDateLabel}" Margin="0,4,0,6"/>
-      <DatePicker SelectedDate="{Binding ScheduledDate}" HorizontalAlignment="Left" MinWidth="180" FlowDirection="LeftToRight" FontFamily="{StaticResource LatinFont}" AutomationProperties.Name="{Binding ScheduleDateLabel}"/>
-      <WrapPanel Margin="0,8,0,0">
-       <StackPanel Margin="0,0,12,0"><TextBlock Text="{Binding ScheduleStartLabel}"/><TextBox Text="{Binding ScheduledTime,UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight" Width="130" MaxLength="5" AutomationProperties.Name="{Binding ScheduleStartLabel}"/></StackPanel>
-       <StackPanel><TextBlock Text="{Binding ScheduleStopLabel}"/><TextBox Text="{Binding ScheduledStopTime,UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight" Width="130" MaxLength="5" AutomationProperties.Name="{Binding ScheduleStopLabel}"/></StackPanel>
-      </WrapPanel>
-      <WrapPanel Margin="0,8,0,0"><Button Content="{Binding ScheduleLabel}" Command="{Binding ScheduleQueueCommand}" Style="{StaticResource QueueButton}"/><Button Content="{Binding ClearScheduleLabel}" Command="{Binding ClearScheduleCommand}" Style="{StaticResource QueueQuietButton}" Margin="8,0,0,0"/></WrapPanel>
-     </StackPanel>
-    </Expander>
    </StackPanel>
   </ScrollViewer>
   <Border x:Name="QueueFooter" Grid.Row="2" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,12,0,0" Margin="0,16,0,0">

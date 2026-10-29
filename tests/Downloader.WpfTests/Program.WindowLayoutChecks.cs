@@ -48,9 +48,10 @@ internal static partial class Program
         {
             var root = (FrameworkElement)WpfTree.Find(window, "Root");
             var bounds = navigation.TransformToAncestor(root).TransformBounds(new Rect(navigation.RenderSize));
-            Check(Math.Abs(bounds.Bottom - root.ActualHeight) <= 1 &&
+            var body = (FrameworkElement)WpfTree.Find(window, "WorkspaceViewport");
+            Check(bounds.Top >= -1 && bounds.Bottom <= body.TranslatePoint(new Point(), root).Y + 1 && bounds.Left >= -1 && bounds.Right <= root.ActualWidth + 1 &&
                 Math.Abs(((FrameworkElement)WpfTree.Find(window, "FormContent")).MinHeight - viewport.ViewportHeight) <= 1,
-                "Navigation stays outside the scrolling content and the workspace fills its viewport");
+                "Top navigation stays outside scrolling content and the workspace fills its viewport");
         }
         void CompactFormFits(string state)
         {

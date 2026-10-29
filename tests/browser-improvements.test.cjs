@@ -13,7 +13,7 @@ function connection(host, clock = Date) {
     return {onMessage:{addListener:fn=>{listener=fn;}},onDisconnect:{addListener:()=>{}},disconnect:()=>{},postMessage:message=>{sent.push(message);Promise.resolve().then(()=>host(message)).then(response=>listener(response));}};
   },sendNativeMessage:async(name,message)=>{legacy.push({name,message});return {ok:true,code:'opened'};}}};
   const context=vm.createContext({browser:api,URL,Date:clock,...timers}); vm.runInContext(read('connection.js'),context);
-  return {client:context.ViFreeConnection,sent,legacy};
+  return {client:context.ViFreeConnection,sent,legacy,context};
 }
 test('v2 health and queued delivery use one port and preserve explicit source context',async()=>{
   const fixture=connection(m=>({ok:true,code:m.type==='ping'?'ready':'queued',protocol:2,requestId:m.requestId,appRunning:true}));
@@ -23,6 +23,39 @@ test('v2 health and queued delivery use one port and preserve explicit source co
   assert.equal(result.code,'queued');assert.equal(fixture.legacy.length,0);
   const request=fixture.sent.at(-1);assert.equal(request.version,2);assert.equal(request.type,'enqueue');assert.equal(request.sourcePage,'https://example.com/post');
   assert.equal(new Set(fixture.sent.map(m=>m.requestId)).size,fixture.sent.length);
+});
+
+test('app-language reads share a bounded passive health request and accept only supported languages', async () => {
+  let now = 5000, language = 'en', ok = true;
+  const fixture = connection(m => ({ ok, protocol: 2, requestId: m.requestId, language }), { now: () => now });
+  assert.deepEqual(await Promise.all([fixture.client.getLanguage(), fixture.client.getLanguage()]), ['en', 'en']);
+  assert.equal(fixture.sent.length, 1);
+  assert.equal(fixture.sent[0].type, 'ping'); assert.equal(fixture.sent[0].url, undefined);
+  language = 'ar'; now += 2100;
+  assert.equal(await fixture.client.getLanguage(), 'ar');
+  language = '<unsafe>'; now += 2100;
+  assert.equal(await fixture.client.getLanguage(), 'ar', 'An invalid/older host preference keeps the last app language');
+  ok = false; language = 'en'; now += 2100;
+  assert.equal(await fixture.client.getLanguage(), 'ar');
+  assert.equal(fixture.legacy.length, 0, 'Passive preference checks never start a legacy open-link fallback');
+});
+
+test('background shares app language only with its own web content scripts', async () => {
+  const fixture = connection(m => ({ ok: true, requestId: m.requestId, language: 'ar' }));
+  const titles = []; let handler;
+  const api = fixture.client.api;
+  Object.assign(api.runtime, { id: 'fixture', onMessage: { addListener: fn => { handler = fn; } }, onInstalled: { addListener: () => {} } });
+  api.contextMenus = { update: async (id, value) => titles.push(value.title), onClicked: { addListener: () => {} } };
+  fixture.context.ViFreeVideoDetection = {};
+  vm.runInContext(read('background.js'), fixture.context);
+  const message = { version: 1, type: 'vydrop-language' };
+  const sender = { id: 'fixture', tab: { id: 2 }, frameId: 0, url: 'https://example.com/video' };
+  let rejection;
+  assert.equal(handler(message, { ...sender, id: 'other-extension' }, value => { rejection = value; }), false);
+  assert.equal(rejection.code, 'invalid'); assert.equal(fixture.sent.length, 0);
+  const response = await new Promise(resolve => assert.equal(handler(message, sender, resolve), true));
+  assert.equal(response.language, 'ar'); assert.equal(fixture.sent.length, 1); assert.equal(fixture.sent[0].type, 'ping');
+  assert.equal(titles.length, 2); assert.ok(titles.every(title => /[\u0600-\u06ff]/u.test(title)));
 });
 test('new companion falls back to exact v1 envelope with an older host',async()=>{
   const fixture=connection(()=>({ok:false,code:'invalid'}));
@@ -132,4 +165,31 @@ test('a loaded current companion retries the original health envelope for an old
   const api={runtime:{getManifest:()=>({name:'Vydrop',version:'1.5.8'}),connectNative:()=>({onMessage:{addListener:fn=>listener=fn},onDisconnect:{addListener(){}},disconnect(){},postMessage:message=>{sent.push(message);queueMicrotask(()=>listener({ok:!message.companionVersion,code:message.companionVersion?'invalid':'ready',protocol:2,requestId:message.requestId}));}})}};
   const context=vm.createContext({browser:api,URL,queueMicrotask,...timers});vm.runInContext(read('connection.js'),context);
   assert.equal((await context.ViFreeConnection.testConnection()).ok,true);assert.equal(sent.length,2);assert.equal(sent[1].companionVersion,undefined);assert.equal(sent[1].companionBrowser,undefined);
+});
+
+
+test('an explicit download gets a fresh native host after pending inspection completes', async () => {
+  const ports = [], sent = [];
+  let finishInspection;
+  const api = { runtime: { getManifest: () => ({ name: 'Vydrop' }), connectNative: () => {
+    let reply; const port = { id: ports.length, disconnected: false, onMessage: { addListener: fn => { reply = fn; } },
+      onDisconnect: { addListener() {} }, disconnect() { this.disconnected = true; },
+      postMessage(message) {
+        sent.push({ port: this.id, type: message.type });
+        const respond = () => reply({ ok: true, protocol: 2, requestId: message.requestId, code: 'started',
+          capabilities: ['formats','output-selection','start-download'], media: { title: 'Fixture' } });
+        if (message.type === 'inspect') finishInspection = respond; else queueMicrotask(respond);
+      } };
+    ports.push(port); return port;
+  } } };
+  const context = vm.createContext({ browser: api, URL, ...timers }); vm.runInContext(read('connection.js'), context);
+  const client = context.ViFreeConnection;
+  const inspect = client.inspectLink('https://example.com/video');
+  while (!finishInspection) await new Promise(setImmediate);
+  const download = client.sendLink('https://example.com/video', { output: { kind: 'audio', format: 'mp3', height: 0 }, startDownload: true });
+  await new Promise(setImmediate);
+  assert.equal(ports[0].disconnected, false, 'an active format lookup is not interrupted');
+  finishInspection(); await inspect; await download;
+  assert.equal(ports[0].disconnected, true);
+  assert.notEqual(sent.find(m => m.type === 'download').port, sent.find(m => m.type === 'inspect').port);
 });

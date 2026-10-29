@@ -98,19 +98,18 @@ internal static class OutputProfileChecks
             "MKV reaches downloader arguments, output validation and completed-file handling");
         var wrong = mkv.Snapshot(); wrong.VideoContainer = VideoContainer.WebM;
         Check(Reject(() => provider.DownloadItem(wrong)), "Immutable selections cannot be reused under a different container");
-        var audio = new DownloadOptions { Folder = root, Audio = true, AudioEncoding = AudioEncoding.M4a, AudioBitrate = 128, AudioSource = new("aac", 320) };
-        string owned = Path.Combine(root, "owned.m4a"); File.WriteAllText(owned, "Original synthetic audio");
-        File.WriteAllText(Path.Combine(root, "convert-fail.flag"), "fail");
-        Check(Reject(() => AudioBitrateConversion.Apply(owned, audio, tools, CancellationToken.None)) && File.ReadAllText(owned) == "Original synthetic audio" && Directory.GetFiles(root, ".vifree-audio-*").Length == 0,
-            "Failed same-codec conversion preserves the original file and removes its private partial output");
-        File.Delete(Path.Combine(root, "convert-fail.flag"));
-        AudioBitrateConversion.Apply(owned, audio, tools, CancellationToken.None);
-        Check(File.ReadAllText(owned) == "Original synthetic audio" && Directory.GetFiles(root, ".vifree-audio-*").Length == 0,
-            "Successful same-codec conversion verifies the staged output before replacement");
-        using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
-        bool cancellationObserved = false;
-        try { AudioBitrateConversion.Apply(owned, audio, tools, cancelled.Token); } catch (OperationCanceledException) { cancellationObserved = true; }
-        Check(cancellationObserved && File.Exists(owned), "Cancelling audio conversion keeps the original file");
+        foreach (AudioEncoding encoding in Enum.GetValues<AudioEncoding>())
+        {
+            var audio = standard.Snapshot(); audio.Audio = true; audio.AudioEncoding = encoding; audio.AudioBitrate = 0;
+            var arguments = Arguments.ForDownload(tools, audio);
+            Check(arguments.Contains("--embed-metadata") && arguments.Contains("--embed-thumbnail") == (encoding != AudioEncoding.Wav),
+                "Audio embeds metadata and cover art only in supported containers: " + encoding);
+            if (OutputProfiles.IsLossless(encoding)) continue;
+            audio.AudioBitrate = 64; audio.AudioSource = new(encoding switch { AudioEncoding.M4a => "aac", AudioEncoding.Opus => "opus", _ => "mp3" }, 192);
+            arguments = Arguments.ForDownload(tools, audio);
+            Check(arguments[arguments.IndexOf("--postprocessor-args") + 1].EndsWith(" -b:a 64k", StringComparison.Ordinal),
+                "Matching-codec bitrate conversion runs before artwork embedding: " + encoding);
+        }
         foreach (VideoContainer container in Enum.GetValues<VideoContainer>())
         {
             using var probe = JsonDocument.Parse("{\"format\":{\"format_name\":\"" + (container == VideoContainer.Mp4 ? "mov,mp4" : "matroska,webm") + "\",\"duration\":\"1\"},\"streams\":[{\"codec_type\":\"video\"}]}");

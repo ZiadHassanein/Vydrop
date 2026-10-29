@@ -6,6 +6,8 @@ namespace YouTubeDownloader;
 public static class Arguments
 {
     private static readonly string[] PlaylistPacing = { "--sleep-requests", "0.75", "--sleep-interval", "2", "--max-sleep-interval", "4", "--match-filters", "!is_live" };
+    private static readonly string[] AudioMetadata = { "--embed-metadata", "--no-embed-info-json" };
+    private static readonly string[] AudioArtwork = { "--embed-thumbnail", "--convert-thumbnails", "jpg" };
     // Windows CommandLineToArgvW quoting, including quotes and trailing slashes.
     public static string Quote(string value)
     {
@@ -116,6 +118,10 @@ public static class Arguments
         if (options.Audio)
         {
             args.AddRange(new[] { "--format", "bestaudio/best", "--extract-audio", "--audio-format", OutputProfiles.AudioExtension(options.AudioEncoding) });
+            args.AddRange(AudioMetadata);
+            args.AddRange(AudioBitrateConversion.MetadataArguments(options));
+            if (options.AudioEncoding != AudioEncoding.Wav)
+                args.AddRange(AudioArtwork);
             if (!OutputProfiles.IsLossless(options.AudioEncoding))
             {
                 int target = OutputProfiles.EffectiveAudioBitrate(options);

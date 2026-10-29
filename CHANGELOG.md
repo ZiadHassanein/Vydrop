@@ -4,6 +4,29 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.17] - 2026-10-29
+
+### Fixed
+- Give each queue link independent media type, file format and quality controls. Load only available formats, real resolutions and source-bounded audio bitrates automatically; preserve choices across navigation and reopening saved jobs.
+- Simplify Add download with an open link field, left-aligned format choices, smaller labels and a compact centered action row. Reduce page headings and remove the redundant Library, Queue and browser-setup intro lines.
+- Place five page actions beside the Vydrop logo in one compact toolbar. Show names whenever the available space fits them; use named icons only when needed, independently of the inspector layout. Keep navigation transparent and unbordered; color the icon red on hover and retain the red icon and label when selected.
+- Remove the Media heading and Videos/Audio sidebar shortcuts. Keep the media filters in Library, with Library selected for every completed-media filter.
+- Match navigation to each theme with pale light surfaces and dark lettering, or graphite dark surfaces and light lettering. Preserve Windows high-contrast colors.
+- Remove the Needs attention queue tab. Failed, cancelled and source-refresh jobs remain available under All with their existing recovery actions.
+- Simplify Download speed: show the speed cap first and put connections, retries and direct-file options under Advanced download options. Keep these defaults in Settings rather than repeating them in Add to queue.
+- Remove Download later and queue reorder arrows. Retire saved start/stop times without changing queued jobs, completed files, per-job options or saved order.
+- Keep Browser integration in Settings as its single entry point, with Settings selected while managing the extension.
+- Show each browser setup screenshot once inline, without the duplicate zoom panel or image-opening links, in both guide languages.
+- Give browser setup feedback a distinct cool-gray surface and subtle border in the light theme. Retain the existing dark feedback surface and system high-contrast colors.
+- Select the completed video/audio file in Explorer from both Library folder actions. Use the actual output directory, with a folder fallback when the file is missing.
+- Keep the Ready to download checkmark in its normal orientation in the Arabic interface.
+- Start editable fields at the right in Arabic and the left in English, including the video link, queue links and searches. Keep URL and numeric character order intact.
+- Synchronize the browser companion with Vydrop's selected language. Update open quality menus without resetting format, quality or playlist choices; use the page/browser language only when the app preference is unavailable.
+- Add a compact Clear link action inside the video URL field, including while its metadata check is running. Reuse link clearing to cancel the stale check and retain queued jobs.
+- Allow typing in the subtitle language search field while keeping cursor navigation inside the field. Preserve language-name/code filtering and the selected subtitle.
+- Embed source cover art and metadata in MP3, M4A, Opus and FLAC audio. Apply matching-codec bitrate conversion before artwork embedding so the cover survives the selected audio quality. Keep WAV compatible without unsupported cover embedding.
+- Renew the native connection for explicit browser actions and delegate foreground permission to the connected desktop process. Keep health checks and format inspection passive.
+
 ## [4.4.16] - 2026-10-27
 
 ### Fixed

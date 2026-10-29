@@ -2,6 +2,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.ComponentModel;
+using System.Globalization;
+using System.Windows.Media;
 
 namespace YouTubeDownloader;
 
@@ -14,6 +16,12 @@ public partial class DownloadManagerView : UserControl
     private static readonly DependencyPropertyKey IsCompactPropertyKey = DependencyProperty.RegisterReadOnly(nameof(IsCompact), typeof(bool), typeof(DownloadManagerView), new PropertyMetadata(false));
     public static readonly DependencyProperty IsCompactProperty = IsCompactPropertyKey.DependencyProperty;
     public bool IsCompact => (bool)GetValue(IsCompactProperty);
+    private static readonly DependencyPropertyKey IsNavigationCompactPropertyKey = DependencyProperty.RegisterReadOnly(nameof(IsNavigationCompact), typeof(bool), typeof(DownloadManagerView), new PropertyMetadata(false));
+    public static readonly DependencyProperty IsNavigationCompactProperty = IsNavigationCompactPropertyKey.DependencyProperty;
+    public bool IsNavigationCompact => (bool)GetValue(IsNavigationCompactProperty);
+    private string navigationMeasureKey;
+    private double navigationLabelWidth;
+    private bool measuringNavigation;
     public static readonly RoutedCommand ShowDetailsCommand = new();
     private readonly WorkspaceMotion workspaceMotion;
     internal event Action WorkspaceLayoutChanged;
@@ -30,8 +38,9 @@ public partial class DownloadManagerView : UserControl
             e.Handled = true;
         }, (_, e) => { e.CanExecute = compact && e.Parameter is Guid id && DataContext is MainViewModel model && model.LibraryItems.Contains(model.QueueItems.FirstOrDefault(item => item.Id == id)); e.Handled = true; }));
         workspaceMotion = new WorkspaceMotion(this);
-        ((Panel)Header.BrandButton.Parent).Children.Remove(Header.BrandButton);
-        BrandHost.Children.Add(Header.BrandButton);
+        ManagerRoot.Children.Remove(NavigationSurface);
+        Header.NavigationHost.Content = NavigationSurface;
+        Header.NavigationHost.SizeChanged += (_, _) => UpdateNavigationLayout();
         SizeChanged += (_, _) => LayoutManager();
         DataContextChanged += (_, e) =>
         {
@@ -43,6 +52,7 @@ public partial class DownloadManagerView : UserControl
     }
     private void WorkspaceChanged(object sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName is nameof(MainViewModel.LibraryCount) or nameof(MainViewModel.WaitingCount)) UpdateNavigationLayout();
         if (DetailOverlay.IsVisible && DataContext is MainViewModel model && (!model.LibraryVisible || detailsScope != CurrentLibraryScope || detailsItem != model.SelectedLibraryItem?.Id)) HideDetails();
         if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName is nameof(MainViewModel.AddDownloadVisible) or nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HistoryVisible) or nameof(MainViewModel.HasMediaPreview) or nameof(MainViewModel.ActiveWorkspace)) RefreshWorkspace();
     }
@@ -70,9 +80,9 @@ public partial class DownloadManagerView : UserControl
 
     private void LayoutManager()
     {
+        UpdateNavigationLayout();
         double previousWidth = DetailsColumn.Width.Value;
         bool next = ActualWidth < 1080;
-        NavigationColumn.Width = new GridLength(next ? 216 : 224);
         DetailsColumn.Width = new GridLength(next || !HasInspector ? 0 : ActualWidth > 1360 ? 350 : 320);
         LibraryContent.Margin = new Thickness(ActualWidth < 960 ? 14 : 24, 4, 18, 0);
         SetValue(IsCompactPropertyKey, next);
@@ -81,9 +91,46 @@ public partial class DownloadManagerView : UserControl
             compact = next;
             if (DetailsBorder.Parent is Panel parent) parent.Children.Remove(DetailsBorder);
             if (compact) { Grid.SetColumn(DetailsBorder, 0); Grid.SetRow(DetailsBorder, 0); CompactDetailsHost.Children.Add(DetailsBorder); }
-            else { Grid.SetColumn(DetailsBorder, 2); Grid.SetRow(DetailsBorder, 1); ManagerRoot.Children.Add(DetailsBorder); HideDetails(); }
+            else { Grid.SetColumn(DetailsBorder, 1); Grid.SetRow(DetailsBorder, 1); ManagerRoot.Children.Add(DetailsBorder); HideDetails(); }
         }
         if (previousWidth != DetailsColumn.Width.Value) WorkspaceLayoutChanged?.Invoke();
+    }
+    private void UpdateNavigationLayout()
+    {
+        if (measuringNavigation || DataContext is not MainViewModel model || Header.NavigationHost.ActualWidth <= 0) return;
+        string key = $"{model.IsArabic}:{model.LibraryCount}:{model.WaitingCount}:{model.IsAddDownloadPage}:{model.IsLibraryPage}:{model.IsLibraryQueue}:{model.HistoryVisible}:{model.IsSettingsPage}";
+        measuringNavigation = true;
+        try
+        {
+            if (key != navigationMeasureKey)
+            {
+                navigationLabelWidth = 0;
+                string[] labels = [model.AddDownloadLabel, model.LibraryLabel, model.QueueNavigationLabel, model.HistoryNavigationLabel, model.SettingsLabel];
+                var typeface = new Typeface(model.ContentFont, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
+                double TextWidth(string value, double size) => new FormattedText(value, CultureInfo.CurrentUICulture, model.ContentDirection,
+                    typeface, size, Brushes.Black, VisualTreeHelper.GetDpi(this).PixelsPerDip).WidthIncludingTrailingWhitespace;
+                int index = 0;
+                foreach (System.Windows.Controls.Primitives.ToggleButton action in NavigationItems.Children)
+                {
+                    action.ApplyTemplate();
+                    var glyph = (FrameworkElement)action.Template.FindName("NavigationGlyph", action);
+                    var label = (FrameworkElement)action.Template.FindName("NavigationLabel", action);
+                    navigationLabelWidth += action.Padding.Left + action.Padding.Right + action.Margin.Left + action.Margin.Right +
+                        glyph.Width + label.Margin.Left + label.Margin.Right + TextWidth(labels[index], action.FontSize);
+                    int count = index == 1 ? model.LibraryCount : index == 2 ? model.WaitingCount : 0;
+                    if (count > 0 && action.Content is Grid content)
+                    {
+                        var badge = content.Children.OfType<Border>().Single();
+                        navigationLabelWidth += Math.Max(badge.MinWidth, TextWidth(count.ToString(CultureInfo.InvariantCulture), 12) + badge.Padding.Left + badge.Padding.Right) + badge.Margin.Left + badge.Margin.Right;
+                    }
+                    index++;
+                }
+                navigationMeasureKey = key;
+            }
+            double available = Header.NavigationHost.ActualWidth - NavigationItems.Margin.Left - NavigationItems.Margin.Right;
+            SetValue(IsNavigationCompactPropertyKey, navigationLabelWidth + 4 > available);
+        }
+        finally { measuringNavigation = false; }
     }
     private void ShowDetails(IInputElement returnFocus = null)
     {

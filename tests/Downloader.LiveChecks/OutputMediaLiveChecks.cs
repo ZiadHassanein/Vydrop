@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text.Json;
 using YouTubeDownloader;
 
 internal static class OutputMediaLiveChecks
@@ -20,24 +18,7 @@ internal static class OutputMediaLiveChecks
                 if (runner.Run(tools.FFmpeg, baseArguments.Concat(args).ToArray(), null, Console.Error.WriteLine, deadline.Token, TimeSpan.FromSeconds(30)) != 0)
                     throw new IOException("Synthetic media encoding failed.");
             }
-            foreach (var (encoding, encoder, codec, sourceRate) in new[]
-            {
-                (AudioEncoding.Mp3, "libmp3lame", "mp3", 320), (AudioEncoding.M4a, "aac", "aac", 256), (AudioEncoding.Opus, "libopus", "opus", 256)
-            })
-            {
-                string file = Path.Combine(folder, "synthetic-" + codec + "." + OutputProfiles.AudioExtension(encoding));
-                Encode("-f", "lavfi", "-i", "anoisesrc=color=pink:amplitude=0.2:sample_rate=48000:duration=4", "-ac", "2", "-c:a", encoder, "-b:a", sourceRate + "k", file);
-                long before = new FileInfo(file).Length;
-                var options = new DownloadOptions { Folder = folder, Audio = true, AudioEncoding = encoding, AudioBitrate = 128, AudioSource = new(codec, sourceRate) };
-                AudioBitrateConversion.Apply(file, options, tools, deadline.Token);
-                string json = ToolProbe.Capture(tools.FFprobe, deadline.Token, "-v", "error", "-show_entries", "stream=codec_name:format=duration,bit_rate", "-of", "json", file);
-                using var info = JsonDocument.Parse(json);
-                double duration = double.Parse(info.RootElement.GetProperty("format").GetProperty("duration").GetString(), CultureInfo.InvariantCulture);
-                double rate = double.Parse(info.RootElement.GetProperty("format").GetProperty("bit_rate").GetString(), CultureInfo.InvariantCulture) / 1000;
-                if (info.RootElement.GetProperty("streams")[0].GetProperty("codec_name").GetString() != codec || duration is < 3.9 or > 4.5 || rate is < 75 or > 180 || new FileInfo(file).Length >= before)
-                    throw new IOException("The selected lower bitrate did not produce valid smaller audio: " + codec);
-                Console.WriteLine($"LIVE PASS: Real same-codec {encoding} conversion targeted128kbps; FFprobe measured {rate:F1}kbps/{duration:F2}s and verified a smaller file.");
-            }
+            await AudioArtworkChecks.Run(Path.Combine(folder, "Artwork"), tools);
             string mp4 = Path.Combine(folder, "synthetic.mp4"), mkv = Path.Combine(folder, "synthetic.mkv"), webm = Path.Combine(folder, "synthetic.webm");
             Encode("-f", "lavfi", "-i", "testsrc2=duration=0.6:size=320x180:rate=12", "-f", "lavfi", "-i", "sine=frequency=440:duration=0.6", "-shortest", "-c:v", "libx264", "-preset", "ultrafast", "-c:a", "aac", mp4);
             Encode("-i", mp4, "-c", "copy", mkv);

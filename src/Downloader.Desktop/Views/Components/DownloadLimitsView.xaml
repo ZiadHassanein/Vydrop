@@ -10,15 +10,7 @@
  </UserControl.Resources>
  <StackPanel Margin="0,8,0,8">
   <TextBlock Text="{Binding DownloadLimitsHint}" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,18"/>
-  <Grid>
-   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
-   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
    <StackPanel>
-    <TextBlock Text="{Binding ConnectionsLabel}" FontWeight="SemiBold"/>
-    <TextBlock Text="{Binding ConnectionsHint}" Style="{StaticResource PreferenceHint}"/>
-   </StackPanel>
-   <ComboBox x:Name="ConnectionsInput" Grid.Column="2" ItemsSource="{Binding ConnectionOptions}" ItemTemplate="{StaticResource PreferenceChoice}" SelectedValuePath="Key" SelectedValue="{Binding DownloadConnections}" AutomationProperties.Name="{Binding ConnectionsLabel}" AutomationProperties.HelpText="{Binding ConnectionsHint}" VerticalAlignment="Top"/>
-   <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Margin="0,20,0,0">
     <CheckBox x:Name="SpeedLimitToggle" IsChecked="{Binding IsSpeedLimited}" AutomationProperties.Name="{Binding SpeedLimitLabel}" AutomationProperties.HelpText="{Binding SpeedLimitHint}"><TextBlock Text="{Binding SpeedLimitLabel}" TextWrapping="Wrap" FontWeight="SemiBold"/></CheckBox>
     <TextBlock Text="{Binding SpeedLimitHint}" Style="{StaticResource PreferenceHint}" Margin="35,0,0,0"/>
     <StackPanel x:Name="SpeedLimitEditor" Width="260" HorizontalAlignment="Left" Margin="35,12,0,0" Visibility="{Binding IsSpeedLimited,Converter={StaticResource BoolVisibility}}">
@@ -26,20 +18,32 @@
      <StackPanel x:Name="CustomSpeedEditor" Margin="0,10,0,0" Visibility="{Binding IsCustomSpeedLimit,Converter={StaticResource BoolVisibility}}">
      <Grid FlowDirection="LeftToRight">
       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-      <TextBox x:Name="SpeedLimitInput" Style="{StaticResource NumericInput}" Text="{Binding LimitedSpeedKiB,UpdateSourceTrigger=LostFocus,ValidatesOnExceptions=True}" FlowDirection="LeftToRight" MaxLength="7" AutomationProperties.Name="{Binding SpeedValueLabel}" AutomationProperties.HelpText="{Binding SpeedLimitValidationHint}"/>
+      <TextBox x:Name="SpeedLimitInput" Style="{StaticResource NumericInput}" Text="{Binding LimitedSpeedKiB,UpdateSourceTrigger=LostFocus,ValidatesOnExceptions=True}" FlowDirection="LeftToRight" TextAlignment="{Binding InputTextAlignment}" MaxLength="7" AutomationProperties.Name="{Binding SpeedValueLabel}" AutomationProperties.HelpText="{Binding SpeedLimitValidationHint}"/>
       <TextBlock Grid.Column="1" Text="KiB/s" Foreground="{DynamicResource Muted}" Margin="8,0,0,0" VerticalAlignment="Center"/>
      </Grid>
      <TextBlock Text="{Binding SpeedLimitValidationHint}" Foreground="{DynamicResource Error}" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,0" Visibility="{Binding (Validation.HasError),ElementName=SpeedLimitInput,Converter={StaticResource BoolVisibility}}" AutomationProperties.LiveSetting="Polite"/>
      </StackPanel>
     </StackPanel>
    </StackPanel>
-   <StackPanel Grid.Row="2" Margin="0,20,0,0">
-    <TextBlock Text="{Binding AttemptsLabel}" FontWeight="SemiBold"/>
-    <TextBlock Text="{Binding AttemptsHint}" Style="{StaticResource PreferenceHint}"/>
+  <Expander x:Name="AdvancedDownloadOptions" Header="{Binding AdvancedDownloadLabel}" Foreground="{DynamicResource Ink}" Margin="0,18,0,0">
+   <StackPanel Margin="0,12,0,0">
+    <Grid>
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <StackPanel>
+      <TextBlock Text="{Binding ConnectionsLabel}" FontWeight="SemiBold"/>
+      <TextBlock Text="{Binding ConnectionsHint}" Style="{StaticResource PreferenceHint}"/>
+     </StackPanel>
+     <ComboBox x:Name="ConnectionsInput" Grid.Column="2" ItemsSource="{Binding ConnectionOptions}" ItemTemplate="{StaticResource PreferenceChoice}" SelectedValuePath="Key" SelectedValue="{Binding DownloadConnections}" AutomationProperties.Name="{Binding ConnectionsLabel}" AutomationProperties.HelpText="{Binding ConnectionsHint}" VerticalAlignment="Top"/>
+     <StackPanel Grid.Row="1" Margin="0,20,0,0">
+      <TextBlock Text="{Binding AttemptsLabel}" FontWeight="SemiBold"/>
+      <TextBlock Text="{Binding AttemptsHint}" Style="{StaticResource PreferenceHint}"/>
+     </StackPanel>
+     <ComboBox x:Name="RetriesInput" Grid.Row="1" Grid.Column="2" Margin="0,20,0,0" ItemsSource="{Binding RetryOptions}" ItemTemplate="{StaticResource PreferenceChoice}" SelectedValuePath="Key" SelectedValue="{Binding QueueAttempts}" AutomationProperties.Name="{Binding AttemptsLabel}" AutomationProperties.HelpText="{Binding AttemptsHint}" VerticalAlignment="Top"/>
+    </Grid>
+    <CheckBox x:Name="RangeAccelerationToggle" IsChecked="{Binding DirectFileAcceleration}" Margin="0,22,0,0" AutomationProperties.Name="{Binding RangeAccelerationLabel}" AutomationProperties.HelpText="{Binding RangeAccelerationHint}"><TextBlock Text="{Binding RangeAccelerationLabel}" TextWrapping="Wrap" FontWeight="SemiBold"/></CheckBox>
+    <TextBlock Text="{Binding RangeAccelerationHint}" Style="{StaticResource PreferenceHint}" Margin="35,5,0,0"/>
    </StackPanel>
-   <ComboBox x:Name="RetriesInput" Grid.Row="2" Grid.Column="2" Margin="0,20,0,0" ItemsSource="{Binding RetryOptions}" ItemTemplate="{StaticResource PreferenceChoice}" SelectedValuePath="Key" SelectedValue="{Binding QueueAttempts}" AutomationProperties.Name="{Binding AttemptsLabel}" AutomationProperties.HelpText="{Binding AttemptsHint}" VerticalAlignment="Top"/>
-  </Grid>
-  <CheckBox x:Name="RangeAccelerationToggle" IsChecked="{Binding DirectFileAcceleration}" Margin="0,22,0,0" AutomationProperties.Name="{Binding RangeAccelerationLabel}" AutomationProperties.HelpText="{Binding RangeAccelerationHint}"><TextBlock Text="{Binding RangeAccelerationLabel}" TextWrapping="Wrap" FontWeight="SemiBold"/></CheckBox>
-  <TextBlock Text="{Binding RangeAccelerationHint}" Style="{StaticResource PreferenceHint}" Margin="35,5,0,0"/>
+  </Expander>
  </StackPanel>
 </UserControl>

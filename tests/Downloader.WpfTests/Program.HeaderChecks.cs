@@ -21,12 +21,12 @@ internal static partial class Program
                 window.Width = width; await Task.Delay(250); window.UpdateLayout();
                 var navigation = window.ManagerContent.NavigationSurface;
                 var brand = (FrameworkElement)WpfTree.Find(window, "BrandWordmark");
-                var bounds = brand.TransformToAncestor(navigation).TransformBounds(new Rect(brand.RenderSize));
-                Check(Math.Abs(bounds.Left + bounds.Width / 2 - navigation.ActualWidth / 2) <= 1 && bounds.Left >= 0 && bounds.Right <= navigation.ActualWidth && brand.FlowDirection == FlowDirection.LeftToRight,
-                    $"The complete logo is centered without mirroring: {language}/{dark}/{width} (logo={bounds}, sidebar={navigation.ActualWidth})");
                 var header = window.HeaderContent;
                 Rect HeaderBounds(FrameworkElement element) => element.TransformToAncestor(header).TransformBounds(new Rect(element.RenderSize));
+                var bounds = HeaderBounds(brand);
                 var actions = HeaderBounds(header.HeaderActions);
+                Check(bounds.Left >= 0 && bounds.Right <= header.ActualWidth && !bounds.IntersectsWith(actions) && brand.FlowDirection == FlowDirection.LeftToRight,
+                    $"The complete logo fits the header without mirroring or overlapping its actions: {language}/{dark}/{width}");
                 var languageButton = HeaderBounds(header.LanguageButton);
                 var themeButton = HeaderBounds(header.ThemeButton);
                 bool arabic = language == "ar";
@@ -35,22 +35,23 @@ internal static partial class Program
                     $"Header controls occupy the outer edge in the correct physical order: {language}/{dark}/{width} (actions={actions}, language={languageButton}, theme={themeButton})");
                 var manager = window.ManagerContent;
                 var navigationButtons = Descendants<System.Windows.Controls.Primitives.ToggleButton>(navigation).ToArray();
-                Check(navigationButtons.Length == 8 && navigationButtons.All(button => button.Template.FindName("NavigationGlyph", button) is System.Windows.Shapes.Path { Width: 19, Height: 19 } && Math.Abs(button.ActualHeight - 48) <= 1),
-                    "All eight navigation actions retain small icons and compact 48-pixel click areas");
-                Check(Math.Abs(manager.NavigationItems.ActualHeight - manager.NavigationViewport.ViewportHeight) <= 1 && manager.NavigationViewport.ScrollableHeight == 0 &&
-                    manager.SettingsButton.TranslatePoint(new Point(0, manager.SettingsButton.ActualHeight), navigation).Y >= navigation.ActualHeight - 15,
-                    "The sidebar keeps extra space before its utility actions with Settings at the bottom");
+                Check(navigationButtons.Length == 5 && navigationButtons.All(button => button.Template.FindName("NavigationGlyph", button) is System.Windows.Shapes.Path { Width: 18, Height: 18 } && button.ActualHeight >= 44),
+                    "All five navigation actions retain small icons and full click areas");
+                Check(manager.NavigationViewport.ScrollableHeight == 0 && manager.NavigationViewport.ScrollableWidth == 0 &&
+                    navigation.TranslatePoint(new Point(0, navigation.ActualHeight), manager).Y <= manager.WorkspaceViewport.TranslatePoint(new Point(), manager).Y + 1,
+                    "Navigation shares the logo toolbar and keeps every action visible without scrolling");
                 Capture(window, System.IO.Path.Combine(captures, $"logo-{language}-{dark}-{width}.png"));
             }
             window.Width = window.MinWidth; window.Height = window.MinHeight;
             await Task.Delay(120); window.UpdateLayout();
             var compact = window.ManagerContent;
-            Check(compact.NavigationViewport.ScrollableHeight > 0, "Short windows scroll the sidebar instead of shrinking the navigation actions");
+            Check(Descendants<System.Windows.Controls.Primitives.ToggleButton>(compact.NavigationSurface).All(button => button.ActualHeight >= 44),
+                "Short windows retain full-size horizontal navigation actions");
             compact.SettingsButton.BringIntoView(); await Task.Delay(80); window.UpdateLayout();
             var settings = compact.SettingsButton.TransformToAncestor(compact.NavigationViewport).TransformBounds(new Rect(compact.SettingsButton.RenderSize));
             Check(settings.Top >= -1 && settings.Bottom <= compact.NavigationViewport.ActualHeight + 1 && compact.SettingsButton.IsEnabled,
                 "Settings remains fully reachable at the minimum window height");
-            Capture(window, System.IO.Path.Combine(captures, "sidebar-short-window.png"));
+            Capture(window, System.IO.Path.Combine(captures, "top-navigation-short-window.png"));
         }
         finally { MotionPreferences.SetTestOverride(null); }
     }
@@ -75,12 +76,11 @@ internal static partial class Program
                 Rect Bounds(FrameworkElement element) => element.TransformToAncestor(window).TransformBounds(new Rect(element.RenderSize));
                 var before = Bounds(language);
                 var brand = (FrameworkElement)WpfTree.Find(window, "BrandWordmark");
-                var navigation = Bounds(window.ManagerContent.NavigationSurface);
                 Check(language.ContextMenu == null && ReferenceEquals(language.Command, model.ToggleLanguageCommand) && language.IsEnabled,
                     "Language is a direct button with no dropdown or detached popup");
                 Check(Descendants<TextBlock>(language).Single().Text == (arabic ? "English" : "العربية") && AutomationProperties.GetName(language) == model.LanguageAction,
                     "The button names the destination language and exposes a localized accessible action");
-                Check(before.Left >= 0 && before.Right <= window.ActualWidth && Math.Abs(before.Width - 106) <= 1 && Bounds(brand).Left >= navigation.Left && Bounds(brand).Right <= navigation.Right,
+                Check(before.Left >= 0 && before.Right <= window.ActualWidth && Math.Abs(before.Width - 106) <= 1 && Bounds(brand).Left >= 0 && Bounds(brand).Right <= window.ActualWidth && !Bounds(brand).IntersectsWith(Bounds(header.HeaderActions)),
                     "Header controls and branding fit the compact and wide layouts in both directions");
                 language.Focus();
                 ((IInvokeProvider)new ButtonAutomationPeer(language).GetPattern(PatternInterface.Invoke)).Invoke();

@@ -21,6 +21,56 @@ internal static partial class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--release-screenshots")
+        {
+            try { CaptureReleaseScreenshots(args[1]); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
+        if (args.Length == 2 && args[0] == "--queue-output")
+        {
+            try { CheckQueueOutput(args[1]); Console.WriteLine(count + " queue output checks passed."); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
+        if (args.Length == 2 && args[0] == "--form-polish")
+        {
+            try { CheckFormPolish(args[1]); Console.WriteLine(count + " form polish checks passed."); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
+        if (args.Length == 2 && args[0] == "--top-navigation")
+        {
+            try { CheckTopNavigation(args[1]); Console.WriteLine(count + " top navigation checks passed."); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
+        if (args.Length == 2 && args[0] == "--simplified-options")
+        {
+            try { CheckSimplifiedOptions(args[1]); Console.WriteLine(count + " simplified option checks passed."); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
+        if (args.Length == 2 && args[0] == "--settings-preview")
+        {
+            try { CaptureSettingsPreview(args[1]); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
+        if (args.Length == 2 && args[0] == "--setup-feedback-preview")
+        {
+            try { CaptureSetupFeedback(args[1]); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
+        if (args.Contains("--file-location"))
+        {
+            try { CheckFileLocation(); Console.WriteLine(count + " file location checks passed."); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
+        if (args.Contains("--browser-language"))
+        {
+            try { CheckBrowserLanguage(); Console.WriteLine(count + " browser language checks passed."); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
+        if (args.Contains("--subtitle-search-input"))
+        {
+            try { CheckSubtitleSearchInput(); Console.WriteLine(count + " subtitle search input checks passed."); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
         if (args.Length == 2 && args[0] == "--companion-recovery")
         {
             try { CheckEmbeddedCompanion(args[1]); Console.WriteLine(count + " embedded companion checks passed."); return 0; }
@@ -575,8 +625,8 @@ internal static partial class Program
                 var navigationBounds = navigation.TransformToAncestor(root).TransformBounds(new Rect(navigation.RenderSize));
                 double center = root.PointToScreen(new Point(root.ActualWidth / 2, 0)).X;
                 Check(root.ActualWidth >= window.MinWidth - 1 && Math.Abs(center - (info.Work.Left + info.Work.Right) / 2.0) <= 2 &&
-                    Math.Abs(navigationBounds.Bottom - root.ActualHeight) <= 2,
-                    "The split workspace fills the window and keeps navigation outside the scrolling task" +
+                    navigationBounds.Top >= -1 && navigationBounds.Bottom <= ((FrameworkElement)WpfTree.Find(window, "WorkspaceViewport")).TranslatePoint(new Point(), root).Y + 2,
+                    "The workspace fills the window and keeps top navigation outside the scrolling task" +
                     $" (navigationBottom={navigationBounds.Bottom}, viewportHeight={viewport.ActualHeight}, scrollableHeight={viewport.ScrollableHeight})");
                 viewport.ScrollToTop();
                 window.UpdateLayout();

@@ -4,6 +4,7 @@
     open({ anchor, arabic = false, inspect, send, embedded = false, onClose, onResult, onInspectionFailure, preview, playlistAvailable = false }) {
       active?.();
       const releaseReload = globalThis.ViFreeConnection?.holdReload?.();
+      function translations(arabic) {
       const t = arabic ? {
         heading: "تنزيل بواسطة Vydrop", loading: "جارٍ فحص الصيغ المتاحة…", video: "فيديو", audio: "صوت", format: "الصيغة", quality: "الجودة", download: "تنزيل", queued: "أُضيف إلى قائمة تنزيل Vydrop.", open: "فتح في Vydrop", close: "إغلاق", automatic: "تلقائي · بجودة المصدر", size: "الحجم غير متاح قبل التنزيل", ready: "الصيغ جاهزة", hint: "يستخدم مجلد التنزيل المحفوظ في Vydrop.", legacy: "تم الفتح في إصدار Vydrop الأقدم. راجع التنزيل وابدأه هناك.", success: "أُرسل التنزيل إلى Vydrop.", fallback: "يمكنك اختيار الجودة داخل التطبيق.", unavailable: "تعذّر جلب الصيغ. افتح الفيديو داخل Vydrop أو حاول مجددًا.", retry: "حاول مجددًا"
       } : {
@@ -11,6 +12,9 @@
       };
       Object.assign(t, arabic ? { scope: "نطاق التنزيل", single: "هذا الفيديو", playlist: "قائمة التشغيل كاملة", playlistDownload: "تنزيل قائمة التشغيل", playlistHint: "ينزّل الفيديوهات المتاحة بهذه الإعدادات.", upTo: "حتى " } :
         { scope: "Download scope", single: "This video", playlist: "Whole playlist", playlistDownload: "Download playlist", playlistHint: "Downloads available videos using these settings.", upTo: "Up to " });
+      return t;
+      }
+      let t = translations(arabic);
       const previousHeight = document.body.style.minHeight;
       if (embedded) document.body.style.minHeight = "520px";
       const host = document.createElement("div"); host.id = "vydrop-quality-picker";
@@ -55,17 +59,39 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
       const options = el("div", "hidden"), tabs = el("div", "tabs"), formatLabel = el("label", "", t.format), format = el("div", "formats"), qualityLabel = el("label", "", t.quality), choices = el("div", "choices");
       format.id = "vydrop-format"; radioGroup(format, t.format); radioGroup(choices, t.quality);
       const video = button(t.video, "", () => chooseKind("video")), audio = button(t.audio, "", () => chooseKind("audio")); video.prepend(icon("M3 5H16V19H3ZM16 9L22 6V18L16 15")); audio.prepend(icon("M3 10V14M7 6V18M12 3V21M17 7V17M21 10V14")); tabs.append(video, audio);
-      const summary = el("div", "summary"), selection = el("div", "selection"); summary.append(selection, el("p", "muted", t.size)); options.append(tabs, formatLabel, format, qualityLabel, choices, summary);
+      const summary = el("div", "summary"), selection = el("div", "selection"), sizeHint = el("p", "muted", t.size); summary.append(selection, sizeHint); options.append(tabs, formatLabel, format, qualityLabel, choices, summary);
       const retry = button(t.retry, "retry hidden", load), launch = button(t.open, "launch", event => { if (event.isTrusted) void openApp(); }); launch.prepend(icon("M12 3V15M7 10L12 15L17 10M3 15V21H21V15")); launch.disabled = true;
       const identity = el("div", "identity no-image"), thumbnail = el("img"), mediaText = el("div"), source = el("div", "source");
       thumbnail.alt = ""; thumbnail.referrerPolicy = "no-referrer"; thumbnail.crossOrigin = "anonymous"; thumbnail.hidden = true;
       thumbnail.addEventListener("error", () => { thumbnail.hidden = true; identity.classList.add("no-image"); });
       mediaText.append(title, source); identity.append(thumbnail, mediaText);
-      body.append(identity, scopePicker, playlistHint, status, options, retry, launch, el("p", "muted hint", t.hint)); panel.append(top, body); shadow.append(panel);
+      const folderHint = el("p", "muted hint", t.hint);
+      body.append(identity, scopePicker, playlistHint, status, options, retry, launch, folderHint); panel.append(top, body); shadow.append(panel);
       const parent = document.fullscreenElement || document.documentElement; parent.append(host);
-      let media, kind = "video", scope = "video", selectedHeight = 0, disposed = false, loading = false;
+      let media, kind = "video", scope = "video", selectedHeight = 0, disposed = false, loading = false, stopLanguage;
+      function applyLanguage(language) {
+        if (disposed || arabic === (language === "ar")) return;
+        const previous = t, previousArabic = arabic; arabic = language === "ar"; t = translations(arabic);
+        panel.dir = arabic ? "rtl" : "ltr"; panel.lang = language; panel.setAttribute("aria-label", t.heading); closeButton.setAttribute("aria-label", t.close);
+        for (const node of [status, topStatus]) {
+          const key = Object.keys(previous).find(key => previous[key] === node.textContent);
+          if (key) node.textContent = t[key];
+          else for (const code of ["invalid", "missing", "ambiguous", "advertisement", "inspect", "busy", "unavailable", "preparing", "failed", "unsupported", "protected", "storage"])
+            if (node.textContent === globalThis.ViFreeConnection?.errorMessage({ code }, previousArabic)) { node.textContent = globalThis.ViFreeConnection.errorMessage({ code }, arabic); break; }
+        }
+        singleScope.textContent = t.single; playlistScope.textContent = t.playlist; playlistHint.textContent = t.playlistHint;
+        scopePicker.setAttribute("aria-label", t.scope); format.setAttribute("aria-label", t.format); choices.setAttribute("aria-label", t.quality);
+        video.lastChild.textContent = t.video; audio.lastChild.textContent = t.audio;
+        formatLabel.textContent = t.format; qualityLabel.textContent = t.quality; sizeHint.textContent = t.size; folderHint.textContent = t.hint; retry.textContent = t.retry;
+        launch.lastChild.textContent = media ? scope === "playlist" ? t.playlistDownload : t.download : t.open;
+        if (media) {
+          if (kind === "audio") for (const choice of choices.children) { choice.textContent = t.automatic; choice.setAttribute("aria-label", t.automatic); }
+          updateSummary();
+        }
+        position();
+      }
       function position() { const rect = anchor?.getBoundingClientRect(); const x = rect ? Math.min(innerWidth - panel.offsetWidth - 12, Math.max(12, rect.right - panel.offsetWidth)) : 12; panel.style.left = `${x}px`; panel.style.top = `${rect ? Math.min(Math.max(12, rect.bottom + 8), Math.max(12, innerHeight - panel.offsetHeight - 12)) : 12}px`; }
-      function close() { releaseReload?.(); if (embedded) document.body.style.minHeight = previousHeight; disposed = true; host.remove(); document.removeEventListener("pointerdown", outside, true); document.removeEventListener("keydown", keys, true); removeEventListener("resize", position); removeEventListener("scroll", position, true); anchor?.focus(); if (active === close) active = null; onClose?.(); }
+      function close() { stopLanguage?.(); releaseReload?.(); if (embedded) document.body.style.minHeight = previousHeight; disposed = true; host.remove(); document.removeEventListener("pointerdown", outside, true); document.removeEventListener("keydown", keys, true); removeEventListener("resize", position); removeEventListener("scroll", position, true); anchor?.focus(); if (active === close) active = null; onClose?.(); }
       function outside(event) { if (!event.composedPath().includes(host) && !event.composedPath().includes(anchor)) close(); }
       function keys(event) { if (event.key === "Escape") { close(); event.stopPropagation(); event.preventDefault(); } if (event.key === "Tab") { const all = [...shadow.querySelectorAll('button:not(:disabled):not([tabindex="-1"])')].filter(n => n.getClientRects().length); const current = shadow.activeElement; if (event.shiftKey && current === all[0]) { all.at(-1).focus(); event.preventDefault(); } else if (!event.shiftKey && current === all.at(-1)) { all[0].focus(); event.preventDefault(); } } }
       document.addEventListener("pointerdown", outside, true); document.addEventListener("keydown", keys, true); addEventListener("resize", position); addEventListener("scroll", position, true); active = close;
@@ -128,6 +154,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
         source.textContent = typeof preview.source === "string" ? preview.source.slice(0, 200) : "";
         try { const image = new URL(preview.thumbnail); if (image.protocol === "https:" && !image.username && !image.password && !image.port && !/^(localhost|127\.|0\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[)/iu.test(image.hostname)) { thumbnail.src = image.href; thumbnail.hidden = false; identity.classList.remove("no-image"); } } catch { /* Page artwork is optional. */ }
       }
+      stopLanguage = globalThis.ViFreeConnection?.watchLanguage?.(applyLanguage);
       position(); top.lastChild.focus(); void load(); return { close };
     }
   };

@@ -68,6 +68,10 @@ internal static partial class Program
         var empty = (TextBlock)caption.Template.FindName("CaptionSearchEmpty", caption);
         for (int attempt = 0; attempt < 20 && !search.IsKeyboardFocused; attempt++) await Task.Delay(50);
         Check(search.IsKeyboardFocused && search.Text == "", "Opening subtitle choices focuses the search field");
+        var letter = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(search), Environment.TickCount, Key.E)
+            { RoutedEvent = Keyboard.KeyDownEvent };
+        search.RaiseEvent(letter);
+        Check(!letter.Handled, "Subtitle search does not swallow printable keys before WPF composes text");
         bool Visible(string language) => ((ComboBoxItem)caption.ItemContainerGenerator.ContainerFromItem(model.CaptionChoices.First(choice => choice.Language == language))).Visibility == Visibility.Visible;
         search.Text = "  ENGLISH  ";
         Check(Visible("en") && !Visible("ar") && !Visible("fr-CA") && ReferenceEquals(model.SelectedCaption, selected),

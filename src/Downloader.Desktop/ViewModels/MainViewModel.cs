@@ -111,6 +111,7 @@ public sealed partial class MainViewModel : ObservableObject
     public FontFamily ContentFont => (FontFamily)Application.Current.Resources[IsArabic ? "ArabicFont" : "LatinFont"];
     public bool IsDark => !state.ThemeSelected || state.Theme == "Dark";
     public FlowDirection ContentDirection => IsArabic ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+    public TextAlignment InputTextAlignment => IsArabic ? TextAlignment.Right : TextAlignment.Left;
     public bool IsBusy => downloads.Operations.IsBusy || Queue.IsRunning;
     public bool IsIdle => !IsBusy;
 
@@ -248,6 +249,7 @@ public sealed partial class MainViewModel : ObservableObject
     public string LinkLabel => T("Video link");
     public string LinkPlaceholder => T("Videos, Shorts, and playlists");
     public string PasteLabel => T("Paste");
+    public string ClearLinkLabel => T("Clear link");
     public string SingleLabel => T("This video");
     public string PlaylistLabel => T(playlistInfo?.IsMix == true ? "YouTube Mix (up to 50 videos)" : "Whole playlist");
     public string FormatLabel => T("Save as");

@@ -14,6 +14,7 @@ const root = path.resolve(__dirname, '..');
     let handler;
     const api = { runtime: { id: 'fixture', onMessage: { addListener: fn => { handler = fn; } }, onInstalled: { addListener() {} } }, contextMenus: { onClicked: { addListener() {} } } };
     const background = vm.createContext({ URL, ViFreeConnection: { api, name: 'Vydrop',
+      getLanguage: async () => 'en', holdReload: () => () => {},
       inspectLink: async url => { inspected.push(url); return { title: 'Main video only', source: 'dailymotion.com', videos: [{ format: 'mp4', heights: [720] }], audio: ['m4a'] }; },
       sendLink: async (url, output) => { delivered.push({ url, output }); return { code: 'started' }; } } });
     for (const file of ['video-detection.js', 'background.js']) vm.runInContext(fs.readFileSync(path.join(root, 'browser/common', file), 'utf8'), background);

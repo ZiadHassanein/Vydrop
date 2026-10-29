@@ -17,6 +17,8 @@
    </ControlTemplate></Setter.Value></Setter>
   </Style>
   <Style x:Key="BrandButtonStyle" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+   <Setter Property="Grid.Column" Value="0"/>
+   <Setter Property="HorizontalAlignment" Value="Left"/>
    <Setter Property="Height" Value="42"/>
    <Setter Property="Padding" Value="4,0"/>
    <Setter Property="FocusVisualStyle"><Setter.Value><Style TargetType="Control">
@@ -36,12 +38,13 @@
      </ControlTemplate.Triggers>
     </ControlTemplate></Setter.Value>
    </Setter>
+   <Style.Triggers><DataTrigger Binding="{Binding IsArabic}" Value="True"><Setter Property="HorizontalAlignment" Value="Right"/><Setter Property="Grid.Column" Value="2"/></DataTrigger></Style.Triggers>
   </Style>
  </UserControl.Resources>
- <Border x:Name="HeaderFrame" Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="0" Padding="14,7,18,7">
+ <Border x:Name="HeaderFrame" Background="{DynamicResource Navigation}" BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="12,5">
   <Grid>
-   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <Button x:Name="BrandButton" Click="LogoClicked" MouseEnter="LogoHovered" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="Vydrop" ToolTip="{x:Null}" ToolTipService.IsEnabled="False">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+   <Button x:Name="BrandButton" Click="LogoClicked" MouseEnter="LogoHovered" Style="{StaticResource BrandButtonStyle}" AutomationProperties.Name="Vydrop" ToolTip="{x:Null}" ToolTipService.IsEnabled="False">
     <Grid x:Name="BrandArtwork" Width="128" Height="38">
      <Viewbox x:Name="BrandWordmark" Width="128" Height="38" Stretch="Uniform" VerticalAlignment="Center" FlowDirection="LeftToRight" AutomationProperties.Name="Vydrop">
       <Canvas Width="966" Height="284">
@@ -54,12 +57,15 @@
      </Viewbox>
     </Grid>
    </Button>
-   <StackPanel x:Name="HeaderActions" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Center">
+   <ContentControl x:Name="NavigationHost" Grid.Column="1" Margin="8,0" MinWidth="0" ClipToBounds="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center"/>
+   <StackPanel x:Name="HeaderActions" Orientation="Horizontal" VerticalAlignment="Center">
     <StackPanel.Style><Style TargetType="StackPanel">
      <Setter Property="HorizontalAlignment" Value="Right"/>
+     <Setter Property="Grid.Column" Value="2"/>
      <Setter Property="FlowDirection" Value="LeftToRight"/>
      <Style.Triggers><DataTrigger Binding="{Binding IsArabic}" Value="True">
       <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="Grid.Column" Value="0"/>
       <Setter Property="FlowDirection" Value="RightToLeft"/>
      </DataTrigger></Style.Triggers>
     </Style></StackPanel.Style>

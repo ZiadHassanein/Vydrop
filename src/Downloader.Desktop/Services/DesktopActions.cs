@@ -8,10 +8,15 @@ namespace YouTubeDownloader;
 public sealed partial class DesktopActions
 {
     private readonly Window owner;
+    private readonly Action<string> openFolder;
+    private readonly Action<string, bool> openMedia;
     public DesktopActions(Window owner)
     {
         this.owner = owner;
     }
+
+    internal DesktopActions(Window owner, Action<string> openFolder, Action<string, bool> openMedia) : this(owner)
+        => (this.openFolder, this.openMedia) = (openFolder, openMedia);
 
     public void Dispatch(Action action)
     {
@@ -45,12 +50,18 @@ public sealed partial class DesktopActions
         return dialog.ShowDialog(owner) == true ? dialog.FolderName : null;
     }
 
-    public void OpenFolder(string folder) => Process.Start(new ProcessStartInfo(Path.GetFullPath(folder)) { UseShellExecute = true });
+    public void OpenFolder(string folder)
+    {
+        string path = Path.GetFullPath(folder);
+        if (openFolder != null) { openFolder(path); return; }
+        Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+    }
     public void OpenPublicPage(string url) => Process.Start(new ProcessStartInfo(MediaLink.PublicUrl(url)) { UseShellExecute = true });
     public void OpenMedia(string file, bool reveal)
     {
         if (!File.Exists(file) || !OutputProfiles.IsMediaExtension(Path.GetExtension(file)))
             throw new IOException("File is not available.");
+        if (openMedia != null) { openMedia(file, reveal); return; }
         if (!reveal)
         {
             Process.Start(new ProcessStartInfo(file) { UseShellExecute = true });

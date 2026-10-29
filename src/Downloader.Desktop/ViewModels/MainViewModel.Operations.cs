@@ -389,8 +389,8 @@ public sealed partial class MainViewModel
     public async Task CloseAsync()
     {
         browserClosing = true; automaticBrowserJobs.Clear();
+        CancelQueueLinkInspections();
         libraryLifetime.Cancel();
-        queueClock?.Stop();
         thumbnailCancellation?.Cancel();
         thumbnailCancellation?.Dispose();
         thumbnailCancellation = null;
@@ -406,6 +406,7 @@ public sealed partial class MainViewModel
         if (UpdateCommand.ExecutionTask != null)
             await UpdateCommand.ExecutionTask;
         if (QueueStartCommand.ExecutionTask != null) await QueueStartCommand.ExecutionTask;
+        await queueFormatTask;
         if (ToolRefreshCommand.ExecutionTask != null) await ToolRefreshCommand.ExecutionTask;
         if (CaptionLanguagesCommand.ExecutionTask != null) await CaptionLanguagesCommand.ExecutionTask;
         Save();

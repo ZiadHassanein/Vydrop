@@ -16,7 +16,7 @@
   <Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Margin" Value="0,0,0,9"/>
  </Style>
  <Style x:Key="FormatSegment" TargetType="RadioButton">
-  <Setter Property="MinHeight" Value="46"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/>
+  <Setter Property="MinHeight" Value="52"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/>
   <Setter Property="FontWeight" Value="Normal"/>
   <Setter Property="Background" Value="{DynamicResource Field}"/><Setter Property="BorderBrush" Value="{DynamicResource Border}"/>
   <Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -25,7 +25,7 @@
     <Grid Background="Transparent"><Border local:InteractionMotion.Enabled="True" x:Name="Face" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8">
      <Grid>
       <Border Background="{DynamicResource Hover}" CornerRadius="7" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True" local:HoverMotion.Strength="0.35"/>
-      <ContentPresenter Margin="12,8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <ContentPresenter Margin="14,10" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
      </Grid>
     </Border></Grid>
     <ControlTemplate.Triggers>

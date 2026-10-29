@@ -19,7 +19,7 @@
        <Grid Margin="0,0,0,6">
         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
         <Grid>
-         <TextBox x:Name="CaptionSearchInput" TextChanged="CaptionSearchChanged" PreviewKeyDown="CaptionSearchKeyDown" KeyDown="KeepSearchInput" AutomationProperties.Name="{Binding CaptionSearchLabel}"/>
+         <TextBox x:Name="CaptionSearchInput" TextAlignment="{Binding InputTextAlignment}" TextChanged="CaptionSearchChanged" PreviewKeyDown="CaptionSearchKeyDown" KeyDown="KeepSearchInput" AutomationProperties.Name="{Binding CaptionSearchLabel}"/>
          <TextBlock Text="{Binding CaptionSearchLabel}" Foreground="{DynamicResource Muted}" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False">
           <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers>
            <DataTrigger Binding="{Binding Text,ElementName=CaptionSearchInput}" Value=""><Setter Property="Visibility" Value="Visible"/></DataTrigger>

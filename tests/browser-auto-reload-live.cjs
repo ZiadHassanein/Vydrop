@@ -21,6 +21,11 @@ async function descriptor(folder){const manifest=JSON.parse(await fs.readFile(pa
   const input=process.argv[2];if(!input)throw Error('Pass the packaged Chromium folder');
   const target=path.join(root,'build','auto-reload-live-'+crypto.randomUUID()),extension=path.join(target,'extension');await fs.mkdir(target,{recursive:true});await fs.cp(path.resolve(input),extension,{recursive:true});
   const context=await chromium.launchPersistentContext(path.join(target,'profile'),{headless:true,executablePath:process.env.VYDROP_CHROMIUM,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`]});
+  await context.addInitScript(()=>{
+    // Reading the app language must not reach this PC's registered native host in a lifecycle fixture.
+    chrome.runtime.connectNative=()=>{throw new Error('Native messaging is isolated in this fixture');};
+    chrome.runtime.sendNativeMessage=async()=>{throw new Error('Native messaging is isolated in this fixture');};
+  });
   try{
     const setup=await context.newPage();await setup.goto("chrome://extensions");const devMode=setup.locator("extensions-toolbar #devMode");if(!await devMode.evaluate(node=>node.checked))await devMode.click();await setup.close();
     let worker=context.serviceWorkers()[0]||await context.waitForEvent('serviceworker');await ready(worker);

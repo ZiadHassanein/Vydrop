@@ -30,6 +30,8 @@ internal static class ThemeResources
     {
         ["Page"] = ("#F7F8FA", "#17191E"),
         ["Surface"] = ("#FFFFFF", "#1F2228"),
+        ["SetupFeedbackSurface"] = ("#E8EDF3", "#1F2228"),
+        ["SetupFeedbackBorder"] = ("#C4CDD9", "#1F2228"),
         ["Field"] = ("#FFFFFF", "#262A31"),
         ["Ink"] = ("#20242C", "#F1F3F5"),
         ["Muted"] = ("#58616D", "#B7BFCA"),
@@ -48,12 +50,13 @@ internal static class ThemeResources
         ["Warning"] = ("#81540F", "#E4BD78"),
         ["MediaVideo"] = ("#58616D", "#B7BFCA"),
         ["MediaAudio"] = ("#58616D", "#B7BFCA"),
-        ["NavigationIcon"] = ("#BCC4D0", "#BCC4D0"),
-        ["Navigation"] = ("#1B1F27", "#1B1F27"),
-        ["NavigationInk"] = ("#F1F3F5", "#F1F3F5"),
-        ["NavigationMuted"] = ("#BCC4D0", "#BCC4D0"),
-        ["NavigationSelected"] = ("#343B46", "#343B46"),
-        ["NavigationSelectedInk"] = ("#FFFFFF", "#FFFFFF")
+        ["NavigationIcon"] = ("#58616D", "#BCC4D0"),
+        ["Navigation"] = ("#EEF1F5", "#1B1F27"),
+        ["NavigationInk"] = ("#20242C", "#F1F3F5"),
+        ["NavigationMuted"] = ("#58616D", "#BCC4D0"),
+        ["NavigationSelected"] = ("#DDE4ED", "#343B46"),
+        ["NavigationSelectedInk"] = ("#20242C", "#FFFFFF"),
+        ["NavigationActiveInk"] = ("#AD253B", "#F58A93")
     };
 
     public static void Apply(bool dark, bool animate = false)
@@ -66,6 +69,7 @@ internal static class ThemeResources
         var contrast = ContrastOverride ?? new ContrastPalette(SystemColors.WindowBrush, SystemColors.WindowTextBrush,
             SystemColors.HighlightBrush, SystemColors.HighlightTextBrush);
         Application.Current.Resources["SelectedBorderThickness"] = new Thickness(HighContrast ? 3 : 1);
+        Application.Current.Resources["SetupFeedbackBorderThickness"] = new Thickness(HighContrast || !dark ? 1 : 0);
         foreach (var (key, colors) in Palette)
         {
             Brush brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? colors.Dark : colors.Light));
@@ -73,7 +77,7 @@ internal static class ThemeResources
                 brush = key switch
                 {
                     "Ink" or "Muted" or "Error" or "Success" or "Warning" or "MediaVideo" or "MediaAudio" or "NavigationIcon" or "NavigationInk" or "NavigationMuted" => contrast.Foreground,
-                    "Accent" or "Action" or "Border" or "DownloadActionFill" => contrast.Highlight,
+                    "Accent" or "Action" or "Border" or "DownloadActionFill" or "SetupFeedbackBorder" or "NavigationActiveInk" => contrast.Highlight,
                     "OnAccent" or "DownloadActionInk" or "DownloadActionProgress" or "NavigationSelectedInk" => contrast.HighlightText,
                     "NavigationSelected" => contrast.Highlight,
                     _ => contrast.Background

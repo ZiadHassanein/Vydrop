@@ -47,23 +47,22 @@
  <Style x:Key="LibraryNavigation" TargetType="ToggleButton">
   <Setter Property="FocusVisualStyle" Value="{StaticResource NavigationKeyboardFocus}"/>
   <Setter Property="Foreground" Value="{DynamicResource NavigationInk}"/><Setter Property="Background" Value="Transparent"/>
-  <Setter Property="FontSize" Value="14"/><Setter Property="MinHeight" Value="48"/><Setter Property="Padding" Value="14,10"/><Setter Property="Margin" Value="10,3"/>
+  <Setter Property="FontSize" Value="13"/><Setter Property="MinHeight" Value="44"/><Setter Property="Padding" Value="10,8"/><Setter Property="Margin" Value="2,2"/>
   <Setter Property="Cursor" Value="Hand"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
    <Grid Background="Transparent"><Grid local:InteractionMotion.Enabled="True">
-    <Path x:Name="Face" Data="M0,0 H240 V35 L227,48 H0 Z" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="Transparent" StrokeThickness="1"/>
-    <Path x:Name="NavigationSelection" Data="M0,0 H240 V35 L227,48 H0 Z" Stretch="Fill" Fill="{DynamicResource NavigationSelected}" Opacity="0" IsHitTestVisible="False" local:SelectionMotion.IsSelected="{Binding IsChecked,RelativeSource={RelativeSource TemplatedParent}}"/>
-    <Path Data="M0,0 H240 V35 L227,48 H0 Z" Stretch="Fill" Fill="{DynamicResource NavigationSelected}" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True" local:HoverMotion.Strength="0.45"/>
-    <Grid Margin="{TemplateBinding Padding}"><Grid.ColumnDefinitions><ColumnDefinition Width="22"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-     <Path x:Name="NavigationGlyph" Data="{TemplateBinding Tag}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource NavigationIcon}" Width="19" Height="19"/>
-     <ContentPresenter Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"/>
+    <Grid x:Name="NavigationContent" Margin="{TemplateBinding Padding}"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <Path x:Name="NavigationGlyph" Data="{TemplateBinding Tag}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource NavigationIcon}" Width="18" Height="18"/>
+     <ContentPresenter x:Name="NavigationLabel" Grid.Column="1" Margin="6,0,0,0" VerticalAlignment="Center"/>
     </Grid>
    </Grid></Grid>
    <ControlTemplate.Triggers>
-    <Trigger Property="IsChecked" Value="True"><Setter TargetName="NavigationGlyph" Property="Stroke" Value="{DynamicResource NavigationSelectedInk}"/><Setter Property="Foreground" Value="{DynamicResource NavigationSelectedInk}"/><Setter Property="FontWeight" Value="SemiBold"/></Trigger>
-    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Face" Property="Stroke" Value="{DynamicResource NavigationMuted}"/></Trigger>
+    <DataTrigger Binding="{Binding IsNavigationCompact,RelativeSource={RelativeSource AncestorType=local:DownloadManagerView}}" Value="True"><Setter TargetName="NavigationLabel" Property="Visibility" Value="Collapsed"/><Setter TargetName="NavigationContent" Property="HorizontalAlignment" Value="Center"/></DataTrigger>
+    <Trigger Property="IsChecked" Value="True"><Setter TargetName="NavigationGlyph" Property="Stroke" Value="{DynamicResource NavigationActiveInk}"/><Setter Property="Foreground" Value="{DynamicResource NavigationActiveInk}"/><Setter Property="FontWeight" Value="SemiBold"/></Trigger>
+    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="NavigationGlyph" Property="Stroke" Value="{DynamicResource NavigationActiveInk}"/></Trigger>
    </ControlTemplate.Triggers>
   </ControlTemplate></Setter.Value></Setter>
+  <Style.Triggers><DataTrigger Binding="{Binding IsNavigationCompact,RelativeSource={RelativeSource AncestorType=local:DownloadManagerView}}" Value="True"><Setter Property="Width" Value="44"/></DataTrigger></Style.Triggers>
  </Style>
  <Style x:Key="LibraryRow" TargetType="ListBoxItem">
   <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="12,14"/><Setter Property="BorderThickness" Value="1"/><Setter Property="BorderBrush" Value="Transparent"/>

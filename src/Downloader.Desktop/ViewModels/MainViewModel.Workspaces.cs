@@ -11,6 +11,7 @@ public sealed partial class MainViewModel
         internal set
         {
             if (!SetProperty(ref workspacePage, value)) return;
+            if (value != WorkspacePage.QueueComposer) CancelQueueLinkInspections();
             OnPropertyChanged(nameof(HasWorkspacePage));
             OnPropertyChanged(nameof(IsBrowserIntegrationPage));
             RefreshLibrary();

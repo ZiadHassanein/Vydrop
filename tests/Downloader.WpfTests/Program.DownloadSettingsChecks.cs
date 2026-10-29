@@ -13,7 +13,7 @@ internal static partial class Program
         var original = model.Queue.Add(new() { Url = "https://example.com/old.mp4", Folder = root });
         model.SettingsVisible = true;
         await Task.Delay(60); window.UpdateLayout();
-        var expander = Descendants<Expander>(window.SettingsPane).Single(); expander.IsExpanded = true;
+        var expander = Descendants<Expander>(window.SettingsPane).Single(item => Equals(item.Header, model.DownloadLimitsLabel)); expander.IsExpanded = true;
         await Task.Delay(60); window.UpdateLayout();
         var view = Descendants<DownloadLimitsView>(expander).Single();
         var toggle = (CheckBox)WpfTree.Find(view, "SpeedLimitToggle");
@@ -43,6 +43,7 @@ internal static partial class Program
         Check(!model.IsSpeedLimited && model.SpeedLimitKiB == 0 && !speed.IsVisible, "Turning the cap off preserves the legacy unlimited sentinel while hiding its numeric editor");
         ToggleSpeed(); window.UpdateLayout();
         Check(model.SpeedLimitKiB == 2048 && speed.Text == "2048", "Turning the cap back on restores the last positive value in this session");
+        ((Expander)WpfTree.Find(view, "AdvancedDownloadOptions")).IsExpanded = true; window.UpdateLayout();
         var retries = (ComboBox)WpfTree.Find(view, "RetriesInput");
         foreach (int totalAttempts in Enumerable.Range(1, 5))
         {

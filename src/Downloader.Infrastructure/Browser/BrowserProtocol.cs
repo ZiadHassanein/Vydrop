@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace YouTubeDownloader;
 public sealed record BrowserRequest(int Version, string Type, string Url = null, string RequestId = null, string SourcePage = null, string MediaId = null, BrowserOutputChoice Output = null, bool WholePlaylist = false, string CompanionVersion = null, string CompanionBrowser = null);
 public sealed record BrowserOutputChoice(string Kind, string Format, int Height = 0);
-public sealed record BrowserReceipt(bool Accepted, string Code, string Message = null);
+public sealed record BrowserReceipt(bool Accepted, string Code, string Message = null, string Language = null);
 public static class BrowserProtocol
 {
     public const int MaximumBytes = 65536;

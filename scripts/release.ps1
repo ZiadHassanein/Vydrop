@@ -1,15 +1,19 @@
 $ErrorActionPreference = 'Stop'
-if ($env:GITHUB_EVENT_NAME -ne 'push' -or $env:GITHUB_REF_TYPE -ne 'tag' -or
-    $env:GITHUB_REF_NAME -notmatch '^v\d+\.\d+\.\d+$' -or !$env:GH_RELEASE_TOKEN) {
-    throw 'Release publishing requires an explicit version tag and the job token.'
+$tagPush = $env:GITHUB_EVENT_NAME -eq 'push' -and $env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -match '^v\d+\.\d+\.\d+$'
+$releaseCommit = $env:GITHUB_EVENT_NAME -eq 'push' -and $env:GITHUB_REF_TYPE -eq 'branch' -and $env:GITHUB_REF_NAME -eq 'main' -and $env:GH_RELEASE_COMMIT -match '^Release v(?<version>\d+\.\d+\.\d+)(?:\r?\n|$)'
+if (!$env:GH_RELEASE_TOKEN -or (!$tagPush -and !$releaseCommit)) {
+    throw 'Release publishing requires an explicit version tag or Release vX.Y.Z commit on main and the job token.'
 }
+$version = if ($tagPush) { $env:GITHUB_REF_NAME.Substring(1) } else { $Matches.version }
+$tag = 'v' + $version
 $sourceRepository = 'ZiadHassanein/Vydrop'
 $repository = $sourceRepository
 if ($env:GITHUB_REPOSITORY -ne $sourceRepository) { throw 'Unexpected source repository.' }
 & git merge-base --is-ancestor HEAD origin/main
 if ($LASTEXITCODE -ne 0) { throw 'Only a commit already merged to main can be released.' }
-$version = $env:GITHUB_REF_NAME.Substring(1)
 $root = Split-Path -Parent $PSScriptRoot
+$declaredVersion = ([xml](Get-Content -LiteralPath (Join-Path $root "Directory.Build.props"))).Project.PropertyGroup.Version
+if ($declaredVersion -ne $version) { throw "The release version must match the source version." }
 $sumPath = Join-Path $root 'dist/checksums-desktop.json'
 $sum = Get-Content -LiteralPath $sumPath -Raw | ConvertFrom-Json
 $expectedName = "Vydrop-v$version-win-x64.zip"
@@ -21,8 +25,20 @@ $destination = Invoke-RestMethod -Uri "https://api.github.com/repos/$repository"
 if ($destination.private -or $destination.full_name -ne $repository -or $destination.default_branch -ne 'main') {
     throw 'Releases must use the main public Vydrop repository.'
 }
+$head = (& git rev-parse HEAD).Trim()
+if ($LASTEXITCODE -ne 0 -or $head -notmatch '^[0-9a-f]{40}$') { throw 'The release needs an exact checked-out commit.' }
+if ($releaseCommit) {
+    $tagRef = $null
+    try { $tagRef = Invoke-RestMethod -Uri "https://api.github.com/repos/$repository/git/ref/tags/$tag" -Headers $headers }
+    catch { if ([int]$_.Exception.Response.StatusCode -ne 404) { throw } }
+    if (!$tagRef) {
+        $tagPayload = @{ref = 'refs/tags/' + $tag; sha = $head} | ConvertTo-Json
+        $tagRef = Invoke-RestMethod -Uri "https://api.github.com/repos/$repository/git/refs" -Method Post -Headers $headers -ContentType 'application/json' -Body $tagPayload
+    }
+    if ($tagRef.object.sha -ne $head) { throw 'An existing release tag points at another commit. It will not be overwritten.' }
+}
 $api = "https://api.github.com/repos/$repository/releases"
-$url = "https://github.com/$repository/releases/download/$($env:GITHUB_REF_NAME)/$expectedName"
+$url = "https://github.com/$repository/releases/download/$tag/$expectedName"
 $changelog = Get-Content -LiteralPath (Join-Path $root 'CHANGELOG.md') -Raw
 $releaseNotes = [regex]::Match($changelog, "(?ms)^## \[$([regex]::Escape($version))\][^\r\n]*\r?\n(?<notes>.*?)(?=^## \[|\z)").Groups['notes'].Value.Trim()
 if (!$releaseNotes) { throw 'The tagged version needs a changelog section before publication.' }
@@ -33,32 +49,34 @@ Vydrop is a free Windows video and audio downloader for YouTube and 1,000+ publi
 
 Extract the complete ZIP, which includes **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**, then open **Vydrop.exe**. Windows 10/11 x64; .NET is bundled and missing media tools are prepared automatically.
 
-Opening Vydrop once registers the browser connection for your account automatically. Browser-store listings are still pending: open **Browser integration**, choose your browser and click **Set up**. Finish loading the companion in your browser, then refresh your video page. App updates include the companion files, which reload automatically from companion 1.5.7 onward. Older companions need one reload to enable automatic reload. Refresh open video tabs. Browser approval is required.
+Opening Vydrop once registers the browser connection for your account automatically. Browser-store listings are still pending: open **Settings → Browser integration**, choose your browser and click **Set up**. Finish loading the companion in your browser, then refresh your video page. App updates include the companion files, which reload automatically from companion 1.5.7 onward. Older companions need one reload to enable automatic reload. Refresh open video tabs. Browser approval is required.
 
 ## Changes in $version
 
 $releaseNotes
 
-### Updated interface
+### Updated interface (native renders with example downloads)
 
-![Library with completed media — native app with example downloads](https://raw.githubusercontent.com/$repository/$($env:GITHUB_REF_NAME)/docs/images/screenshots/vydrop-dark-en-manager.png)
+![Library with completed media — native app with example downloads](https://raw.githubusercontent.com/$repository/$tag/docs/images/screenshots/vydrop-dark-en-manager.png)
 
-![قائمة التنزيلات بالعربية — لقطة أصلية بمهام تجريبية](https://raw.githubusercontent.com/$repository/$($env:GITHUB_REF_NAME)/docs/images/screenshots/vydrop-light-ar-queue.png)
+![قائمة التنزيلات بالعربية — لقطة أصلية بمهام تجريبية](https://raw.githubusercontent.com/$repository/$tag/docs/images/screenshots/vydrop-light-ar-queue.png)
 
-[Documentation](https://ziadhassanein.github.io/Vydrop/) · [العربية](https://ziadhassanein.github.io/Vydrop/ar/) · [Illustrated Chrome, Edge and Firefox setup](https://github.com/$repository/blob/$($env:GITHUB_REF_NAME)/docs/browser-extension-setup.md)
+[Documentation](https://ziadhassanein.github.io/Vydrop/) · [العربية](https://ziadhassanein.github.io/Vydrop/ar/) · [Illustrated Chrome, Edge and Firefox setup](https://github.com/$repository/blob/$tag/docs/browser-extension-setup.md)
 
 ### Downloads and media support
 
 - MP4, MKV and WebM video where inspected streams are compatible.
 - MP3, M4A, Opus, WAV and FLAC audio with source-aware conversion choices.
 - Public media from YouTube, TikTok, Facebook, Vimeo and other yt-dlp-supported sites, plus compatible direct media links. Private, sign-in-only and DRM content is unsupported.
-- Queue, playlist selection and available SRT/VTT subtitles.
+- Per-link queue output choices with automatic available-format discovery, playlist selection and available SRT/VTT subtitles.
 - English/Arabic and light/dark themes.
-- Browser companion 1.5.12 inside Browser: selected Reddit master playlists with verified audio, LinkedIn feed-to-public-embed lookup, explicit video/playlist scope, Dailymotion main-video routing and detected-ad filtering, always-visible video actions, in-player format/quality choices, a two-action popup and silent failed in-video lookups. Existing companion/native-host identities and version-1 single-video fallback remain compatible.
+- Browser companion 1.5.14 inside Browser: selected Reddit master playlists with verified audio, LinkedIn feed-to-public-embed lookup, explicit video/playlist scope, Dailymotion main-video routing and detected-ad filtering, always-visible video actions, in-player format/quality choices, a two-action popup and silent failed in-video lookups. Existing companion/native-host identities and version-1 single-video fallback remain compatible.
 - Automatic daily verified yt-dlp/Deno checks and one compatible update-and-retry.
 - Settings keeps video errors in the download screen; manual app updates use this repository.
 
-**Upgrading:** use Settings → Check for updates → Install to update the app and both companion folders together. If Reload keeps an old version, use Browser integration → Set up and load its copied fixed folder once. Future app updates refresh that folder automatically; refresh open video tabs afterward. Completed update staging and retired extension scripts are removed after success while settings, history, queue and saved media are preserved. Alternatively, close Vydrop and extract the complete new ZIP into its permanent folder. Stable settings, queue, history and verified media tools retain their compatible storage location; preview state stays separate. If the app moved, open it once to repair the connection automatically. Versions through 4.2.1 require one manual desktop download after the repository rename.
+**Upgrading:** use Settings → Check for updates → Install to update the app and both companion folders together. If Reload keeps an old version, use Settings → Browser integration → Set up and load its copied fixed folder once. Future app updates refresh that folder automatically; refresh open video tabs afterward. Completed update staging and retired extension scripts are removed after success while settings, history, queue and saved media are preserved. Alternatively, close Vydrop and extract the complete new ZIP into its permanent folder. Stable settings, queue, history and verified media tools retain their compatible storage location; preview state stays separate. If the app moved, open it once to repair the connection automatically. Versions through 4.2.1 require one manual desktop download after the repository rename.
+
+This version removes Download later and queue reorder arrows. Retired schedule times are cleared without removing queued jobs, history or downloaded files.
 
 The app is not Authenticode-signed. GitHub's asset digests and these SHA-256 values identify the published files:
 
@@ -66,7 +84,7 @@ The app is not Authenticode-signed. GitHub's asset digests and these SHA-256 val
 
 By **Ziad Hassanein**. Only save content you have permission to download.
 "@
-$payload = @{tag_name = $env:GITHUB_REF_NAME; target_commitish = 'main'; name = "Vydrop $($env:GITHUB_REF_NAME)"; body = $body; draft = $true; prerelease = $false} | ConvertTo-Json
+$payload = @{tag_name = $tag; target_commitish = 'main'; name = "Vydrop $tag"; body = $body; draft = $true; prerelease = $false} | ConvertTo-Json
 $release = Invoke-RestMethod -Uri $api -Method Post -Headers $headers -ContentType 'application/json' -Body $payload
 $downloads = @(
     @{Name=$expectedName; Path=$zip; Hash=$sum.Hash; ContentType='application/zip'}

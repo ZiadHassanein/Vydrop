@@ -58,7 +58,6 @@ internal sealed class BrowserSetupViewModel : ObservableObject
     public bool HasExtension => actions.HasExtension(SelectedBrowser);
     public string BrowserAddress => BrowserSetupActions.BrowserAddress(SelectedBrowser);
     public string Heading => t("Browser integration");
-    public string Intro => t("Load the extension once. Vydrop connects automatically.");
     public string BrowserLabel => t("Your browser");
     public string ConnectionStatus => t(IsConnected ? "Connected to this Vydrop app" : "App connection is not enabled");
     public bool IsVerified => actions.IsVerified;

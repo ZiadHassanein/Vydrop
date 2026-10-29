@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you reference Vydrop, use this software citation."
 type: software
 title: "Vydrop: Windows video and audio downloader"
-version: "4.4.16"
-date-released: "2026-10-27"
+version: "4.4.17"
+date-released: "2026-10-29"
 license: MIT
 repository-code: "https://github.com/ZiadHassanein/Vydrop"
 url: "https://github.com/ZiadHassanein/Vydrop"

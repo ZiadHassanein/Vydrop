@@ -1,4 +1,3 @@
-using System.Windows;
 using System.Windows.Controls;
 using YouTubeDownloader;
 
@@ -31,25 +30,17 @@ internal static partial class Program
             await InspectQueueModal(owner, model, async dialog =>
             {
                 var viewport = (ScrollViewer)WpfTree.Find(dialog, "QueueViewport");
-                var limits = Descendants<Expander>(dialog).Single(e => Equals(e.Header, model.DownloadLimitsLabel));
-                limits.IsExpanded = true;
                 await Task.Delay(120); dialog.UpdateLayout();
-                Check(viewport.ScrollableWidth <= 1 && Descendants<DownloadLimitsView>(dialog).Any(), "Download controls fit the existing queue design in " + language + (dark ? " dark" : " light"));
-                viewport.ScrollToVerticalOffset(limits.TransformToAncestor(viewport).Transform(new Point()).Y + viewport.VerticalOffset);
-                await Task.Delay(75);
+                Check(viewport.ScrollableWidth <= 1 && !Descendants<DownloadLimitsView>(dialog).Any() && !Descendants<DatePicker>(dialog).Any(),
+                    "The simplified queue fits without scheduling or duplicate speed settings in " + language + (dark ? " dark" : " light"));
                 Capture(dialog, System.IO.Path.Combine(captures, "download-controls-" + language + (dark ? "-dark" : "-light") + ".png"));
-                limits.IsExpanded = false; viewport.ScrollToEnd(); await Task.Delay(100);
+                viewport.ScrollToEnd(); await Task.Delay(100);
                 Check(viewport.ScrollableWidth <= 1 && model.QueueItems[0].CanRefresh, "Queue recovery controls stay reachable in both directions");
                 Capture(dialog, System.IO.Path.Combine(captures, "durable-queue-" + language + (dark ? "-dark" : "-light") + ".png"));
             });
         }
         model.SelectLanguageCommand.Execute("en");
-        model.ScheduledDate = DateTime.Today.AddDays(1); model.ScheduledTime = "12:30"; model.ScheduledStopTime = "13:00";
-        model.ScheduleQueueCommand.Execute(null);
-        Check(model.Queue.StartAt.HasValue && new DownloadQueue(new LocalQueueStorage(root)).StartAt == model.Queue.StartAt, "The queue schedule is saved through the desktop controls");
-        model.ClearScheduleCommand.Execute(null);
-        model.ScheduledTime = "invalid"; model.ScheduleQueueCommand.Execute(null);
-        Check(!model.Queue.StartAt.HasValue && model.QueueMessage.Contains("valid times", StringComparison.Ordinal), "Invalid schedule input gives recovery feedback without starting work");
+        Check(!model.Queue.StartAt.HasValue && !model.Queue.StopAt.HasValue, "Queue management leaves no automatic start or stop timers");
         provider.DownloadDelayMilliseconds = 10;
         model.RetryQueueCommand.Execute(first.Id);
         await model.QueueStartCommand.ExecuteAsync(null);

@@ -47,19 +47,12 @@ internal static partial class Program
             provider.DownloadCalls == 0 && !model.Queue.IsRunning,
             "Version-one saved jobs restore without loss or automatic resumption");
         Check(model.LibraryCount == 3 && model.WaitingCount == 6 && model.VideoCount == 2 && model.AudioCount == 1 &&
-            model.PendingCount == 1 && model.PausedCount == 2 && model.AttentionCount == 3,
+            model.PendingCount == 1 && model.PausedCount == 2,
             "Completed media counts and unfinished status counts form separate scopes");
         Check(model.QueueItems.Where(row => !row.IsComplete).Count() == 6 && model.QueueItems.Where(row => !row.IsComplete).All(row => !row.IsComplete) &&
             model.QueueLabel == "Queue (6)", "Advanced queue management uses the same unfinished-work scope and count");
-        var work = model.QueueItems.Where(row => !row.IsComplete).ToArray();
-        var completedOrder = model.QueueItems.Where(row => row.IsComplete).Select(row => row.Id).ToArray();
-        Check(!model.MoveQueueUpCommand.CanExecute(work[0].Id) && !model.MoveQueueDownCommand.CanExecute(work[^1].Id),
-            "Queue ordering disables unavailable edges even with completed records stored between jobs");
-        model.MoveQueueUpCommand.Execute(work[1].Id);
-        Check(model.QueueItems.Where(row => !row.IsComplete).Take(2).Select(row => row.Id).SequenceEqual(new[] { work[1].Id, work[0].Id }) &&
-            model.QueueItems.Where(row => row.IsComplete).Select(row => row.Id).SequenceEqual(completedOrder),
-            "Moving unfinished work skips completed records and preserves the Library order");
-        model.MoveQueueDownCommand.Execute(work[1].Id);
+        Check(model.QueueItems.Select(row => row.Id).SequenceEqual(model.Queue.Entries.Select(job => job.Id)),
+            "The queue keeps its saved order without reorder controls");
         await InspectQueueModal(window, model, async dialog =>
         {
             var jobs = model.QueueItems.Where(row => !row.IsComplete).ToArray();
@@ -78,7 +71,7 @@ internal static partial class Program
                     window.Width = width;
                     model.LibraryFilterCommand.Execute("all"); model.LibrarySearch = "";
                     await Task.Delay(160); window.UpdateLayout();
-                    Check(Visible().Length == 3 && Visible().All(row => row.IsComplete) && model.IsLibraryAll &&
+                    Check(Visible().Length == 3 && Visible().All(row => row.IsComplete) && model.IsLibraryPage &&
                         !window.ManagerContent.QueueActions.IsVisible && window.ManagerContent.LibraryFilters.IsVisible && !window.ManagerContent.QueueFilters.IsVisible,
                         "Library shows only completed media and media filters: " + locale + "/" + dark + "/" + width);
                     model.SelectedLibraryItem = finished;
@@ -97,7 +90,7 @@ internal static partial class Program
                         window.ManagerContent.LibraryFilters.ActualWidth <= window.ManagerContent.LibraryContent.ActualWidth,
                         "Both workspaces fit without horizontal scrolling");
                     Capture(window, Path.Combine(captures, $"queue-{locale}-{(dark ? "dark" : "light")}-{width}.png"));
-                    foreach (var (filter, count) in new[] { ("pending", 1), ("paused", 2), ("attention", 3), ("active", 0) })
+                    foreach (var (filter, count) in new[] { ("pending", 1), ("paused", 2), ("active", 0) })
                     {
                         model.LibraryFilterCommand.Execute(filter);
                         Check(Visible().Length == count && model.IsLibraryQueue && model.IsQueuePage,
@@ -127,7 +120,8 @@ internal static partial class Program
         ((IInvokeProvider)new ButtonAutomationPeer(window.ManagerContent.StartQueueButton).GetPattern(PatternInterface.Invoke)).Invoke();
         await Until(() => model.IsIdle && pending.State == QueueState.Completed, "The visible Start download action completes the pending job");
         Check(model.IsQueuePage && model.IsScopeAll && !Visible().Any(row => row.Id == pending.Id) &&
-            model.LibraryCount == 6 && model.WaitingCount == 3 && model.PausedCount == 0 && model.AttentionCount == 3,
+            model.LibraryCount == 6 && model.WaitingCount == 3 && model.PausedCount == 0 &&
+            model.Queue.Entries.Count(entry => entry.State is QueueState.Failed or QueueState.Cancelled or QueueState.AwaitingSource) == 3,
             "Explicit Resume completes paused, interrupted and pending jobs while preserving failed, cancelled and source-refresh work");
         model.LibraryFilterCommand.Execute("all");
         Check(Visible().Any(row => row.Id == pending.Id), "The same completed job appears in Library without duplication");

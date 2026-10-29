@@ -1,10 +1,17 @@
 if (!globalThis.ViFreeConnection) importScripts("connection.js", "video-detection.js");
 const { api, name, sendLink, errorMessage } = globalThis.ViFreeConnection;
 if (api.alarms && !globalThis.VydropAutoReload) importScripts("auto-reload.js");
-const arabic = /^ar\b/iu.test(api.i18n?.getUILanguage?.() ?? "");
-const text = arabic
+let arabic = /^ar\b/iu.test(api.i18n?.getUILanguage?.() ?? "");
+const menuText = () => arabic
   ? { link: `فتح الرابط في ${name}`, video: `فتح الفيديو في ${name}` }
   : { link: `Open link in ${name}`, video: `Open video in ${name}` };
+let text = menuText();
+function applyLanguage(language) {
+  if (!["en", "ar"].includes(language) || arabic === (language === "ar")) return;
+  arabic = language === "ar"; text = menuText();
+  for (const [id, title] of [["vifree-send-link", text.link], ["vifree-send-page", text.video]])
+    void api.contextMenus.update?.(id, { title })?.catch?.(() => {});
+}
 const resolvedSources = new Map();
 async function resolveOnce(message, sender) {
   const key = `${sender.tab.id}:${sender.frameId}:${sender.tab.url || ""}:${message.url}:${message.linkedinAsset || ""}:${message.sourcePage || ""}:${message.mirrorPage || ""}`;
@@ -17,7 +24,7 @@ async function resolveOnce(message, sender) {
 }
 
 api.runtime.onMessage.addListener((message, sender, respond) => {
-  if (!["vifree-open-video", "vydrop-inspect-video"].includes(message?.type) || message.version !== 1) return false;
+  if (!["vifree-open-video", "vydrop-inspect-video", "vydrop-language"].includes(message?.type) || message.version !== 1) return false;
   let allowed = false;
   try {
     const page = new URL(sender.url);
@@ -25,6 +32,10 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
       Number.isInteger(sender.frameId) && sender.frameId >= 0 && /^https?:$/u.test(page.protocol) && !page.username && !page.password;
   } catch { /* Only this extension's web content scripts can forward an explicit video click. */ }
   if (!allowed) { respond({ ok: false, code: "invalid", message: "This video page cannot open Vydrop." }); return false; }
+  if (message.type === "vydrop-language") {
+    void globalThis.ViFreeConnection.getLanguage().then(language => { applyLanguage(language); respond({ ok: true, language }); });
+    return true;
+  }
   const releaseReload = globalThis.ViFreeConnection.holdReload();
   resolveOnce(message, sender)
     .then(async url => {

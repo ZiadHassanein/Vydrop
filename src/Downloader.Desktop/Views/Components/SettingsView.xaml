@@ -10,10 +10,9 @@
  </UserControl.Resources>
  <Border Background="Transparent" Padding="0" FlowDirection="{Binding ContentDirection}">
   <StackPanel>
-   <StackPanel Orientation="Horizontal" Margin="0,0,0,9"><Path Data="{StaticResource BrowserIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Muted}" Width="18" Height="18" Margin="0,0,10,0"/><TextBlock Text="{Binding BrowserLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
-   <TextBlock Text="{Binding BrowserSettingsHint}" Foreground="{DynamicResource Muted}" FontSize="13" Margin="0,0,0,12"/>
-   <Button Content="{Binding BrowserLabel}" Command="{Binding BrowserCommand}" HorizontalAlignment="Left"/>
-   <Border Height="1" Background="{DynamicResource Divider}" Margin="0,24"/>
+   <Button x:Name="BrowserIntegrationButton" Command="{Binding BrowserCommand}" AutomationProperties.Name="{Binding BrowserLabel}" HorizontalAlignment="Left" Margin="0,0,0,24">
+    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource BrowserIcon}" Style="{StaticResource LineIcon}" Width="18" Height="18" Stroke="{DynamicResource Muted}" Margin="0,0,8,0"/><TextBlock Text="{Binding BrowserLabel}"/></StackPanel>
+   </Button>
    <StackPanel Orientation="Horizontal" Margin="0,0,0,9"><Path Data="{StaticResource RefreshIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Muted}" Width="18" Height="18" Margin="0,0,10,0"/><TextBlock Text="{Binding UpdateSectionLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
    <Button x:Name="UpdateAnchor" Content="{Binding UpdateLabel}" Command="{Binding UpdateCommand}" HorizontalAlignment="Left"/>
    <StackPanel x:Name="UpdateNoticeHost" FlowDirection="LeftToRight"/>

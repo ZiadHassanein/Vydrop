@@ -113,8 +113,10 @@ public partial class SubtitleOptionsView : UserControl
 
     private void KeepSearchInput(object sender, KeyEventArgs args)
     {
-        // Text editing belongs to this field; Tab still follows normal keyboard navigation.
-        if (args.Key != Key.Tab) args.Handled = true;
+        // Consuming printable KeyDown events suppresses WPF text composition.
+        // Only stop cursor/page keys from reaching the parent ComboBox.
+        if (args.Key is Key.Home or Key.End or Key.Left or Key.Right or Key.PageUp or Key.PageDown)
+            args.Handled = true;
     }
 
     private void NoticeChanged(object sender, PropertyChangedEventArgs args)

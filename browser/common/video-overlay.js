@@ -5,8 +5,8 @@
   if (!api?.runtime?.sendMessage || globalThis.ViFreeOverlayActive) return;
   globalThis.ViFreeOverlayActive = true;
 
-  const arabic = document.documentElement.lang.toLowerCase().startsWith("ar");
-  const text = arabic ? {
+  let arabic = document.documentElement.lang.toLowerCase().startsWith("ar");
+  const overlayText = () => arabic ? {
     open: "تنزيل بواسطة Vydrop", action: "نسخ رابط الفيديو وفتحه في Vydrop", finding: "جارٍ تحديد الفيديو…",
     opening: "جارٍ الفتح…", opened: "تم الفتح في Vydrop", copied: "تم نسخ الرابط وفتح الفيديو في Vydrop.",
     clipboard: "تم الفتح في Vydrop، لكن تعذّر نسخ الرابط.",
@@ -17,6 +17,7 @@
     clipboard: "Opened in Vydrop. The clipboard was unavailable.",
     retry: "Try again"
   };
+  let text = overlayText();
   const host = document.createElement("div");
   host.id = "vifree-video-action";
   host.style.cssText = "all:initial!important;position:fixed!important;z-index:2147483646!important;display:none!important;pointer-events:none!important;";
@@ -73,6 +74,21 @@
   shadow.append(style, button, status);
 
   let currentVideo = null, pendingVideo = null, busy = false, scheduled = false, feedbackTimer;
+  function applyLanguage(language) {
+    if (arabic === (language === "ar")) return;
+    const previous = text, previousArabic = arabic; arabic = language === "ar"; text = overlayText();
+    button.dir = status.dir = arabic ? "rtl" : "ltr"; button.lang = status.lang = language;
+    button.setAttribute("aria-label", text.open);
+    for (const node of [label, status]) {
+      const key = Object.keys(previous).find(key => previous[key] === node.textContent);
+      if (key) node.textContent = text[key];
+      else if (node === label && node.textContent === (previousArabic ? "في قائمة Vydrop" : "Queued in Vydrop")) node.textContent = arabic ? "في قائمة Vydrop" : "Queued in Vydrop";
+      else for (const code of ["invalid", "missing", "ambiguous", "advertisement", "inspect", "busy", "unavailable", "preparing", "failed", "unsupported", "protected", "storage"])
+        if (node.textContent === globalThis.ViFreeConnection.errorMessage({ code }, previousArabic)) { node.textContent = globalThis.ViFreeConnection.errorMessage({ code }, arabic); break; }
+    }
+    button.title = status.textContent || text.action;
+  }
+  globalThis.ViFreeConnection?.watchLanguage?.(applyLanguage, () => Boolean(currentVideo) && host.style.display !== "none");
   const playing = video => video?.isConnected && !video.paused && !video.ended && video.readyState >= 2;
   const parent = node => node.parentElement || node.getRootNode?.()?.host;
   const mediaEvents = ["play", "playing", "loadeddata", "canplay", "pause", "ended", "loadedmetadata", "emptied"];

@@ -14,29 +14,30 @@ public sealed partial class MainViewModel
     public string RemoveLinkLabel => T("Remove link");
 
     private bool HasDraftLinks => QueueLinkInputs.Any(draft => !string.IsNullOrWhiteSpace(draft.Url));
-    private QueueLinkInputView NewQueueLinkInput() => new(T, RefreshQueueInputAvailability);
+    private QueueLinkInputView NewQueueLinkInput(QueueLinkInputView copy = null) => new(T, QueueLinkInputChanged, copy?.OutputPreferences ?? OutputRequest());
 
     private void InitializeQueueInputs()
     {
         AddLinkFieldCommand = new RelayCommand(() =>
         {
-            QueueLinkInputs.Add(NewQueueLinkInput());
+            QueueLinkInputs.Add(NewQueueLinkInput(QueueLinkInputs.LastOrDefault()));
             RefreshQueueLinkLabels();
         }, () => QueueLinkInputs.Count < DownloadQueue.Capacity);
         RemoveLinkFieldCommand = new RelayCommand<QueueLinkInputView>(field =>
         {
             if (!QueueLinkInputs.Contains(field)) return;
+            field.CancelInspection();
             if (QueueLinkInputs.Count == 1) { field.Url = ""; field.SetError(""); }
             else QueueLinkInputs.Remove(field);
             RefreshQueueLinkLabels();
         });
         PasteQueueLinkCommand = new RelayCommand<QueueLinkInputView>(field => PasteQueueLinks(field, actions.ClipboardText()));
-        AddLinksCommand = new RelayCommand(() => { AddLinks(); }, () => HasDraftLinks);
+        AddLinksCommand = new RelayCommand(() => { AddLinks(); }, () => !QueueLinkInputs.Any(field => field.HasPendingOutput) && QueueLinkInputs.Any(field => !string.IsNullOrWhiteSpace(field.Url) && field.HasOutputOptions && !field.HasError));
         QueueDownloadCommand = new AsyncRelayCommand(async () =>
         {
             if (HasDraftLinks && !AddLinks()) return;
             if (QueuePrimaryCommand.CanExecute(null)) await QueuePrimaryCommand.ExecuteAsync(null);
-        }, () => IsIdle && (HasDraftLinks || QueuePrimaryCommand.CanExecute(null)));
+        }, () => IsIdle && (HasDraftLinks ? QueueLinkInputs.Where(field => !string.IsNullOrWhiteSpace(field.Url)).All(field => field.HasOutputOptions && !field.HasError) : QueuePrimaryCommand.CanExecute(null)));
         QueueLinkInputs.Add(NewQueueLinkInput());
         RefreshQueueLinkLabels();
     }
@@ -51,10 +52,12 @@ public sealed partial class MainViewModel
             return;
         }
         int index = QueueLinkInputs.IndexOf(field);
+        bool retry = field.Url == links[0];
         field.Url = links[0];
+        if (retry) field.ResetInspection();
         for (int offset = 1; offset < links.Length; offset++)
         {
-            var added = NewQueueLinkInput();
+            var added = NewQueueLinkInput(field);
             added.Url = links[offset];
             QueueLinkInputs.Insert(index + offset, added);
         }
@@ -73,21 +76,85 @@ public sealed partial class MainViewModel
         AddLinksCommand?.NotifyCanExecuteChanged();
         AddLinkFieldCommand?.NotifyCanExecuteChanged();
         QueueDownloadCommand?.NotifyCanExecuteChanged();
+        StartQueueFormatChecks();
+    }
+
+    private Task queueFormatTask = Task.CompletedTask;
+    private CancellationTokenSource queueFormatLifetime;
+    private bool drainingQueueFormats;
+    private void QueueLinkInputChanged(QueueLinkInputView _) => RefreshQueueInputAvailability();
+    private void StartQueueFormatChecks()
+    {
+        if (browserClosing || drainingQueueFormats || ActiveWorkspace != WorkspacePage.QueueComposer || !IsIdle || !QueueLinkInputs.Any(field => field.NeedsInspection)) return;
+        queueFormatLifetime?.Dispose();
+        queueFormatLifetime = new CancellationTokenSource();
+        drainingQueueFormats = true;
+        queueFormatTask = CheckPendingQueueLinksAsync(queueFormatLifetime.Token);
+    }
+    private async Task CheckPendingQueueLinksAsync(CancellationToken token)
+    {
+        try
+        {
+            while (!browserClosing && ActiveWorkspace == WorkspacePage.QueueComposer && IsIdle)
+            {
+                token.ThrowIfCancellationRequested();
+                var field = QueueLinkInputs.FirstOrDefault(item => item.NeedsInspection);
+                if (field == null) break;
+                var remaining = TimeSpan.FromMilliseconds(450) - (DateTime.UtcNow - field.ChangedAtUtc);
+                if (remaining > TimeSpan.Zero) await Task.Delay(remaining, token);
+                if (!IsIdle) break;
+                if (QueueLinkInputs.Contains(field) && field.NeedsInspection) await InspectQueueLinkAsync(field);
+            }
+        }
+        catch (OperationCanceledException) { }
+        finally { drainingQueueFormats = false; RefreshQueueInputAvailability(); }
+    }
+    private async Task InspectQueueLinkAsync(QueueLinkInputView field)
+    {
+        string candidate = field.Url.Trim();
+        var check = field.BeginInspection();
+        try
+        {
+            var targets = downloads.ResolveTargets(candidate);
+            if (targets.VideoUrl == null)
+            {
+                downloads.Normalize(candidate, true);
+                field.UsePlaylistOptions();
+            }
+            else
+            {
+                var metadata = await downloads.InspectAsync(targets.VideoUrl, null, check.Token);
+                if (QueueLinkInputs.Contains(field) && field.IsCurrentInspection(check, candidate)) field.SetMetadata(metadata);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception error)
+        {
+            if (field.IsCurrentInspection(check, candidate)) field.SetError(DownloadErrorPresentation.Describe(error));
+        }
+        finally { field.EndInspection(check); }
+    }
+
+    private void CancelQueueLinkInspections()
+    {
+        queueFormatLifetime?.Cancel();
+        foreach (var field in QueueLinkInputs) field.CancelInspection();
     }
 
     private bool AddLinks()
     {
+        if (QueueLinkInputs.Any(field => field.HasPendingOutput)) return false;
         int added = 0;
-        foreach (var field in QueueLinkInputs.Where(field => !string.IsNullOrWhiteSpace(field.Url)).ToArray())
+        foreach (var field in QueueLinkInputs.Where(field => !string.IsNullOrWhiteSpace(field.Url) && field.HasOutputOptions && !field.HasError).ToArray())
         {
             try
             {
                 var targets = downloads.ResolveTargets(field.Url.Trim());
                 var request = OutputRequest();
                 request.Url = targets.VideoUrl ?? targets.PlaylistUrl;
-                request.Selection = null;
-                request.QualityKey = null;
-                Queue.Add(request, new Uri(request.Url).Host);
+                field.ApplyOutput(request);
+                request.PlaylistRequested = targets.VideoUrl == null;
+                Queue.Add(request, field.InspectedTitle ?? new Uri(request.Url).Host);
                 QueueLinkInputs.Remove(field);
                 added++;
             }
@@ -100,6 +167,6 @@ public sealed partial class MainViewModel
         QueueMessage = added > 0 ? F("{0} links added to the queue.", added) : "";
         OnPropertyChanged(nameof(QueueMessage));
         RefreshQueueLinkLabels();
-        return !QueueLinkInputs.Any(field => field.HasError);
+        return !HasDraftLinks;
     }
 }

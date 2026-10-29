@@ -51,7 +51,7 @@ internal static partial class Program
         model.SettingsCommand.Execute(null);
         await Task.Delay(220);
         Check(model.SettingsVisible && ((FrameworkElement)WpfTree.Find(window, "ToolRefreshAnchor")).IsVisible,
-            "Settings exposes browser integration, app updates and downloader maintenance");
+            "Settings exposes app updates and downloader maintenance");
         model.NewDownloadCommand.Execute(null);
         Check(!model.SettingsVisible, "New download returns to the media context");
         foreach (double width in new[] { 1160d, 820d })

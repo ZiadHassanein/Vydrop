@@ -3,27 +3,41 @@
  FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}">
  <UserControl.Resources>
   <Style x:Key="FormCaption" TargetType="TextBlock">
-   <Setter Property="FontSize" Value="13"/><Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+   <Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="Medium"/><Setter Property="Foreground" Value="{DynamicResource Muted}"/>
    <Setter Property="VerticalAlignment" Value="Center"/><Setter Property="TextWrapping" Value="Wrap"/>
   </Style>
+  <Style x:Key="MediaFormatIcon" TargetType="Path" BasedOn="{StaticResource LineIcon}">
+   <Setter Property="Width" Value="18"/><Setter Property="Height" Value="18"/><Setter Property="Stroke" Value="{DynamicResource Muted}"/>
+   <Style.Triggers><DataTrigger Binding="{Binding IsChecked,RelativeSource={RelativeSource AncestorType=RadioButton}}" Value="True"><Setter Property="Stroke" Value="{DynamicResource Accent}"/></DataTrigger></Style.Triggers>
+  </Style>
  </UserControl.Resources>
- <StackPanel x:Name="FormContentPanel" Margin="24,16,24,24" FlowDirection="{Binding ContentDirection}">
-  <Border x:Name="LinkWell" Background="{DynamicResource Surface}" CornerRadius="8" Padding="18,16">
+ <StackPanel x:Name="FormContentPanel" Margin="24,8,24,24" FlowDirection="{Binding ContentDirection}">
+  <Border x:Name="LinkWell" Background="Transparent" Padding="0">
    <StackPanel>
-    <TextBlock Text="{Binding LinkLabel}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+    <TextBlock Text="{Binding LinkLabel}" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,10"/>
     <Grid>
      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
      <Grid FlowDirection="LeftToRight">
-      <TextBox x:Name="LinkInput" Text="{Binding Url,UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource LatinFont}" FontSize="14" Height="48" Padding="40,10,12,10"
-       FlowDirection="LeftToRight" IsEnabled="{Binding IsIdle}" AutomationProperties.Name="{Binding LinkLabel}" ToolTip="{Binding LinkShortcutHint}" AutomationProperties.AcceleratorKey="Ctrl+L"/>
+      <TextBox x:Name="LinkInput" Text="{Binding Url,UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource LatinFont}" FontSize="14" Height="52" Padding="40,10,48,10"
+       FlowDirection="LeftToRight" TextAlignment="{Binding InputTextAlignment}" IsEnabled="{Binding IsIdle}" AutomationProperties.Name="{Binding LinkLabel}" ToolTip="{Binding LinkShortcutHint}" AutomationProperties.AcceleratorKey="Ctrl+L"/>
       <Path Data="{StaticResource LinkIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Muted}" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False" FlowDirection="LeftToRight"/>
-      <TextBlock x:Name="LinkPlaceholder" Text="{Binding LinkPlaceholder}" Foreground="{DynamicResource Muted}" FontSize="14" Margin="40,0,12,0" VerticalAlignment="Center" IsHitTestVisible="False" TextTrimming="CharacterEllipsis" FlowDirection="{Binding ContentDirection}">
+      <TextBlock x:Name="LinkPlaceholder" Text="{Binding LinkPlaceholder}" TextAlignment="{Binding InputTextAlignment}" Foreground="{DynamicResource Muted}" FontSize="14" Margin="40,0,12,0" VerticalAlignment="Center" IsHitTestVisible="False" TextTrimming="CharacterEllipsis" FlowDirection="LeftToRight">
        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding Url}" Value=""><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
       </TextBlock>
+      <Button x:Name="ClearLinkButton" Click="ClearLinkClicked" Width="36" Height="36" MinHeight="36" Padding="10" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,6,0" AutomationProperties.Name="{Binding ClearLinkLabel}">
+       <Button.Style><Style TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+        <Setter Property="IsEnabled" Value="False"/>
+        <Style.Triggers>
+         <DataTrigger Binding="{Binding Url}" Value=""><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+         <DataTrigger Binding="{Binding IsIdle}" Value="True"><Setter Property="IsEnabled" Value="True"/></DataTrigger>
+         <DataTrigger Binding="{Binding IsCheckingMedia}" Value="True"><Setter Property="IsEnabled" Value="True"/></DataTrigger>
+        </Style.Triggers>
+       </Style></Button.Style>
+       <Path Data="{StaticResource CloseIcon}" Style="{StaticResource LineIcon}" Width="14" Height="14" Stroke="{DynamicResource Muted}"/>
+      </Button>
      </Grid>
-     <Button x:Name="PasteButton" Grid.Column="2" Content="{Binding PasteLabel}" Command="{Binding PasteCommand}" MinWidth="76" Height="48"/>
+     <Button x:Name="PasteButton" Grid.Column="2" Content="{Binding PasteLabel}" Command="{Binding PasteCommand}" MinWidth="80" Height="52"/>
     </Grid>
-    <TextBlock Text="{Binding DownloadIntro}" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/>
    </StackPanel>
   </Border>
   <local:DownloadActivityView x:Name="InlineActivity" Visibility="{Binding ShowInlineActivity,Converter={StaticResource BoolVisibility}}" Margin="0,14,0,0"/>
@@ -31,7 +45,7 @@
    <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding InlineMediaPreview}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
   </StackPanel>
   <StackPanel Margin="0,24,0,0">
-   <TextBlock Text="{Binding DownloadOptionsLabel}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16"/>
+   <TextBlock Text="{Binding DownloadOptionsLabel}" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,12"/>
   <StackPanel Visibility="{Binding HasPlaylist,Converter={StaticResource BoolVisibility}}" Margin="0,0,0,16">
    <UniformGrid Columns="2">
     <RadioButton Content="{Binding SingleLabel}" IsChecked="{Binding SingleVideo}" IsEnabled="{Binding CanSelectSingle}" Margin="0,0,5,0"/>
@@ -40,25 +54,25 @@
    <Button Content="{Binding PlaylistSelectionLabel}" Command="{Binding PlaylistSelectionCommand}" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Margin="0,6,0,0"/>
   </StackPanel>
    <Grid x:Name="FormatRow" Margin="0,0,0,14">
-    <Grid.ColumnDefinitions><ColumnDefinition Width="104"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="88"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <TextBlock x:Name="FormatCaption" Text="{Binding FormatLabel}" Style="{StaticResource FormCaption}"/>
   <UniformGrid x:Name="FormatPicker" Grid.Column="1" Columns="2">
    <RadioButton x:Name="VideoChoice" IsChecked="{Binding Video}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="0,0,5,0" AutomationProperties.Name="{Binding VideoLabel}" AutomationProperties.HelpText="{Binding VideoFormatLabel}" Click="VideoClicked" PreviewKeyDown="VideoKeyDown" ContextMenuOpening="VideoMenuOpening">
     <RadioButton.ContextMenu><ContextMenu x:Name="VideoFormatMenu" Style="{StaticResource OutputFormatMenu}" DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14"/></RadioButton.ContextMenu>
-    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource VideoIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource MediaVideo}" Margin="0,0,8,0"/><TextBlock Text="{Binding VideoLabel}"/><Path Data="{StaticResource ChevronIcon}" Style="{StaticResource LineIcon}" Width="10" Height="7" Margin="10,0,0,0"/></StackPanel>
+    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource VideoIcon}" Style="{StaticResource MediaFormatIcon}" Margin="0,0,8,0"/><TextBlock Text="{Binding VideoLabel}"/><Path Data="{StaticResource ChevronIcon}" Style="{StaticResource LineIcon}" Width="10" Height="7" Margin="10,0,0,0"/></StackPanel>
    </RadioButton>
    <RadioButton x:Name="AudioChoice" IsChecked="{Binding Audio}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="5,0,0,0" AutomationProperties.Name="{Binding AudioLabel}" AutomationProperties.HelpText="{Binding AudioFormatLabel}"
                 Click="AudioClicked" PreviewKeyDown="AudioKeyDown" ContextMenuOpening="AudioMenuOpening">
     <RadioButton.ContextMenu>
      <ContextMenu x:Name="AudioFormatMenu" Style="{StaticResource OutputFormatMenu}" DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14"/>
     </RadioButton.ContextMenu>
-    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource AudioIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource MediaAudio}" Margin="0,0,8,0"/><TextBlock Text="{Binding AudioLabel}"/><Path Data="{StaticResource ChevronIcon}" Style="{StaticResource LineIcon}" Width="10" Height="7" Margin="10,0,0,0"/></StackPanel>
+    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource AudioIcon}" Style="{StaticResource MediaFormatIcon}" Margin="0,0,8,0"/><TextBlock Text="{Binding AudioLabel}"/><Path Data="{StaticResource ChevronIcon}" Style="{StaticResource LineIcon}" Width="10" Height="7" Margin="10,0,0,0"/></StackPanel>
    </RadioButton>
   </UniformGrid>
    </Grid>
    <Grid x:Name="OutputControls" Margin="0,0,0,14">
-    <Grid.ColumnDefinitions><ColumnDefinition Width="104"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="88"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <TextBlock x:Name="QualityCaption" Text="{Binding QualityLabel}" Style="{StaticResource FormCaption}"/>
     <Grid x:Name="QualityControls" Grid.Column="1">
@@ -73,7 +87,7 @@
     </Grid>
    </Grid>
    <Grid x:Name="FolderAnchor">
-    <Grid.ColumnDefinitions><ColumnDefinition Width="104"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="88"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <TextBlock x:Name="FolderCaption" Text="{Binding FolderLabel}" Style="{StaticResource FormCaption}"/>
     <Grid x:Name="FolderControls" Grid.Column="1">
@@ -90,15 +104,15 @@
    </Grid>
   </StackPanel>
   <StackPanel x:Name="FolderNoticeHost" FlowDirection="LeftToRight"/>
-  <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Margin="0,24,0,0" Padding="0,18,0,0">
+  <Border Margin="0,20,0,0" Padding="0,10,0,0">
    <Grid x:Name="FormActions">
     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-    <Button x:Name="AddToQueueButton" Command="{Binding AddQueueCommand}" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Padding="12,6" MinHeight="44" VerticalAlignment="Top" AutomationProperties.Name="{Binding AddQueueLabel}" ToolTip="{Binding QueueShortcutHint}">
+    <Button x:Name="AddToQueueButton" Command="{Binding AddQueueCommand}" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Padding="12,6" MinHeight="44" VerticalAlignment="Center" AutomationProperties.Name="{Binding AddQueueLabel}" ToolTip="{Binding QueueShortcutHint}">
      <StackPanel Orientation="Horizontal"><local:QueueFeedbackView x:Name="QueueFeedback" Revision="{Binding QueueAdditionVersion}" Margin="0,0,8,0"/><TextBlock Text="{Binding AddQueueLabel}"/></StackPanel>
     </Button>
     <local:DownloadActionView x:Name="DownloadAction" Grid.Column="1" Width="200"/>
-    <Button x:Name="FormCancel" Grid.Column="2" Content="{Binding CancelLabel}" Command="{Binding CancelCommand}" AutomationProperties.Name="{Binding CancelLabel}" HorizontalAlignment="Left" Height="44" Margin="12,4,0,0" Padding="12,6" VerticalAlignment="Top">
+    <Button x:Name="FormCancel" Grid.Column="2" Content="{Binding CancelLabel}" Command="{Binding CancelCommand}" AutomationProperties.Name="{Binding CancelLabel}" HorizontalAlignment="Left" Height="44" Margin="12,0,0,0" Padding="12,6" VerticalAlignment="Center">
      <Button.Style><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers>
       <DataTrigger Binding="{Binding DownloadActionState}" Value="{x:Static local:DownloadActionState.Downloading}"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
       <DataTrigger Binding="{Binding IsCheckingMedia}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger>

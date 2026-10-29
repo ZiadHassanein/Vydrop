@@ -1,11 +1,15 @@
 ---
 name: Vydrop
-description: A media library with graphite navigation, clean neutral workspaces, and restrained Vydrop red actions.
+description: A media library with theme-matched neutral navigation, clean workspaces, and restrained Vydrop red actions.
 colors:
   page-light: "#F7F8FA"
   page-dark: "#17191E"
   surface-light: "#FFFFFF"
   surface-dark: "#1F2228"
+  setup-feedback-light: "#E8EDF3"
+  setup-feedback-dark: "#1F2228"
+  setup-feedback-border-light: "#C4CDD9"
+  setup-feedback-border-dark: "#1F2228"
   field-light: "#FFFFFF"
   field-dark: "#262A31"
   ink-light: "#20242C"
@@ -37,14 +41,20 @@ colors:
   media-video-dark: "#B7BFCA"
   media-audio-light: "#58616D"
   media-audio-dark: "#B7BFCA"
-  navigation-icon: "#BCC4D0"
-  navigation-light: "#1B1F27"
+  navigation-icon-light: "#58616D"
+  navigation-icon-dark: "#BCC4D0"
+  navigation-light: "#EEF1F5"
   navigation-dark: "#1B1F27"
-  navigation-ink: "#F1F3F5"
-  navigation-muted: "#BCC4D0"
-  navigation-selected-light: "#343B46"
+  navigation-ink-light: "#20242C"
+  navigation-ink-dark: "#F1F3F5"
+  navigation-muted-light: "#58616D"
+  navigation-muted-dark: "#BCC4D0"
+  navigation-selected-light: "#DDE4ED"
   navigation-selected-dark: "#343B46"
-  navigation-selected-ink: "#FFFFFF"
+  navigation-selected-ink-light: "#20242C"
+  navigation-selected-ink-dark: "#FFFFFF"
+  navigation-active-ink-light: "#AD253B"
+  navigation-active-ink-dark: "#F58A93"
   browser-border-light: "#C9B2C2"
   browser-border-dark: "#795C70"
   source-youtube: "#CB2535"
@@ -53,7 +63,7 @@ colors:
   source-linkedin: "#0A66C2"
   source-facebook: "#2164CE"
 typography:
-  headline: {"fontFamily":"Inter","fontSize":"34px","fontWeight":600,"lineHeight":"44px"}
+  headline: {"fontFamily":"Inter","fontSize":"26px","fontWeight":600,"lineHeight":"34px"}
   title: {"fontFamily":"Inter","fontSize":"23px","fontWeight":600,"lineHeight":"32px"}
   dialog-title: {"fontFamily":"Inter","fontSize":"22px","fontWeight":600}
   body: {"fontFamily":"Inter","fontSize":"14px","fontWeight":400,"lineHeight":"22px"}
@@ -94,8 +104,8 @@ components:
   button-secondary: {"backgroundColor":"{colors.field-light}","textColor":"{colors.ink-light}","padding":"8px 16px","height":"44px","rounded":"{rounded.control}"}
   button-quiet: {"backgroundColor":"transparent","textColor":"{colors.accent-light}","padding":"8px 16px","height":"44px","rounded":"{rounded.control}"}
   search-field: {"backgroundColor":"{colors.field-light}","textColor":"{colors.ink-light}","padding":"10px 12px 10px 38px","height":"44px","rounded":"{rounded.control}"}
-  navigation-item: {"backgroundColor":"transparent","textColor":"{colors.navigation-ink}","padding":"10px 14px","height":"48px"}
-  navigation-item-selected: {"backgroundColor":"{colors.navigation-selected-light}","textColor":"{colors.navigation-selected-ink}","padding":"10px 14px","height":"48px"}
+  navigation-item: {"backgroundColor":"transparent","textColor":"{colors.navigation-ink}","padding":"8px 10px","height":"44px"}
+  navigation-item-selected: {"backgroundColor":"transparent","textColor":"{colors.navigation-active-ink}","padding":"8px 10px","height":"44px"}
   navigation-count: {"backgroundColor":"{colors.navigation-selected-light}","textColor":"{colors.navigation-selected-ink}","padding":"1px 6px","height":"23px","rounded":"{rounded.count}"}
   library-filter: {"backgroundColor":"transparent","textColor":"{colors.muted-light}","padding":"9px 8px","height":"46px"}
   library-count: {"backgroundColor":"{colors.surface-light}","textColor":"{colors.ink-light}","padding":"1px 6px","height":"23px","rounded":"{rounded.count}"}
@@ -118,7 +128,7 @@ The native Windows interface uses tonal separation, fine borders, restrained cor
 
 **Key Characteristics:**
 
-- Graphite navigation with Vydrop red primary actions.
+- Pale neutral navigation in light mode and graphite navigation in dark mode, with Vydrop red primary actions.
 - Off-white light surfaces and layered charcoal dark surfaces.
 - Inter and Noto Sans Arabic in the native app; browser-native system typography in the companion.
 - Large media thumbnails, separated filters with nonzero counts, compact drawn status controls and a selected-media inspector.
@@ -132,13 +142,13 @@ The later scoped Add download, Settings and browser-setup corrections use native
 
 ## Colors
 
-Graphite navigation and cool neutral surfaces define the native palette. Vydrop red anchors primary actions and selection; green is reserved for success. Frontmatter owns exact primitive values. Paired -light and -dark entries map to native semantic brushes. Sidecar tonal strips are synthesized OKLCH previews for documentation, not additional shipping palette tokens.
+Theme-matched navigation and cool neutral surfaces define the native palette. Vydrop red anchors primary actions and selection; green is reserved for success. Frontmatter owns exact primitive values. Paired -light and -dark entries map to native semantic brushes. Sidecar tonal strips are synthesized OKLCH previews for documentation, not additional shipping palette tokens.
 
 ### Primary
 
 - **Cherry Action** (action, on-accent): solid primary actions with white content in both themes.
 - **Cherry Accent** (accent-light, accent-dark): quiet actions, progress, focus and selected-row outlines; dark mode brightens small accent details.
-- **Graphite Navigation** (navigation-*): persistent navigation, cool white ink, muted gray icons and copy, and a slate selected fill.
+- **Navigation** (navigation-*): pale neutral surfaces, dark ink and a light slate selected fill in light mode; graphite surfaces, cool white ink and a slate selected fill in dark mode. Muted icons and copy follow the active theme.
 - **Editor Download Action** (download-action-fill, download-action-ink, download-action-progress): retained dedicated download-control brushes, separate from manager Action and Accent.
 
 ### Secondary
@@ -164,7 +174,7 @@ The existing browser detector record (.impeccable/review/workspace-browser-detec
 
 The native app bundles **Inter** and **Noto Sans Arabic** through LatinFont and ArabicFont. ContentFont selects by interface language, and Arabic media titles also select the Arabic face inside English UI. The title bar remains native; the approved vector wordmark supplies the brand lettering.
 
-The library headline is semibold (34 DIP, 44 line height). Row titles are semibold (16 DIP), source domains regular (13 DIP), output metadata (12 DIP), and compact row status (11 DIP). Inspector and empty-state titles use the title role (23 DIP, 32 line height). Body text is regular (14 DIP, 22 line height); dialog titles use the dialog-title role. Filter count copy uses caption size; navigation counts use label size. Duration overlays use the duration role. Row titles are single-line ellipsized with a tooltip; inspector titles wrap to two lines. There is no single mathematical scale ratio in source.
+Page headings are semibold (26 DIP, 34 line height). Row titles are semibold (16 DIP), source domains regular (13 DIP), output metadata (12 DIP), and compact row status (11 DIP). Inspector titles use the title role (23 DIP, 32 line height); empty-state titles use 20 DIP with a 28-DIP line height. Body text is regular (14 DIP, 22 line height); dialog titles use the dialog-title role. Filter count copy uses caption size; navigation counts use label size. Duration overlays use the duration role. Row titles are single-line ellipsized with a tooltip; inspector titles wrap to two lines. There is no single mathematical scale ratio in source.
 
 The browser uses the system UI sans-serif stack and tabular numerals. Panel body copy is 14px with 1.5 line height. The effective media title is 16px, weight 650, line height 1.35 and capped at two lines at all supported widths. Media-type segments and the selected summary are 13px; labels and status are 12px; source, header status and supporting text are 11px. Media-type segments and launch action use weight 650; 13px format and quality cards use 600. Compact rules hide the HD/4K/8K badge elements; height labels remain visible and named.
 
@@ -172,15 +182,15 @@ The browser uses the system UI sans-serif stack and tabular numerals. Panel body
 
 ## Layout
 
-The manager uses graphite navigation, a flexible neutral library and a selected-media inspector. The native window opens at 1280 × 820 DIP, minimum 760 × 500. Library and inspector scroll independently; list containers are recycled and horizontal scrolling is suppressed.
+The manager uses theme-matched horizontal navigation above a full-width workspace and a selected-media inspector. The native window opens at 1000 × 740 DIP within the monitor work area, minimum 760 × 500. Library and inspector scroll independently; list containers are recycled and horizontal scrolling is suppressed.
 
-- Navigation is 224 DIP wide, reducing to 176 below manager width 960. Its brand row is 92 high.
+- Five page actions share a single 59-DIP toolbar with the logo and language/theme controls. Names appear whenever their measured width fits the available central space; otherwise, use 44-DIP icons with localized tooltips and accessible names. This decision is independent of the inspector breakpoint. The workspace reserves no sidebar column.
 - The library inspector and inspected editor preview use width 320 from manager width 1080 through 1360, then 350 above 1360. Empty Add download, Settings and History collapse both the inspector and its reserved column/divider.
 - Below 1080, details move into a 340-wide overlay drawer with 20 outer margin. Details or a row double-click opens it; Escape or Close dismisses it. Background sections are disabled, keyboard navigation cycles within, and focus returns to the list.
-- Library margins settle at 24 leading, 4 top, 18 trailing, 0 bottom; below 960 the leading margin is 14. The heading/action group has 18 bottom space, search 8, and filters 10. Inspector content has 20 side insets and 20 bottom space. Section separators use 22 vertical space.
+- Library margins settle at 24 leading, 4 top, 18 trailing, 0 bottom; below 960 the leading margin is 14. The heading/action group has 12 bottom space, search 8, and filters 10. Inspector content has 20 side insets and 20 bottom space. Section separators use 22 vertical space.
 - Row artwork is 144 × 84 in a 158-wide leading column, with rounded artwork corners and a bottom-trailing duration overlay. The identity, trailing actions and 4-high progress track share an 84-high content grid; the track occupies its final four units rather than adding a second row below the artwork. Row padding remains 12 horizontally and 14 vertically. Inspector artwork is 184 high. Missing images retain a drawn media-symbol fallback.
 - Row content separates identity, output metadata and a narrow trailing status/action group. This trailing group has minimum width 78 and maximum width 126; status text can ellipsize with a tooltip.
-- Add download, Settings and History occupy the center workspace while the sidebar and header remain available. The editor surface has zero outer margin and no maximum-width cap; its heading margin is 24 leading, 4 top, 20 trailing and 12 bottom, and its form remains capped at 620 with internal 30 horizontal and 24 vertical margins. An actual inspected media preview moves to the existing 320/350-wide right inspector when that column is available (manager width at least 1080); below it the preview appears inline above the form controls. Compact preview artwork is 114 wide, with 12 trailing space and a two-line 16/22 title. Active queue state alone does not create a preview or reserve the inspector. Settings section content is capped at 840 with 24 horizontal, 12 top and 24 bottom margins. History uses 24 horizontal and 20 vertical margins and hides the right inspector.
+- Add download, Settings and History occupy the center workspace while the top navigation and header remain available. The editor surface has zero outer margin and no maximum-width cap; its heading margin is 24 leading, 4 top, 20 trailing and 12 bottom, and its form shares the 840-DIP editor cap with internal 24 horizontal, 8 top and 24 bottom margins. The link field is open on the page surface, 52 DIP high, with Paste alongside. Form captions use 12-DIP muted type and an 88-DIP gutter; selected media-format icons use Accent. Download stays centered at 200 × 48 DIP, with Add to queue on the leading side; narrow forms stack the captions and actions. An actual inspected media preview moves to the existing 320/350-wide right inspector when that column is available (manager width at least 1080); below it the preview appears inline above the form controls. Compact preview artwork is 114 wide, with 12 trailing space and a two-line 16/22 title. Active queue state alone does not create a preview or reserve the inspector. Settings section content is capped at 840 with 24 horizontal, 12 top and 24 bottom margins. History uses 24 horizontal and 20 vertical margins and hides the right inspector.
 
 The native browser-setup dialog opens at 680 × 700 DIP. Its content uses 24 horizontal and 20 vertical insets; the browser selector reserves 180 DIP beside its label. One primary next action and current app-connection status sit immediately below the selector. Optional recovery controls remain in a collapsed expander; the scrollable instruction area keeps a separate guide/Close footer accessible at shorter heights.
 
@@ -196,11 +206,11 @@ The floating browser chooser has one structural shadow (0 18px 48px #170d2040). 
 
 **The Surface Separation Rule.** Use palette layers and fine boundaries for native hierarchy; reserve the companion shadow for the floating browser chooser.
 
-Native hover layers fade in over 130ms and out over 100ms with cubic ease-out. Sidebar selection and filter underlines fade in over 170ms and out over 110ms. Workspace navigation uses a 180ms, 12-DIP lateral handoff with opacity .94 to 1; direction follows navigation order and mirrors for Arabic. Coalesce rapid navigation and animate route changes only, never ordinary transfer updates. Keep the viewport clipped and the sidebar, inspector and all button hit areas stationary.
+Native hover layers fade in over 130ms and out over 100ms with cubic ease-out. Navigation selection and filter underlines fade in over 170ms and out over 110ms. Workspace navigation uses a 180ms, 12-DIP lateral handoff with opacity .94 to 1; direction follows navigation order and mirrors for Arabic. Coalesce rapid navigation and animate route changes only, never ordinary transfer updates. Keep the viewport clipped and the toolbar, inspector and all button hit areas stationary.
 
 Button visuals compress to .975 over 80ms on press and return over 140–150ms on release or invocation. The chamfered primary action has a restrained white hover layer. Media-detail reveals use 180ms and a 4-DIP vertical settle; theme change retains its 260ms circular reveal. Completed, interrupted and hidden animations release their clocks and transforms. Windows client-area animation settings and high contrast disable spatial/decorative motion and retain immediate, legible state feedback.
 
-The sidebar emblem plays a single coordinated 540ms horizontal-axis flip of the V and download arrow on hover or activation, with a 4-degree perspective hint and restrained back-face shading. The letters, layout and hit area stay still. A neutral, narrow 420ms highlight follows only after the emblem settles; its overlay opacity is capped at .32. Repeated hover/clicks do not stack or restart a running sequence. Pointer exit lets an in-flight turn finish; hidden, unloaded, disabled or reduced-motion states immediately restore the exact resting logo and cancel late highlights. The existing Download button shine keeps its own timing and palette.
+The header emblem plays a single coordinated 540ms horizontal-axis flip of the V and download arrow on hover or activation, with a 4-degree perspective hint and restrained back-face shading. The letters, layout and hit area stay still. A neutral, narrow 420ms highlight follows only after the emblem settles; its overlay opacity is capped at .32. Repeated hover/clicks do not stack or restart a running sequence. Pointer exit lets an in-flight turn finish; hidden, unloaded, disabled or reduced-motion states immediately restore the exact resting logo and cancel late highlights. The existing Download button shine keeps its own timing and palette.
 
 The header uses a fixed-width language button with the destination language in its own bundled font, the pinned Lucide Languages icon, and a localized action name. Click, Enter or Space switches directly between English and Arabic through the existing saved-language command; preserve its busy-operation guard. No language popup or chevron remains. Library uses the stacked-gallery symbol and video uses the clapperboard from the same pinned Lucide source; the theme symbol shares the 1.7-DIP outline weight.
 
@@ -228,11 +238,13 @@ Search uses Field and Ink, one-unit Border, control radius and height 44 DIP. A 
 
 ### Navigation
 
-Navigation items use outlined 19 × 19 vector icons, minimum height 48 DIP, padding 14 × 10 and margin 10 × 3. Unselected icons use NavigationIcon, a cool gray; selected icons and labels use NavigationSelectedInk on the chamfered NavigationSelected face. Hover adds a NavigationMuted stroke; focus uses a two-unit NavigationInk stroke. Library, Queue, Video and Audio display live 23-high count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download, Settings and History select their center workspace without disabling sidebar navigation. Sidebar and Settings contain no visible version or release-channel labels.
+The top bar contains Add download, Library, Queue, History and Settings. Browser integration is a single action within Settings, and keeps Settings active while open. Videos and Audio are filters within Library; selecting either keeps Library active in the top bar.
+
+Navigation items use outlined 18 × 18 vector icons, minimum height 44 DIP, 13-DIP labels, padding 10 × 8 and margin 2 × 2. Unselected icons use NavigationIcon, a cool gray; selected icons and labels use NavigationActiveInk on the transparent toolbar, without a selected fill or outline. Hover changes only the glyph to NavigationActiveInk. High contrast maps that glyph to system Highlight on Window; keyboard focus retains its separate underline. Library and Queue display live 23-high navigation count badges only when nonzero; collapse removes the badge and its margin. Queue's badge counts unfinished items. Arabic reverses logical placement; the wordmark retains its LTR orientation. Add download, Settings and History select their center workspace without disabling top navigation. Navigation and Settings contain no visible version or release-channel labels.
 
 ### Counted filter tabs
 
-Library filters are text tabs with a two-unit underline, 14 DIP trailing separation, minimum height 46 and 8 horizontal by 9 vertical padding. They wrap as needed. Their 23-high count badges collapse completely at zero. Selection uses Ink, semibold weight and Action underline; hover uses Accent text. Focus adds an Accent boundary while retaining the thicker bottom edge. Library uses All, Videos and Audio filters over completed media. Queue uses All, Downloading, Waiting, Paused and Needs attention filters over unfinished work. Paused includes interrupted work; Needs attention includes failed, cancelled and source-refresh jobs. Counts come from the full matching scope rather than the search-filtered result set. Queue has visible Start download / Resume downloads, Pause queue and Add to queue controls; Library has no transfer toolbar.
+Library filters are text tabs with a two-unit underline, 14 DIP trailing separation, minimum height 46 and 8 horizontal by 9 vertical padding. They wrap as needed. Their 23-high count badges collapse completely at zero. Selection uses Ink, semibold weight and Action underline; hover uses Accent text. Focus adds an Accent boundary while retaining the thicker bottom edge. Library uses All, Videos and Audio filters over completed media. Queue uses All, Downloading, Waiting and Paused filters over unfinished work. Paused includes interrupted work. Failed, cancelled and source-refresh jobs remain in All with their existing recovery actions. Counts come from the full matching scope rather than the search-filtered result set. Queue has visible Start download / Resume downloads, Pause queue and Add to queue controls; Library has no transfer toolbar.
 
 ### Library rows and selected-media details
 
@@ -244,11 +256,11 @@ Row progress is 4 DIP high within the 84-high content area; inspector progress r
 
 ### Center workspaces
 
-Add download uses the existing form and download engine inside the center panel. An empty form uses the available center width without a blank inspector; wide inspected previews use the right inspector and compact previews move inline. Clearing or replacing a link removes obsolete inspection status and preview. Actual active-queue status and Cancel remain in the form's scrolling content even without a preview. Settings uses one workspace-owned title above flat browser, app-update and download-support sections; its update actions remain available. These workspace tabs use sidebar navigation without a modal Close control. Escape retains the existing return-to-library shortcut and restores prior focus. History uses a scrolling local recent-file list, an honest empty state, struck missing titles and availability-dependent reveal actions. It preserves the existing five-file limit and uses normal Tab continuation into workspace navigation.
+Add download uses the existing form and download engine inside the center panel. An empty form uses the available center width without a blank inspector; wide inspected previews use the right inspector and compact previews move inline. Clearing or replacing a link removes obsolete inspection status and preview. Actual active-queue status and Cancel remain in the form's scrolling content even without a preview. Settings uses one workspace-owned title above flat browser, app-update and download-support sections; its update actions remain available. These workspace tabs keep toolbar navigation available without a modal Close control. Escape retains the existing return-to-library shortcut and restores prior focus. History uses a scrolling local recent-file list, an honest empty state, struck missing titles and availability-dependent reveal actions. It preserves the existing five-file limit and uses normal Tab continuation into workspace navigation.
 
 ### Download preferences
 
-The native Download preferences section retains the flat Page surface and existing checkbox, combo-box and text-field vocabulary. Each row pairs a semibold label and wrapping 13 DIP Muted helper with a 180 DIP control column across a 16 DIP gap; subsequent rows have 20 DIP top separation. Download parts uses localized 1 part (default), 2 parts and 4 parts choices with same-file help. Limit download speed is an explicit checkbox with a centered, unmirrored 20-DIP check box. Enabling it reveals a 260-DIP preset selector directly under its label: 0.5, 1, 2, 5 or 10 MiB/s, or localized Custom. Custom alone reveals the exact positive whole-number KiB/s editor. The initial enabled limit is 1 MiB/s. Presets and custom values keep the existing KiB/s storage and byte-rate semantics; no saved setting is rounded or migrated. Invalid enabled values retain the last valid cap and show a wrapping Error message with polite live feedback; re-enabling restores the last positive cap within the session. Automatic retries uses localized No retries through Retry 4 times choices, with Retry once as the default. The direct-MP4 checkbox keeps its 2-or-4-parts prerequisite and normal-method fallback visible below it. Native choices and helpers follow RTL layout; only the numeric speed/unit group stays LTR. Accessible names and help match the visible copy. These controls describe new-download defaults and make no speed guarantee; the scoped receipt is .impeccable/review/download-settings-validation.json.
+The Download speed section keeps the flat Page surface and existing native controls. The primary view shows the speed-limit checkbox and, when enabled, the preset selector; exact KiB/s editing appears only for Custom. A collapsed Advanced download options expander contains same-file connections (1 default, 2, 4 or 8), automatic retries and the optional direct-MP4 connections path. Retain original stored units, validation and per-job snapshots without a speed guarantee. The queue composer omits these global preferences. Each queue link is one quiet Surface group with a one-unit Divider outline, 12-DIP radius and 12-DIP insets. Its URL has a localized hint; compact Type, Format and Quality selectors sit beneath it with a red media-kind icon and no manual format-check action. Keep 12-DIP spacing between groups and the existing fixed footer. The controls wrap at narrow widths, retain localized accessible names, and preserve each draft across navigation and language/theme changes. After a 450-ms typing pause, inspect pending links one at a time when the provider is idle. Show a localized waiting/checking line and keep the selectors hidden until verified metadata arrives. Then offer real resolutions and source-bounded audio bitrates only. Changing output choices reuses metadata; replacing a URL, leaving the workspace or closing cancels stale work. Playlist quality remains automatic per item. Adding links captures these output choices independently, without inheriting another editor video identity. Files use the saved folder and global transfer preferences. Remove scheduling and manual reorder arrows; retire legacy saved timers without changing job order, completed files or per-job options. Preserve English/Arabic layout, native keyboard access and explicit start/pause/resume behavior.
 
 ### Native browser setup
 
@@ -264,7 +276,7 @@ Available formats and heights come from inspection. The summary repeats the sele
 
 Browser focus uses a two-pixel Accent outline offset by three pixels. Escape and outside pointer dismiss the chooser, Tab stays among available controls, and closing restores anchor focus. Dismissal restores the overlay label and clears its pending/finding presentation; disposed picker callbacks ignore late inspection or send results. Loading, retry, unavailable, successful handoff and legacy-app handoff states use visible text. CSS variables carry light, dark and forced-color themes; selection, scrollbars and numeric alignment use the same palette and typography.
 
-A trusted Download confirmation carries the selected media kind, container and height through the start-download capability. The native app saves that choice with its existing saved folder in the durable queue before accepting it, starts when idle and queues confirmed work while busy. Queue-wide pause, cancel, scheduled stop, engine halt and close clear automatic continuation intent; old persisted work stays stopped after restart. Hosts without confirmed-start support show the explicit older-app review/start fallback.
+A trusted Download confirmation carries the selected media kind, container and height through the start-download capability. The native app saves that choice with its existing saved folder in the durable queue before accepting it, starts when idle and queues confirmed work while busy. Queue-wide pause, cancel, engine halt and close clear automatic continuation intent; old persisted work stays stopped after restart. Hosts without confirmed-start support show the explicit older-app review/start fallback.
 
 Inspection reuse is bounded to eight source URLs: pending requests are shared and successful format results last 60 seconds; failures are evicted for retry. Background source resolution separately holds up to eight tab/frame/source-context entries for 30 seconds. Native port requests serialize and begin their deadlines when sent, with 80 seconds for inspection and 18 seconds for other requests. The host reuses its inspector and avoids automatic tool maintenance on each format check. These are current implementation bounds, not download-speed promises.
 
@@ -299,17 +311,17 @@ Use the selected Lucide 0.577.0 system icons as native WPF geometry, with the sh
 
 Reserve cherry for actions, active downloads and selection. Paused or interrupted work uses Warning amber; completion uses Success green; unavailable files and failures use Error. Row and inspector progress inherit the same state brush as their status label and symbol. History's unavailable icon also uses Error alongside its existing struck title and explicit missing-file label. MediaAudio and MediaVideo use the same neutral icon color; their distinct shapes and labels identify the media type. Each state retains visible copy and a meaningful icon.
 
-The native workspace uses off-white or charcoal layers with graphite navigation. Neutral utility icons recede so Vydrop red actions, focus outlines and status feedback retain emphasis. English and Arabic use the same roles. Text and semantic colors meet 4.5:1 on normal, field, hover and selected surfaces; control boundaries meet 3:1. Windows high contrast overrides every new semantic role with system foreground colors.
+The native workspace uses off-white layers with pale navigation in light mode and charcoal layers with graphite navigation in dark mode. Neutral utility icons recede so Vydrop red actions, focus outlines and status feedback retain emphasis. English and Arabic use the same roles. Text and semantic colors meet 4.5:1 on normal, field, hover and selected surfaces; control boundaries meet 3:1. Windows high contrast overrides every new semantic role with system foreground colors.
 
 
 ### Restrained native palette
 
-The user rejected the pink/purple surface treatment. Native navigation is now graphite in both themes, with off-white light workspaces and charcoal dark workspaces. Selection surfaces and utility icons are neutral; the red logo and primary actions carry the brand. Remove lavender audio accents and rose navigation icons. Preserve status semantics, typography, layout, keyboard focus and all Windows high-contrast overrides. The browser companion retains its existing palette in this desktop-only scope.
+The user rejected the pink/purple surface treatment. Native navigation uses pale neutral surfaces with dark text in light mode and graphite with light text in dark mode, alongside off-white light workspaces and charcoal dark workspaces. Selection surfaces and utility icons are neutral; the red logo and primary actions carry the brand. Remove lavender audio accents and rose navigation icons. Preserve status semantics, typography, layout, keyboard focus and all Windows high-contrast overrides. The browser companion retains its existing palette in this desktop-only scope.
 
 
 ## Contact placement
 
-Contact me is a section in Settings below Download preferences. Its GitHub, LinkedIn and localized Email buttons are visible directly, wrap within the workspace, and use the existing SocialCommand destinations. The sidebar ends with Browser integration and Settings; no contact footer or popup remains. All links retain normal button focus, accessible names and English/Arabic layout.
+Contact me is a section in Settings below Download preferences. Its GitHub, LinkedIn and localized Email buttons are visible directly, wrap within the workspace, and use the existing SocialCommand destinations. Browser integration is reached from Settings; no contact footer or popup remains. All links retain normal button focus, accessible names and English/Arabic layout.
 
 
 ## Library and Queue separation
@@ -322,4 +334,6 @@ Queue rows expose Pause/Resume, Cancel while active, folder, source refresh when
 
 Media rows and the queue toolbar keep a left-to-right spatial layout in both interface languages. Artwork stays on the left, transport icons keep their orientation, and row action order and progress direction stay stable. Media titles use the font and reading direction of their own text. Arabic labels and accessible hover actions remain localized. Shared native tooltips use the current Surface/Ink palette, an 8-DIP corner, 12×8-DIP content padding, a 340-DIP maximum width, and a restrained downward shadow. Arabic hints use Noto Sans Arabic and right-to-left text; filenames and URLs retain their literal reading order.
 
-Add to queue opens a center workspace for URL drafts, download preferences and scheduling. Accepted links return to the actual Queue list. Browser integration, subtitle options and playlist selection also use inline workspace sections, retaining the sidebar and language/theme controls. Compact details replaces the center list until Back to queue is chosen. No in-app workflow creates a modal window; the native folder picker keeps its normal operating-system behavior. The queue's primary label changes to Resume downloads for paused/interrupted work; an explicit click resumes those durable jobs and processes pending work without changing saved options or the queue schema.
+Add to queue opens a center workspace for URL drafts and ordinary queue actions. Accepted links return to the actual Queue list. Browser integration, subtitle options and playlist selection also use inline workspace sections, retaining the toolbar and language/theme controls. Compact details replaces the center list until Back to queue is chosen. No in-app workflow creates a modal window; the native folder picker keeps its normal operating-system behavior. The queue's primary label changes to Resume downloads for paused/interrupted work; an explicit click resumes those durable jobs and processes pending work without changing saved options or the queue schema.
+
+Settings starts with one Browser integration action, followed by App updates, Download support, Download speed and Contact me. Browser integration has no top-level navigation button.

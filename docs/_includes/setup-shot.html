@@ -3,20 +3,10 @@
 {% assign shot_path = shot.localized_paths[shot_lang] | default: shot.path %}
 {% assign shot_height = shot.localized_heights[shot_lang] | default: shot.height %}
 {% assign shot_style = shot.localized_styles[shot_lang] | default: shot.style %}
-{% capture shot_image %}
+<figure class="setup-shot" style="--shot-native-width:{{ shot.native_width }}px">
   <span class="setup-crop" style="{{ shot_style }}">
     <img src="{{ shot_path | relative_url }}" width="{{ shot.width }}" height="{{ shot_height }}" loading="lazy" decoding="async" alt="{{ shot.alt[shot_lang] | escape }}">
     {% for zone in shot.zones %}<span class="setup-target" style="{{ zone.style }}" aria-hidden="true"></span>{% endfor %}
   </span>
-{% endcapture %}
-<figure class="setup-shot" style="--shot-native-width:{{ shot.native_width }}px">
-  <a href="{{ shot_path | relative_url }}" aria-label="{% if shot_lang == 'ar' %}افتح الصورة بالحجم الكامل: {% else %}Open full-size screenshot: {% endif %}{{ shot.alt[shot_lang] | escape }}">
-    {{ shot_image }}
-  </a>
   <figcaption>{{ shot.caption[shot_lang] }}</figcaption>
-  <details class="setup-zoom">
-    <summary>{% if shot_lang == 'ar' %}كبّر التفاصيل بالحجم الأصلي{% else %}Zoom to original size{% endif %}</summary>
-    <p class="setup-zoom-hint">{% if shot_lang == 'ar' %}مرّر داخل الصورة لرؤية الأزرار والنصوص كاملة، أو <a href="{{ shot_path | relative_url }}">افتح اللقطة الأصلية</a>.{% else %}Scroll inside the image to read controls and text, or <a href="{{ shot_path | relative_url }}">open the original screenshot</a>.{% endif %}</p>
-    <div class="setup-pan" tabindex="0" role="region" aria-label="{% if shot_lang == 'ar' %}تفاصيل الصورة قابلة للتمرير{% else %}Scrollable screenshot details{% endif %}">{{ shot_image }}</div>
-  </details>
 </figure>

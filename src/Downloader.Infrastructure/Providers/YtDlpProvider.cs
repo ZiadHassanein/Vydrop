@@ -339,7 +339,6 @@ public sealed class YtDlpProvider : IMediaProvider, IMediaMaintenance
         string root = Path.GetFullPath(options.Folder).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         if (!Path.GetFullPath(saved).StartsWith(root, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("The downloaded file is outside the selected folder.");
-        AudioBitrateConversion.Apply(saved, options, tools, token);
         MediaValidator.Validate(saved, options, tools, token);
         Emit(progress, "Download complete", Path.GetFileName(saved), 100, false);
         return new DownloadResult

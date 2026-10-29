@@ -15,7 +15,7 @@
     </Style.Triggers></Style></Border.Style>
     <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
      <Grid x:Name="EditorHeader" Margin="24,4,24,12">
-      <TextBlock x:Name="EditorHeading" Text="{Binding AddDownloadLabel}" FontFamily="{Binding ContentFont}" FlowDirection="{Binding ContentDirection}" FontSize="34" LineHeight="44" FontWeight="SemiBold" VerticalAlignment="Center"/>
+      <TextBlock x:Name="EditorHeading" Text="{Binding AddDownloadLabel}" FontFamily="{Binding ContentFont}" FlowDirection="{Binding ContentDirection}" FontSize="26" LineHeight="34" FontWeight="SemiBold" VerticalAlignment="Center"/>
      </Grid>
    <Grid Grid.Row="1" FlowDirection="LeftToRight">
     <ScrollViewer x:Name="Viewport" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FlowDirection="{Binding ContentDirection}">

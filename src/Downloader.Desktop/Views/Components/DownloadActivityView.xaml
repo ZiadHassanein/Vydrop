@@ -4,7 +4,7 @@
  <Border Background="{DynamicResource Surface}" CornerRadius="8" Padding="16">
  <StackPanel FlowDirection="{Binding ContentDirection}">
   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="22"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-   <Path Data="{Binding ActivityIcon}" Style="{StaticResource LineIcon}" Stroke="{Binding ActivityBrush}" Width="18" Height="18" VerticalAlignment="Top" Margin="0,2,0,0"/>
+   <Path Data="{Binding ActivityIcon}" Style="{StaticResource LineIcon}" Stroke="{Binding ActivityBrush}" Width="18" Height="18" VerticalAlignment="Top" Margin="0,2,0,0" FlowDirection="LeftToRight"/>
    <TextBlock Grid.Column="1" x:Name="StatusHeading" Text="{Binding PreviewStatus}" Margin="10,0,0,0" Foreground="{Binding StatusBrush}" FontWeight="SemiBold" FontSize="15" AutomationProperties.LiveSetting="Polite"/>
   </Grid>
   <TextBlock Text="{Binding ActivityDetail}" Foreground="{DynamicResource Muted}" Margin="0,8,0,0" TextWrapping="Wrap"/>

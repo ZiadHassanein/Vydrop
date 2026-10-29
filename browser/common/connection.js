@@ -110,6 +110,12 @@ globalThis.ViFreeConnection = (() => {
   }
   async function sendLink(value, context = {}) {
     const url = validUrl(value);
+    // A native host kept open since format inspection may have lost Windows'
+    // foreground permission. Start a fresh browser child for this explicit click,
+    // after earlier inspections finish; never disconnect a request in progress.
+    const fresh = requests.then(() => { if (port) closePort(); });
+    requests = fresh.catch(() => {});
+    await fresh;
     let response, choiceSupported = false, startSupported = false;
     if (api.runtime.connectNative) {
       let health;
@@ -153,5 +159,40 @@ globalThis.ViFreeConnection = (() => {
     try { const media = await entry.promise; entry.pending = false; entry.time = Date.now(); return media; }
     catch (error) { if (inspectionCache.get(url.href) === entry) inspectionCache.delete(url.href); throw error; }
   }
-  return { api, name, sendLink, inspectLink, errorMessage, holdReload, hasPendingRequests: () => reloadHolds > 0, testConnection: ping };
+  let languageLookup, languageTime = 0, languagePending = false, knownLanguage;
+  function getLanguage() {
+    if (languageLookup && (languagePending || Date.now() - languageTime < 2000)) return languageLookup;
+    languagePending = true;
+    languageLookup = (async () => {
+      try {
+        // Content scripts use the background's shared cache; health checks never launch the app.
+        const response = api.runtime.connectNative ? await request2("ping") :
+          await api.runtime.sendMessage({ version: 1, type: "vydrop-language" });
+        if (response?.ok && ["en", "ar"].includes(response.language)) knownLanguage = response.language;
+      } catch { /* Retain the last app language when disconnected or talking to an older app. */ }
+      finally { languagePending = false; languageTime = Date.now(); }
+      return knownLanguage;
+    })();
+    return languageLookup;
+  }
+  function watchLanguage(changed, active = () => true) {
+    if (typeof document === "undefined" || !globalThis.setTimeout || !document.addEventListener) return () => {};
+    let stopped = false, refreshing = false, timer, previous;
+    async function refreshLanguage() {
+      if (stopped || refreshing) return;
+      refreshing = true;
+      if (!document.hidden && active()) {
+        const language = await getLanguage();
+        if (!stopped && language && language !== previous) { previous = language; changed(language); }
+      }
+      refreshing = false;
+      if (!stopped) timer = setTimeout(refreshLanguage, 2000);
+    }
+    function stop() { stopped = true; clearTimeout(timer); document.removeEventListener("visibilitychange", visible); globalThis.removeEventListener?.("pagehide", stop); }
+    function visible() { if (!document.hidden) { clearTimeout(timer); void refreshLanguage(); } }
+    document.addEventListener("visibilitychange", visible); globalThis.addEventListener?.("pagehide", stop, { once: true });
+    void refreshLanguage();
+    return stop;
+  }
+  return { api, name, sendLink, inspectLink, errorMessage, holdReload, getLanguage, watchLanguage, hasPendingRequests: () => reloadHolds > 0, testConnection: ping };
 })();

@@ -43,7 +43,8 @@ const capture = process.env.VYDROP_POPUP_CAPTURES || path.join(root, 'build/popu
         page.on('pageerror', error => errors.push(error.message));
         await page.goto('https://popup.vydrop.test/popup.html');
         assert.equal(await page.locator('html').getAttribute('lang'), language);
-        assert.equal(await page.evaluate(() => fixture.requests.length), 0, 'opening the popup performs no native work');
+        assert.equal(await page.evaluate(() => fixture.requests.filter(request => request.type !== 'ping').length), 0,
+          'opening the popup may read the app language but never inspects, opens, queues or downloads media');
         assert.equal(await page.evaluate(() => fixture.permissions), 0);
         assert.equal(await page.locator('button').count(),2);
         assert.equal(await page.locator('#test,details,#discovery,#streams').count(),0);

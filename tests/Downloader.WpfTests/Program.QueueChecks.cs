@@ -29,6 +29,7 @@ internal static partial class Program
             var footer = (FrameworkElement)WpfTree.Find(view, "QueueFooter");
             Check(viewport.ScrollableWidth <= 1 && footer.TranslatePoint(new Point(0, footer.ActualHeight), view).Y <= view.ActualHeight, "The section fits compact windows and keeps actions reachable");
             Capture(owner, System.IO.Path.Combine(captures, $"queue-inline-{arabic}-{dark}-{compact}.png"));
+            for (int wait = 0; wait < 300 && !model.AddLinksCommand.CanExecute(null); wait++) await Task.Delay(25);
             InvokeQueueButton((Button)WpfTree.Find(view, "AddQueueLinksButton")); await Task.Delay(100);
             Check(model.QueueItems.Count == 2 && !model.HasWorkspacePage && window.ManagerContent.LibraryContent.IsVisible, "Add to queue shows the real Queue list after accepting links");
             foreach (var entry in model.Queue.Entries) model.RemoveQueueCommand.Execute(entry.Id);
@@ -36,7 +37,7 @@ internal static partial class Program
         model.QueueCommand.Execute(null); await Task.Delay(80);
         var composer = (QueueComposerView)window.WorkspaceView;
         var field = QueueFields(composer).Single(); field.Text = "invalid link";
-        InvokeQueueButton((Button)WpfTree.Find(composer, "AddQueueLinksButton")); await Task.Delay(80);
+        for (int wait = 0; wait < 300 && !model.QueueLinkInputs.Single().HasError; wait++) await Task.Delay(25);
         Check(model.QueueLinkInputs.Single().HasError && field.Text == "invalid link" && field.IsKeyboardFocusWithin, "Invalid links remain editable with field-level errors");
         model.LibraryFilterCommand.Execute("all"); model.QueueCommand.Execute(null); await Task.Delay(80);
         Check(QueueFields((QueueComposerView)window.WorkspaceView).Single().Text == "invalid link", "Navigation preserves unfinished queue input");

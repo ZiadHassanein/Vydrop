@@ -2,12 +2,18 @@ $ErrorActionPreference='Stop'
 $taskRepo=Split-Path -Parent $PSScriptRoot
 $taskVersion=([xml](Get-Content -LiteralPath (Join-Path $taskRepo 'Directory.Build.props'))).Project.PropertyGroup.Version
 $taskSavedEnvironment=@{}
-foreach($taskName in @('GITHUB_EVENT_NAME','GITHUB_REF_TYPE','GITHUB_REF_NAME','GITHUB_REPOSITORY','GH_RELEASE_TOKEN')){$taskSavedEnvironment[$taskName]=[Environment]::GetEnvironmentVariable($taskName)}
+foreach($taskName in @('GITHUB_EVENT_NAME','GITHUB_REF_TYPE','GITHUB_REF_NAME','GITHUB_REPOSITORY','GH_RELEASE_TOKEN','GH_RELEASE_COMMIT')){$taskSavedEnvironment[$taskName]=[Environment]::GetEnvironmentVariable($taskName)}
 # All external commands are stubbed in this test scope; the real publisher reads real package hashes.
-function git { $global:LASTEXITCODE=0 }
+function git { $global:LASTEXITCODE=0; if($args[0] -eq 'rev-parse'){ 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' } }
 function Invoke-RestMethod {
  param([string]$Uri,[string]$Method='Get',$Headers,[string]$ContentType,[string]$Body,[string]$InFile)
  if($Uri -eq 'https://api.github.com/repos/ZiadHassanein/Vydrop'){return @{private=$false;full_name='ZiadHassanein/Vydrop';default_branch='main'}}
+ if($Uri.StartsWith('https://api.github.com/repos/ZiadHassanein/Vydrop/git/ref/tags/')){return $null}
+ if($Uri -eq 'https://api.github.com/repos/ZiadHassanein/Vydrop/git/refs' -and $Method -eq 'Post'){
+  $taskRef=$Body|ConvertFrom-Json
+  if($taskRef.ref -ne ('refs/tags/v'+$taskVersion) -or $taskRef.sha -ne 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'){throw 'The release tag must use the checked source commit.'}
+  return @{object=@{sha=$taskRef.sha}}
+ }
  if($Uri -eq 'https://api.github.com/repos/ZiadHassanein/Vydrop/releases' -and $Method -eq 'Post'){
   if(!(($Body|ConvertFrom-Json).draft)){throw 'Publication must begin as a draft.'}
   return @{id=123;html_url='https://github.com/ZiadHassanein/Vydrop/releases/tag/v'+$taskVersion}
@@ -29,6 +35,10 @@ function Invoke-RestMethod {
 try {
  $env:GITHUB_EVENT_NAME='push';$env:GITHUB_REF_TYPE='tag';$env:GITHUB_REF_NAME='v'+$taskVersion
  $env:GITHUB_REPOSITORY='ZiadHassanein/Vydrop';$env:GH_RELEASE_TOKEN='offline-test-only'
+ foreach($taskInput in @("tag","commit")){
+  $env:GITHUB_REF_TYPE=if($taskInput -eq "tag"){"tag"}else{"branch"}
+  $env:GITHUB_REF_NAME=if($taskInput -eq "tag"){"v"+$taskVersion}else{"main"}
+  $env:GH_RELEASE_COMMIT="Release v"+$taskVersion
  foreach($taskTamper in @($false,$true)){
   $global:VydropReleasePublicationFixture=[pscustomobject]@{Assets=[Collections.Generic.List[object]]::new();Published=$false;TamperZip=$taskTamper}
   $taskFailed=$false
@@ -38,6 +48,21 @@ try {
   }
   if(!$global:VydropReleasePublicationFixture.TamperZip -and (!$global:VydropReleasePublicationFixture.Published -or $taskFailed)){throw 'Valid artifacts did not publish in the offline simulation.'}
   if($global:VydropReleasePublicationFixture.TamperZip -and ($global:VydropReleasePublicationFixture.Published -or !$taskFailed)){throw 'A mismatched ZIP was allowed to publish.'}
+ }
+ }
+ foreach($taskRejected in @(
+  @{Event='push';Ref='main';Message='Update documentation'},
+  @{Event='push';Ref='release/v'+$taskVersion;Message='Release v'+$taskVersion},
+  @{Event='workflow_dispatch';Ref='main';Message='Release v'+$taskVersion}
+ )){
+  $env:GITHUB_EVENT_NAME=$taskRejected.Event;$env:GITHUB_REF_TYPE='branch';$env:GITHUB_REF_NAME=$taskRejected.Ref;$env:GH_RELEASE_COMMIT=$taskRejected.Message
+  $global:VydropReleasePublicationFixture=[pscustomobject]@{Assets=[Collections.Generic.List[object]]::new();Published=$false;TamperZip=$false}
+  $taskRejectedSafely=$false
+  try{$null=& (Join-Path $taskRepo 'scripts/release.ps1')}catch{
+   if($_.Exception.Message -notlike '*requires an explicit version tag*'){throw}
+   $taskRejectedSafely=$true
+  }
+  if(!$taskRejectedSafely -or $global:VydropReleasePublicationFixture.Published -or $global:VydropReleasePublicationFixture.Assets.Count){throw 'An ordinary commit, staging branch or dispatch must not publish.'}
  }
  Write-Output 'PASS: Publication starts as a draft, verifies the complete ZIP hash, and refuses a mismatched ZIP digest.'
 } finally {Remove-Variable -Scope Global -Name VydropReleasePublicationFixture -ErrorAction SilentlyContinue; foreach($taskName in $taskSavedEnvironment.Keys){[Environment]::SetEnvironmentVariable($taskName,$taskSavedEnvironment[$taskName])}}

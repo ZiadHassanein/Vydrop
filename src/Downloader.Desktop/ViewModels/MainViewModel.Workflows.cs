@@ -41,6 +41,7 @@ public sealed partial class QueueItemView : ObservableObject
     public void Refresh(Func<string, string> translate, bool running)
     {
         Status = translate(Entry.State.ToString());
+        FolderActionLabel = translate(HasLocalFile ? "Show in folder" : "Open save folder");
         Error = Entry.Error == null ? translate(Entry.Result?.Warning ?? "") : translate(MainViewModel.DescribeError(new InvalidOperationException(Entry.Error)));
         CanRetry = !running && Entry.State is QueueState.Failed or QueueState.Cancelled or QueueState.Paused or QueueState.Interrupted;
         RetryAction = translate(Entry.State is QueueState.Paused or QueueState.Interrupted ? "Resume" : "Retry");
@@ -88,7 +89,7 @@ public sealed partial class MainViewModel
     public string AddQueueLabel => T("Add to queue");
     public string StartQueueLabel => T(Queue.Entries.Any(entry => entry.State is QueueState.Paused or QueueState.Interrupted) ? "Resume downloads" : "Start download");
     public string RemoveLabel => T("Remove");
-    public string QueueSettingsHint => T("New links use the format, quality and save folder from Add download.");
+    public string QueueSettingsHint => T("Choose type, format and quality for each link. Files use your saved folder.");
     public string QueueInputLabel => T("Video links");
     public string CloseLabel => T("Close");
     public string BrowserLabel => T("Browser integration");
@@ -143,7 +144,7 @@ public sealed partial class MainViewModel
             try
             {
                 if (item?.CanOpenFolder != true) throw new IOException();
-                actions.OpenFolder(item.FolderToOpen);
+                OpenDownloadLocation(item);
             }
             catch (Exception error) when (error is not OutOfMemoryException)
             {
@@ -245,7 +246,7 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(HasQueue));
         OnPropertyChanged(nameof(QueueRunning));
         OnPropertyChanged(nameof(StartQueueLabel));
-        QueuePauseCommand?.NotifyCanExecuteChanged(); MoveQueueUpCommand?.NotifyCanExecuteChanged(); MoveQueueDownCommand?.NotifyCanExecuteChanged();
+        QueuePauseCommand?.NotifyCanExecuteChanged();
         RefreshAvailability();
         RefreshLibrary();
     }

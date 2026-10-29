@@ -34,10 +34,17 @@ public partial class DownloadFormView : UserControl
 
     private static void ArrangeField(Grid row, TextBlock label, FrameworkElement field, bool stacked)
     {
-        row.ColumnDefinitions[0].Width = new GridLength(stacked ? 0 : 104);
+        row.ColumnDefinitions[0].Width = new GridLength(stacked ? 0 : 88);
         Grid.SetColumn(label, stacked ? 1 : 0);
         Grid.SetRow(field, stacked ? 1 : 0);
         label.Margin = stacked ? new Thickness(0, 0, 0, 6) : new Thickness(0, 0, 14, 0);
+    }
+
+    private void ClearLinkClicked(object sender, RoutedEventArgs args)
+    {
+        if (DataContext is not MainViewModel model || !(model.IsIdle || model.IsCheckingMedia)) return;
+        model.Url = "";
+        LinkInput.Focus();
     }
 
     private void AudioClicked(object sender, RoutedEventArgs args) => OpenAudioMenu();

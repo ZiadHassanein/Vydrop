@@ -15,7 +15,7 @@ Start with the latest [official Windows package](download.md) and the exact vide
 
 ## The extension says Try again, or the app does not open
 
-1. Open the Vydrop copy you intend to use. Choose **Settings → Browser integration** and enable or reconnect it.
+1. Open the Vydrop copy you intend to use. Choose **Settings → Browser integration**, select your browser, then choose **Set up**.
 2. Keep that executable in its permanent folder. Moving or deleting it leaves the browser pointing to an old app location.
 3. Confirm the companion is enabled and loaded from the matching package's **Browser\chromium** folder, or **Browser\firefox\manifest.json** in Firefox.
 4. After reloading an extension, refresh the video page and play the video again. Try its Vydrop button or the extension's toolbar action.

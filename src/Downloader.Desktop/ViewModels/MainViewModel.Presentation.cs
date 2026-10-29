@@ -56,10 +56,8 @@ public sealed partial class MainViewModel
     public string EmailLabel => T("Email");
     public string OptionsHint => T("Choose a subtitle language and file format.");
     public string ChangeFolderLabel => T("Change");
-    public string BrowserSettingsHint => T("Send a video link from your browser to Vydrop.");
     public string UpdateSectionLabel => T("App updates");
     public string DownloaderSectionLabel => T("Download support");
-    public string DownloadIntro => T("Paste a link, then choose how to save it.");
     public string DownloadOptionsLabel => T("Download options");
     public string PreviewLabel => T("Video preview");
     public bool HasMediaPreview => videoInfo != null || playlistInfo != null;

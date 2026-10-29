@@ -30,9 +30,11 @@ internal static partial class Program
             var link = (TextBox)WpfTree.Find(window, "LinkInput");
             Check(!model.SettingsVisible && link.IsKeyboardFocused && link.SelectedText == model.Url,
                 "Focus-link shortcut returns from Settings and selects the existing link in " + language);
-            await InspectQueueModal(window, model, async dialog =>
+            model.SettingsVisible = true;
+            await Task.Delay(80); window.UpdateLayout();
             {
-                var viewport = (ScrollViewer)WpfTree.Find(dialog, "QueueViewport");
+                var dialog = window.SettingsPane;
+                var viewport = window.ContextViewport;
                 var limits = Descendants<Expander>(dialog).Single(e => Equals(e.Header, model.DownloadLimitsLabel));
                 var toggle = Descendants<System.Windows.Controls.Primitives.ToggleButton>(limits).First();
                 ((IToggleProvider)new ToggleButtonAutomationPeer(toggle).GetPattern(PatternInterface.Toggle)).Toggle();
@@ -52,26 +54,20 @@ internal static partial class Program
                 speed.SetCurrentValue(TextBox.TextProperty, "1024"); speed.GetBindingExpression(TextBox.TextProperty).UpdateSource();
                 Check(!Validation.GetHasError(speed) && model.SpeedLimitKiB == 1024, "Valid input clears the error and saves the setting");
                 var check = (CheckBox)WpfTree.Find(dialog, "RangeAccelerationToggle");
+                ((Expander)WpfTree.Find(dialog, "AdvancedDownloadOptions")).IsExpanded = true; dialog.UpdateLayout();
                 bool previous = model.DirectFileAcceleration;
                 ((IToggleProvider)new CheckBoxAutomationPeer(check).GetPattern(PatternInterface.Toggle)).Toggle();
                 Check(model.DirectFileAcceleration != previous, "The themed checkbox retains accessible toggle behavior");
                 limits.IsExpanded = false;
-                var schedule = Descendants<Expander>(dialog).Single(e => Equals(e.Header, model.ScheduleLabel)); schedule.IsExpanded = true;
+            }
+            model.NewDownloadCommand.Execute(null);
+            await InspectQueueModal(window, model, async dialog =>
+            {
+                var viewport = (ScrollViewer)WpfTree.Find(dialog, "QueueViewport");
                 await Task.Delay(60); viewport.ScrollToEnd(); dialog.UpdateLayout();
-                var date = Descendants<DatePicker>(dialog).Single();
-                Check(System.Windows.Automation.AutomationProperties.GetName(date) == model.ScheduleDateLabel, "The schedule date has a meaningful accessible label");
-                var dateText = (System.Windows.Controls.Primitives.DatePickerTextBox)date.Template.FindName("PART_TextBox", date);
-                Check(ReferenceEquals(dateText.Foreground, Application.Current.Resources["Ink"]) && ReferenceEquals(date.Background, Application.Current.Resources["Field"]), "The actual date text uses the readable theme foreground and field background");
-                date.IsDropDownOpen = true;
-                await Task.Delay(80);
-                var popup = (System.Windows.Controls.Primitives.Popup)date.Template.FindName("PART_Popup", date);
-                Check(popup.IsOpen && popup.Child is Calendar, "The styled date field retains its native calendar popup");
-                var calendar = (Calendar)popup.Child;
-                calendar.SelectedDate = DateTime.Today.AddDays(2);
-                await Task.Delay(60);
-                Check(model.ScheduledDate == DateTime.Today.AddDays(2), "Selecting a calendar date updates the queue schedule");
-                date.IsDropDownOpen = false;
-                Capture(dialog, System.IO.Path.Combine(captures, "refined-schedule-" + language + (dark ? "-dark" : "-light") + ".png"));
+                Check(!Descendants<DatePicker>(dialog).Any() && viewport.ScrollableWidth <= 1,
+                    "The queue composer fits without scheduled-download fields");
+                Capture(dialog, System.IO.Path.Combine(captures, "refined-queue-" + language + (dark ? "-dark" : "-light") + ".png"));
             });
         }
         var download = model.DownloadCommand.ExecuteAsync(null);

@@ -22,6 +22,7 @@ public sealed partial class QueueItemView
     public string Remaining { get; private set; }
     public string MediaStatus { get; private set; }
     public string PrimaryAction { get; private set; }
+    public string FolderActionLabel { get; private set; }
     public string CaptionSummary { get; private set; }
     public string RowDescription { get; private set; }
     public string RowStatus => IsActive && (!IsPreparing || Percent > 0) || Entry.State is QueueState.Paused or QueueState.Interrupted

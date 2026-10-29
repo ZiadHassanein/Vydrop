@@ -24,7 +24,7 @@
  <Grid x:Name="HistoryContent" Margin="24,20" TextBlock.LineHeight="20" TextBlock.LineStackingStrategy="BlockLineHeight" KeyboardNavigation.TabNavigation="Continue">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <StackPanel Margin="0,0,0,16">
-   <TextBlock Text="{Binding Heading}" FontSize="34" LineHeight="44" FontWeight="SemiBold"/>
+   <TextBlock Text="{Binding Heading}" FontSize="26" LineHeight="34" FontWeight="SemiBold"/>
    <TextBlock Text="{Binding Description}" Foreground="{DynamicResource Muted}" Margin="0,4,0,0"/>
   </StackPanel>
   <ListBox x:Name="HistoryList" FontFamily="{StaticResource LatinFont}" Grid.Row="1" ItemsSource="{Binding Files}" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource Ink}"

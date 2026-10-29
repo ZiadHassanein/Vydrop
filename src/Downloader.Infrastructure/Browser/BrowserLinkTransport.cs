@@ -16,6 +16,7 @@ public static class BrowserLinkTransport
         {
             using var pipe = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
             await pipe.ConnectAsync(milliseconds, token).ConfigureAwait(false);
+            BrowserForegroundPermission.ForRequest(pipe.SafePipeHandle, "open-link");
             await BrowserProtocol.WriteAsync(pipe, new { version = 1, type = "open-link", url }, token).ConfigureAwait(false);
             using var reply = await BrowserProtocol.ReadAsync(pipe, token).ConfigureAwait(false);
             return reply.RootElement.TryGetProperty("ok", out var ok) && ok.ValueKind == JsonValueKind.True ? BrowserDelivery.Accepted : BrowserDelivery.Rejected;
@@ -36,6 +37,7 @@ public static class BrowserLinkTransport
             using var pipe = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
             await pipe.ConnectAsync(milliseconds, token).ConfigureAwait(false);
             connected = true;
+            BrowserForegroundPermission.ForRequest(pipe.SafePipeHandle, request.Type);
             var envelope = new Dictionary<string, object> { ["version"] = 2, ["type"] = request.Type, ["requestId"] = request.RequestId };
             if (request.Url != null) envelope["url"] = request.Url;
             if (request.SourcePage != null) envelope["sourcePage"] = request.SourcePage;
@@ -47,7 +49,8 @@ public static class BrowserLinkTransport
             // Older apps reject v2 with an unversioned reply. Let the host retry the exact v1 envelope.
             if (!reply.RootElement.TryGetProperty("protocol", out var protocol) || !protocol.TryGetInt32(out int version) || version != 2) return (null, true);
             return (new(reply.RootElement.TryGetProperty("ok", out var ok) && ok.ValueKind == JsonValueKind.True,
-                reply.RootElement.TryGetProperty("code", out var code) ? code.GetString() : "busy"), false);
+                reply.RootElement.TryGetProperty("code", out var code) ? code.GetString() : "busy", Language:
+                reply.RootElement.TryGetProperty("language", out var language) && language.ValueKind == JsonValueKind.String && language.GetString() is "en" or "ar" ? language.GetString() : null), false);
         }
         catch (OperationCanceledException) { throw; }
         // Old listeners can close an unsupported v2 frame without a reply. Only
@@ -67,7 +70,7 @@ public static class BrowserLinkTransport
                 using var message = await BrowserProtocol.ReadAsync(pipe, deadline.Token).ConfigureAwait(false);
                 var request = BrowserProtocol.ReadRequest(message.RootElement);
                 var receipt = received(request);
-                await BrowserProtocol.WriteAsync(pipe, new { ok = receipt.Accepted, code = receipt.Code, protocol = 2 }, deadline.Token).ConfigureAwait(false);
+                await BrowserProtocol.WriteAsync(pipe, new { ok = receipt.Accepted, code = receipt.Code, protocol = 2, language = receipt.Language is "en" or "ar" ? receipt.Language : null }, deadline.Token).ConfigureAwait(false);
             }
             catch (OperationCanceledException) { if (token.IsCancellationRequested) return; }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

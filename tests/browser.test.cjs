@@ -68,7 +68,7 @@ test('popup waits for user action and reports failure without opening hidden pag
   const button = { disabled: false, addEventListener: (_, fn) => { click = fn; } };
   const status = { textContent: '' };
   const api = { tabs: { query: async () => [{ url: 'https://example.com/video' }] }, runtime: { getManifest: () => ({ name: 'Vydrop' }), sendNativeMessage: async (host, message) => { calls++; assert.equal(host, 'com.vifree'); assert.equal(message.type, 'open-link'); return { ok: false }; } } };
-  const context = vm.createContext({ browser: api, URL, document: { querySelector: name => name === '#send' ? button : status } });
+  const context = vm.createContext({ browser: api, URL, document: { documentElement: {}, querySelector: name => name === '#send' ? button : status } });
   vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/connection.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/video-detection.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/popup.js'), 'utf8'), context);
@@ -116,7 +116,7 @@ for (const detected of [true, false]) test(`popup ${detected ? 'sends the detect
     scripting: { executeScript: async () => { inspections++; return [{ frameId: 0, result: detected ? { url, reason: 'player' } : { url: '', reason: 'no-video' } }]; } },
     runtime: { getManifest: () => ({ name: 'Vydrop Preview' }), sendNativeMessage: async (host, request) => { calls++; assert.equal(host, 'com.vifree.preview'); assert.equal(request.url, url); return { ok: true }; } }
   };
-  const context = vm.createContext({ browser: api, URL, document: { querySelector: name => name === '#send' ? button : status } });
+  const context = vm.createContext({ browser: api, URL, document: { documentElement: {}, querySelector: name => name === '#send' ? button : status } });
   for (const name of ['connection.js', 'video-detection.js', 'popup.js']) vm.runInContext(fs.readFileSync(path.join(root, 'Browser/common', name), 'utf8'), context);
   assert.equal(inspections, 0); assert.equal(calls, 0);
   await click(); assert.equal(inspections, 1); assert.equal(calls, detected ? 1 : 0); assert.equal(button.disabled, false);
@@ -133,7 +133,7 @@ if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identit
   for (const browser of ['chromium', 'firefox']) {
     const folder = path.join(process.env.VIFREE_BROWSER_PACKAGE, browser), manifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
     const preview = process.env.VIFREE_BROWSER_CHANNEL !== 'stable';
-    assert.equal(manifest.version, '1.5.12'); assert.equal(manifest.name, preview ? 'Vydrop Preview' : 'Vydrop');
+    assert.equal(manifest.version, '1.5.14'); assert.equal(manifest.name, preview ? 'Vydrop Preview' : 'Vydrop');
     assert.deepEqual([...manifest.permissions].sort(), ['alarms', 'activeTab', 'clipboardWrite', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
     assert.equal(manifest.host_permissions, undefined);
     assert.equal(manifest.optional_permissions, undefined); assert.equal(manifest.optional_host_permissions, undefined);

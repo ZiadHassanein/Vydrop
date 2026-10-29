@@ -58,11 +58,11 @@ internal static partial class Program
                     Check(titleHost.ClipToBounds && statusHost.ClipToBounds && titleHost.TranslatePoint(new Point(titleHost.ActualWidth, 0), row).X <= statusHost.TranslatePoint(new Point(), row).X &&
                         ((TextBlock)Part(row, "RowTitle")).TextDecorations.Count == 0,
                         "Long Arabic titles stay readable in their own column without overlapping the file status");
-                    var navigationNames = new[] { model.AddDownloadLabel, model.LibraryLabel, model.QueueNavigationLabel, model.HistoryNavigationLabel, model.VideosLabel, model.AudioLibraryLabel, model.BrowserLabel, model.SettingsLabel };
+                    var navigationNames = new[] { model.AddDownloadLabel, model.LibraryLabel, model.QueueNavigationLabel, model.HistoryNavigationLabel, model.SettingsLabel };
                     var navigationLabels = Descendants<TextBlock>(manager.NavigationSurface).Where(text => navigationNames.Contains(text.Text)).ToArray();
-                    Check(navigationLabels.All(text => text.TextWrapping == TextWrapping.NoWrap && text.ActualHeight < 28 &&
+                    Check(manager.IsNavigationCompact || navigationLabels.All(text => text.TextWrapping == TextWrapping.NoWrap && text.ActualHeight < 28 &&
                         new FormattedText(text.Text, CultureInfo.InvariantCulture, text.FlowDirection, new Typeface(text.FontFamily, text.FontStyle, text.FontWeight, text.FontStretch), text.FontSize, text.Foreground, VisualTreeHelper.GetDpi(text).PixelsPerDip).WidthIncludingTrailingWhitespace <= text.ActualWidth + 1),
-                        "Every navigation label fits on one line beside its counter in both languages");
+                        "Wide navigation labels fit on one line; compact navigation uses named icons");
                     var themeGlyph = manager.Header.ThemeGlyph;
                     Check(themeGlyph.Stroke == (Brush)Application.Current.Resources["Ink"], "The theme icon matches the language text and icon color");
                     var details = (Button)Part(row, "RowDetails");
