@@ -94,7 +94,7 @@ internal static partial class Program
                     Check(ReferenceEquals(dialog.Background, palette.Background) && ReferenceEquals(dialog.Foreground, palette.Foreground), "An open code-built dialog follows current system brushes");
                     if (browser)
                     {
-                        var hint = LogicalDescendants(dialog).OfType<TextBlock>().Single(t => t.Text.StartsWith("Keep Vydrop", StringComparison.Ordinal));
+                        var hint = (TextBlock)dialog.FindName("SetupKeepFolderHint");
                         Check(ReferenceEquals(hint.Foreground, palette.Foreground), "Browser integration hint refreshes without reopening the dialog");
                     }
                     else

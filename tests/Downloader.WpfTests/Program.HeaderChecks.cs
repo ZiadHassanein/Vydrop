@@ -103,7 +103,11 @@ internal static partial class Program
                 var output = job.Options;
                 Check(model.ToggleLanguageCommand.CanExecute(null) && language.IsEnabled, "Language switching remains available during downloads");
                 model.ToggleLanguageCommand.Execute(null);
-                Check(model.IsArabic != previous && model.Queue.IsRunning && !active.IsCompleted && ReferenceEquals(output, job.Options),
+                var current = job.Options;
+                Check(model.IsArabic != previous && model.Queue.IsRunning && !active.IsCompleted &&
+                    current.JobId == output.JobId && current.Url == output.Url && current.Folder == output.Folder &&
+                    current.Audio == output.Audio && current.Height == output.Height && current.VideoContainer == output.VideoContainer &&
+                    current.AudioBitrate == output.AudioBitrate && current.AudioEncoding == output.AudioEncoding,
                     "Changing the header language preserves the active download and its output options");
             }
             finally { release.SetResult(); await active; model.Queue.Remove(job.Id); }

@@ -131,7 +131,9 @@ internal static partial class Program
         failure.Enable(); failure.Trace.Clear();
         var failed = new BrowserSetupViewModel(text => text, failure, false);
         failed.BeginInstallerSetup(SetupBrowser.Chrome);
-        Check(failed.IsConnected && failed.HasError && failure.Trace.SequenceEqual(new[] { "copy" }), "Installer handoff stops on clipboard failure without undoing the connection or launching a broken step");
+        Check(failed.IsConnected && failed.HasError && failure.Trace.SequenceEqual(new[] { "copy", "open" }) &&
+            failed.Message.Contains("Copy the extension path", StringComparison.Ordinal),
+            "Legacy setup opens the browser with manual path guidance when copying fails, preserving the connection");
     }
 
 }
