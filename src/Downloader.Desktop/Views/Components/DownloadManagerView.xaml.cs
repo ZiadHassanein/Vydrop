@@ -92,6 +92,7 @@ public partial class DownloadManagerView : UserControl
             if (DetailsBorder.Parent is Panel parent) parent.Children.Remove(DetailsBorder);
             if (compact) { Grid.SetColumn(DetailsBorder, 0); Grid.SetRow(DetailsBorder, 0); CompactDetailsHost.Children.Add(DetailsBorder); }
             else { Grid.SetColumn(DetailsBorder, 1); Grid.SetRow(DetailsBorder, 1); ManagerRoot.Children.Add(DetailsBorder); HideDetails(); }
+            CommandManager.InvalidateRequerySuggested();
         }
         if (previousWidth != DetailsColumn.Width.Value) WorkspaceLayoutChanged?.Invoke();
     }

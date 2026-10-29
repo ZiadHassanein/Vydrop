@@ -116,7 +116,10 @@ internal static partial class Program
         CheckButtonHitAreas(window);
         if (compactTransfer) ((IInvokeProvider)new ButtonAutomationPeer(window.ManagerContent.DetailsCloseButton).GetPattern(PatternInterface.Invoke)).Invoke();
         var rowButtons = Descendants<System.Windows.Controls.Button>(window.ManagerContent.DownloadsList).Where(button => button.IsVisible && button.DataContext is QueueItemView row && row.Id == waiting.Id).ToArray();
-        Check(rowButtons.Length >= 5 && rowButtons.All(button => button.ContextMenu == null), "Row actions are directly available without an overflow menu");
+        string[] requiredActions = ["RowPrimaryAction", "RowCancel", "RowFolder", "RowRemove"];
+        Check(requiredActions.All(name => rowButtons.Any(button => button.Name == name)) &&
+            !rowButtons.Any(button => button.Name is "RowMoveUp" or "RowMoveDown") &&
+            rowButtons.All(button => button.ContextMenu == null), "Download actions remain directly available without retired reorder arrows or an overflow menu");
         var actionTop = rowButtons[0].TransformToAncestor(window).Transform(new System.Windows.Point()).Y;
         Check(rowButtons.All(button => Math.Abs(button.TransformToAncestor(window).Transform(new System.Windows.Point()).Y - actionTop) <= 1), "All download actions share the Pause button row");
         var title = Descendants<System.Windows.Controls.TextBlock>(window.ManagerContent.DownloadsList).Single(text => text.DataContext is QueueItemView row && row.Id == waiting.Id && text.Text == row.Title);
