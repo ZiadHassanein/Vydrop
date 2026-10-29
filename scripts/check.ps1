@@ -25,10 +25,12 @@ foreach($mode in @('subtitle-search-input', 'browser-language', 'file-location')
     & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') "--$mode"
     if($LASTEXITCODE -ne 0) { throw "WPF $mode checks failed." }
 }
+$wpfModesFailed=[Collections.Generic.List[string]]::new()
 foreach($mode in @('motion-polish', 'header', 'brand-layout', 'filter-tabs', 'resume-progress', 'resume-workflows', 'media-layout', 'queue-window', 'options-modal', 'library-queue', 'contact', 'download-workspace', 'download-settings', 'setup-ui', 'workspace-flow', 'motion', 'checking-feedback', 'close-race', 'system-theme', 'performance', 'error-presentation', 'browser-setup', 'browser-playlists', 'store-setup', 'download-improvements-ui', 'ui-refinement')) {
     & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') (Join-Path $CaptureDirectory $mode) "--$mode"
-    if($LASTEXITCODE -ne 0) { throw "WPF $mode checks failed." }
+    if($LASTEXITCODE -ne 0) { $wpfModesFailed.Add($mode); Write-Warning "WPF $mode checks failed." }
 }
+if($wpfModesFailed.Count) { throw ('WPF checks failed: '+($wpfModesFailed -join ', ')) }
 & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') --browser-cold-start (Join-Path $CaptureDirectory ("browser-cold-start-" + [Guid]::NewGuid().ToString('N')))
 if($LASTEXITCODE -ne 0) { throw 'Closed-app browser download handoff failed.' }
 & node --test (Join-Path $projectRoot 'tests/browser.test.cjs') (Join-Path $projectRoot 'tests/browser-video.test.cjs') (Join-Path $projectRoot 'tests/browser-errors.test.cjs') (Join-Path $projectRoot 'tests/docs.test.cjs') (Join-Path $projectRoot 'tests/localization.test.cjs') (Join-Path $projectRoot 'tests/search-discovery.test.cjs') (Join-Path $projectRoot 'tests/international.test.cjs')

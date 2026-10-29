@@ -100,12 +100,14 @@ internal static partial class Program
             try
             {
                 bool previous = model.IsArabic;
-                Check(!model.ToggleLanguageCommand.CanExecute(null) && !language.IsEnabled, "Language switching retains the app's existing busy-operation guard");
+                var output = job.Options;
+                Check(model.ToggleLanguageCommand.CanExecute(null) && language.IsEnabled, "Language switching remains available during downloads");
                 model.ToggleLanguageCommand.Execute(null);
-                Check(model.IsArabic == previous, "Busy downloads cannot change language through a direct command call");
+                Check(model.IsArabic != previous && model.Queue.IsRunning && !active.IsCompleted && ReferenceEquals(output, job.Options),
+                    "Changing the header language preserves the active download and its output options");
             }
             finally { release.SetResult(); await active; model.Queue.Remove(job.Id); }
-            Check(model.ToggleLanguageCommand.CanExecute(null) && language.IsEnabled, "The language action becomes available when the operation ends");
+            Check(model.ToggleLanguageCommand.CanExecute(null) && language.IsEnabled, "The language action remains available after the operation ends");
         using var iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/Vydrop;component/Assets/app.ico")).Stream;
         var frames = new IconBitmapDecoder(iconStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames;
         Check(frames.Select(frame => frame.PixelWidth).SequenceEqual(new[] { 16, 24, 32, 48, 64, 128, 256 }),
