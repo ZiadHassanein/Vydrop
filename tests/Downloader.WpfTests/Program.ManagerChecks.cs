@@ -157,8 +157,11 @@ internal static partial class Program
         Check(model.Queue.Entries.First(e => e.Id == cancellable.Id).State == QueueState.Cancelled && model.Queue.Entries.First(e => e.Id == sentinel.Id).State == QueueState.Pending, "Cancelling the selected active transfer preserves other pending jobs");
         ThemeResources.ContrastOverride = new(System.Windows.Media.Brushes.Black, System.Windows.Media.Brushes.White, System.Windows.Media.Brushes.Yellow, System.Windows.Media.Brushes.Black);
         ThemeResources.Apply(true); model.RefreshThemeBindings(); model.LibraryFilterCommand.Execute("all"); model.SelectedLibraryItem = model.QueueItems.First(q => q.Id == complete.Id); window.ManagerContent.SearchInput.Focus(); await Task.Delay(60);
+        // Newer completions can move this older selection outside the virtualized viewport.
+        window.ManagerContent.DownloadsList.ScrollIntoView(model.SelectedLibraryItem);
+        window.UpdateLayout(); await Task.Delay(60);
         var selectedContainer = (System.Windows.Controls.ListBoxItem)window.ManagerContent.DownloadsList.ItemContainerGenerator.ContainerFromItem(model.SelectedLibraryItem);
-        Check(selectedContainer.IsSelected && selectedContainer.BorderThickness.Left == 3 && Equals(selectedContainer.BorderBrush, window.FindResource("Accent")), "High-contrast selection remains visibly outlined after keyboard focus moves to search");
+        Check(selectedContainer is { IsSelected: true } && selectedContainer.BorderThickness.Left == 3 && Equals(selectedContainer.BorderBrush, window.FindResource("Accent")), "High-contrast selection remains visibly outlined after keyboard focus moves to search");
         Capture(window, Path.Combine(captures, "manager-high-contrast.png"));
         Check(Equals(window.FindResource("Navigation"), System.Windows.Media.Brushes.Black), "High contrast uses system-equivalent navigation colors");
         foreach (string role in new[] { "NavigationIcon", "MediaAudio", "MediaVideo", "Warning" })
