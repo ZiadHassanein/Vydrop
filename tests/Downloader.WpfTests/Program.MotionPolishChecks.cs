@@ -13,9 +13,10 @@ internal static partial class Program
         MotionPreferences.SetTestOverride(true);
         try
         {
-            window.Width = 1280; model.LibraryFilterCommand.Execute("all"); await Task.Delay(250);
+            window.Width = 1280; model.LibraryFilterCommand.Execute("queue"); await Task.Delay(250);
             var manager = window.ManagerContent;
             var button = manager.AddDownloadButton;
+            Check(button.IsVisible, "Press feedback uses the retained Queue action after removing the duplicate Library action");
             var visual = Descendants<FrameworkElement>(button).First(InteractionMotion.GetEnabled);
             var scale = ((TransformGroup)visual.RenderTransform).Children.OfType<ScaleTransform>().Single();
             Rect Bounds() => button.TransformToAncestor(window).TransformBounds(new Rect(button.RenderSize));
@@ -41,7 +42,9 @@ internal static partial class Program
             Check(manager.WorkspaceViewport.ClipToBounds, "Workspace motion is clipped before it reaches the sidebar or inspector");
             Capture(window, Path.Combine(captures, "workspace-handoff-frame.png"), transitionFrame: true);
             model.HistoryCommand.Execute(null); model.NewDownloadCommand.Execute(null); model.LibraryFilterCommand.Execute("queue");
-            await Task.Delay(250);
+            await window.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+            for (int attempt = 0; attempt < 40 && manager.LibraryContent.HasAnimatedProperties; attempt++)
+                await Task.Delay(25);
             Check(manager.LibraryContent.IsVisible && !manager.EditorHost.IsVisible && !manager.HistoryContent.IsVisible && !manager.WorkspaceHost.IsVisible && window.OwnedWindows.Count == 0,
                 "Rapid navigation settles on the final tab without leaving a blocking or stale surface");
             Check(!manager.LibraryContent.HasAnimatedProperties && manager.LibraryContent.Opacity == 1 && manager.LibraryContent.RenderTransform.Value.IsIdentity,
@@ -51,7 +54,7 @@ internal static partial class Program
             MotionPreferences.SetTestOverride(false);
             Check(!manager.EditorHost.HasAnimatedProperties && manager.EditorHost.Opacity == 1 && manager.EditorHost.RenderTransform.Value.IsIdentity,
                 "Changing Reduce Motion during a transition immediately settles the workspace");
-            model.LibraryFilterCommand.Execute("all"); await Task.Delay(50);
+            model.LibraryFilterCommand.Execute("queue"); await Task.Delay(50);
             button.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
             Check(!scale.HasAnimatedProperties && scale.ScaleX == 1 && manager.LibraryContent.RenderTransform.Value.IsIdentity,
                 "Reduced motion keeps click feedback and navigation immediate without spatial animation");
