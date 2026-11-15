@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using YouTubeDownloader;
 
 internal static partial class Program
@@ -31,8 +32,40 @@ internal static partial class Program
                 var caret = field.GetRectFromCharacterIndex(0);
                 Check(!caret.IsEmpty && (language == "ar" ? caret.X > field.ActualWidth / 2 : caret.X < field.ActualWidth / 2),
                     $"Empty {field.Name} caret starts at the {(language == "ar" ? "right" : "left")} edge in {language} (x={caret.X}, width={field.ActualWidth})");
+                CheckWholeLinkSelection(field, language);
             }
         }
         app.Shutdown();
+    }
+
+    private static void CheckWholeLinkSelection(TextBox field, string language)
+    {
+        // Raise only WPF events on unshown controls; never inject system mouse input.
+        MouseButtonEventArgs Click(MouseButton button, int count)
+        {
+            var args = new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, button)
+                { RoutedEvent = Mouse.PreviewMouseDownEvent };
+            typeof(MouseButtonEventArgs).GetProperty(nameof(MouseButtonEventArgs.ClickCount)).SetValue(args, count);
+            field.RaiseEvent(args);
+            return args;
+        }
+        var binding = field.GetBindingExpression(TextBox.TextProperty);
+        foreach (string link in new[] { "https://youtu.be/B0p5SdkBydU?si=HU6d6PS2Vdz42d4p",
+            "https://example.com/watch/video-1?title=%D8%B9%D8%B1%D8%A8%D9%8A&token=a.b_c-1#chapter-2" })
+        {
+            field.Clear();
+            field.SetCurrentValue(TextBox.TextProperty, link);
+            field.Select(8, 4);
+            Check(!Click(MouseButton.Left, 1).Handled && field.SelectionLength == 4,
+                $"Single clicks retain normal link editing in {field.Name}/{language}");
+            Check(!Click(MouseButton.Right, 2).Handled && field.SelectionLength == 4,
+                $"Right clicks retain normal context-menu selection in {field.Name}/{language}");
+            Check(Click(MouseButton.Left, 2).Handled && field.SelectionStart == 0 && field.SelectedText == link &&
+                ReferenceEquals(binding, field.GetBindingExpression(TextBox.TextProperty)),
+                $"Double click selects the entire cleared-and-refilled link, including query and fragment, in {field.Name}/{language}");
+        }
+        field.Clear();
+        Check(!Click(MouseButton.Left, 2).Handled && field.SelectionLength == 0,
+            $"Double clicking an empty {field.Name} leaves it ready to type in {language}");
     }
 }

@@ -66,8 +66,8 @@ internal static partial class Program
             for (int settle = 0; settle < 50 && (wide ? !window.ManagerContent.DetailsBorder.IsVisible : window.ManagerContent.DetailsColumn.Width.Value != 0); settle++) { await Task.Delay(20); window.UpdateLayout(); }
             Check(wide ? window.ManagerContent.DetailsBorder.IsVisible && window.ManagerContent.DetailsColumn.Width.Value > 0 : window.ManagerContent.DetailsColumn.Width.Value == 0 && window.ManagerContent.IsCompact && DetailsButton().IsVisible,
                 $"The inspector follows the actual viewport: {language}/{dark}, width={window.ManagerContent.ActualWidth}, window={window.ActualWidth}, column={window.ManagerContent.DetailsColumn.Width.Value}, visible={window.ManagerContent.DetailsBorder.IsVisible}, parent={window.ManagerContent.DetailsBorder.Parent}, add={model.AddDownloadVisible}, settings={model.SettingsVisible}, history={model.HistoryVisible}");
-            Check(window.ManagerContent.AddDownloadButton.ActualWidth < 215 && window.ManagerContent.SelectedFolderPath.ActualHeight < 30,
-                "The Add action stays content-sized and long save paths stay on one line: " + language + "/" + dark);
+            Check(window.ManagerContent.AddDownloadButton.Visibility == System.Windows.Visibility.Collapsed && window.ManagerContent.SelectedFolderPath.ActualHeight < 30,
+                "Library omits the duplicate Add action and long save paths stay on one line: " + language + "/" + dark);
             CheckButtonHitAreas(window);
             Capture(window, Path.Combine(captures, "manager-" + language + (dark ? "-dark" : "-light") + ".png"));
         }

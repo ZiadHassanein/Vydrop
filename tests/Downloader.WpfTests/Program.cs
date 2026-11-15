@@ -41,6 +41,16 @@ internal static partial class Program
             try { CheckTopNavigation(args[1]); Console.WriteLine(count + " top navigation checks passed."); return 0; }
             catch (Exception error) { Console.Error.WriteLine(error); return 1; }
         }
+        if (args.Length == 2 && args[0] == "--library-order")
+        {
+            try { CheckLibraryOrder(args[1]); Console.WriteLine(count + " library order checks passed."); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
+        if (args.Length == 2 && args[0] == "--history-retention")
+        {
+            try { CheckHistoryRetention(args[1]); Console.WriteLine(count + " history retention checks passed."); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        }
         if (args.Length == 2 && args[0] == "--simplified-options")
         {
             try { CheckSimplifiedOptions(args[1]); Console.WriteLine(count + " simplified option checks passed."); return 0; }

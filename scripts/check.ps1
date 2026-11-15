@@ -17,7 +17,7 @@ if($LASTEXITCODE -ne 0) { throw 'WPF checks failed.' }
 & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') (Join-Path $CaptureDirectory 'manager-small-display') --manager --dpi-unaware --ci-layout
 if($LASTEXITCODE -ne 0) { throw 'Small-display manager checks failed.' }
 # These focused checks render offscreen and cover the current queue editor and toolbar.
-foreach($mode in @('queue-output', 'top-navigation', 'simplified-options', 'form-polish')) {
+foreach($mode in @('queue-output', 'top-navigation', 'library-order', 'history-retention', 'simplified-options', 'form-polish')) {
     & (Join-Path $projectRoot 'tests/Downloader.WpfTests/bin/Release/net10.0-windows/win-x64/Downloader.WpfTests.exe') "--$mode" (Join-Path $CaptureDirectory $mode)
     if($LASTEXITCODE -ne 0) { throw "WPF $mode checks failed." }
 }
@@ -40,8 +40,14 @@ if($LASTEXITCODE -ne 0) { throw 'Browser protocol compatibility checks failed.' 
 if($env:VYDROP_PLAYWRIGHT) {
     & node (Join-Path $projectRoot 'tests/browser-overlay-live.cjs')
     if($LASTEXITCODE -ne 0) { throw 'Rendered browser overlay checks failed.' }
+    & node (Join-Path $projectRoot 'tests/browser-overlay-controls-live.cjs')
+    if($LASTEXITCODE -ne 0) { throw 'Overlay movement and meeting/live exclusion checks failed.' }
+    & node (Join-Path $projectRoot 'tests/browser-audio-live.cjs')
+    if($LASTEXITCODE -ne 0) { throw 'Audio-player actions and exact output delivery checks failed.' }
     & node (Join-Path $projectRoot 'tests/browser-popup-live.cjs')
     if($LASTEXITCODE -ne 0) { throw 'Rendered browser popup checks failed.' }
+    & node (Join-Path $projectRoot 'tests/browser-language-live.cjs')
+    if($LASTEXITCODE -ne 0) { throw 'Live companion language synchronization checks failed.' }
     & node (Join-Path $projectRoot 'tests/browser-playlist-live.cjs')
     if($LASTEXITCODE -ne 0) { throw 'Rendered playlist scope checks failed.' }
     & node (Join-Path $projectRoot 'tests/browser-social-live.cjs')

@@ -82,7 +82,7 @@ const activity = 'https://www.linkedin.com/feed/update/urn:li:activity:751722773
         await page.evaluate(() => { testResponse = { ok: true }; });
         await button.click();
         await page.waitForFunction(() => document.querySelector('#vifree-video-action').shadowRoot.querySelector('button').dataset.state === 'success');
-        assert.equal(await button.getAttribute('title'), 'Copy video link and open Vydrop');
+        assert.match(await button.getAttribute('title'), /^Copy video link and open Vydrop\. Drag to move\./u);
       }
       if (site === 'linkedin' || site === 'youtube' && !theater && !crowdedHeader) {
         for (const code of ['missing', 'ambiguous', 'inspect', 'busy', 'unavailable', 'invalid', 'unknown', 'legacy']) {

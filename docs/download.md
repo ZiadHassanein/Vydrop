@@ -13,11 +13,11 @@ last_reviewed: 2026-10-24
 
 **Vydrop is a free, open-source video and audio downloader for Windows 10/11 x64.** Download the packaged app from the project's GitHub Releases page. The desktop interface supports English and Arabic.
 
-[Download Vydrop 4.4.18 — Complete ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.18/Vydrop-v4.4.18-win-x64.zip) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.18)
+[Download Vydrop 4.4.19 — Complete ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.4.19/Vydrop-v4.4.19-win-x64.zip) · [Release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.4.19)
 
 The ZIP contains **Vydrop.exe**, **Browser/chromium** and **Browser/firefox**. Extract the entire archive; opening only the EXE inside the ZIP does not unpack the companion folders.
 
-The complete ZIP includes companion **1.5.14** and the latest Reddit player, Twitch clip-format and Dailymotion link fixes. Companion **1.5.7 or later reloads automatically** after app updates, usually within a minute while idle. It waits for active browser actions and verifies the complete local bundle first. If upgrading from companion **1.5.6 or earlier, reload once** to activate this feature. Refresh open video tabs afterward; their playback is never interrupted by an automatic page refresh. Keep the loaded companion in the app-managed folder. Firefox temporary add-ons still need loading again after a browser restart.
+The complete ZIP includes companion **1.5.15** and the latest Reddit player, Twitch clip-format and Dailymotion link fixes. Companion **1.5.7 or later reloads automatically** after app updates, usually within a minute while idle. It waits for active browser actions and verifies the complete local bundle first. If upgrading from companion **1.5.6 or earlier, reload once** to activate this feature. Refresh open video tabs afterward; their playback is never interrupted by an automatic page refresh. Keep the loaded companion in the app-managed folder. Firefox temporary add-ons still need loading again after a browser restart.
 
 ## Run the extracted app
 
@@ -33,7 +33,7 @@ The companion opens a format and quality menu. Confirm Download to start the cho
 | Item | What you need |
 | --- | --- |
 | Operating system | Windows 10 or Windows 11, x64 |
-| Portable app | `Vydrop-v4.4.18-win-x64.zip`; extract the complete folder |
+| Portable app | `Vydrop-v4.4.19-win-x64.zip`; extract the complete folder |
 | .NET | Included in the package; no separate runtime installation |
 | Media tools | Missing tools are prepared when needed; first use needs an internet connection |
 | Browser companion | Optional Chrome, Edge or Firefox companion, inside the app's **Browser** folder |
@@ -60,13 +60,13 @@ Settings and recent-file history use `%LocalAppData%\YouTubeDownloader` for comp
 [Save YouTube audio as MP3](youtube-to-mp3-windows.md) · [Download playlist entries](download-youtube-playlist-windows.md) · [Save subtitles](youtube-subtitles-srt.md) · [About Vydrop](about.md)
 
 
-<figure><img src="images/screenshots/vydrop-light-en-download.png" width="1280" height="761" loading="lazy" alt="Add download opens in the main workspace. These are native 4.4.18 controls with example media."><figcaption>Add download opens in the main workspace. These are native 4.4.18 controls with example media.</figcaption></figure>
+<figure><img src="images/screenshots/vydrop-light-en-download.png" width="1280" height="761" loading="lazy" alt="Add download opens in the main workspace. These are native 4.4.19 controls with example media."><figcaption>Add download opens in the main workspace. These are native 4.4.19 controls with example media.</figcaption></figure>
 
 
 ## Fixed extension folder and update cleanup
 
 **If Reload still shows an old extension version:** Chrome is reading its previously selected folder. In Vydrop, open **Settings → Browser integration → Chrome/Edge → Set up**, choose **Load unpacked** in that browser, and select the **copied folder** once. New setup uses `%LocalAppData%\YouTubeDownloader\BrowserCompanion\Current\chromium`; Firefox uses `Current\firefox\manifest.json`. This folder stays fixed across app moves and updates. Loading the old ZIP’s folder again will keep that old copy. The bundled `Browser` folder remains included, but the app-managed folder is recommended for ongoing updates.
 
-Companion **1.5.14** reports its loaded version separately for Chrome, Edge and Firefox when an explicit browser action checks the app connection. Setup shows a reported old version or an unconfirmed version honestly; it does not treat files on disk as proof of what the browser loaded. Older hosts retain their original health-message format.
+Companion **1.5.15** reports its loaded version separately for Chrome, Edge and Firefox when an explicit browser action checks the app connection. Setup shows a reported old version or an unconfirmed version honestly; it does not treat files on disk as proof of what the browser loaded. Older hosts retain their original health-message format.
 
 Successful updates remove retired media-discovery scripts and clean completed updater staging after the updater helper exits. Settings, queue, history, partial downloads and saved videos retain their existing locations. Unfinished recovery and running updater helpers are kept.

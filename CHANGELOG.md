@@ -4,6 +4,26 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+## [4.4.19] - 2026-11-15
+
+### Added
+- Bundle companion 1.5.15 with download actions for compatible HTML5 audio and music players, including unplayed media. Audio actions show audio-only output choices and retain the exact selected track.
+- Allow dragging the media action anywhere within the browser viewport. Shift+Arrow moves it with the keyboard; Shift+Home resets its position. Keep the action clear of native audio controls.
+- Keep GitHub, LinkedIn and email contact links in a compact, localized footer across the app, with matching theme colors and keyboard access.
+- Document the existing keyboard shortcuts in Settings.
+
+### Fixed
+- Hide media actions on meeting and screen-sharing pages, MediaStream sources and detected live video/audio. Restore eligible actions when an ordinary finite recording is selected.
+- Refresh the companion language when its menu opens or the browser regains focus, preserving media type, format, quality and playlist choices.
+- Restore and request foreground activation of Vydrop for explicit browser download actions; leave health checks and format inspection passive.
+- Show newest completed downloads first in Library. Preserve queue execution order, selection and existing saved jobs.
+- Retain up to 100 recent downloads and recover older completed outputs still recorded in the saved queue.
+- Preserve visible format, media-type, connection and retry selections when switching English/Arabic or themes.
+- Focus subtitle search before the next typed input, retaining name/code filtering and the selected subtitle.
+- Select the whole URL on double-click in the main link field and each queue link field.
+- Remove the duplicate Library header action, obsolete inspector notes, the dotted form focus frame and the empty Download tooltip. Correct the Add to queue shortcut description.
+- Preserve settings, queue, history, downloaded media, browser identities and the existing automatic companion update mechanism.
+
 ## [4.4.18] - 2026-10-29
 
 ### Fixed

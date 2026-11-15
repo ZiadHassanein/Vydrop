@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -61,18 +62,39 @@ internal static partial class Program
         var caption = (ComboBox)WpfTree.Find(dialog, "CaptionInput");
         var french = new CaptionChoice("fr-CA", "Français (Canada)");
         model.CaptionChoices.Add(french);
+        var automatic = CultureInfo.GetCultures(CultureTypes.NeutralCultures)
+            .Where(culture => culture.Name.Length > 0)
+            .Select(culture => new CaptionChoice(culture.Name, culture.EnglishName + " · Automatic", true)).ToArray();
+        foreach (var choice in automatic) model.CaptionChoices.Add(choice);
         var selected = model.SelectedCaption;
         caption.IsDropDownOpen = true;
+        bool readyForTyping = await caption.Dispatcher.InvokeAsync(() =>
+            ((TextBox)caption.Template.FindName("CaptionSearchInput", caption)).IsKeyboardFocused,
+            System.Windows.Threading.DispatcherPriority.Input);
+        Check(readyForTyping, "Subtitle search owns keyboard focus before the next queued typing input");
         await Task.Delay(150);
         var search = (TextBox)caption.Template.FindName("CaptionSearchInput", caption);
         var empty = (TextBlock)caption.Template.FindName("CaptionSearchEmpty", caption);
+        var popup = (System.Windows.Controls.Primitives.Popup)caption.Template.FindName("PART_Popup", caption);
         for (int attempt = 0; attempt < 20 && !search.IsKeyboardFocused; attempt++) await Task.Delay(50);
         Check(search.IsKeyboardFocused && search.Text == "", "Opening subtitle choices focuses the search field");
         var letter = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(search), Environment.TickCount, Key.E)
             { RoutedEvent = Keyboard.KeyDownEvent };
         search.RaiseEvent(letter);
         Check(!letter.Handled, "Subtitle search does not swallow printable keys before WPF composes text");
+        foreach (char character in "English")
+        {
+            var composition = new TextComposition(InputManager.Current, search, character.ToString());
+            search.RaiseEvent(new TextCompositionEventArgs(Keyboard.PrimaryDevice, composition)
+                { RoutedEvent = TextCompositionManager.TextInputEvent });
+        }
+        Check(search.Text == "English" && search.IsKeyboardFocused && caption.IsDropDownOpen,
+            "Typing into the open native popup composes the query without losing focus or closing the list");
         bool Visible(string language) => ((ComboBoxItem)caption.ItemContainerGenerator.ContainerFromItem(model.CaptionChoices.First(choice => choice.Language == language))).Visibility == Visibility.Visible;
+        bool IsShown(CaptionChoice choice) => caption.ItemContainerGenerator.ContainerFromItem(choice) is ComboBoxItem { Visibility: Visibility.Visible };
+        Check(model.CaptionChoices.Count > 100 && model.CaptionChoices.All(choice =>
+            IsShown(choice) == SubtitleOptionsView.MatchesCaption(choice, "English")),
+            "The entire large automatic-caption list is filtered immediately after real text composition");
         search.Text = "  ENGLISH  ";
         Check(Visible("en") && !Visible("ar") && !Visible("fr-CA") && ReferenceEquals(model.SelectedCaption, selected),
             "Subtitle search filters names without case/space sensitivity and preserves the chosen download language");
@@ -87,9 +109,19 @@ internal static partial class Program
             ((ComboBoxItem)caption.ItemContainerGenerator.ContainerFromItem(choice)).Visibility == Visibility.Collapsed) &&
             ReferenceEquals(model.SelectedCaption, selected) && model.VttCaptions,
             "An empty search result explains recovery without clearing subtitle language or format");
+        var clear = Descendants<Button>(popup.Child).Single(button => Equals(button.Content, model.CaptionSearchClearLabel));
+        clear.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Check(search.Text == "" && search.IsKeyboardFocused && empty.Visibility == Visibility.Collapsed &&
+            model.CaptionChoices.All(IsShown) && ReferenceEquals(model.SelectedCaption, selected) && model.VttCaptions,
+            "Clear search restores every language and keeps the existing subtitle language and format");
+        var arabicComposition = new TextComposition(InputManager.Current, search, "العربية");
+        search.RaiseEvent(new TextCompositionEventArgs(Keyboard.PrimaryDevice, arabicComposition)
+            { RoutedEvent = TextCompositionManager.TextInputEvent });
+        Check(search.Text == "العربية" && Visible("ar") && !Visible("en") &&
+            model.CaptionChoices.All(choice => IsShown(choice) == SubtitleOptionsView.MatchesCaption(choice, "العربية")),
+            "Composed Arabic text filters the full native popup as well as pasted Latin names and codes");
         search.Text = "العربية";
         await Task.Delay(75);
-        var popup = (System.Windows.Controls.Primitives.Popup)caption.Template.FindName("PART_Popup", caption);
         // The native root retains the RTL transform; rendering its child alone mirrors the text.
         var source = (HwndSource)PresentationSource.FromVisual(popup.Child);
         GetWindowRect(source.Handle, out var popupBounds);
@@ -109,6 +141,7 @@ internal static partial class Program
             "Escape closes subtitle search and preserves the last selection");
         model.SelectedCaption = selected;
         model.CaptionChoices.Remove(french);
+        foreach (var choice in automatic) model.CaptionChoices.Remove(choice);
     }
 
     [DllImport("user32.dll")]

@@ -33,7 +33,7 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
   } catch { /* Only this extension's web content scripts can forward an explicit video click. */ }
   if (!allowed) { respond({ ok: false, code: "invalid", message: "This video page cannot open Vydrop." }); return false; }
   if (message.type === "vydrop-language") {
-    void globalThis.ViFreeConnection.getLanguage().then(language => { applyLanguage(language); respond({ ok: true, language }); });
+    void globalThis.ViFreeConnection.getLanguage(message.refresh === true).then(language => { applyLanguage(language); respond({ ok: true, language }); });
     return true;
   }
   const releaseReload = globalThis.ViFreeConnection.holdReload();

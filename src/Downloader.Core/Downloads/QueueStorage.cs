@@ -20,6 +20,7 @@ public sealed class StoredQueueJob
     public string Title { get; set; } = "";
     public QueueState State { get; set; }
     public double Percent { get; set; }
+    public DateTimeOffset? CompletedAt { get; set; }
     public string? Error { get; set; }
     public string[] Files { get; set; } = Array.Empty<string>();
 }
@@ -45,7 +46,7 @@ public sealed partial class DownloadQueue
             {
                 var options = job.Options.Snapshot();
                 options.Selection = null; options.QualityKey = null;
-                var entry = new QueueEntry(WithJobIdentity(options, job.Id), job.Title) { Id = job.Id, State = job.State, Percent = Math.Clamp(job.Percent, 0, 100), Error = job.Error };
+                var entry = new QueueEntry(WithJobIdentity(options, job.Id), job.Title) { Id = job.Id, State = job.State, Percent = Math.Clamp(job.Percent, 0, 100), CompletedAt = job.CompletedAt, Error = job.Error };
                 if (entry.State is QueueState.Preparing or QueueState.Downloading) entry.State = QueueState.Interrupted;
                 if (job.Files.Length > 0) entry.Result = new DownloadResult { FilePath = job.Files.Last(), Files = job.Files.ToList(), Completed = job.Files.Length };
                 entries.Add(entry);
@@ -73,7 +74,7 @@ public sealed partial class DownloadQueue
             StartAt = StartAt, StopAt = StopAt,
             Jobs = entries.Select(e => new StoredQueueJob
             {
-                Id = e.Id, Options = e.Options, Title = e.Title, State = e.State, Percent = e.Percent, Error = e.Error,
+                Id = e.Id, Options = e.Options, Title = e.Title, State = e.State, Percent = e.Percent, CompletedAt = e.CompletedAt, Error = e.Error,
                 Files = (e.Result?.Files ?? new()).Append(e.Result?.FilePath).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray()!
             }).ToList()
         });

@@ -8,7 +8,7 @@ internal static class QueueRecoveryChecks
     {
         string root = Path.Combine(AppContext.BaseDirectory, "queue-recovery-" + Guid.NewGuid().ToString("N"));
         var failures = new List<string>();
-        foreach (var check in new Func<string, Task>[] { BackupChecks, InvalidSnapshotChecks, ScheduledStartChecks })
+        foreach (var check in new Func<string, Task>[] { BackupChecks, InvalidSnapshotChecks, ScheduledStartChecks, CompletionMetadataChecks })
         {
             try { await check(Path.Combine(root, check.Method.Name)); }
             catch (Exception error) { failures.Add(error.Message); Console.WriteLine("FAIL: " + error.Message); }
@@ -84,6 +84,32 @@ internal static class QueueRecoveryChecks
         internal bool Fail;
         public QueueSnapshot Load() => new();
         public void Save(QueueSnapshot snapshot) { if (Fail) throw new IOException("Fixture storage unavailable"); }
+    }
+
+    private static async Task CompletionMetadataChecks(string root)
+    {
+        var store = new LocalQueueStorage(root);
+        var queue = new DownloadQueue(store);
+        var completed = queue.Add(new() { Url = "https://example.com/completed", Folder = root });
+        var pending = queue.Add(new() { Url = "https://example.com/pending", Folder = root, MaximumAttempts = 1 });
+        Check(completed.CompletedAt == null && pending.CompletedAt == null, "Queued downloads do not claim a completion date before success");
+        DateTimeOffset started = DateTimeOffset.UtcNow;
+        await queue.RunJobAsync(completed.Id, (_, _, _) => Task.FromResult(new DownloadResult { FilePath = Path.Combine(root, "completed.mp4") }));
+        Check(completed.CompletedAt >= started && completed.CompletedAt <= DateTimeOffset.UtcNow,
+            "A successful download records its actual completion date");
+        await queue.RunJobAsync(pending.Id, (_, _, _) => throw new InvalidOperationException("Fixture failure"));
+        var restored = new DownloadQueue(store);
+        Check(store.Load().Version == 1 && restored.Entries.Select(job => job.Id).SequenceEqual(queue.Entries.Select(job => job.Id)) &&
+            restored.Entries[0].CompletedAt == completed.CompletedAt && restored.Entries[1].CompletedAt == null,
+            "Completion dates survive restart without changing saved queue order, schema version, or failed jobs");
+        var legacy = store.Load();
+        legacy.Jobs[0].CompletedAt = null;
+        string legacyJson = JsonSerializer.Serialize(legacy, Json).Replace("\"CompletedAt\":null,", "", StringComparison.Ordinal);
+        File.WriteAllText(store.FilePath, legacyJson);
+        restored = new DownloadQueue(store);
+        Check(restored.StorageError == null && restored.Entries.Count == 2 && restored.Entries[0].State == QueueState.Completed &&
+            restored.Entries[0].CompletedAt == null && restored.Entries[1].State == QueueState.Failed,
+            "Older queue files without completion dates retain all completed and unfinished jobs");
     }
 
     private static async Task ScheduledStartChecks(string root)

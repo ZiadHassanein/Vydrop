@@ -3,8 +3,12 @@ using System.Collections.ObjectModel;
 
 namespace YouTubeDownloader;
 
-public sealed record QueueMediaTypeChoice(string Label, bool Audio)
+public sealed class QueueMediaTypeChoice(string label, bool audio) : ObservableObject
 {
+    private string label = label;
+    public string Label => label;
+    public bool Audio { get; } = audio;
+    internal void RefreshLabel(string value) => SetProperty(ref label, value, nameof(Label));
     public override string ToString() => Label;
 }
 
@@ -23,10 +27,14 @@ public sealed class QueueLinkInputView : ObservableObject
     private VideoInfo metadata;
     private CancellationTokenSource inspection;
     private QualityChoice selectedQuality;
+    private readonly QueueMediaTypeChoice videoType, audioType;
+    private IReadOnlyList<QueueMediaTypeChoice> mediaTypes = Array.Empty<QueueMediaTypeChoice>();
+    private IReadOnlyList<string> formats = Array.Empty<string>();
 
     internal QueueLinkInputView(Func<string, string> translate, Action<QueueLinkInputView> changed, DownloadOptions defaults)
     {
         (this.translate, this.changed) = (translate, changed);
+        videoType = new(translate("Video"), false); audioType = new(translate("Audio"), true);
         audio = defaults.Audio; videoFormat = defaults.VideoContainer; audioFormat = defaults.AudioEncoding;
         height = HeightLimits.Contains(defaults.Height) ? defaults.Height : 1080;
         RefreshQualities();
@@ -51,12 +59,8 @@ public sealed class QueueLinkInputView : ObservableObject
     public string QualityAccessibleName => label + " · " + QualityLabel;
     public string OutputHint => playlist ? translate("Quality is checked for each playlist video.") : "";
     public bool HasOutputHint => OutputHint.Length > 0;
-    public IReadOnlyList<QueueMediaTypeChoice> MediaTypes => new[]
-    {
-        new QueueMediaTypeChoice(translate("Video"), false), new QueueMediaTypeChoice(translate("Audio"), true)
-    }.Where(choice => playlist || metadata != null && (choice.Audio ? metadata.HasAudio : Enum.GetValues<VideoContainer>().Any(container => metadata.QualitiesFor(container).Count > 0))).ToArray();
-    public IReadOnlyList<string> Formats => !HasOutputOptions ? Array.Empty<string>() : audio ? AudioFormats : VideoFormats.Where(format =>
-        playlist ? format.Equals(videoFormat.ToString(), StringComparison.OrdinalIgnoreCase) : metadata.QualitiesFor(Enum.Parse<VideoContainer>(format, true)).Count > 0).ToArray();
+    public IReadOnlyList<QueueMediaTypeChoice> MediaTypes => mediaTypes;
+    public IReadOnlyList<string> Formats => formats;
     public ObservableCollection<QualityChoice> Qualities { get; } = new();
     public bool CanChooseQuality => !checking && Qualities.Count > 1;
     public bool Audio
@@ -108,6 +112,9 @@ public sealed class QueueLinkInputView : ObservableObject
 
     private void RefreshQualities()
     {
+        RefreshMediaTypes();
+        RefreshFormats();
+        OnPropertyChanged(nameof(Formats)); OnPropertyChanged(nameof(SelectedFormat));
         if (!HasOutputOptions)
         {
             Qualities.Clear(); selectedQuality = null;
@@ -157,7 +164,9 @@ public sealed class QueueLinkInputView : ObservableObject
         if (info.Collection == null && !info.HasAudio && !Enum.GetValues<VideoContainer>().Any(container => info.QualitiesFor(container).Count > 0))
             throw new InvalidOperationException("The site did not return downloadable formats for this video.");
         metadata = info.Collection == null ? info : null; playlist = info.Collection != null;
+        RefreshMediaTypes();
         if (!MediaTypes.Any(choice => choice.Audio == audio)) audio = MediaTypes[0].Audio;
+        RefreshFormats();
         if (!Formats.Contains(SelectedFormat)) videoFormat = Enum.Parse<VideoContainer>(Formats[0], true);
         RefreshQualities(); OnPropertyChanged(string.Empty);
     }
@@ -185,6 +194,22 @@ public sealed class QueueLinkInputView : ObservableObject
     }
     internal void RefreshLabel(string value)
     {
+        videoType.RefreshLabel(translate("Video")); audioType.RefreshLabel(translate("Audio"));
         label = value; RefreshQualities(); OnPropertyChanged(string.Empty);
+    }
+
+    private void RefreshMediaTypes()
+    {
+        var available = new[] { videoType, audioType }.Where(choice => playlist || metadata != null &&
+            (choice.Audio ? metadata.HasAudio : Enum.GetValues<VideoContainer>().Any(container => metadata.QualitiesFor(container).Count > 0))).ToArray();
+        // Keep item and collection identities while only their translated labels change.
+        if (!mediaTypes.SequenceEqual(available)) mediaTypes = available;
+    }
+
+    private void RefreshFormats()
+    {
+        var available = !HasOutputOptions ? Array.Empty<string>() : audio ? AudioFormats : VideoFormats.Where(format =>
+            playlist ? format.Equals(videoFormat.ToString(), StringComparison.OrdinalIgnoreCase) : metadata.QualitiesFor(Enum.Parse<VideoContainer>(format, true)).Count > 0).ToArray();
+        if (!formats.SequenceEqual(available)) formats = available;
     }
 }

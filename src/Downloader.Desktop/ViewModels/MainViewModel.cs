@@ -335,6 +335,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void NotifyPresentation()
     {
+        RefreshPreferenceChoices();
         if (HistoryVisible) RefreshHistory();
         RefreshQueueLinkLabels();
         RefreshCaptions();

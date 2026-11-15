@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using YouTubeDownloader;
 
 internal static partial class Program
@@ -10,6 +11,7 @@ internal static partial class Program
         var app = new Application();
         app.Resources.MergedDictionaries.Add(new ResourceDictionary
         { Source = new Uri("pack://application:,,,/Vydrop;component/Themes/Controls.xaml") });
+        MotionPreferences.SetTestOverride(false);
         Directory.CreateDirectory(captures);
         string root = Path.Combine(AppContext.BaseDirectory, "simplified-options-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root); PrepareLibraryQueue(root);
@@ -17,18 +19,28 @@ internal static partial class Program
         var model = new MainViewModel(service, new SettingsRepository(root), new DesktopActions(new Window()), new FixtureThumbnailLoader());
         var original = model.Queue.Add(new() { Url = "https://example.com/old.mp4", Folder = root });
         model.DownloadConnections = 8; model.QueueAttempts = 3; model.DirectFileAcceleration = true;
+        var preferences = new DownloadLimitsView { DataContext = model, FontSize = 14 };
+        preferences.SetBinding(FrameworkElement.FlowDirectionProperty, nameof(MainViewModel.ContentDirection));
+        preferences.SetBinding(Control.FontFamilyProperty, nameof(MainViewModel.ContentFont));
         foreach (var (language, dark, width) in new[] { ("en", false, 760d), ("ar", true, 760d), ("ar", false, 450d), ("en", true, 450d) })
         {
             model.SelectLanguageCommand.Execute(language); if (model.IsDark != dark) model.ThemeCommand.Execute(null);
             model.IsSpeedLimited = false;
-            var preferences = new DownloadLimitsView { DataContext = model, FontSize = 14, FlowDirection = model.ContentDirection };
             var advanced = (Expander)WpfTree.Find(preferences, "AdvancedDownloadOptions");
+            advanced.IsExpanded = false;
             Check(!advanced.IsExpanded, "Advanced connection/retry controls start collapsed: " + language);
             CaptureOptions(preferences, $"speed-{language}-{dark}-{width}.png", width, 350);
             model.IsSpeedLimited = true; model.SelectedSpeedPreset = 2048;
             CaptureOptions(preferences, $"speed-limited-{language}-{dark}-{width}.png", width, 420);
             advanced.IsExpanded = true;
             CaptureOptions(preferences, $"advanced-{language}-{dark}-{width}.png", width, 700);
+            var connections = preferences.ConnectionsInput;
+            var retries = preferences.RetriesInput;
+            Check(Equals(connections.SelectedValue, model.DownloadConnections) && Equals(retries.SelectedValue, model.QueueAttempts) &&
+                !Validation.GetHasError(connections) && !Validation.GetHasError(retries) &&
+                Descendants<TextBlock>(connections).Any(text => text.Text == model.ConnectionOptions.Single(choice => choice.Key == model.DownloadConnections).Value) &&
+                Descendants<TextBlock>(retries).Any(text => text.Text == model.RetryOptions.Single(choice => choice.Key == model.QueueAttempts).Value),
+                "The same connection/retry controls keep visible translated selections after switching languages: " + language);
             Check(model.DownloadConnections == 8 && model.QueueAttempts == 3 && model.DirectFileAcceleration && model.SpeedLimitKiB == 2048,
                 "Disclosure, language and theme retain all existing preference values");
             var composer = new QueueComposerView { DataContext = model, FontSize = 14, FlowDirection = model.ContentDirection };
@@ -40,6 +52,21 @@ internal static partial class Program
                 ReferenceEquals(composer.AddQueueLinksButton.Command, model.AddLinksCommand),
                 "Adding links and starting/resuming the queue retain their existing commands");
         }
+        model.IsSpeedLimited = true;
+        foreach (var (connections, attempts, speed) in new[] { (1, 1, -1), (2, 2, 512), (4, 4, -1), (8, 5, 1024) })
+        {
+            preferences.ConnectionsInput.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, connections);
+            preferences.RetriesInput.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, attempts);
+            preferences.SpeedPresetInput.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, speed);
+            model.SelectLanguageCommand.Execute(model.IsArabic ? "en" : "ar");
+            preferences.Measure(new Size(760, 700)); preferences.Arrange(new Rect(0, 0, 760, 700)); preferences.UpdateLayout();
+            Check(Equals(preferences.ConnectionsInput.SelectedValue, connections) && Equals(preferences.RetriesInput.SelectedValue, attempts) &&
+                Equals(preferences.SpeedPresetInput.SelectedValue, speed) && !Validation.GetHasError(preferences.ConnectionsInput) &&
+                !Validation.GetHasError(preferences.RetriesInput) && !Validation.GetHasError(preferences.SpeedPresetInput) &&
+                Descendants<TextBlock>(preferences.SpeedPresetInput).Any(text => text.Text == model.SpeedLimitOptions.Single(choice => choice.Key == speed).Value),
+                "User-selected connection, retry and custom/preset speed choices stay visible after a live language switch: " + connections);
+        }
+        model.DownloadConnections = 8; model.QueueAttempts = 3; model.SelectedSpeedPreset = 2048;
         Check(original.Options.Connections == 1 && original.Options.BytesPerSecond == 0 && original.Options.MaximumAttempts == 2,
             "Existing queued work keeps its captured download options");
         model.SelectLanguageCommand.Execute("en");
@@ -59,14 +86,15 @@ internal static partial class Program
         Check(restoredProvider.DownloadCalls == 0 && !restored.Queue.IsRunning && restored.DownloadConnections == 8 &&
             restored.QueueAttempts == 3 && restored.DirectFileAcceleration && restored.SpeedLimitKiB == 2048,
             "Legacy schedules never start work and download preferences remain unchanged");
-        app.Shutdown();
+        MotionPreferences.SetTestOverride(null); app.Shutdown();
 
         void CaptureOptions(FrameworkElement view, string name, double width, double height)
         {
             var frame = new Border { Padding = new Thickness(20), Child = view };
             frame.SetResourceReference(Border.BackgroundProperty, "Page");
+            Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+            view.InvalidateMeasure();
             frame.Measure(new Size(width, height));
-            if (view is DownloadLimitsView) height = Math.Min(height, frame.DesiredSize.Height);
             frame.Arrange(new Rect(0, 0, width, height)); frame.UpdateLayout();
             Check(frame.DesiredSize.Width <= width + 1, "Options fit the available workspace width: " + name);
             CaptureVisual(frame, Path.Combine(captures, name));

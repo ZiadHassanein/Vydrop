@@ -31,8 +31,7 @@ public sealed partial class MainViewModel
             if (playlistInfo != null || QueueRunning) return T("The source audio is checked for each video. Conversion cannot add detail.");
             var source = videoInfo?.AudioSource;
             if (source == null || !source.HasBitrate && !source.Lossless) return T("Source bitrate unavailable. Use automatic conversion.");
-            string description = source.Lossless ? T("Lossless source") : F("Source estimate: {0} · {1} kbps", source.Codec, Math.Round(source.BitrateKbps.Value));
-            return description + "\n" + T("Bitrates are conversion targets. Higher numbers cannot improve the source.");
+            return source.Lossless ? T("Lossless source") : F("Source estimate: {0} · {1} kbps", source.Codec, Math.Round(source.BitrateKbps.Value));
         }
     }
     public IReadOnlyList<int> AvailableAudioBitrates => OutputProfiles.AudioBitrates(SelectedEncoding.Encoding, videoInfo?.AudioSource);

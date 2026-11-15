@@ -84,7 +84,12 @@ public partial class App : Application
             _ = BrowserLinkTransport.ListenRequestsAsync(request => Dispatcher.Invoke(() =>
             {
                 var receipt = ((MainViewModel)MainWindow.DataContext).ReceiveBrowserRequest(request);
-                if (receipt.Accepted && request.Type != "ping") { if (MainWindow.WindowState == WindowState.Minimized) MainWindow.WindowState = WindowState.Normal; MainWindow.Activate(); }
+                if (receipt.Accepted && (request.Type is "open-link" or "enqueue" or "download"))
+                {
+                    if (!MainWindow.IsVisible) MainWindow.Show();
+                    if (MainWindow.WindowState == WindowState.Minimized) MainWindow.WindowState = WindowState.Normal;
+                    MainWindow.Activate();
+                }
                 return receipt;
             }), browserLifetime.Token);
         }

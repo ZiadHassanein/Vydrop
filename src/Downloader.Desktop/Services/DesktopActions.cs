@@ -85,15 +85,17 @@ public sealed partial class DesktopActions
         }
     }
 
+    internal static string ContactUrl(string kind) => kind switch
+    {
+        "github" => "https://github.com/ZiadHassanein",
+        "linkedin" => "https://www.linkedin.com/in/ziad-hassanein/",
+        "email" => "mailto:ziadmuhammed501@gmail.com",
+        _ => null
+    };
+
     public void OpenSocial(string kind)
     {
-        string url = kind switch
-        {
-            "github" => "https://github.com/ZiadHassanein",
-            "linkedin" => "https://www.linkedin.com/in/ziad-hassanein/",
-            "email" => "mailto:ziadmuhammed501@gmail.com",
-            _ => null
-        };
+        string url = ContactUrl(kind);
         if (url != null)
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
     }

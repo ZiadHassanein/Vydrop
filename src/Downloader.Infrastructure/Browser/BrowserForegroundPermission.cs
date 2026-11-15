@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 using Microsoft.Win32.SafeHandles;
 
 namespace YouTubeDownloader;
@@ -16,8 +17,28 @@ internal static class BrowserForegroundPermission
 
     private static void GrantToServer(SafePipeHandle pipe)
     {
-        if (!pipe.IsInvalid && !pipe.IsClosed && GetNamedPipeServerProcessId(pipe, out uint pid) && pid != 0)
-            _ = AllowSetForegroundWindow(pid);
+        if (pipe.IsInvalid || pipe.IsClosed || !GetNamedPipeServerProcessId(pipe, out uint pid) || pid == 0) return;
+        _ = AllowSetForegroundWindow(pid);
+        try
+        {
+            using var process = Process.GetProcessById(checked((int)pid));
+            IntPtr window = process.MainWindowHandle;
+            // Act in the browser host while it still owns the explicit user gesture.
+            // Delegating alone can expire before the desktop has handled the request.
+            PresentWindow(window, window != IntPtr.Zero && IsIconic(window),
+                handle => { _ = ShowWindow(handle, 9); }, handle => { _ = SetForegroundWindow(handle); });
+        }
+        catch (Exception error) when (error is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception or OverflowException)
+        {
+            // A closing window or Windows focus refusal must not fail a download.
+        }
+    }
+
+    internal static void PresentWindow(IntPtr window, bool minimized, Action<IntPtr> restore, Action<IntPtr> activate)
+    {
+        if (window == IntPtr.Zero) return;
+        if (minimized) restore(window);
+        activate(window);
     }
 
     [DllImport("kernel32.dll", SetLastError = true)]
@@ -27,4 +48,16 @@ internal static class BrowserForegroundPermission
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool AllowSetForegroundWindow(uint processId);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool IsIconic(IntPtr window);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool ShowWindow(IntPtr window, int command);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetForegroundWindow(IntPtr window);
 }

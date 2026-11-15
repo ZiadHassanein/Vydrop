@@ -23,13 +23,13 @@ internal static partial class Program
             var view = main.ManagerContent.HistoryContent; view.SetCurrentValue(FrameworkElement.DataContextProperty, history);
             await Task.Delay(120); owner.UpdateLayout();
             Check(model.HistoryVisible && view.IsVisible && !main.EditorOverlay.IsVisible && owner.OwnedWindows.Count == 0, "History occupies the center workspace without a modal: " + locale + "/" + dark + "/" + entries);
-            Check(history.Files.Count == Math.Min(entries, 5) && (entries != 0 || history.IsEmpty), "History preserves its five-file limit and empty state");
+            Check(history.Files.Count == Math.Min(entries, SavedState.RecentLimit) && (entries != 0 || history.IsEmpty), "History retains entries beyond five files and preserves its empty state");
             var scroll = Descendants<ScrollViewer>(view.HistoryList).Single();
             Check(scroll.ScrollableWidth < 1, "Long bilingual history names stay inside the center panel");
             if (entries > 0)
             {
                 var reveals = Descendants<Button>(view.HistoryList).ToArray();
-                Check(reveals.Length == Math.Min(entries, 5) && reveals.All(button => button.IsEnabled == ((RecentDownloadView)button.DataContext).Available), "History reveal actions follow actual file availability");
+                Check(reveals.Length == Math.Min(entries, SavedState.RecentLimit) && reveals.All(button => button.IsEnabled == ((RecentDownloadView)button.DataContext).Available), "History reveal actions follow actual file availability");
                 if (entries == 5)
                 {
                     owner.Activate(); await Task.Delay(60);

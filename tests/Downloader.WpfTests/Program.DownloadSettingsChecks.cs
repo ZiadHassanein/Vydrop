@@ -63,8 +63,8 @@ internal static partial class Program
         {
             model.SelectLanguageCommand.Execute(language); if (model.IsDark != dark) model.ThemeCommand.Execute(null);
             window.Width = width; window.Height = width == 760 ? 640 : 800; await Task.Delay(100); window.UpdateLayout();
-            Check(model.QueueAttempts == 2 && model.DownloadConnections == 8 && ((KeyValuePair<int, string>)retries.SelectedItem).Key == 2, "Locale and layout changes preserve retry/parts selections");
-            Check(Descendants<TextBlock>(connections).Any(text => text.Text == ((KeyValuePair<int, string>)connections.SelectedItem).Value) && Descendants<TextBlock>(retries).Any(text => text.Text == ((KeyValuePair<int, string>)retries.SelectedItem).Value), "Rendered selections show only their translated labels, without internal keys or brackets");
+            Check(model.QueueAttempts == 2 && model.DownloadConnections == 8 && ((PreferenceChoice)retries.SelectedItem).Key == 2, "Locale and layout changes preserve retry/parts selections");
+            Check(Descendants<TextBlock>(connections).Any(text => text.Text == ((PreferenceChoice)connections.SelectedItem).Value) && Descendants<TextBlock>(retries).Any(text => text.Text == ((PreferenceChoice)retries.SelectedItem).Value), "Rendered selections show only their translated labels, without internal keys or brackets");
             foreach (bool limited in new[] { false, true })
             {
                 model.IsSpeedLimited = limited; await Task.Delay(40); window.UpdateLayout();

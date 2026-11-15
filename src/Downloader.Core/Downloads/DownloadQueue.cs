@@ -12,6 +12,7 @@ public sealed class QueueEntry
     public QueueState State { get; internal set; }
     public double Percent { get; internal set; }
     public int Attempts { get; internal set; }
+    public DateTimeOffset? CompletedAt { get; internal set; }
     public string? Error { get; internal set; }
     public DownloadResult? Result { get; internal set; }
     public DownloadProgress? Transfer { get; internal set; }
@@ -151,6 +152,7 @@ public sealed partial class DownloadQueue
                         {
                             entry.State = QueueState.Completed;
                             entry.Percent = 100;
+                            entry.CompletedAt = DateTimeOffset.UtcNow;
                             entry.Error = null;
                         }
                         break;

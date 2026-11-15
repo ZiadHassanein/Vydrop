@@ -6,6 +6,7 @@
  UseLayoutRounding="True" SnapsToDevicePixels="True" FlowDirection="LeftToRight"
  TextBlock.LineHeight="22" TextBlock.LineStackingStrategy="BlockLineHeight">
  <Grid x:Name="Root" Background="{DynamicResource Page}">
+  <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <local:DownloadManagerView x:Name="ManagerContent"/>
   <Grid x:Name="LibraryNoticeHost" VerticalAlignment="Bottom" HorizontalAlignment="Center" MaxWidth="660" Margin="24" Panel.ZIndex="30"/>
   <Grid x:Name="EditorOverlay" Background="{DynamicResource Page}" Visibility="Collapsed" Panel.ZIndex="40">
@@ -18,7 +19,7 @@
       <TextBlock x:Name="EditorHeading" Text="{Binding AddDownloadLabel}" FontFamily="{Binding ContentFont}" FlowDirection="{Binding ContentDirection}" FontSize="26" LineHeight="34" FontWeight="SemiBold" VerticalAlignment="Center"/>
      </Grid>
    <Grid Grid.Row="1" FlowDirection="LeftToRight">
-    <ScrollViewer x:Name="Viewport" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FlowDirection="{Binding ContentDirection}">
+    <ScrollViewer x:Name="Viewport" Style="{StaticResource VerticalScrollFrame}" FocusVisualStyle="{x:Null}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FlowDirection="{Binding ContentDirection}">
      <Grid x:Name="FormContent" MinHeight="{Binding ViewportHeight,ElementName=Viewport}" FlowDirection="{Binding ContentDirection}">
       <local:DownloadFormView x:Name="DownloadForm" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
      </Grid>
@@ -50,6 +51,9 @@
     </Button>
    </Grid>
   </Border>
-  <local:ThemeTransitionView x:Name="ThemeTransition" Panel.ZIndex="100"/>
+  <Border x:Name="ContactFooterSurface" Grid.Row="1" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="16,4">
+   <local:ContactLinksView x:Name="ContactFooter"/>
+  </Border>
+  <local:ThemeTransitionView x:Name="ThemeTransition" Grid.RowSpan="2" Panel.ZIndex="100"/>
  </Grid>
 </Window>

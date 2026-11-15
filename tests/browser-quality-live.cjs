@@ -5,7 +5,7 @@ const path = require('node:path');
 const { chromium } = require(process.env.VYDROP_PLAYWRIGHT || 'playwright');
 const root = path.resolve(__dirname, '..'), output = path.join(root, 'build/manager-browser-captures');
 (async()=>{
-  fs.mkdirSync(output,{recursive:true}); const browser=await chromium.launch({channel:'msedge',headless:true}); let count=0;
+  fs.mkdirSync(output,{recursive:true}); const browser=await chromium.launch({channel:process.env.VYDROP_BROWSER_CHANNEL||'msedge',headless:true}); let count=0;
   try {
     for(const [lang,scheme,width] of [['en','light',1200],['en','dark',1200],['ar','light',1200],['ar','dark',390]]) {
       const page=await browser.newPage({viewport:{width,height:640},colorScheme:scheme});

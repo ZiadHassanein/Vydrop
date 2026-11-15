@@ -21,10 +21,27 @@ internal static class BrowserActivationChecks
             Console.WriteLine("PASS: Foreground delegation is limited to explicit open/download/queue actions.");
         }
         finally { BrowserForegroundPermission.Grant = original; }
+        CheckWindowPresentation();
+    }
+
+    private static void CheckWindowPresentation()
+    {
+        var window = new IntPtr(42);
+        foreach (var (target, minimized) in new[] { (IntPtr.Zero, false), (IntPtr.Zero, true), (window, false), (window, true) })
+        {
+            var steps = new List<string>();
+            void Restore(IntPtr handle) { if (handle != window) throw new Exception("Wrong restore target."); steps.Add("restore"); }
+            void Activate(IntPtr handle) { if (handle != window) throw new Exception("Wrong activation target."); steps.Add("activate"); }
+            BrowserForegroundPermission.PresentWindow(target, minimized, Restore, Activate);
+            string[] expected = target == IntPtr.Zero ? Array.Empty<string>() : minimized ? new[] { "restore", "activate" } : new[] { "activate" };
+            if (!steps.SequenceEqual(expected)) throw new Exception("Browser presentation must restore only minimized windows and never target a missing window.");
+        }
+        Console.WriteLine("PASS: Browser actions restore minimized windows before activation, preserve normal windows and ignore missing windows without desktop input.");
     }
 
     internal static async Task Run()
     {
+        CheckPolicy();
         string previousPipe = BrowserLinkTransport.PipeNameOverride;
         Action<SafePipeHandle> previousGrant = BrowserForegroundPermission.Grant;
         int grants = 0;

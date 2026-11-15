@@ -27,7 +27,7 @@ internal static partial class Program
         foreach (var (language, dark, width, ready) in new[]
         {
             ("en", true, 980, false), ("en", false, 1280, true),
-            ("ar", true, 760, true), ("ar", false, 980, false)
+            ("ar", true, 760, true), ("ar", false, 980, false), ("ar", false, 1280, true)
         })
         {
             model.Url = "";

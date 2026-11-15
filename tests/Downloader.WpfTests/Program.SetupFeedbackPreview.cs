@@ -20,10 +20,11 @@ internal static partial class Program
             model.SelectLanguageCommand.Execute(language);
             if (model.IsDark != dark) model.ThemeCommand.Execute(null);
             var view = new SettingsView { DataContext = model, FontSize = 14 };
+            view.KeyboardShortcutsSection.IsExpanded = true;
             view.SetResourceReference(Control.ForegroundProperty, "Ink");
             var frame = new Border { Padding = new Thickness(24), Child = view };
             frame.SetResourceReference(Border.BackgroundProperty, "Page");
-            frame.Measure(new Size(820, 660)); frame.Arrange(new Rect(0, 0, 820, 660)); frame.UpdateLayout();
+            frame.Measure(new Size(820, 900)); frame.Arrange(new Rect(0, 0, 820, 900)); frame.UpdateLayout();
             CaptureVisual(frame, Path.Combine(output, $"settings-{language}-{(dark ? "dark" : "light")}.png"));
         }
         Console.WriteLine("Rendered Settings in English/Arabic and both themes offscreen without desktop input.");

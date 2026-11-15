@@ -25,7 +25,21 @@
    <Border Height="1" Background="{DynamicResource Divider}" Margin="0,24"/>
    <Expander Header="{Binding DownloadLimitsLabel}" Foreground="{DynamicResource Ink}"><local:DownloadLimitsView/></Expander>
    <Border Height="1" Background="{DynamicResource Divider}" Margin="0,24"/>
-   <local:ContactLinksView x:Name="ContactLinks"/>
+   <Expander x:Name="KeyboardShortcutsSection" Header="{Binding KeyboardShortcutsLabel}" Foreground="{DynamicResource Ink}">
+    <Grid Margin="0,12,0,0">
+     <Grid.Resources><Style x:Key="ShortcutKeys" TargetType="TextBlock"><Setter Property="FontFamily" Value="{StaticResource LatinFont}"/><Setter Property="FontSize" Value="12"/><Setter Property="Foreground" Value="{DynamicResource Muted}"/><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="Margin" Value="0,0,0,12"/></Style></Grid.Resources>
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <TextBlock Text="{Binding FocusLinkShortcutLabel}" Margin="0,0,0,12"/>
+     <TextBlock Grid.Column="2" Text="Ctrl+L" Style="{StaticResource ShortcutKeys}"/>
+     <TextBlock Grid.Row="1" Text="{Binding QueueComposerShortcutLabel}" Margin="0,0,0,12"/>
+     <TextBlock Grid.Row="1" Grid.Column="2" Text="Ctrl+Shift+Q" Style="{StaticResource ShortcutKeys}"/>
+     <TextBlock Grid.Row="2" Text="{Binding HistoryNavigationLabel}" Margin="0,0,0,12"/>
+     <TextBlock Grid.Row="2" Grid.Column="2" Text="Ctrl+J" Style="{StaticResource ShortcutKeys}"/>
+     <TextBlock Grid.Row="3" Text="{Binding SettingsLabel}" Margin="0,0,0,12"/>
+     <TextBlock Grid.Row="3" Grid.Column="2" Text="Ctrl+," Style="{StaticResource ShortcutKeys}"/>
+    </Grid>
+   </Expander>
   </StackPanel>
  </Border>
 </UserControl>

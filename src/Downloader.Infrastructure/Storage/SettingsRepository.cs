@@ -174,9 +174,12 @@ public sealed class SettingsRepository
         state.FolderVersion = state.FolderVersion == 1 ? 1 : 0;
         if (!ValidPath(state.Folder))
             state.Folder = null;
-        state.Recent = (state.Recent ?? new()).Where(ValidPath).Distinct(StringComparer.OrdinalIgnoreCase).Take(5).ToList();
+        state.Recent = NormalizeRecentFiles(state.Recent);
         return state;
     }
+
+    public static List<string> NormalizeRecentFiles(IEnumerable<string> files) =>
+        (files ?? Enumerable.Empty<string>()).Where(ValidPath).Distinct(StringComparer.OrdinalIgnoreCase).Take(SavedState.RecentLimit).ToList();
 
     private static bool ValidPath(string value)
     {

@@ -273,7 +273,7 @@ public sealed partial class MainViewModel
     {
         var files = result.Files.Append(result.FilePath).Where(file => !string.IsNullOrWhiteSpace(file)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
         foreach (string file in files) { state.Recent.RemoveAll(p => string.Equals(p, file, StringComparison.OrdinalIgnoreCase)); state.Recent.Insert(0, file); }
-        state.Recent = state.Recent.Take(5).ToList();
+        state.Recent = SettingsRepository.NormalizeRecentFiles(state.Recent);
         state.UnseenDownloads = Math.Min(9999, state.UnseenDownloads + Math.Max(0, files.Length - result.Skipped));
         RefreshRecentState();
         if (HistoryVisible) RefreshHistory();

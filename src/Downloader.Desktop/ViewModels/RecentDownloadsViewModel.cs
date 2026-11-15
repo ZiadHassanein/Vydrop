@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Globalization;
 
 namespace YouTubeDownloader;
 
@@ -21,12 +22,12 @@ public sealed class RecentDownloadsViewModel : ObservableObject
     public RecentDownloadsViewModel(IEnumerable<string> history, Func<string, string> translate, Action<string> reveal)
     {
         Heading = translate("Recent downloads");
-        Description = translate("Your last five completed files.");
+        Description = string.Format(CultureInfo.CurrentCulture, translate("Your last {0} completed files."), SavedState.RecentLimit);
         EmptyHeading = translate("No downloads yet");
         EmptyDetail = translate("Your completed downloads will appear here.");
         RevealLabel = translate("Show in folder");
         CloseLabel = translate("Close");
-        Files = history.Take(5).Select(path => new RecentDownloadView(path, translate)).ToArray();
+        Files = history.Take(SavedState.RecentLimit).Select(path => new RecentDownloadView(path, translate)).ToArray();
         RevealCommand = new RelayCommand<RecentDownloadView>(file =>
         {
             Error = "";

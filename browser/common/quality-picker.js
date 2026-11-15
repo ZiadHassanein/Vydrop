@@ -1,7 +1,7 @@
 (() => {
   let active;
   globalThis.VydropQualityPicker = {
-    open({ anchor, arabic = false, inspect, send, embedded = false, onClose, onResult, onInspectionFailure, preview, playlistAvailable = false }) {
+    open({ anchor, arabic = false, inspect, send, embedded = false, onClose, onResult, onInspectionFailure, preview, playlistAvailable = false, audioOnly = false }) {
       active?.();
       const releaseReload = globalThis.ViFreeConnection?.holdReload?.();
       function translations(arabic) {
@@ -105,6 +105,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
       }
       function updateSummary() { selection.textContent = format.value.toUpperCase() + " · " + (kind === "video" ? (scope === "playlist" ? t.upTo : "") + selectedHeight + "p" : t.automatic); }
       function renderFormats() {
+        if (audioOnly) video.remove();
         video.disabled = !media.videos.length; audio.disabled = !media.audio.length;
         video.setAttribute("aria-pressed", String(kind === "video")); audio.setAttribute("aria-pressed", String(kind === "audio"));
         const available = kind === "video" ? media.videos.map(v => v.format) : media.audio; format.value = available[0] || ""; format.dataset.count = String(available.length); choices.classList.toggle("audio", kind === "audio");
@@ -123,6 +124,7 @@ label{display:block;font-weight:650;margin:0 0 9px}.formats,.choices{display:gri
           const data = await inspect(); if (disposed) return;
           if (!data || !Array.isArray(data.videos) || !Array.isArray(data.audio)) throw new Error("formats");
           media = { title: typeof data.title === "string" ? data.title.slice(0, 600) : "Video", videos: data.videos.filter(v => ["mp4", "mkv", "webm"].includes(v.format) && Array.isArray(v.heights)).map(v => ({ format: v.format, heights: [...new Set(v.heights.filter(h => Number.isInteger(h) && h > 0 && h <= 8640))].slice(0, 24) })).filter(v => v.heights.length), audio: data.audio.filter(f => ["mp3", "m4a", "opus", "wav", "flac"].includes(f)) };
+          if (audioOnly) media.videos = [];
           if (!media.videos.length && !media.audio.length) throw new Error("formats");
           title.textContent = media.title;
           source.textContent = typeof data.source === "string" ? data.source.slice(0, 200) : "";

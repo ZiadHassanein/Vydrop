@@ -107,7 +107,7 @@ public partial class MainWindow : Window
         {
             ConstrainToWorkArea();
             ApplyResponsiveLayout();
-            ManagerContent.AddDownloadButton.Focus();
+            ManagerContent.AddDownloadNavigation.Focus();
             AppUpdates.AcknowledgeStartup();
         };
         Closing += ClosingAsync;

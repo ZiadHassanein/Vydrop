@@ -8,6 +8,7 @@ public sealed partial class MainViewModel
 {
     private string librarySearch = "", queueSearch = "", libraryFilter = "all";
     private QueueItemView selectedLibraryItem;
+    private Comparer<QueueItemView> libraryOrder;
     private bool addDownloadVisible;
     private bool historyVisible;
     private RecentDownloadsViewModel history;
@@ -19,7 +20,7 @@ public sealed partial class MainViewModel
     {
         ActiveWorkspace = WorkspacePage.None;
         AddDownloadVisible = false; SettingsVisible = false;
-        RefreshHistory(); HistoryVisible = true;
+        RestoreRecentFiles(); RefreshHistory(); HistoryVisible = true;
         state.UnseenDownloads = 0; RefreshRecentState(); Save();
     }
     private void RefreshHistory() => History = new RecentDownloadsViewModel(state.Recent, T, path => actions.OpenMedia(path, true));
@@ -74,7 +75,6 @@ public sealed partial class MainViewModel
     public string EmptyLibraryHeading => T(HasLibrarySearch ? "No matching downloads" : IsQueuePage ? IsScopeAll ? "Your queue is clear" : "No downloads with this status" : libraryFilter == "video" ? "No completed videos" : libraryFilter == "audio" ? "No completed audio" : "Your library is empty");
     public string EmptyLibraryDetail => T(HasLibrarySearch ? "Try a different title or website." : IsQueuePage ? IsScopeAll ? "Add a download to start. Completed files appear in Library." : "Downloads with this status will appear here." : "Completed downloads appear here. Start a download to build your library.");
     public string SelectDownloadLabel => T("Select a download to see its details.");
-    public string SavedLocallyLabel => T("Saved locally");
     public string SaveFolderLabel => T("Save folder");
     public string OpenSaveFolderLabel => T("Open save folder");
     public string TransferSpeedLabel => T("Speed");
@@ -101,7 +101,15 @@ public sealed partial class MainViewModel
 
     private void InitializeLibrary()
     {
-        LibraryItems = new ListCollectionView(QueueItems);
+        libraryOrder = Comparer<QueueItemView>.Create((first, second) =>
+        {
+            int queueOrder = QueueItems.IndexOf(first).CompareTo(QueueItems.IndexOf(second));
+            if (IsQueuePage) return queueOrder;
+            int completionOrder = Nullable.Compare(second.Entry.CompletedAt, first.Entry.CompletedAt);
+            // Older saved downloads have no completion date; show the latest added first.
+            return completionOrder != 0 ? completionOrder : -queueOrder;
+        });
+        LibraryItems = new ListCollectionView(QueueItems) { CustomSort = libraryOrder };
         LibraryItems.Filter = item => item is QueueItemView row && LibraryMatches(row);
         LibraryFilterCommand = new RelayCommand<string>(filter =>
         {
@@ -168,7 +176,7 @@ public sealed partial class MainViewModel
         if (LibraryItems == null) return;
         // Progress, language and palette updates do not replace the list's membership.
         // Avoid resetting a virtualized ItemsControl while it is generating its rows.
-        if (!LibraryItems.Cast<QueueItemView>().SequenceEqual(QueueItems.Where(LibraryMatches))) LibraryItems.Refresh();
+        if (!LibraryItems.Cast<QueueItemView>().SequenceEqual(QueueItems.Where(LibraryMatches).OrderBy(row => row, libraryOrder))) LibraryItems.Refresh();
         foreach (var row in QueueItems) { row.Refresh(T, Queue.IsRunning); EnsureLibraryArtwork(row); }
         if (SelectedLibraryItem == null || !LibraryItems.Contains(SelectedLibraryItem)) SelectedLibraryItem = LibraryItems.Cast<QueueItemView>().FirstOrDefault();
         foreach (string name in new[] { nameof(IsAddDownloadPage), nameof(BackToQueueLabel), nameof(LibraryEmpty), nameof(HasLibrarySearch), nameof(IsQueuePage), nameof(IsSavedLibrary), nameof(IsScopeAll), nameof(IsLibraryPage), nameof(IsLibraryQueue), nameof(IsLibraryActive), nameof(IsLibraryPending), nameof(IsLibraryPaused), nameof(IsLibraryVideo), nameof(IsLibraryAudio), nameof(LibraryCount), nameof(WaitingCount), nameof(ActiveCount), nameof(PendingCount), nameof(PausedCount), nameof(VideoCount), nameof(AudioCount), nameof(AllFilterLabel), nameof(ActiveFilterLabel), nameof(PausedFilterLabel), nameof(WaitingFilterLabel), nameof(LibraryHeading), nameof(IsSettingsPage), nameof(LibrarySearchLabel), nameof(QueueNavigationLabel), nameof(EmptyLibraryHeading), nameof(EmptyLibraryDetail), nameof(LibraryFooterLabel) }) OnPropertyChanged(name);

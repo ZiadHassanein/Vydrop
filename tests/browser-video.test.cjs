@@ -24,7 +24,7 @@ class Element {
   getBoundingClientRect() { return { ...this.box, right: this.box.left + this.box.width, bottom: this.box.top + this.box.height }; }
   contains(node) { return this === node || this.children.some(child => child.contains(node)); }
   matches(selector) {
-    return selector.split(',').some(value => value === this.tag || value.startsWith('.') && (this.attrs.class ?? '').split(/\s+/u).includes(value.slice(1)) || value === 'a[href]' && this.tag === 'a' && !!this.href ||
+    return selector.split(',').some(value => value === this.tag || value.startsWith('.') && (this.attrs.class ?? '').split(/\s+/u).includes(value.slice(1)) || value === 'a[href]' && this.tag === 'a' && !!this.href || value === 'source[src]' && this.tag === 'source' && !!this.attrs.src ||
       /^\[([^=]+)="([^"]+)"\]$/u.test(value) && this.getAttribute(RegExp.$1) === RegExp.$2 ||
       /^\[([^=]+)\^="([^"]+)"\]$/u.test(value) && this.getAttribute(RegExp.$1)?.startsWith(RegExp.$2));
   }
@@ -41,6 +41,85 @@ function fixture(url, ...children) {
 }
 const tiktok = (id, author, attrs = {}) => el('article', { 'data-e2e': 'recommend-list-item-container' },
   el('section', { 'data-e2e': 'feed-video' }, el('div', { id: `xgwrapper-0-${id}` }, el('video', attrs)), link(`https://www.tiktok.com/@${author}`)));
+
+test('short native audio players resolve their exact direct source before playback', () => {
+  for (const source of ['https://cdn.example.com/track.mp3', 'https://cdn.example.com/track.ogg?token=a%2Fb']) {
+    const audio = el('audio', { src: source, paused: true, box: { width: 320, height: 32 } });
+    assert.equal(fixture('https://music.example.com/song', audio).detect().url, source);
+  }
+  const audio = el('audio', { src: '', paused: true, box: { width: 320, height: 54 } }, el('source', { src: 'https://cdn.example.com/preload-none.mp3' }));
+  assert.equal(fixture('https://music.example.com/song', audio).detect().url, 'https://cdn.example.com/preload-none.mp3');
+});
+
+test('a hidden audio element is matched only to its own visible custom player', () => {
+  const one = el('audio', { src: 'https://cdn.example.com/one.mp3', style: { display: 'none' } });
+  const two = el('audio', { src: 'https://cdn.example.com/two.mp3', style: { display: 'none' } });
+  const { context } = fixture('https://music.example.com/songs', el('div', { class: 'audio-player' }, one, el('button')),
+    el('div', { class: 'audio-player' }, two, el('button')));
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, one).url, one.src);
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, two).url, two.src);
+  assert.equal(fixture('https://music.example.com/song', el('audio', { style: { display: 'none' } })).detect().url, '');
+});
+
+test('public SoundCloud and Bandcamp tracks keep their song page and artwork metadata rather than a temporary stream', () => {
+  for (const [page, expected] of [['https://soundcloud.com/artist/song-name?tracking=ignored', 'https://soundcloud.com/artist/song-name'],
+    ['https://soundcloud.com/artist/%D8%A7%D9%84%D9%85%D9%82%D8%B7%D8%B9', 'https://soundcloud.com/artist/%D8%A7%D9%84%D9%85%D9%82%D8%B7%D8%B9'],
+    ['https://artist.bandcamp.com/track/song-name', 'https://artist.bandcamp.com/track/song-name']]) {
+    const audio = el('audio', { src: 'https://cdn.example.com/temporary.mp3', box: { height: 54 } });
+    assert.equal(fixture(page, audio).detect().url, expected);
+  }
+  const audio = el('audio', { style: { display: 'none' } });
+  const player = el('div', { class: 'audio-player' }, audio, el('button'), link('https://soundcloud.com/artist/current-song'));
+  assert.equal(fixture('https://soundcloud.com/stream', player).detect().url, 'https://soundcloud.com/artist/current-song');
+  assert.equal(fixture('https://soundcloud.com/', el('audio', { box: { height: 54 } })).detect().url, '', 'A feed without a known song cannot become a download');
+});
+
+test('mixed pages resolve only the explicitly chosen audio and reject ambiguous unselected audio lists', () => {
+  const one = el('audio', { src: 'https://cdn.example.com/one.mp3', box: { height: 54 } });
+  const two = el('audio', { src: 'https://cdn.example.com/two.mp3', box: { height: 54 } });
+  const { context } = fixture('https://music.example.com/playlist', one, two, el('video'));
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, two).url, two.src);
+  assert.equal(fixture('https://music.example.com/playlist', one, two).detect().reason, 'ambiguous');
+});
+
+test('meeting pages and their embedded players never qualify for an on-video action', () => {
+  for (const page of ['https://meet.google.com/abc-defg-hij', 'https://teams.microsoft.com/v2/',
+    'https://teams.live.com/meet/123', 'https://us02web.zoom.us/wc/123/join', 'https://company.webex.com/meet/person',
+    'https://meet.jit.si/room', 'https://whereby.com/room']) {
+    const video = el('video'); video.duration = NaN;
+    assert.equal(fixture(page, video).context.ViFreeVideoDetection.isRealtimeVideo(video), true, page);
+  }
+  const video = el('video'); video.duration = 120;
+  const frame = fixture('https://cdn.example.com/player', video);
+  frame.context.location.ancestorOrigins = ['https://meet.google.com'];
+  assert.equal(frame.context.ViFreeVideoDetection.isRealtimeVideo(video), true);
+});
+
+test('live media streams, unbounded duration and player live flags suppress only the realtime action', () => {
+  const video = el('video'), context = fixture('https://example.com/video', video).context;
+  const live = () => context.ViFreeVideoDetection.isRealtimeVideo(video);
+  video.duration = NaN; assert.equal(live(), false, 'An unplayed poster is still eligible');
+  video.duration = 120; assert.equal(live(), false, 'Recorded video is still eligible');
+  video.srcObject = { getTracks() { throw new Error('Detection must never read meeting tracks'); } };
+  assert.equal(live(), true); video.srcObject = null;
+  video.duration = Infinity; assert.equal(live(), true);
+  video.duration = 120; assert.equal(live(), false, 'A completed recording can return to ordinary playback');
+  for (const attrs of [{ class: 'html5-video-player ytp-live' }, { 'data-is-live': 'true' }, { 'data-live': 'true' }]) {
+    const player = el('div', attrs, el('video'));
+    assert.equal(fixture('https://example.com/video', player).context.ViFreeVideoDetection.isRealtimeVideo(player.children[0]), true);
+  }
+});
+
+test('known live channels are suppressed while recorded clips, VODs and unrelated hosts remain eligible', () => {
+  for (const [page, expected] of [['https://www.tiktok.com/@author/live', true], ['https://www.twitch.tv/author', true],
+    ['https://player.twitch.tv/?channel=author', true], ['https://www.facebook.com/watch/live/?v=123', true],
+    ['https://www.twitch.tv/videos/123', false], ['https://clips.twitch.tv/RecordedClip', false],
+    ['https://www.tiktok.com/@author/video/123', false], ['https://zoom.us/rec/share/recording', false],
+    ['https://meet.google.com.example.com/video', false]]) {
+    const video = el('video'); video.duration = 120;
+    assert.equal(fixture(page, video).context.ViFreeVideoDetection.isRealtimeVideo(video), expected, page);
+  }
+});
 const facebook = (id, attrs = {}) => el('article', { role: 'article' }, el('div', {}, el('video', attrs)), link(`https://www.facebook.com/watch/?v=${id}&tracking=discard`));
 function reddit(id, attrs = {}) {
   const player = el('shreddit-player', { 'post-id': `t3_${id}`, ...attrs });

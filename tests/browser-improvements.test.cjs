@@ -41,7 +41,8 @@ test('app-language reads share a bounded passive health request and accept only 
 });
 
 test('background shares app language only with its own web content scripts', async () => {
-  const fixture = connection(m => ({ ok: true, requestId: m.requestId, language: 'ar' }));
+  let language = 'ar';
+  const fixture = connection(m => ({ ok: true, requestId: m.requestId, language }), { now: () => 5000 });
   const titles = []; let handler;
   const api = fixture.client.api;
   Object.assign(api.runtime, { id: 'fixture', onMessage: { addListener: fn => { handler = fn; } }, onInstalled: { addListener: () => {} } });
@@ -56,6 +57,62 @@ test('background shares app language only with its own web content scripts', asy
   const response = await new Promise(resolve => assert.equal(handler(message, sender, resolve), true));
   assert.equal(response.language, 'ar'); assert.equal(fixture.sent.length, 1); assert.equal(fixture.sent[0].type, 'ping');
   assert.equal(titles.length, 2); assert.ok(titles.every(title => /[\u0600-\u06ff]/u.test(title)));
+  language = 'en';
+  const refreshed = await new Promise(resolve => assert.equal(handler({ ...message, refresh: true }, sender, resolve), true));
+  assert.equal(refreshed.language, 'en', 'Returning to a page must bypass the background language cache too');
+  assert.equal(fixture.sent.length, 2); assert.ok(titles.slice(-2).every(title => title.startsWith('Open ')));
+});
+
+function watchEnvironment(fixture) {
+  const documentEvents = new Map(), windowEvents = new Map();
+  fixture.context.document = { hidden: false,
+    addEventListener: (name, handler) => documentEvents.set(name, handler),
+    removeEventListener: name => documentEvents.delete(name) };
+  fixture.context.addEventListener = (name, handler) => windowEvents.set(name, handler);
+  fixture.context.removeEventListener = name => windowEvents.delete(name);
+  return { documentEvents, windowEvents, flush: () => new Promise(resolve => setImmediate(resolve)) };
+}
+
+test('app language follows browser focus and tab visibility immediately, including fresh cached reads', async () => {
+  let language = 'ar';
+  const fixture = connection(m => ({ ok: true, requestId: m.requestId, language }), { now: () => 5000 });
+  const env = watchEnvironment(fixture), changes = [];
+  const stop = fixture.client.watchLanguage(value => changes.push(value));
+  try {
+    await env.flush();
+    assert.deepEqual(changes, ['ar']);
+    language = 'en';
+    assert.equal(await fixture.client.getLanguage(), 'ar', 'Ordinary reads still share the fresh cache');
+    assert.equal(typeof env.windowEvents.get('focus'), 'function');
+    env.windowEvents.get('focus')(); await env.flush();
+    assert.deepEqual(changes, ['ar', 'en']);
+    language = 'ar'; fixture.context.document.hidden = true;
+    env.windowEvents.get('focus')(); await env.flush();
+    assert.equal(fixture.sent.length, 2, 'A hidden tab does no health work on focus');
+    fixture.context.document.hidden = false;
+    env.documentEvents.get('visibilitychange')(); await env.flush();
+    assert.deepEqual(changes, ['ar', 'en', 'ar']);
+    assert.equal(fixture.sent.length, 3);
+    assert.ok(fixture.sent.every(message => message.type === 'ping' && message.url === undefined));
+  } finally { stop(); }
+  assert.equal(env.windowEvents.has('focus'), false);
+  assert.equal(env.documentEvents.has('visibilitychange'), false);
+});
+
+test('a focus refresh arriving during an old language lookup is applied after that lookup finishes', async () => {
+  const releases = [];
+  const fixture = connection(m => new Promise(resolve => releases.push(language => resolve({ ok: true, requestId: m.requestId, language }))),
+    { now: () => 5000 });
+  const env = watchEnvironment(fixture), changes = [];
+  const stop = fixture.client.watchLanguage(value => changes.push(value));
+  try {
+    await env.flush(); assert.equal(releases.length, 1);
+    assert.equal(typeof env.windowEvents.get('focus'), 'function');
+    env.windowEvents.get('focus')(); releases[0]('ar'); await env.flush();
+    assert.equal(releases.length, 2, 'The focus refresh must not be lost or satisfied by the stale cached result');
+    releases[1]('en'); await env.flush();
+    assert.deepEqual(changes, ['ar', 'en']);
+  } finally { stop(); }
 });
 test('new companion falls back to exact v1 envelope with an older host',async()=>{
   const fixture=connection(()=>({ok:false,code:'invalid'}));

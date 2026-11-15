@@ -6,16 +6,24 @@ public sealed partial class MainViewModel
     private readonly Dictionary<string, (BrowserRequest Request, BrowserReceipt Receipt)> browserReceipts = new();
     public IRelayCommand QueuePauseCommand { get; private set; }
     public IRelayCommand<Guid> RefreshQueueSourceCommand { get; private set; }
-    public IReadOnlyList<KeyValuePair<int, string>> ConnectionOptions => new KeyValuePair<int, string>[] { new(1, T("1 connection (default)")), new(2, T("2 connections")), new(4, T("4 connections")), new(8, T("8 connections")) };
-    public IReadOnlyList<KeyValuePair<int, string>> RetryOptions => new KeyValuePair<int, string>[] { new(1, T("No retries")), new(2, T("Retry once")), new(3, T("Retry twice")), new(4, T("Retry 3 times")), new(5, T("Retry 4 times")) };
+    private IReadOnlyList<PreferenceChoice> connectionOptions, retryOptions, speedLimitOptions;
+    public IReadOnlyList<PreferenceChoice> ConnectionOptions => connectionOptions ??= new PreferenceChoice[]
+    { new(1, "1 connection (default)", T), new(2, "2 connections", T), new(4, "4 connections", T), new(8, "8 connections", T) };
+    public IReadOnlyList<PreferenceChoice> RetryOptions => retryOptions ??= new PreferenceChoice[]
+    { new(1, "No retries", T), new(2, "Retry once", T), new(3, "Retry twice", T), new(4, "Retry 3 times", T), new(5, "Retry 4 times", T) };
     public int DownloadConnections { get => state.Connections is 2 or 4 or 8 ? state.Connections : 1; set { if (value is not (1 or 2 or 4 or 8)) return; state.Connections = value; Save(); OnPropertyChanged(); } }
     private int lastSpeedLimitKiB = 1024;
     private bool customSpeedLimit;
     private static readonly int[] SpeedPresets = { 512, 1024, 2048, 5120, 10240 };
-    public IReadOnlyList<KeyValuePair<int, string>> SpeedLimitOptions => new KeyValuePair<int, string>[]
+    public IReadOnlyList<PreferenceChoice> SpeedLimitOptions => speedLimitOptions ??= new PreferenceChoice[]
     {
-        new(512, "0.5 MiB/s"), new(1024, "1 MiB/s"), new(2048, "2 MiB/s"), new(5120, "5 MiB/s"), new(10240, "10 MiB/s"), new(-1, T("Custom"))
+        new(512, "0.5 MiB/s", T), new(1024, "1 MiB/s", T), new(2048, "2 MiB/s", T), new(5120, "5 MiB/s", T), new(10240, "10 MiB/s", T), new(-1, "Custom", T)
     };
+    private void RefreshPreferenceChoices()
+    {
+        foreach (var choices in new[] { connectionOptions, retryOptions, speedLimitOptions })
+            if (choices != null) foreach (var choice in choices) choice.RefreshLanguage();
+    }
     public int SelectedSpeedPreset
     {
         get => customSpeedLimit || !SpeedPresets.Contains(LimitedSpeedKiB) ? -1 : LimitedSpeedKiB;

@@ -1,6 +1,7 @@
 namespace YouTubeDownloader;
 public sealed class SavedState
 {
+    public const int RecentLimit = 100;
     public string Folder;
     public int FolderVersion;
     public string Theme = "Dark";

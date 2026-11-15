@@ -160,14 +160,14 @@ globalThis.ViFreeConnection = (() => {
     catch (error) { if (inspectionCache.get(url.href) === entry) inspectionCache.delete(url.href); throw error; }
   }
   let languageLookup, languageTime = 0, languagePending = false, knownLanguage;
-  function getLanguage() {
-    if (languageLookup && (languagePending || Date.now() - languageTime < 2000)) return languageLookup;
+  function getLanguage(refresh = false) {
+    if (languageLookup && (languagePending || refresh !== true && Date.now() - languageTime < 2000)) return languageLookup;
     languagePending = true;
     languageLookup = (async () => {
       try {
         // Content scripts use the background's shared cache; health checks never launch the app.
         const response = api.runtime.connectNative ? await request2("ping") :
-          await api.runtime.sendMessage({ version: 1, type: "vydrop-language" });
+          await api.runtime.sendMessage({ version: 1, type: "vydrop-language", refresh: refresh === true });
         if (response?.ok && ["en", "ar"].includes(response.language)) knownLanguage = response.language;
       } catch { /* Retain the last app language when disconnected or talking to an older app. */ }
       finally { languagePending = false; languageTime = Date.now(); }
@@ -177,21 +177,30 @@ globalThis.ViFreeConnection = (() => {
   }
   function watchLanguage(changed, active = () => true) {
     if (typeof document === "undefined" || !globalThis.setTimeout || !document.addEventListener) return () => {};
-    let stopped = false, refreshing = false, timer, previous;
-    async function refreshLanguage() {
-      if (stopped || refreshing) return;
+    let stopped = false, refreshing = false, refreshRequested = false, timer, previous;
+    async function refreshLanguage(refresh = false) {
+      if (stopped) return;
+      if (refreshing) { if (refresh === true) refreshRequested = true; return; }
+      clearTimeout(timer);
       refreshing = true;
-      if (!document.hidden && active()) {
-        const language = await getLanguage();
-        if (!stopped && language && language !== previous) { previous = language; changed(language); }
+      try {
+        if (!document.hidden && active()) {
+          const language = await getLanguage(refresh);
+          if (!stopped && language && language !== previous) { previous = language; changed(language); }
+        }
+      } finally {
+        refreshing = false;
+        if (!stopped) {
+          if (refreshRequested) { refreshRequested = false; void refreshLanguage(true); }
+          else timer = setTimeout(refreshLanguage, 2000);
+        }
       }
-      refreshing = false;
-      if (!stopped) timer = setTimeout(refreshLanguage, 2000);
     }
-    function stop() { stopped = true; clearTimeout(timer); document.removeEventListener("visibilitychange", visible); globalThis.removeEventListener?.("pagehide", stop); }
-    function visible() { if (!document.hidden) { clearTimeout(timer); void refreshLanguage(); } }
+    function stop() { stopped = true; clearTimeout(timer); document.removeEventListener("visibilitychange", visible); globalThis.removeEventListener?.("focus", visible); globalThis.removeEventListener?.("pagehide", stop); }
+    function visible() { if (!document.hidden) void refreshLanguage(true); }
     document.addEventListener("visibilitychange", visible); globalThis.addEventListener?.("pagehide", stop, { once: true });
-    void refreshLanguage();
+    globalThis.addEventListener?.("focus", visible);
+    void refreshLanguage(true);
     return stop;
   }
   return { api, name, sendLink, inspectLink, errorMessage, holdReload, getLanguage, watchLanguage, hasPendingRequests: () => reloadHolds > 0, testConnection: ping };

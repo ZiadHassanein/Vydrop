@@ -4,6 +4,8 @@ globalThis.ViFreeVideoDetection = (() => {
     let warmedLink = false, linkedInSourcePage = "", advertisement = false;
     function platform(value) {
       const host = new URL(value).hostname.toLowerCase();
+      if (/^(?:www\.|m\.)?soundcloud\.com$/u.test(host)) return "soundcloud";
+      if (/^[\w-]+\.bandcamp\.com$/u.test(host)) return "bandcamp";
       if (/(^|\.)tiktok\.com$/u.test(host)) return "tiktok";
       if (/(^|\.)(facebook\.com|fb\.watch)$/u.test(host)) return "facebook";
       if (/(^|\.)(youtube\.com|youtu\.be|youtube-nocookie\.com)$/u.test(host)) return "youtube";
@@ -30,6 +32,12 @@ globalThis.ViFreeVideoDetection = (() => {
           return /^[\w-]{11}$/u.test(id ?? "") ? `https://www.youtube.com/watch?v=${id}` : "";
         }
         if (!platform(location.href)) return "";
+        if (platform(url.href) === "soundcloud") {
+          const track = url.pathname.match(/^\/([\w-]+)\/([^/?#\s]+)\/?$/u);
+          return track && !/^(?:discover|stream|you|charts|search|upload|settings)$/u.test(track[1]) && track[2] !== "sets"
+            ? `https://soundcloud.com/${track[1]}/${track[2]}` : "";
+        }
+        if (platform(url.href) === "bandcamp") return /^\/track\/[^/?#\s]+\/?$/u.test(url.pathname) ? url.origin + url.pathname.replace(/\/$/u, "") : "";
         if (platform(url.href) === "reddit") {
           const post = url.hostname === "redd.it" ? url.pathname.match(/^\/([a-z0-9]{1,12})\/?$/iu)?.[1] : url.pathname.match(/^\/(?:r\/[^/]+\/)?comments\/([a-z0-9]{1,12})(?:\/|$)/iu)?.[1];
           return post ? `https://www.reddit.com/comments/${post}/` : "";
@@ -78,15 +86,23 @@ globalThis.ViFreeVideoDetection = (() => {
     }
     function visible(video) {
       if (video.closest('.ad-container,.dm-sdk-ima-slot')) return null;
-      let box = video.getBoundingClientRect(), style = getComputedStyle(video);
+      const audio = video.matches("audio");
+      let surface = video;
+      // Keep this selection self-contained: the browser serializes this detector.
+      if (audio && (!video.controls || video.getBoundingClientRect().height < 24)) {
+        const custom = video.closest('[data-audio-player],.audio-player,.audioPlayer,.audioplayer,.music-player,.player,.jp-audio,.mejs__container,.plyr--audio');
+        if (custom?.querySelectorAll("audio,video").length === 1 && custom.querySelectorAll('button,[role="slider"],input[type="range"]').length)
+          surface = custom;
+      }
+      let box = surface.getBoundingClientRect(), style = getComputedStyle(surface);
       if (style.display === "none" || style.visibility === "hidden") return null;
-      for (let ancestor = parent(video), depth = 0; ancestor && ancestor !== document.body && depth < 40; ancestor = parent(ancestor), depth++) {
+      for (let ancestor = parent(surface), depth = 0; ancestor && ancestor !== document.body && depth < 40; ancestor = parent(ancestor), depth++) {
         const paint = getComputedStyle(ancestor);
         if (paint.display === "none" || paint.visibility === "hidden" || Number(paint.opacity) === 0) return null;
       }
       // TikTok can paint the active video through a visible sibling canvas while hiding the video element.
       if (Number(style.opacity) === 0) {
-        const canvas = platform(location.href) === "tiktok" && Array.from(video.parentElement?.querySelectorAll("canvas") ?? []).slice(0, 5).find(item => {
+        const canvas = !audio && platform(location.href) === "tiktok" && Array.from(video.parentElement?.querySelectorAll("canvas") ?? []).slice(0, 5).find(item => {
           const paint = getComputedStyle(item), rect = item.getBoundingClientRect();
           return paint.display !== "none" && paint.visibility !== "hidden" && Number(paint.opacity) > 0 && rect.width >= 80 && rect.height >= 60;
         });
@@ -96,7 +112,7 @@ globalThis.ViFreeVideoDetection = (() => {
       const width = Math.max(0, Math.min(box.right, innerWidth) - Math.max(box.left, 0));
       const height = Math.max(0, Math.min(box.bottom, innerHeight) - Math.max(box.top, 0));
       const pip = document.pictureInPictureElement === video;
-      if (!pip && (box.width < 80 || box.height < 60 || width * height < 2400)) return null;
+      if (!pip && (box.width < 80 || box.height < (audio ? 24 : 60) || width * height < (audio ? 1600 : 2400))) return null;
       const playing = !video.paused && !video.ended && video.readyState >= 2;
       return { video, score: (pip ? 20000 : 0) + (playing ? 10000 : 0) + Math.min(width * height, 500000) / 1000 + width * height / Math.max(1, box.width * box.height) * 50 };
     }
@@ -381,7 +397,7 @@ globalThis.ViFreeVideoDetection = (() => {
       return { url, reason: url ? "source" : "missing-link" };
     }
     const roots = [document, ...Array.from(document.querySelectorAll("shreddit-player")).filter(player => player.getAttribute("comment-id") === null).slice(0, 100).map(player => player.shadowRoot).filter(Boolean)];
-    const allVideos = roots.flatMap(root => Array.from(root.querySelectorAll("video")).slice(0, 100)).slice(0, 100);
+    const allVideos = roots.flatMap(root => Array.from(root.querySelectorAll("video,audio")).slice(0, 100)).slice(0, 100);
     const videos = allVideos.map(visible).filter(Boolean).sort((a, b) => b.score - a.score);
     const hinted = selectedVideo ? videos.find(item => item.video === selectedVideo) : sourceHint && videos.find(item => item.video.currentSrc === sourceHint || item.video.src === sourceHint);
     if ((selectedVideo || sourceHint) && !hinted) return { url: "", reason: "no-video" };
@@ -403,16 +419,20 @@ globalThis.ViFreeVideoDetection = (() => {
         const asset = linkedInAsset(ranked[0].video);
         if (asset) return linkedInMenu(ranked[0].video, asset).then(found => found ?? { url: "", reason: "missing-link" });
       }
-      if (!platform(location.href)) {
+      if (ranked[0].video.matches("audio") && allVideos.length === 1 && ["soundcloud", "bandcamp"].includes(platform(location.href))) {
+        const track = permalink(location.href);
+        if (track) return { url: track, reason: "player" };
+      }
+      if (!platform(location.href) || ranked[0].video.matches("audio") && ["soundcloud", "bandcamp"].includes(platform(location.href))) {
         const video = ranked[0].video;
         const configured = playerMedia(video);
         if (configured) return { url: configured, reason: "source", sourcePage: publicUrl(location.href),
           mediaId: new URL(location.href).pathname.match(/^\/embed-([\w-]{1,80})\.html$/u)?.[1] };
-        const source = publicUrl(video.currentSrc || video.src);
+        const source = publicUrl(video.currentSrc || video.src || video.querySelectorAll("source[src]")[0]?.src);
         if (source) return { url: source, reason: "source" };
         const wrapped = publicUrl(video.closest("a[href]")?.href);
         if (wrapped && wrapped !== publicUrl(location.href) && new URL(wrapped).pathname !== "/") return { url: wrapped, reason: "player" };
-        if (allVideos.length === 1) return { url: publicUrl(location.href), reason: "page" };
+        if (allVideos.length === 1 && !["soundcloud", "bandcamp"].includes(platform(location.href))) return { url: publicUrl(location.href), reason: "page" };
       }
     }
     const current = permalink(location.href);
@@ -607,7 +627,29 @@ globalThis.ViFreeVideoDetection = (() => {
       return list.startsWith("RD") ? `https://www.youtube.com/watch?v=${videoId}&list=${list}&start_radio=1` : `https://www.youtube.com/playlist?list=${list}`;
     } catch { return ""; }
   }
-  return { resolve, resolveDetails, resolveSource, inspectVideoPage, playlistFor };
+  function isRealtimeVideo(video) {
+    const meeting = value => {
+      try {
+        const { hostname: host, pathname: path } = new URL(value);
+        return host === "meet.google.com" || /^(?:teams|meet)\.(?:microsoft|live)\.com$/u.test(host) ||
+          /(^|\.)(?:webex\.com|meet\.jit\.si|whereby\.com|gotomeet\.me)$/u.test(host) ||
+          /(^|\.)zoom\.(?:us|com)$/u.test(host) && !/^\/rec(?:\/|$)/u.test(path);
+      } catch { return false; }
+    };
+    if (meeting(location.href) || Array.from(location.ancestorOrigins ?? []).some(meeting)) return true;
+    try {
+      const url = new URL(location.href), host = url.hostname;
+      if (/(^|\.)tiktok\.com$/u.test(host) && /^\/@[^/]+\/live(?:\/|$)/u.test(url.pathname)) return true;
+      if (host === "player.twitch.tv" && url.searchParams.has("channel") ||
+          /^(?:www\.|m\.)?twitch\.tv$/u.test(host) && /^\/[\w]+\/?$/u.test(url.pathname)) return true;
+      if (/(^|\.)facebook\.com$/u.test(host) && /^\/(?:watch|[^/]+)\/live(?:\/|$)/u.test(url.pathname)) return true;
+    } catch { /* Unknown page URLs do not turn an ordinary video into a live stream. */ }
+    // Meeting/screen-share streams have no downloadable file source. Infinity
+    // marks an unbounded stream; NaN before metadata must retain the VOD action.
+    return Boolean(video?.srcObject && typeof video.srcObject.getTracks === "function" || video?.duration === Infinity ||
+      video?.closest?.('.ytp-live,[data-is-live="true"],[data-live="true"]'));
+  }
+  return { resolve, resolveDetails, resolveSource, inspectVideoPage, playlistFor, isRealtimeVideo };
 })();
 
 if (typeof document !== "undefined") {

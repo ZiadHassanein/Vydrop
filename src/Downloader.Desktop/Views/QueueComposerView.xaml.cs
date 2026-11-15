@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 namespace YouTubeDownloader;
@@ -15,6 +16,18 @@ public partial class QueueComposerView : UserControl
     {
         if (DataContext is not MainViewModel model) return;
         FocusLinkInput(model.QueueLinkInputs.FirstOrDefault());
+    }
+
+    private void OutputFormatsUpdated(object sender, DataTransferEventArgs args)
+    {
+        if (sender is not ComboBox combo || args.Property != ItemsControl.ItemsSourceProperty) return;
+        combo.Dispatcher.BeginInvoke(DispatcherPriority.DataBind, () =>
+        {
+            // Replacing supported formats can leave SelectedValue correct but SelectedItem
+            // empty. Restore only that missing presentation from the saved output choice.
+            if (combo.SelectedItem == null && combo.DataContext is QueueLinkInputView field && combo.Items.Contains(field.SelectedFormat))
+                combo.SetCurrentValue(System.Windows.Controls.Primitives.Selector.SelectedItemProperty, field.SelectedFormat);
+        });
     }
 
     private void LinkActionClicked(object sender, RoutedEventArgs args)

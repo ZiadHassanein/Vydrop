@@ -37,9 +37,9 @@ public partial class SubtitleOptionsView : UserControl
         if (SearchInput is not { } search) return;
         search.Clear();
         FilterCaptionChoices();
-        // ComboBox also queues selection focus while its native popup opens.
-        // Run after that work so the editable search remains the keyboard target.
-        Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
+        // ComboBox queues selection focus at Send priority while its popup opens.
+        // Focus search after that work, before the next queued typing input.
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
         {
             if (CaptionInput.IsDropDownOpen) search.Focus();
         }));

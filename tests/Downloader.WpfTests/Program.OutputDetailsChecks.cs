@@ -58,7 +58,7 @@ internal static partial class Program
                         "A128kbps source offers honest supported conversion targets instead of320kbps quality");
                     model.SelectedQuality = model.Qualities.First(choice => choice.Bitrate == 128);
                     Check(model.AudioSourceHint.Contains("128") && (model.InlineMediaPreview ? Equals(quality.ToolTip, model.AudioSourceHint) : ((TextBlock)WpfTree.Find(window, "SourceAudioSummary")).IsVisible),
-                        "The details panel discloses the inspected source estimate and conversion limit: " + model.AudioSourceHint + $" visible={((TextBlock)WpfTree.Find(window, "SourceAudioSummary")).IsVisible}, preview={window.MediaPreview.IsVisible}, inline={model.InlineMediaPreview}, add={model.AddDownloadVisible}");
+                        "The details panel discloses the inspected source estimate: " + model.AudioSourceHint + $" visible={((TextBlock)WpfTree.Find(window, "SourceAudioSummary")).IsVisible}, preview={window.MediaPreview.IsVisible}, inline={model.InlineMediaPreview}, add={model.AddDownloadVisible}");
                     await InspectOptionsModal(window, model, async dialog =>
                     {
                         Check(model.ActiveWorkspace == WorkspacePage.Subtitles && model.OptionsLabel == model.CaptionsLabel,

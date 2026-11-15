@@ -20,7 +20,8 @@ internal static partial class Program
         var provider = new FakeProvider { SourceAudio = new AudioSourceInfo("aac", 128), DownloadDelayMilliseconds = 1,
             InspectionHook = _ => Interlocked.Increment(ref inspected) };
         using var service = new DownloadService(provider, new EmptyStorage());
-        var model = new MainViewModel(service, new SettingsRepository(root), new DesktopActions(new Window()), new FixtureThumbnailLoader());
+        var host = new Window();
+        var model = new MainViewModel(service, new SettingsRepository(root), new DesktopActions(host), new FixtureThumbnailLoader());
         model.Folder = Path.Combine(root, "media"); Directory.CreateDirectory(model.Folder);
         model.OpenWorkspace(WorkspacePage.QueueComposer);
         var video = model.QueueLinkInputs[0];
@@ -38,13 +39,22 @@ internal static partial class Program
         Check(!audio.CanChooseQuality && audio.SelectedQuality.Bitrate == 0, "Lossless output exposes no bitrate setting");
         audio.SelectedFormat = "MP3"; audio.SelectedQuality = audio.Qualities.Single(choice => choice.Bitrate == 128);
         webm.SelectedFormat = "WebM";
+        var composer = new QueueComposerView { DataContext = model, FontSize = 14 };
+        composer.SetBinding(Control.FontFamilyProperty, nameof(MainViewModel.ContentFont));
+        composer.SetBinding(FrameworkElement.FlowDirectionProperty, nameof(MainViewModel.ContentDirection));
+        var frame = new Border { Child = composer }; frame.SetResourceReference(Border.BackgroundProperty, "Page");
+        // An unshown Window owns resource invalidation when the same controls change theme.
+        host.Content = frame;
         foreach (var (language, dark, width) in new[] { ("en", false, 760d), ("en", true, 760d), ("en", true, 450d), ("ar", true, 760d), ("ar", false, 450d) })
         {
             model.SelectLanguageCommand.Execute(language); if (model.IsDark != dark) model.ThemeCommand.Execute(null);
-            var composer = new QueueComposerView { DataContext = model, FontSize = 14, FontFamily = model.ContentFont };
-            var frame = new Border { Child = composer }; frame.SetResourceReference(Border.BackgroundProperty, "Page");
+            Complete(Dispatcher.CurrentDispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle).Task);
             frame.Measure(new Size(width, 740)); frame.Arrange(new Rect(0, 0, width, 740)); frame.UpdateLayout();
             var combos = Descendants<ComboBox>(composer).ToArray();
+            Check(combos.Where(combo => combo.Name == "QueueMediaType").All(combo => combo.SelectedItem is QueueMediaTypeChoice choice &&
+                choice.Audio == ((QueueLinkInputView)combo.DataContext).Audio && !Validation.GetHasError(combo) &&
+                Descendants<TextBlock>(combo).Any(text => text.Text == choice.Label)),
+                "The same visible Type selectors retain their translated labels and selected values after language/theme changes: " + language);
             Check(combos.Length == 9 && combos.All(combo => !string.IsNullOrWhiteSpace(AutomationProperties.GetName(combo))) &&
                 composer.QueueViewport.ScrollableWidth <= 1 && !Descendants<Button>(composer).Any(button => button.Name == "QueueCheckFormats"),
                 "Named output controls fit without a Check formats button: " + language + "/" + width);
@@ -56,11 +66,14 @@ internal static partial class Program
             frame.UpdateLayout();
             Check(!webm.Audio && video.SelectedFormat == "MKV" && video.SelectedQuality.Height == 720 && audio.Audio &&
                 audio.SelectedFormat == "MP3" && audio.SelectedQuality.Bitrate == 128 && webm.SelectedFormat == "WebM" && webm.SelectedQuality.Height == 720 &&
+                combos.Where(combo => combo.Name == "QueueOutputFormat").All(combo => combo.SelectedItem is string format &&
+                    format == ((QueueLinkInputView)combo.DataContext).SelectedFormat && Descendants<TextBlock>(combo).Any(text => text.Text == format)) &&
                 combos.Where(combo => combo.Name == "QueueOutputQuality").All(combo => combo.SelectedItem is QualityChoice choice &&
-                    choice.Key == ((QueueLinkInputView)combo.DataContext).SelectedQualityKey), "Visible selections survive language, theme and media-type changes");
+                    choice.Key == ((QueueLinkInputView)combo.DataContext).SelectedQualityKey), "Visible selections survive language, theme and media-type changes: " +
+                    string.Join("; ", combos.Select(combo => $"{combo.Name}={combo.SelectedItem}; value={combo.SelectedValue}; audio={((QueueLinkInputView)combo.DataContext).Audio}; format={((QueueLinkInputView)combo.DataContext).SelectedFormat}; items={string.Join(",", combo.Items.Cast<object>())}; binding={combo.GetBindingExpression(System.Windows.Controls.Primitives.Selector.SelectedValueProperty)?.Status}; error={Validation.GetHasError(combo)}")));
             CaptureVisual(frame, Path.Combine(captures, $"queue-output-{language}-{(dark ? "dark" : "light")}-{width}.png"));
-            frame.Child = null;
         }
+        frame.Child = null;
         Check(inspected == 3, "Changing type, format, theme or language reuses metadata without another source request");
         model.SelectLanguageCommand.Execute("en");
         model.LibraryFilterCommand.Execute("all"); model.OpenWorkspace(WorkspacePage.QueueComposer);
